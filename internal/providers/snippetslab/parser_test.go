@@ -3,6 +3,8 @@ package snippetslab
 import (
 	"testing"
 
+	"github.com/corbym/gocrest/is"
+	"github.com/corbym/gocrest/then"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -19,6 +21,9 @@ func Test_parseSnippets(t *testing.T) {
 	snippets, err := parseSnippets(library)
 	assert.NoError(t, err)
 	assert.Len(t, snippets, 2)
-	assert.Equal(t, "Simple echo", snippets[0].Title)
-	assert.Equal(t, "Foos script", snippets[1].Title)
+
+	then.AssertThat(t,
+		snippets[0].Title,
+		is.AnyOf(is.EqualTo("Simple echo"), is.EqualTo("Foos script")),
+	)
 }
