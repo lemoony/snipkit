@@ -33,6 +33,8 @@ vet: ## go vet
 fmt: ## go fmt
 	$(call print-target)
 	go fmt ./...
+	gci -w -local github.com/lemoony/snippet-kit .//
+	gofumpt -l -w .
 
 .PHONY: lint
 lint: ## golangci-lint
