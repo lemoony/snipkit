@@ -27,7 +27,11 @@ func LookupAndExecuteSnippet() error {
 func executeSnippet(snippet model.Snippet, params []model.Parameter, paramValues []string) error {
 	script := snippet.Content
 	for i, p := range params {
-		script = strings.ReplaceAll(script, fmt.Sprintf("${%s}", p.Key), paramValues[i])
+		value := paramValues[i]
+		if value == "" {
+			value = p.DefaultValue
+		}
+		script = strings.ReplaceAll(script, fmt.Sprintf("${%s}", p.Key), value)
 	}
 	return executeScript(script)
 }

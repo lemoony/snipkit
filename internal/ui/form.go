@@ -38,7 +38,7 @@ func ShowParameterForm(parameters []model.Parameter) []string {
 	newForm := form{
 		parameter:             parameters,
 		currentParameterIndex: 0,
-		results:               []string{},
+		results:               make([]string, len(parameters)),
 	}
 
 	form := tview.NewForm()
@@ -50,11 +50,8 @@ func ShowParameterForm(parameters []model.Parameter) []string {
 	form.AddFormItem(tview.NewInputField().
 		SetLabel(firstParam.Name).
 		SetChangedFunc(func(text string) {
-			if focusedItem, _ := form.GetFocusedItemIndex(); focusedItem >= len(newForm.results) {
-				newForm.results = append(newForm.results, text)
-			} else {
-				newForm.results[focusedItem] = text
-			}
+			focusedItem, _ := form.GetFocusedItemIndex()
+			newForm.results[focusedItem] = text
 		}).
 		SetPlaceholder(firstParam.Description))
 
@@ -70,11 +67,8 @@ func ShowParameterForm(parameters []model.Parameter) []string {
 				form.AddFormItem(tview.NewInputField().
 					SetLabel(nextParam.Name).
 					SetChangedFunc(func(text string) {
-						if focusedItem, _ := form.GetFocusedItemIndex(); focusedItem >= len(newForm.results) {
-							newForm.results = append(newForm.results, text)
-						} else {
-							newForm.results[focusedItem] = text
-						}
+						focusedItem, _ := form.GetFocusedItemIndex()
+						newForm.results[focusedItem] = text
 					}).
 					SetPlaceholder(nextParam.Description))
 			}

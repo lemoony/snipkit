@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/lemoony/snippet-kit/internal/model"
+	"github.com/lemoony/snippet-kit/internal/utils"
 )
 
 type (
@@ -20,9 +21,11 @@ type (
 )
 
 const (
-	hintTypeName        = hintTypeDescriptor("Name")
-	hintTypeDescription = hintTypeDescriptor("Description")
-	hintTypeInvalid     = hintTypeDescriptor("invalid")
+	hintTypeName         = hintTypeDescriptor("Name")
+	hintTypeDescription  = hintTypeDescriptor("Description")
+	hintTypeDefaultValue = hintTypeDescriptor("Default")
+	hintTypeValues       = hintTypeDescriptor("Values")
+	hintTypeInvalid      = hintTypeDescriptor("invalid")
 
 	regexNamedGroupVariable = regexNamedGroup("varname")
 	regexNamedGroupType     = regexNamedGroup("key")
@@ -49,6 +52,8 @@ func hintsToParameters(hints []hint) []model.Parameter {
 
 	names := map[string]string{}
 	descriptions := map[string]string{}
+	defaults := map[string]string{}
+	values := map[string][]string{}
 
 	for _, h := range hints {
 		variableNameExists := false
@@ -68,6 +73,16 @@ func hintsToParameters(hints []hint) []model.Parameter {
 			names[h.variable] = h.value
 		case hintTypeDescription:
 			descriptions[h.variable] = h.value
+		case hintTypeDefaultValue:
+			defaults[h.variable] = h.value
+		case hintTypeValues:
+			if parsedValues := utils.SplitWithEscape(h.value, ',', '\\', true); len(parsedValues) > 0 {
+				if alreadyValues, ok := values[h.variable]; !ok {
+					values[h.variable] = parsedValues
+				} else {
+					values[h.variable] = append(alreadyValues, parsedValues...)
+				}
+			}
 		}
 	}
 
@@ -79,9 +94,11 @@ func hintsToParameters(hints []hint) []model.Parameter {
 		}
 
 		result = append(result, model.Parameter{
-			Key:         varName,
-			Name:        name,
-			Description: descriptions[varName],
+			Key:          varName,
+			Name:         name,
+			Description:  descriptions[varName],
+			DefaultValue: defaults[varName],
+			Values:       values[varName],
 		})
 	}
 
@@ -121,6 +138,10 @@ func parseHints(snippet string) []hint {
 						currentHint.typeDescriptor = hintTypeName
 					case string(hintTypeDescription):
 						currentHint.typeDescriptor = hintTypeDescription
+					case string(hintTypeDefaultValue):
+						currentHint.typeDescriptor = hintTypeDefaultValue
+					case string(hintTypeValues):
+						currentHint.typeDescriptor = hintTypeValues
 					}
 				}
 			}
