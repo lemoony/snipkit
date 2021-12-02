@@ -4,30 +4,16 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/lemoony/snippet-kit/internal/providers"
-	"github.com/lemoony/snippet-kit/internal/providers/snippetslab"
-	"github.com/lemoony/snippet-kit/internal/utils"
+	app "github.com/lemoony/snippet-kit/internal/app"
 )
 
 func Info() error {
-	system, err := utils.NewSystem()
+	snipkit, err := app.NewApp()
 	if err != nil {
 		return err
 	}
 
-	snippetsLab, err := snippetslab.NewProvider(
-		snippetslab.WithSystem(&system),
-		snippetslab.WithTagsFilter([]string{"snipkit", "footag"}),
-	)
-	if err != nil {
-		return err
-	}
-
-	allProviders := []providers.Provider{
-		snippetsLab,
-	}
-
-	for _, provider := range allProviders {
+	for _, provider := range snipkit.Providers {
 		for _, line := range provider.Info().Lines {
 			if line.IsError {
 				_, _ = fmt.Fprintf(os.Stderr, "%s: %s\n", line.Key, line.Value)

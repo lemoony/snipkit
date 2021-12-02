@@ -12,13 +12,12 @@ import (
 
 var cfgFile string
 
-// rootCmd represents the base command when called without any subcommands.
 var rootCmd = &cobra.Command{
 	Use:   "snipkit",
 	Short: "Use your favorite command line manager directly from the terminal",
 	Long:  `Snipkit helps you to execute scripts saved in your favorite snippets manager without even leaving the terminal.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return cli.Exec()
+		return cli.LookupAndExecuteSnippet()
 	},
 }
 
