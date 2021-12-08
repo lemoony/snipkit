@@ -19,7 +19,7 @@ func NewApp() (*App, error) {
 
 	snippetsLab, err := snippetslab.NewProvider(
 		snippetslab.WithSystem(&system),
-		// snippetslab.WithTagsFilter([]string{"snipkit", "footag"}),
+		snippetslab.WithTagsFilter([]string{"snipkit"}),
 	)
 	if err != nil {
 		return nil, err

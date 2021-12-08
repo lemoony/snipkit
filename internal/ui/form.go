@@ -16,6 +16,10 @@ type form struct {
 }
 
 func ShowParameterForm(parameters []model.Parameter) []string {
+	if len(parameters) == 0 {
+		return []string{}
+	}
+
 	tview.Styles = defaultStyle
 
 	app := tview.NewApplication()
