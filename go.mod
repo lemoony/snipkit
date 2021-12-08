@@ -2,7 +2,7 @@ module github.com/lemoony/snippet-kit
 
 go 1.16
 
-replace github.com/rivo/tview v0.0.0-20211202162923-2a6de950f73b => github.com/lemoony/tview v0.0.0-20211208131650-e0ecf7d35e84
+replace github.com/rivo/tview v0.0.0-20211202162923-2a6de950f73b => github.com/lemoony/tview v0.0.0-20211208173514-f330a4f4de78
 
 require (
 	github.com/alecthomas/chroma v0.9.4

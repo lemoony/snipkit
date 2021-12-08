@@ -19,7 +19,10 @@ func LookupAndExecuteSnippet() error {
 	}
 
 	parameters := parser.ParseParameters(snippet.Content)
-	parameterValues := ui.ShowParameterForm(parameters)
+	parameterValues, err := ui.ShowParameterForm(parameters)
+	if err != nil {
+		return err
+	}
 
 	return executeSnippet(*snippet, parameters, parameterValues)
 }

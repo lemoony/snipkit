@@ -7,68 +7,110 @@ import (
 	"github.com/lemoony/snippet-kit/internal/model"
 )
 
-type ParameterType int
+const defaultInputWidth = 25
 
-type form struct {
-	parameter             []model.Parameter
-	currentParameterIndex int
-	results               []string
+type appForm struct {
+	app            *tview.Application
+	form           *tview.Form
+	parameters     []model.Parameter
+	maxTitleLength int
+	nextInputIndex int
+	success        bool
 }
 
-func ShowParameterForm(parameters []model.Parameter) []string {
-	if len(parameters) == 0 {
-		return []string{}
+func newAppForm(parameters []model.Parameter) *appForm {
+	return &appForm{
+		app:            tview.NewApplication(),
+		form:           tview.NewForm(),
+		parameters:     parameters,
+		maxTitleLength: getMaxWidthParameter(parameters),
+		nextInputIndex: 0,
 	}
+}
 
-	tview.Styles = defaultStyle
-
-	app := tview.NewApplication()
-	flex := tview.NewFlex().SetDirection(tview.FlexRow)
-
-	newForm := form{
-		parameter:             parameters,
-		currentParameterIndex: 0,
-		results:               make([]string, len(parameters)),
-	}
-
-	form := tview.NewForm()
-	form.SetBorder(true).SetTitle("Enter some data").SetTitleAlign(tview.AlignLeft)
-
-	flex.AddItem(form, 0, 1, true)
-
-	firstParam := newForm.parameter[newForm.currentParameterIndex]
-	form.AddFormItem(tview.NewInputField().
-		SetLabel(firstParam.Name).
-		SetChangedFunc(func(text string) {
-			focusedItem, _ := form.GetFocusedItemIndex()
-			newForm.results[focusedItem] = text
-		}).
-		SetPlaceholder(firstParam.Description))
-
-	form.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		if event.Key() == tcell.KeyEnter {
-			if focusedItem, _ := form.GetFocusedItemIndex(); focusedItem == len(newForm.parameter)-1 {
-				app.Stop()
-				return event
-			} else if focusedItem == newForm.currentParameterIndex {
-				newForm.currentParameterIndex += 1
-				nextParam := newForm.parameter[newForm.currentParameterIndex]
-
-				form.AddFormItem(tview.NewInputField().
-					SetLabel(nextParam.Name).
-					SetChangedFunc(func(text string) {
-						focusedItem, _ := form.GetFocusedItemIndex()
-						newForm.results[focusedItem] = text
-					}).
-					SetPlaceholder(nextParam.Description))
+func (a *appForm) show() ([]string, error) {
+	a.form.
+		SetItemPadding(1).
+		SetBorder(true).
+		SetTitle("This snippet requires parameters").
+		SetTitleAlign(tview.AlignLeft).
+		SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+			switch event.Key() {
+			case tcell.KeyEnter, tcell.KeyTAB:
+				a.addNextInput()
 			}
-		}
-		return event
-	})
+			return event
+		})
 
-	if err := app.SetRoot(flex, true).SetFocus(flex).Run(); err != nil {
-		panic(err)
+	a.addNextInput()
+
+	if err := a.app.SetRoot(a.form, true).SetFocus(a.form).Run(); err != nil {
+		return nil, err
 	}
 
-	return newForm.results
+	if a.success {
+		return a.collectParameterValues(), nil
+	}
+
+	return []string{}, nil
+}
+
+func (a *appForm) addNextInput() {
+	switch {
+	case a.nextInputIndex > len(a.parameters):
+		return
+	case a.nextInputIndex == len(a.parameters):
+		a.form.
+			AddButton("Save", func() {
+				a.success = true
+				a.app.Stop()
+			}).
+			AddButton("Quit", func() { a.app.Stop() })
+	case a.nextInputIndex < len(a.parameters):
+		param := a.parameters[a.nextInputIndex]
+		if len(param.Values) == 0 {
+			a.form.AddInputField(padLength(param.Name, a.maxTitleLength), param.DefaultValue, defaultInputWidth, nil, nil)
+		} else {
+			a.form.AddFormItem(tview.NewInputField().
+				SetLabel(padLength(param.Name, a.maxTitleLength)).
+				SetText("value").
+				SetFieldWidth(defaultInputWidth).
+				SetText(param.DefaultValue).
+				SetAutocompleteFunc(func(currentText string) (entries []string) {
+					return param.Values
+				}),
+			)
+		}
+	}
+
+	a.nextInputIndex++
+}
+
+func (a *appForm) collectParameterValues() []string {
+	results := make([]string, len(a.parameters))
+	for i := range a.parameters {
+		results[i] = a.form.GetFormItem(i).(*tview.InputField).GetText()
+	}
+	return results
+}
+
+func getMaxWidthParameter(parameters []model.Parameter) int {
+	max := 0
+	for i := range parameters {
+		if l := len(parameters[i].Name); l > max {
+			max = l
+		}
+	}
+	return max
+}
+
+func padLength(title string, targetLength int) string {
+	for l := len(title); l <= targetLength; l++ {
+		title += " "
+	}
+	return title
+}
+
+func ShowParameterForm(parameters []model.Parameter) ([]string, error) {
+	return newAppForm(parameters).show()
 }
