@@ -16,6 +16,14 @@ const (
 	nullEntry = "$null"
 )
 
+var languageMapping = map[string]model.Language{
+	"YamlLexer":     model.LanguageYAML,
+	"BashLexer":     model.LanguageBash,
+	"MarkdownLexer": model.LanguageMarkdown,
+	"TOMLLexer":     model.LanguageTOML,
+	"TextLexer":     model.LanguageText,
+}
+
 //nolint:forcetypeassert // since we will catch any panic error and checking each statement explicitly is too much work
 func parseTags(library snippetsLabLibrary) (map[string]string, error) {
 	path, err := library.tagsFilePath()
@@ -164,7 +172,7 @@ func parseSnippet(path string) (model.Snippet, error) {
 	return model.Snippet{
 		UUID:     snippetUIID,
 		Title:    objects[titleIndex].(string),
-		Language: partMap0Language,
+		Language: mapToLanguage(partMap0Language),
 		TagUUIDs: tagUUIDS,
 		Content:  string(partMap0ContentData),
 	}, nil
@@ -185,4 +193,14 @@ func readPblistFile(path string) (map[string]interface{}, error) {
 	}
 
 	return fileMap, nil
+}
+
+func mapToLanguage(lang string) model.Language {
+	language := model.LanguageUnknown
+	if lang != "" {
+		if l, ok := languageMapping[lang]; ok {
+			language = l
+		}
+	}
+	return language
 }

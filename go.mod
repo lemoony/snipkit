@@ -2,11 +2,13 @@ module github.com/lemoony/snippet-kit
 
 go 1.16
 
+replace github.com/rivo/tview v0.0.0-20211202162923-2a6de950f73b => github.com/lemoony/tview v0.0.0-20211208131650-e0ecf7d35e84
+
 require (
+	github.com/alecthomas/chroma v0.9.4
 	github.com/corbym/gocrest v1.0.5
 	github.com/gdamore/tcell/v2 v2.4.1-0.20210905002822-f057f0a857a1
-	github.com/ktr0731/go-fuzzyfinder v0.5.1
-	github.com/rivo/tview v0.0.0-20211129142845-821b2667c414
+	github.com/rivo/tview v0.0.0-20211202162923-2a6de950f73b
 	github.com/spf13/cobra v1.2.1
 	github.com/spf13/viper v1.9.0
 	github.com/stretchr/testify v1.7.0

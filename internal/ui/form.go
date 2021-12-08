@@ -7,20 +7,6 @@ import (
 	"github.com/lemoony/snippet-kit/internal/model"
 )
 
-var defaultStyle = tview.Theme{
-	PrimitiveBackgroundColor:    tcell.ColorDefault,
-	ContrastBackgroundColor:     tcell.ColorDefault,
-	MoreContrastBackgroundColor: tcell.ColorDefault,
-	BorderColor:                 tcell.ColorDefault,
-	TitleColor:                  tcell.ColorBlue, // X
-	GraphicsColor:               tcell.ColorGray,
-	PrimaryTextColor:            tcell.ColorRed,      // X
-	SecondaryTextColor:          tcell.ColorGreen,    // shortcuts color
-	TertiaryTextColor:           tcell.ColorDarkCyan, // subtitle // description color
-	InverseTextColor:            tcell.ColorLightGrey,
-	ContrastSecondaryTextColor:  tcell.ColorGrey,
-}
-
 type ParameterType int
 
 type form struct {
