@@ -16,6 +16,14 @@ linters-settings:
     require-specific: false # don't require nolint directives to be specific about which linter is being skipped
   stylecheck:
     checks: [ "all", "-ST1000" ]
+  gomnd:
+    settings:
+      mnd:
+        checks: argument,case,condition,operation,return,assign
+        # ignored-numbers: 1000
+        # ignored-files: magic_.*.go
+        # ignored-functions: math.*
+
 
 linters:
   # please, do not use `enable-all`: it's deprecated and will be removed soon.

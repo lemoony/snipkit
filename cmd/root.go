@@ -2,13 +2,28 @@ package cmd
 
 import (
 	"fmt"
+	"net/url"
 	"os"
+	"path"
+	"strings"
 
+	"github.com/adrg/xdg"
+	"github.com/phuslu/log"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
 	"github.com/lemoony/snippet-kit/internal/cli"
 )
+
+type baseDirectory string
+
+func (d baseDirectory) configPath() string {
+	return path.Join(d.path(), "/config.yaml")
+}
+
+func (d baseDirectory) path() string {
+	return string(d)
+}
 
 var cfgFile string
 
@@ -17,7 +32,7 @@ var rootCmd = &cobra.Command{
 	Short: "Use your favorite command line manager directly from the terminal",
 	Long:  `Snipkit helps you to execute scripts saved in your favorite snippets manager without even leaving the terminal.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return cli.LookupAndExecuteSnippet()
+		return cli.LookupAndExecuteSnippet(viper.GetViper())
 	},
 }
 
@@ -30,37 +45,64 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initConfig)
 
-	// Here you will define your flags and configuration settings.
-	// Cobra supports persistent flags, which, if defined here,
-	// will be global for your application.
+	if defaultBaseDirectoryPath, err := defaultBaseDirectory(); err != nil {
+		cobra.CheckErr(err)
+	} else {
+		rootCmd.PersistentFlags().
+			StringVarP(&cfgFile, "config", "c", defaultBaseDirectoryPath.configPath(), "config file")
+	}
 
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.snipkit.yaml)")
-
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
-	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	configureLogging()
 }
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
-	if cfgFile != "" {
-		// Use config file from the flag.
-		viper.SetConfigFile(cfgFile)
-	} else {
-		// Find home directory.
-		home, err := os.UserHomeDir()
-		cobra.CheckErr(err)
+	viper.SetConfigFile(cfgFile) // use config file from the flag.
+	viper.AutomaticEnv()         // read in environment variables that match
+}
 
-		// Search config in home directory with name ".snippet-kit" (without extension).
-		viper.AddConfigPath(home)
-		viper.SetConfigType("yaml")
-		viper.SetConfigName(".snipkit")
+func defaultBaseDirectory() (baseDirectory, error) {
+	u, err := url.Parse(xdg.ConfigHome)
+	if err != nil {
+		return "", err
+	}
+	return baseDirectory(path.Join(u.Path, "snipkit/")), nil
+}
+
+func configureLogging() {
+	if log.IsTerminal(os.Stderr.Fd()) {
+		log.DefaultLogger = log.Logger{
+			TimeFormat: "15:04:05",
+			Caller:     1,
+			Writer: &log.ConsoleWriter{
+				ColorOutput:    true,
+				QuoteString:    true,
+				EndWithMessage: true,
+			},
+		}
 	}
 
-	viper.AutomaticEnv() // read in environment variables that match
+	allLevels := []string{
+		log.TraceLevel.String(),
+		log.DebugLevel.String(),
+		log.InfoLevel.String(),
+		log.WarnLevel.String(),
+		log.ErrorLevel.String(),
+		log.FatalLevel.String(),
+		log.PanicLevel.String(),
+	}
 
-	// If a config file is found, read it in.
-	if err := viper.ReadInConfig(); err == nil {
-		fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())
+	var logLevel string
+	rootCmd.PersistentFlags().StringVarP(
+		&logLevel,
+		"log-level",
+		"l",
+		log.PanicLevel.String(),
+		fmt.Sprintf("log level used for debugging problems (supported values: %s)", strings.Join(allLevels, ",")))
+
+	for _, level := range allLevels {
+		if logLevel == level {
+			log.DefaultLogger.Level = log.ParseLevel(level)
+		}
 	}
 }

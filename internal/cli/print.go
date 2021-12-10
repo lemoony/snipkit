@@ -4,14 +4,16 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/spf13/viper"
+
 	"github.com/lemoony/snippet-kit/internal/model"
 	"github.com/lemoony/snippet-kit/internal/parser"
 	"github.com/lemoony/snippet-kit/internal/ui"
 )
 
-func LookupAndCreatePrintableSnippet() (string, error) {
-	snippet, err := LookupSnippet()
-	if err != nil {
+func LookupAndCreatePrintableSnippet(v *viper.Viper) (string, error) {
+	snippet, err := LookupSnippet(v)
+	if snippet == nil || err != nil {
 		return "", err
 	}
 

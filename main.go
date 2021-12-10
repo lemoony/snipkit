@@ -15,7 +15,9 @@ limitations under the License.
 */
 package main
 
-import "github.com/lemoony/snippet-kit/cmd"
+import (
+	"github.com/lemoony/snippet-kit/cmd"
+)
 
 func main() {
 	cmd.Execute()

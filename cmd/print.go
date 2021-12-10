@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 
 	"github.com/lemoony/snippet-kit/internal/cli"
 )
@@ -13,7 +14,7 @@ var printCmd = &cobra.Command{
 	Short: "Prints the snippet on stdout",
 	Long:  `Prints the selected snippet on stdout with all parameters being replaced.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		snippet, err := cli.LookupAndCreatePrintableSnippet()
+		snippet, err := cli.LookupAndCreatePrintableSnippet(viper.GetViper())
 		if err != nil {
 			return err
 		}

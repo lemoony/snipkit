@@ -7,14 +7,16 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/spf13/viper"
+
 	"github.com/lemoony/snippet-kit/internal/model"
 	"github.com/lemoony/snippet-kit/internal/parser"
 	"github.com/lemoony/snippet-kit/internal/ui"
 )
 
-func LookupAndExecuteSnippet() error {
-	snippet, err := LookupSnippet()
-	if err != nil {
+func LookupAndExecuteSnippet(v *viper.Viper) error {
+	snippet, err := LookupSnippet(v)
+	if snippet == nil || err != nil {
 		return err
 	}
 

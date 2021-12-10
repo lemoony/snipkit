@@ -7,6 +7,14 @@ import (
 
 type snippetsLabLibrary string
 
+func (t *snippetsLabLibrary) basePath() (string, error) {
+	libURL, err := url.Parse(string(*t))
+	if err != nil {
+		return "", err
+	}
+	return libURL.Path, nil
+}
+
 func (t *snippetsLabLibrary) tagsFilePath() (string, error) {
 	if libURL, err := url.Parse(string(*t)); err != nil {
 		return "", err
@@ -21,6 +29,10 @@ func (t *snippetsLabLibrary) snippetsFilePath() (string, error) {
 	} else {
 		return path.Join(libURL.Path, snippetsSubPath), nil
 	}
+}
+
+func (t *snippetsLabLibrary) validate() (bool, error) {
+	return true, nil
 }
 
 const (

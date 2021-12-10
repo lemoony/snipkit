@@ -4,12 +4,14 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/spf13/viper"
+
 	app "github.com/lemoony/snippet-kit/internal/app"
 )
 
-func Info() error {
-	snipkit, err := app.NewApp()
-	if err != nil {
+func Info(v *viper.Viper) error {
+	snipkit, err := app.NewApp(v)
+	if snipkit == nil || err != nil {
 		return err
 	}
 

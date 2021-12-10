@@ -1,14 +1,16 @@
 package cli
 
 import (
+	"github.com/spf13/viper"
+
 	"github.com/lemoony/snippet-kit/internal/app"
 	"github.com/lemoony/snippet-kit/internal/model"
 	"github.com/lemoony/snippet-kit/internal/ui"
 )
 
-func LookupSnippet() (*model.Snippet, error) {
-	snipkit, err := app.NewApp()
-	if err != nil {
+func LookupSnippet(v *viper.Viper) (*model.Snippet, error) {
+	snipkit, err := app.NewApp(v)
+	if snipkit == nil || err != nil {
 		return nil, err
 	}
 
@@ -18,7 +20,7 @@ func LookupSnippet() (*model.Snippet, error) {
 	}
 
 	index, err := ui.ShowLookup(snippets)
-	if err != nil {
+	if index < 0 || err != nil {
 		return nil, err
 	}
 

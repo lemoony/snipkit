@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 
 	"github.com/lemoony/snippet-kit/internal/cli"
 )
@@ -12,7 +13,7 @@ var infoCmd = &cobra.Command{
 	Long: `This command is useful to view the current configuration of SnipKit, 
 helping to debug any issues you may experience`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return cli.Info()
+		return cli.Info(viper.GetViper())
 	},
 }
 
