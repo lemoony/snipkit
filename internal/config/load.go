@@ -23,12 +23,12 @@ func LoadConfig(viper *viper.Viper) (Config, error) {
 		log.Debug().Str("config file", viper.ConfigFileUsed())
 	}
 
-	var result Config
-	if err := viper.Unmarshal(&result); err != nil {
+	var wrapper versionWrapper
+	if err := viper.Unmarshal(&wrapper); err != nil {
 		return invalidConfig, err
 	}
 
-	return result, nil
+	return wrapper.Config, nil
 }
 
 func HasConfig() bool {

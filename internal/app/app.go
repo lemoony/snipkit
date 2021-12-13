@@ -42,7 +42,7 @@ func NewApp(v *viper.Viper) (*App, error) {
 
 	snippetsLab, err := snippetslab.NewProvider(
 		snippetslab.WithSystem(&system),
-		snippetslab.WithTagsFilter([]string{"snipkit"}),
+		snippetslab.WithConfig(cfg.Providers.SnippetsLab),
 	)
 	if err != nil {
 		return nil, err

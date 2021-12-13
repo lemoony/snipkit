@@ -9,9 +9,8 @@ import (
 )
 
 type Provider struct {
-	system      *utils.System
-	libraryPath snippetsLabLibrary
-	tagsFilter  []string
+	system *utils.System
+	config Config
 }
 
 // Option configures a Provider.
@@ -33,26 +32,24 @@ func WithSystem(system *utils.System) Option {
 	})
 }
 
-func WithTagsFilter(tagFilter []string) Option {
+func WithConfig(config Config) Option {
 	return optionFunc(func(p *Provider) {
-		p.tagsFilter = tagFilter
+		p.config = config
 	})
 }
 
 func NewProvider(options ...Option) (*Provider, error) {
-	provider := &Provider{
-		tagsFilter: []string{},
-	}
+	provider := &Provider{}
 
 	for _, o := range options {
 		o.apply(provider)
 	}
 
-	if err := provider.init(); err != nil {
-		return nil, err
-	}
-
 	return provider, nil
+}
+
+func (p Provider) libraryPath() snippetsLabLibrary {
+	return snippetsLabLibrary(p.config.LibraryPath)
 }
 
 func (p Provider) Info() model.ProviderInfo {
@@ -101,7 +98,7 @@ func (p *Provider) GetSnippets() ([]model.Snippet, error) {
 		return nil, err
 	}
 
-	snippets, err := parseSnippets(p.libraryPath)
+	snippets, err := parseSnippets(p.libraryPath())
 	if err != nil {
 		return nil, err
 	}
@@ -119,16 +116,6 @@ func (p *Provider) GetSnippets() ([]model.Snippet, error) {
 	}
 }
 
-func (p *Provider) init() error {
-	if libPath, err := getLibraryURL(p.system); err != nil {
-		return err
-	} else {
-		p.libraryPath = libPath
-	}
-
-	return nil
-}
-
 func hasValidTag(snippetTagUUIDS []string, validTagUUIDs utils.StringSet) bool {
 	for _, tagUUID := range snippetTagUUIDS {
 		if _, ok := validTagUUIDs[tagUUID]; ok {
@@ -139,13 +126,13 @@ func hasValidTag(snippetTagUUIDS []string, validTagUUIDs utils.StringSet) bool {
 }
 
 func (p *Provider) getValidTagUUIDs() (utils.StringSet, error) {
-	tags, err := parseTags(p.libraryPath)
+	tags, err := parseTags(p.libraryPath())
 	if err != nil {
 		return nil, err
 	}
 
 	result := utils.StringSet{}
-	for _, validTag := range p.tagsFilter {
+	for _, validTag := range p.config.IncludeTags {
 		for tagKey, tagValue := range tags {
 			if strings.Compare(tagValue, validTag) == 0 {
 				result[tagKey] = struct{}{}

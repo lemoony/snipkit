@@ -37,6 +37,16 @@ func ConfigInit(v *viper.Viper) error {
 	return config.CreateConfigFile(&system, v)
 }
 
+func ConfigEdit(v *viper.Viper) error {
+	cfg, err := config.LoadConfig(v)
+	if err == config.ErrNoConfigFound {
+		uimsg.PrintNoConfig()
+		return nil
+	}
+
+	return uisurvey.Edit(v.ConfigFileUsed(), cfg.Editor)
+}
+
 func ConfigClean(v *viper.Viper) error {
 	if !config.HasConfig() {
 		uimsg.PrintNoConfig()
