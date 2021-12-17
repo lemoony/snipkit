@@ -9,14 +9,14 @@ import (
 )
 
 func Test_parseTags(t *testing.T) {
-	tags, err := parseTags(testLibraryPath)
+	tags, err := parseTags(testDataDefaultLibraryPath)
 	assert.NoError(t, err)
 	assert.Len(t, tags, 1)
 	assert.Equal(t, tags["2DA8009E-7BE7-420D-AD57-E7F9BB3ADCBE"], "snipkit")
 }
 
 func Test_parseSnippets(t *testing.T) {
-	library := snippetsLabLibrary(testLibraryPath)
+	library := snippetsLabLibrary(testDataDefaultLibraryPath)
 
 	snippets, err := parseSnippets(library)
 	assert.NoError(t, err)

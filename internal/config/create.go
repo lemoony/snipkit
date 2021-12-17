@@ -1,6 +1,7 @@
 package config
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"reflect"
@@ -28,10 +29,12 @@ const (
 	fileModeConfig  = os.FileMode(0o600)
 	yamlCommentLine = yamlCommentKind(1)
 	yamlCommentHead = yamlCommentKind(2)
+
+	yamlDefaultIndent = 2
 )
 
 func CreateConfigFile(system *utils.System, viper *viper.Viper) error {
-	config := versionWrapper{
+	config := VersionWrapper{
 		Version: "1.0.0",
 		Config:  Config{},
 	}
@@ -69,12 +72,13 @@ func serializeToYamlWithComment(value interface{}) ([]byte, error) {
 	commentMap := map[string][]yamlComment{}
 	traverseYamlTagComments(reflect.TypeOf(value), []string{}, &commentMap)
 
-	// serialize to yaml (will not contain any comments)
-	rawString, _ := yaml.Marshal(value)
-
 	// parse raw yaml string into yaml.Node
 	var tree yaml.Node
-	_ = yaml.Unmarshal(rawString, &tree)
+	if initialBytes, err := marshalToYAML(value); err != nil {
+		return nil, err
+	} else if err := yaml.Unmarshal(initialBytes, &tree); err != nil {
+		return nil, err
+	}
 
 	// traverse yaml tree to get a map of all node paths
 	treeMap := map[string]*yaml.Node{}
@@ -92,7 +96,7 @@ func serializeToYamlWithComment(value interface{}) ([]byte, error) {
 		}
 	}
 
-	return yaml.Marshal(&tree)
+	return marshalToYAML(&tree)
 }
 
 func traverseYamlTagComments(t reflect.Type, path []string, commentsMap *map[string][]yamlComment) {
@@ -120,6 +124,16 @@ func traverseYamlTagComments(t reflect.Type, path []string, commentsMap *map[str
 			traverseYamlTagComments(field.Type, append(path, yamlName), commentsMap)
 		}
 	}
+}
+
+func marshalToYAML(value interface{}) ([]byte, error) {
+	buf := bytes.NewBufferString("")
+	encoder := yaml.NewEncoder(buf)
+	encoder.SetIndent(yamlDefaultIndent)
+	if err := encoder.Encode(value); err != nil {
+		return nil, err
+	}
+	return buf.Bytes(), nil
 }
 
 func traverseYamlTree(node *yaml.Node, path []string, treeMap *map[string]*yaml.Node) {

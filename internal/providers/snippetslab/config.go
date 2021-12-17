@@ -17,10 +17,9 @@ func AutoDiscoveryConfig(system *utils.System) Config {
 		LibraryPath: "/path/to/main.snippetslablibrary",
 	}
 
-	libraryURL, err := getLibraryURL(system)
-	if err != nil {
-		return result
-	}
+	var libraryURL snippetsLabLibrary
+	preferencesFilePath, _ := findPreferencesPath(system)
+	libraryURL, _ = findLibraryURL(system, preferencesFilePath)
 
 	if ok, err := libraryURL.validate(); err != nil || !ok {
 		return result

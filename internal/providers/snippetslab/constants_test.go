@@ -1,9 +1,9 @@
 package snippetslab
 
 const (
-	testUserHomePath = "testdata/userhome"
+	testdataContainersPath = "testdata/userhome/Library/Containers"
 
-	testContentRoot     = "testdata/userhome/Library/Containers/com.renfei.SnippetsLab/Data/Library/"
-	testLibraryPath     = testContentRoot + "Application Support/com.renfei.SnippetsLab/main.snippetslablibrary"
-	testPreferencesPath = testContentRoot + "Preferences/com.renfei.SnippetsLab.plist"
+	testDataPreferencesPath                       = testdataContainersPath + "/com.renfei.SnippetsLab/Data/Library/Preferences/com.renfei.SnippetsLab.plist"
+	testDataDefaultLibraryPath                    = testdataContainersPath + "/com.renfei.SnippetsLab/Data/Library/Application Support/com.renfei.SnippetsLab/main.snippetslablibrary"
+	testDataPreferencesWithUserDefinedLibraryPath = "testdata/pref-with-user-defined-library-path.plist"
 )

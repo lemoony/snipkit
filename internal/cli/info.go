@@ -15,6 +15,8 @@ func Info(v *viper.Viper) error {
 		return err
 	}
 
+	_, _ = fmt.Fprintf(os.Stderr, "%s: %s\n", "Config file", v.ConfigFileUsed())
+
 	for _, provider := range snipkit.Providers {
 		for _, line := range provider.Info().Lines {
 			if line.IsError {

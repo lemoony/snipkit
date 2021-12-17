@@ -13,25 +13,27 @@ var (
 	invalidConfig    = Config{}
 )
 
-func LoadConfig(viper *viper.Viper) (Config, error) {
-	if !HasConfig() {
+func LoadConfig(v *viper.Viper) (Config, error) {
+	if !HasConfig(v) {
 		return invalidConfig, ErrNoConfigFound
 	}
 
 	// If a config file is found, read it in.
-	if err := viper.ReadInConfig(); err == nil {
-		log.Debug().Str("config file", viper.ConfigFileUsed())
+	if err := v.ReadInConfig(); err == nil {
+		log.Debug().Str("config file", v.ConfigFileUsed())
+	} else {
+		return invalidConfig, err
 	}
 
-	var wrapper versionWrapper
-	if err := viper.Unmarshal(&wrapper); err != nil {
+	var wrapper VersionWrapper
+	if err := v.Unmarshal(&wrapper); err != nil {
 		return invalidConfig, err
 	}
 
 	return wrapper.Config, nil
 }
 
-func HasConfig() bool {
-	_, err := os.Stat(viper.ConfigFileUsed())
+func HasConfig(v *viper.Viper) bool {
+	_, err := os.Stat(v.ConfigFileUsed())
 	return !errors.Is(err, os.ErrNotExist)
 }

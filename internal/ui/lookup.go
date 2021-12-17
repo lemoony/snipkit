@@ -21,8 +21,6 @@ var lexerMapping = map[model.Language]string{
 }
 
 func ShowLookup(snippets []model.Snippet) (int, error) {
-	tview.Styles = defaultStyle
-
 	app := tview.NewApplication()
 
 	selectedView := tview.NewTextView()

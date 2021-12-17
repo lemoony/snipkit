@@ -55,15 +55,17 @@ func (p Provider) libraryPath() snippetsLabLibrary {
 func (p Provider) Info() model.ProviderInfo {
 	var lines []model.ProviderLine
 
-	if preferencesURL, err := getPreferencesURL(p.system); err != nil {
+	var preferencesPath string
+	if path, err := findPreferencesPath(p.system); err != nil {
 		lines = append(lines, model.ProviderLine{IsError: true, Key: "SnippetsLab library Path", Value: err.Error()})
 	} else {
+		preferencesPath = path
 		lines = append(lines, model.ProviderLine{
-			IsError: true, Key: "SnippetsLab preferences path", Value: preferencesURL.Path,
+			IsError: true, Key: "SnippetsLab preferences path", Value: path,
 		})
 	}
 
-	if libraryURL, err := getLibraryURL(p.system); err != nil {
+	if libraryURL, err := findLibraryURL(p.system, preferencesPath); err != nil {
 		lines = append(lines, model.ProviderLine{IsError: true, Key: "SnippetsLab library path", Value: err.Error()})
 	} else {
 		lines = append(lines, model.ProviderLine{IsError: true, Key: "SnippetsLab library path", Value: string(libraryURL)})

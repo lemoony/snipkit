@@ -7,6 +7,7 @@ import (
 	"github.com/lemoony/snippet-kit/internal/model"
 	"github.com/lemoony/snippet-kit/internal/providers"
 	"github.com/lemoony/snippet-kit/internal/providers/snippetslab"
+	"github.com/lemoony/snippet-kit/internal/ui"
 	"github.com/lemoony/snippet-kit/internal/ui/uimsg"
 	"github.com/lemoony/snippet-kit/internal/utils"
 )
@@ -39,6 +40,8 @@ func NewApp(v *viper.Viper) (*App, error) {
 	} else {
 		app.config = &cfg
 	}
+
+	ui.SetTheme(cfg.Style.GetSelectedTheme())
 
 	snippetsLab, err := snippetslab.NewProvider(
 		snippetslab.WithSystem(&system),

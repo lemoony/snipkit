@@ -32,6 +32,9 @@ func (t *snippetsLabLibrary) snippetsFilePath() (string, error) {
 }
 
 func (t *snippetsLabLibrary) validate() (bool, error) {
+	if _, err := parseTags(*t); err != nil {
+		return false, err
+	}
 	return true, nil
 }
 
@@ -46,12 +49,14 @@ const (
 	SnippetTagsTagUUID  = "com.renfei.SnippetsLab.Key.TagUUID"
 	SnippetTagsTagTitle = "com.renfei.SnippetsLab.Key.TagTitle"
 
+	appID           = "com.renfei.SnippetsLab"
+	preferencesFile = appID + ".plist"
+
 	databaseSubPath = "Database"
 	tagsSubPath     = databaseSubPath + "/tags.data"
 	snippetsSubPath = databaseSubPath + "/Snippets"
 
-	defaultLibraryPath              = "Library/Containers/com.renfei.SnippetsLab/Data/Library/Application Support/com.renfei.SnippetsLab/main.snippetslablibrary"
-	defaultSettingsPath             = "Library/Containers/com.renfei.SnippetsLab/Data/Library/Preferences/com.renfei.SnippetsLab.plist"
+	defaultPathContaninersLibrary   = appID + "/Data/Library/Application Support/" + appID + "/main.snippetslablibrary"
 	userDesignatedLibraryPathString = "User DesignatedLibraryPathString"
 
 	invalidSnippetsLabLibrary = snippetsLabLibrary("")

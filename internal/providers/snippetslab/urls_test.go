@@ -8,18 +8,57 @@ import (
 	"github.com/lemoony/snippet-kit/internal/utils"
 )
 
-func Test_getLibraryURL(t *testing.T) {
-	system, _ := utils.NewSystem(utils.WithUserHomeDir(testUserHomePath))
+func Test_getLibraryURLFromPreferencesFile(t *testing.T) {
+	system, _ := utils.NewSystem(utils.WithUserContainersDir(testdataContainersPath))
 
-	url, err := getLibraryURL(&system)
+	url, err := findLibraryURL(&system, testDataPreferencesWithUserDefinedLibraryPath)
 	assert.NoError(t, err)
-	assert.Equal(t, snippetsLabLibrary(testLibraryPath), url)
+	assert.Equal(t, snippetsLabLibrary("file://"+testDataDefaultLibraryPath), url)
+}
+
+func Test_getLibraryURLDefault(t *testing.T) {
+	system, _ := utils.NewSystem(utils.WithUserContainersDir(testdataContainersPath))
+
+	url, err := findLibraryURL(&system, testDataPreferencesPath)
+	assert.NoError(t, err)
+	assert.Equal(t, snippetsLabLibrary(testDataDefaultLibraryPath), url)
+}
+
+func Test_parsePreferencesForLibraryPath(t *testing.T) {
+	// fileMap := make(map[string]interface{})
+	// fileMap[userDesignatedLibraryPathString] = "file://" + testDataDefaultLibraryPath
+	// f, err := os.Create(testDataPreferencesWithUserDefinedLibraryPath)
+	// encoder := plist.NewEncoderForFormat(f, plist.BinaryFormat)
+	// encoder.Encode(fileMap)
+	libURL, err := parsePreferencesForLibraryPath(testDataPreferencesWithUserDefinedLibraryPath)
+	assert.NoError(t, err)
+	assert.Equal(t, "file://"+testDataDefaultLibraryPath, string(libURL))
+}
+
+func Test_parsePreferencesForLibraryPath_Notound(t *testing.T) {
+	library, err := parsePreferencesForLibraryPath("path/does/not/exist/by/purpose")
+	assert.Equal(t, invalidSnippetsLabLibrary, library)
+	assert.Error(t, err)
 }
 
 func Test_getPreferencesURL(t *testing.T) {
-	system, _ := utils.NewSystem(utils.WithUserHomeDir(testUserHomePath))
+	system, _ := utils.NewSystem(utils.WithUserContainersDir(testdataContainersPath))
 
-	url, err := getPreferencesURL(&system)
+	urls, err := getPossiblePreferencesURLs(&system)
 	assert.NoError(t, err)
-	assert.Equal(t, testPreferencesPath, url.Path)
+	assert.Len(t, urls, 1)
+	assert.Equal(t, testDataPreferencesPath, urls[0])
+}
+
+func Test_findPreferencesPath_NoUserDefinedPath(t *testing.T) {
+	// fileMap := make(map[string]interface{})
+	// fileMap[userDesignatedLibraryPathString] = "file://" + testDataDefaultLibraryPath
+	// f, _ := os.Create(testDataPreferencesPath)
+	// encoder := plist.NewEncoderForFormat(f, plist.BinaryFormat)
+	// encoder.Encode(fileMap)
+	system, _ := utils.NewSystem(utils.WithUserContainersDir(testdataContainersPath))
+	path, err := findPreferencesPath(&system)
+	assert.Error(t, err)
+	assert.ErrorIs(t, errNoUserDefinedLibraryPathFound, err)
+	assert.Equal(t, "", path)
 }

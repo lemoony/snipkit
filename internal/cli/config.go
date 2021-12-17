@@ -48,7 +48,7 @@ func ConfigEdit(v *viper.Viper) error {
 }
 
 func ConfigClean(v *viper.Viper) error {
-	if !config.HasConfig() {
+	if !config.HasConfig(v) {
 		uimsg.PrintNoConfig()
 		return nil
 	}
