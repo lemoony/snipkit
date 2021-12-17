@@ -41,7 +41,7 @@ func NewApp(v *viper.Viper) (*App, error) {
 		app.config = &cfg
 	}
 
-	ui.SetTheme(cfg.Style.GetSelectedTheme())
+	ui.ApplyConfig(cfg.Style)
 
 	snippetsLab, err := snippetslab.NewProvider(
 		snippetslab.WithSystem(&system),

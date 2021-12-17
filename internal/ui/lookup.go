@@ -23,14 +23,14 @@ var lexerMapping = map[model.Language]string{
 func ShowLookup(snippets []model.Snippet) (int, error) {
 	app := tview.NewApplication()
 
-	selectedView := tview.NewTextView()
-	selectedView.SetBorder(true)
-	selectedView.SetTitle("Preview")
-	selectedView.SetDynamicColors(true)
+	preview := tview.NewTextView()
+	preview.SetBorder(true)
+	preview.SetTitle("Preview")
+	preview.SetDynamicColors(true)
+	preview.SetTextColor(currentTheme.previewSnippetNameColor())
 
 	selectedSnippet := -1
-
-	previewWriter := tview.ANSIWriter(selectedView)
+	previewWriter := tview.ANSIWriter(preview)
 	f, s := getPreviewFormatterAndStyle()
 
 	finder := tview.NewFinder().
@@ -44,7 +44,7 @@ func ShowLookup(snippets []model.Snippet) (int, error) {
 		}).
 		SetChangedFunc(func(index int) {
 			if index >= 0 {
-				selectedView.SetText(fmt.Sprintf("Title: %s\n\n", snippets[index].Title))
+				preview.SetText(fmt.Sprintf("Title: %s\n\n", snippets[index].Title))
 				l := lexers.Get(lexerMapping[snippets[index].Language])
 				if l == nil {
 					l = lexers.Fallback
@@ -52,22 +52,23 @@ func ShowLookup(snippets []model.Snippet) (int, error) {
 				l = chroma.Coalesce(l)
 				it, err := l.Tokenise(nil, snippets[index].Content)
 				if err != nil {
-					_, _ = selectedView.Write([]byte(fmt.Sprintf("Error: %s", err.Error())))
+					_, _ = preview.Write([]byte(fmt.Sprintf("Error: %s", err.Error())))
 				}
 				err = f.Format(previewWriter, s, it)
 				if err != nil {
-					_, _ = selectedView.Write([]byte(fmt.Sprintf("Error: %s", err.Error())))
+					_, _ = preview.Write([]byte(fmt.Sprintf("Error: %s", err.Error())))
 				}
-				selectedView.ScrollToBeginning()
+				preview.ScrollToBeginning()
 			} else {
-				selectedView.SetText("")
+				preview.SetText("")
 			}
 		})
 
-	finder.SetSelectedItemStyle(tcell.StyleDefault.Background(tview.Styles.ContrastBackgroundColor).Foreground(tview.Styles.PrimitiveBackgroundColor))
 	flex := tview.NewFlex().SetDirection(tview.FlexColumn).
 		AddItem(finder, 0, 1, true).
-		AddItem(selectedView, 0, 1, false)
+		AddItem(preview, 0, 1, false)
+
+	applyStyle(finder, preview, s)
 
 	if err := app.SetRoot(flex, true).Run(); err != nil {
 		return -1, err
@@ -82,10 +83,23 @@ func getPreviewFormatterAndStyle() (chroma.Formatter, *chroma.Style) {
 		f = formatters.Fallback
 	}
 
-	s := styles.Get("friendly")
+	s := styles.Get(currentTheme.SyntaxHighlightingColorSchemeName)
 	if s == nil {
 		s = styles.Fallback
 	}
 
 	return f, s
+}
+
+func applyStyle(finder *tview.Finder, preview *tview.TextView, chromaStyle *chroma.Style) {
+	finder.SetItemStyle(currentTheme.itemStyle())
+	finder.SetSelectedItemStyle(currentTheme.selectedItemStyle())
+	finder.SetCounterStyle(currentTheme.counterStyle())
+	finder.SetHighlightMatchStyle(currentTheme.highlightItemMatchStyle())
+	finder.SetFieldStyle(currentTheme.lookupInputStyle())
+	finder.SetPlaceholderStyle(currentTheme.lookupInputPlaceholderStyle())
+
+	if !currentTheme.SyntaxHighlightingApplyMainBackground {
+		preview.SetBackgroundColor(tcell.GetColor(chromaStyle.Get(chroma.Background).Background.String()))
+	}
 }

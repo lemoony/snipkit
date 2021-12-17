@@ -11,17 +11,21 @@ type NamedTheme struct {
 }
 
 type ThemeValues struct {
-	Background             string `yaml:"background"`
-	ContrastBackground     string `yaml:"contrast_background"`
-	MoreContrastBackground string `yaml:"moreContrastBackground"`
-	Border                 string `yaml:"border"`
-	Title                  string `yaml:"title"`
-	Graphics               string `yaml:"graphics"`
-	Text                   string `yaml:"text"`
-	SecondaryText          string `yaml:"secondaryText"`
-	TertiaryText           string `yaml:"tertiaryText"`
-	InverseText            string `yaml:"inverseText"`
-	ContrastSecondaryText  string `yaml:"contrastSecondaryText"`
+	BackgroundColor                       string
+	BorderColor                           string
+	BorderTitleColor                      string
+	SyntaxHighlightingColorSchemeName     string
+	SyntaxHighlightingApplyMainBackground bool
+	PreviewSnippetNameColor               string
+	ItemTextColor                         string
+	SelectedItemTextColor                 string
+	SelectedItemBackgroundColor           string
+	ItemHighlightMatchColor               string
+	CounterTextColor                      string
+	CounterBackgroundColor                string
+	LookupInputTextColor                  string
+	LookupInputPlaceholderColor           string
+	LookupInputBackgroundColor            string
 }
 
 func (c *Config) GetSelectedTheme() ThemeValues {
@@ -30,6 +34,5 @@ func (c *Config) GetSelectedTheme() ThemeValues {
 			return c.CustomThemes[i].Values
 		}
 	}
-
-	return defaultThemeValues
+	return themeDefault
 }
