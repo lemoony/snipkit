@@ -2,75 +2,70 @@ package ui
 
 import (
 	"github.com/gdamore/tcell/v2"
-	"github.com/phuslu/log"
-	"github.com/rivo/tview"
 )
+
+type simpleThemeValues struct {
+	syntaxHighlightingColorSchemeName     string
+	syntaxHighlightingApplyMainBackground bool
+	backgroundColor                       string
+	itemTextColor                         string
+	selectedItemTextColor                 string
+	selectionColor                        string
+	highlightColor                        string
+	placeholderColor                      string
+	secondaryLabelColor                   string
+}
+
+func (s *simpleThemeValues) toThemeValues() ThemeValues {
+	return ThemeValues{
+		SyntaxHighlightingColorSchemeName:     s.syntaxHighlightingColorSchemeName,
+		SyntaxHighlightingApplyMainBackground: s.syntaxHighlightingApplyMainBackground,
+		PreviewSnippetDefaultTextColor:        "",
+		BackgroundColor:                       s.backgroundColor,
+		BorderColor:                           s.itemTextColor,
+		BorderTitleColor:                      s.itemTextColor,
+		ItemTextColor:                         s.itemTextColor,
+		SelectedItemTextColor:                 s.selectedItemTextColor,
+		SelectedItemBackgroundColor:           s.selectionColor,
+		ItemHighlightMatchColor:               s.highlightColor,
+		CounterTextColor:                      s.secondaryLabelColor,
+		CounterBackgroundColor:                "",
+		LookupInputTextColor:                  s.itemTextColor,
+		LookupInputPlaceholderColor:           s.placeholderColor,
+		LookupInputBackgroundColor:            "",
+		LookupLabelTextColor:                  s.secondaryLabelColor,
+	}
+}
 
 var themeNames = map[string]ThemeValues{
 	"default": themeDefault,
-	"dracula": themeDracula,
+	"dracula": themeDracula.toThemeValues(),
 }
 
-var themeDefault = ThemeValues{
-	SyntaxHighlightingColorSchemeName:     "friendly",
-	SyntaxHighlightingApplyMainBackground: false,
-	BackgroundColor:                       "0",
-	BorderColor:                           "lightgray",
-	BorderTitleColor:                      "",
-	ItemTextColor:                         "",
-	SelectedItemTextColor:                 "",
-	SelectedItemBackgroundColor:           "red",
-	ItemHighlightMatchColor:               "green",
-	CounterTextColor:                      "yellow",
-	CounterBackgroundColor:                "",
-	LookupInputTextColor:                  "",
-	LookupInputPlaceholderColor:           "lightgray",
-	LookupInputBackgroundColor:            "",
-	PreviewSnippetNameColor:               "",
+var themeDefault = themeSimple.toThemeValues()
+
+var themeSimple = simpleThemeValues{
+	syntaxHighlightingColorSchemeName:     "friendly",
+	syntaxHighlightingApplyMainBackground: true,
+	backgroundColor:                       "",
+	itemTextColor:                         "",
+	selectedItemTextColor:                 "#f8f8f2",
+	selectionColor:                        "#ff5555",
+	highlightColor:                        "#50fa7b",
+	secondaryLabelColor:                   "#B79103",
+	placeholderColor:                      "#6272a4",
 }
 
-var themeDracula = ThemeValues{
-	SyntaxHighlightingColorSchemeName:     "dracula",
-	SyntaxHighlightingApplyMainBackground: false,
-	PreviewSnippetNameColor:               "white",
-	BackgroundColor:                       "#00005F",
-	BorderColor:                           "lightgray",
-	BorderTitleColor:                      "white",
-	ItemTextColor:                         "white",
-	SelectedItemTextColor:                 "white",
-	SelectedItemBackgroundColor:           "red",
-	ItemHighlightMatchColor:               "green",
-	CounterTextColor:                      "yellow",
-	CounterBackgroundColor:                "",
-	LookupInputTextColor:                  "white",
-	LookupInputPlaceholderColor:           "lightgray",
-	LookupInputBackgroundColor:            "",
-}
-
-var currentTheme ThemeValues
-
-func ApplyConfig(cfg Config) {
-	theme := themeDefault
-	for _, t := range cfg.CustomThemes {
-		if t.Name == cfg.Theme {
-			log.Debug().Msgf("Applied custom theme: %s", t.Name)
-			theme = t.Values
-		}
-	}
-
-	if t, ok := themeNames[cfg.Theme]; ok {
-		log.Debug().Msgf("Applied provided theme: %s", cfg.Theme)
-		theme = t
-	}
-
-	setTheme(theme)
-}
-
-func setTheme(theme ThemeValues) {
-	currentTheme = theme
-	tview.Styles.PrimitiveBackgroundColor = theme.backgroundColor()
-	tview.Styles.BorderColor = theme.borderColor()
-	tview.Styles.TitleColor = theme.borderTitleColor()
+var themeDracula = simpleThemeValues{
+	syntaxHighlightingColorSchemeName:     "dracula",
+	syntaxHighlightingApplyMainBackground: true,
+	backgroundColor:                       "#282a36",
+	itemTextColor:                         "#f8f8f2",
+	selectedItemTextColor:                 "#f8f8f2",
+	selectionColor:                        "#ff5555",
+	highlightColor:                        "#50fa7b",
+	secondaryLabelColor:                   "#f1fa8c",
+	placeholderColor:                      "#6272a4",
 }
 
 func (r *ThemeValues) backgroundColor() tcell.Color {
@@ -86,7 +81,15 @@ func (r *ThemeValues) borderTitleColor() tcell.Color {
 }
 
 func (r *ThemeValues) itemStyle() tcell.Style {
-	return tcell.StyleDefault.Background(tcell.ColorReset).Foreground(tcell.GetColor(r.ItemTextColor))
+	return tcell.StyleDefault.Background(r.backgroundColor()).Foreground(tcell.GetColor(r.ItemTextColor))
+}
+
+func (r *ThemeValues) itemLabelStyle() tcell.Style {
+	return tcell.StyleDefault.Background(tcell.GetColor(r.SelectedItemBackgroundColor)).Foreground(tcell.GetColor(r.ItemTextColor))
+}
+
+func (r *ThemeValues) selectedItemLabelStyle() tcell.Style {
+	return tcell.StyleDefault.Background(tcell.GetColor(r.SelectedItemBackgroundColor)).Foreground(tcell.GetColor(r.SelectedItemTextColor))
 }
 
 func (r *ThemeValues) selectedItemStyle() tcell.Style {
@@ -105,10 +108,14 @@ func (r *ThemeValues) lookupInputStyle() tcell.Style {
 	return tcell.StyleDefault.Background(tcell.GetColor(r.LookupInputBackgroundColor)).Foreground(tcell.GetColor(r.LookupInputTextColor))
 }
 
+func (r *ThemeValues) lookupLabelStyle() tcell.Style {
+	return tcell.StyleDefault.Background(tcell.GetColor(r.BackgroundColor)).Foreground(tcell.GetColor(r.LookupLabelTextColor))
+}
+
 func (r *ThemeValues) lookupInputPlaceholderStyle() tcell.Style {
 	return tcell.StyleDefault.Background(tcell.ColorReset).Foreground(tcell.GetColor(r.LookupInputPlaceholderColor))
 }
 
-func (r *ThemeValues) previewSnippetNameColor() tcell.Color {
-	return tcell.GetColor(r.PreviewSnippetNameColor)
+func (r *ThemeValues) previewSnippetDefaultTextColor() tcell.Color {
+	return tcell.GetColor(r.PreviewSnippetDefaultTextColor)
 }

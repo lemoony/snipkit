@@ -1,7 +1,12 @@
 package ui
 
+import (
+	"github.com/phuslu/log"
+	"github.com/rivo/tview"
+)
+
 type Config struct {
-	Theme        string       `yaml:"theme" head_comment:"The theme defines the terminal colors used by Snipkit.\nAvailable themes:dracula,solarized,light,dark."`
+	Theme        string       `yaml:"theme" head_comment:"The theme defines the terminal colors used by Snipkit.\nAvailable themes:default,dracula."`
 	CustomThemes []NamedTheme `yaml:"customThemes" head_comment:"List of custom themes with values."`
 }
 
@@ -16,7 +21,7 @@ type ThemeValues struct {
 	BorderTitleColor                      string
 	SyntaxHighlightingColorSchemeName     string
 	SyntaxHighlightingApplyMainBackground bool
-	PreviewSnippetNameColor               string
+	PreviewSnippetDefaultTextColor        string
 	ItemTextColor                         string
 	SelectedItemTextColor                 string
 	SelectedItemBackgroundColor           string
@@ -26,6 +31,7 @@ type ThemeValues struct {
 	LookupInputTextColor                  string
 	LookupInputPlaceholderColor           string
 	LookupInputBackgroundColor            string
+	LookupLabelTextColor                  string
 }
 
 func (c *Config) GetSelectedTheme() ThemeValues {
@@ -35,4 +41,36 @@ func (c *Config) GetSelectedTheme() ThemeValues {
 		}
 	}
 	return themeDefault
+}
+
+var currentTheme ThemeValues
+
+func DefaultConfig() Config {
+	return Config{
+		Theme: "default",
+	}
+}
+
+func ApplyConfig(cfg Config) {
+	theme := themeDefault
+	for _, t := range cfg.CustomThemes {
+		if t.Name == cfg.Theme {
+			log.Debug().Msgf("Applied custom theme: %s", t.Name)
+			theme = t.Values
+		}
+	}
+
+	if t, ok := themeNames[cfg.Theme]; ok {
+		log.Debug().Msgf("Applied provided theme: %s", cfg.Theme)
+		theme = t
+	}
+
+	setTheme(theme)
+}
+
+func setTheme(theme ThemeValues) {
+	currentTheme = theme
+	tview.Styles.PrimitiveBackgroundColor = theme.backgroundColor()
+	tview.Styles.BorderColor = theme.borderColor()
+	tview.Styles.TitleColor = theme.borderTitleColor()
 }

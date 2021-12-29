@@ -2,7 +2,7 @@ version: 1.0.0
 config:
   style:
     # The theme defines the terminal colors used by Snipkit.
-    # Available themes:dracula,solarized,light,dark.
+    # Available themes:default,dracula.
     theme: dracula
     # List of custom themes with values.
     customThemes: []
