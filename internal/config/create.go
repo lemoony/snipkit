@@ -13,6 +13,7 @@ import (
 
 	"github.com/lemoony/snippet-kit/internal/providers/filesystem"
 	"github.com/lemoony/snippet-kit/internal/providers/snippetslab"
+	"github.com/lemoony/snippet-kit/internal/ui"
 	"github.com/lemoony/snippet-kit/internal/ui/uimsg"
 	"github.com/lemoony/snippet-kit/internal/utils"
 	"github.com/lemoony/snippet-kit/internal/utils/pathutil"
@@ -39,8 +40,7 @@ func CreateConfigFile(system *utils.System, viper *viper.Viper) error {
 		Config:  Config{},
 	}
 
-	config.Config.Editor = "code"
-
+	config.Config.Style = ui.DefaultConfig()
 	config.Config.Providers.SnippetsLab = snippetslab.AutoDiscoveryConfig(system)
 	config.Config.Providers.FileSystem = filesystem.AutoDiscoveryConfig(system)
 

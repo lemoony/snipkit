@@ -27,7 +27,6 @@ func ShowLookup(snippets []model.Snippet) (int, error) {
 	preview.SetBorder(true)
 	preview.SetTitle("Preview")
 	preview.SetDynamicColors(true)
-	preview.SetTextColor(currentTheme.previewSnippetNameColor())
 
 	selectedSnippet := -1
 	previewWriter := tview.ANSIWriter(preview)
@@ -44,7 +43,8 @@ func ShowLookup(snippets []model.Snippet) (int, error) {
 		}).
 		SetChangedFunc(func(index int) {
 			if index >= 0 {
-				preview.SetText(fmt.Sprintf("Title: %s\n\n", snippets[index].Title))
+				preview.SetText("")
+
 				l := lexers.Get(lexerMapping[snippets[index].Language])
 				if l == nil {
 					l = lexers.Fallback
@@ -92,12 +92,23 @@ func getPreviewFormatterAndStyle() (chroma.Formatter, *chroma.Style) {
 }
 
 func applyStyle(finder *tview.Finder, preview *tview.TextView, chromaStyle *chroma.Style) {
+	finder.SetSelectedItemLabel(">")
+	finder.SetInputLabel(">")
+	finder.SetInputLabelStyle(currentTheme.lookupLabelStyle())
+
+	finder.SetItemLabelPadding(1)
+
+	finder.SetItemLabelStyle(currentTheme.itemLabelStyle())
 	finder.SetItemStyle(currentTheme.itemStyle())
+
+	finder.SetSelectedItemLabelStyle(currentTheme.selectedItemLabelStyle())
 	finder.SetSelectedItemStyle(currentTheme.selectedItemStyle())
 	finder.SetCounterStyle(currentTheme.counterStyle())
 	finder.SetHighlightMatchStyle(currentTheme.highlightItemMatchStyle())
 	finder.SetFieldStyle(currentTheme.lookupInputStyle())
 	finder.SetPlaceholderStyle(currentTheme.lookupInputPlaceholderStyle())
+
+	preview.SetTextColor(currentTheme.previewSnippetDefaultTextColor())
 
 	if !currentTheme.SyntaxHighlightingApplyMainBackground {
 		preview.SetBackgroundColor(tcell.GetColor(chromaStyle.Get(chroma.Background).Background.String()))
