@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/AlecAivazis/survey/v2"
+	"github.com/AlecAivazis/survey/v2/terminal"
 	"github.com/kballard/go-shellquote"
 
 	"github.com/lemoony/snippet-kit/internal/model"
@@ -16,6 +17,7 @@ import (
 const (
 	defaultEditor        = "vim"
 	defaultEditorWindows = "notepad"
+	windows              = "windows"
 )
 
 type Terminal interface {
@@ -27,7 +29,9 @@ type Terminal interface {
 	ShowParameterForm(parameters []model.Parameter) ([]string, error)
 }
 
-type ActualCLI struct{}
+type ActualCLI struct {
+	stdio terminal.Stdio
+}
 
 func NewTerminal() Terminal {
 	return ActualCLI{}
@@ -44,26 +48,16 @@ func (a ActualCLI) PrintError(msg string) {
 func (a ActualCLI) Confirm(message string) (bool, error) {
 	confirmed := false
 	prompt := &survey.Confirm{Message: message}
-	if err := survey.AskOne(prompt, &confirmed); err != nil {
+	if err := survey.AskOne(prompt, &confirmed, survey.WithStdio(a.stdio.In, a.stdio.Out, a.stdio.Err)); err != nil {
 		return false, err
 	}
 	return confirmed, nil
 }
 
 func (a ActualCLI) OpenEditor(path string, preferredEditor string) error {
-	editor := defaultEditor
-	if runtime.GOOS == "windows" {
-		editor = defaultEditorWindows
-	}
+	editor := getEditor(preferredEditor)
 
-	preferredEditor = strings.TrimSpace(preferredEditor)
-	if preferredEditor != "" {
-		editor = preferredEditor
-	} else if v := os.Getenv("VISUAL"); v != "" {
-		editor = v
-	} else if e := os.Getenv("EDITOR"); e != "" {
-		editor = e
-	}
+	fmt.Println("---> " + editor)
 
 	args, err := shellquote.Split(editor)
 	if err != nil {
@@ -72,11 +66,16 @@ func (a ActualCLI) OpenEditor(path string, preferredEditor string) error {
 	args = append(args, path)
 
 	cmd := exec.Command(args[0], args[1:]...) //nolint:gosec // subprocess launched with a potential tainted input
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+	cmd.Stdin = a.stdio.In
+	cmd.Stdout = a.stdio.Out
+	cmd.Stderr = a.stdio.Err
 
-	return cmd.Run()
+	err = cmd.Start()
+	if err != nil {
+		return err
+	}
+
+	return cmd.Wait()
 }
 
 func (a ActualCLI) ShowLookup(snippets []model.Snippet) (int, error) {
@@ -85,4 +84,22 @@ func (a ActualCLI) ShowLookup(snippets []model.Snippet) (int, error) {
 
 func (a ActualCLI) ShowParameterForm(parameters []model.Parameter) ([]string, error) {
 	return showParameterForm(parameters)
+}
+
+func getEditor(preferred string) string {
+	result := defaultEditor
+	if runtime.GOOS == windows {
+		result = defaultEditorWindows
+	}
+
+	preferred = strings.TrimSpace(preferred)
+	if preferred != "" {
+		result = preferred
+	} else if v := os.Getenv("VISUAL"); v != "" {
+		result = v
+	} else if e := os.Getenv("EDITOR"); e != "" {
+		result = e
+	}
+
+	return result
 }
