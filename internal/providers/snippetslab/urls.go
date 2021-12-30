@@ -17,8 +17,7 @@ var (
 	errNoPreferencesFound            = errors.New("no valid preferences url found")
 )
 
-func findLibraryURL(system *utils.System, preferencesPath string) (snippetsLabLibrary, error) {
-	var err error
+func findLibraryURL(system *utils.System, preferencesPath string) snippetsLabLibrary {
 	libPath := invalidSnippetsLabLibrary
 
 	if preferencesPath != "" {
@@ -28,14 +27,10 @@ func findLibraryURL(system *utils.System, preferencesPath string) (snippetsLabLi
 	}
 
 	if libPath == invalidSnippetsLabLibrary {
-		if containersPath, err2 := system.UserContainersHome(); err2 != nil {
-			return invalidSnippetsLabLibrary, err2
-		} else {
-			libPath = snippetsLabLibrary(path.Join(containersPath, defaultPathContaninersLibrary))
-		}
+		libPath = snippetsLabLibrary(path.Join(system.UserContainersHome(), defaultPathContaninersLibrary))
 	}
 
-	return libPath, err
+	return libPath
 }
 
 func findPreferencesPath(system *utils.System) (string, error) {

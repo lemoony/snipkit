@@ -11,16 +11,14 @@ import (
 func Test_getLibraryURLFromPreferencesFile(t *testing.T) {
 	system, _ := utils.NewSystem(utils.WithUserContainersDir(testdataContainersPath))
 
-	url, err := findLibraryURL(&system, testDataPreferencesWithUserDefinedLibraryPath)
-	assert.NoError(t, err)
+	url := findLibraryURL(&system, testDataPreferencesWithUserDefinedLibraryPath)
 	assert.Equal(t, snippetsLabLibrary("file://"+testDataDefaultLibraryPath), url)
 }
 
 func Test_getLibraryURLDefault(t *testing.T) {
 	system, _ := utils.NewSystem(utils.WithUserContainersDir(testdataContainersPath))
 
-	url, err := findLibraryURL(&system, testDataPreferencesPath)
-	assert.NoError(t, err)
+	url := findLibraryURL(&system, testDataPreferencesPath)
 	assert.Equal(t, snippetsLabLibrary(testDataDefaultLibraryPath), url)
 }
 

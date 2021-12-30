@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/lemoony/snippet-kit/internal/model"
-	"github.com/lemoony/snippet-kit/internal/utils"
+	"github.com/lemoony/snippet-kit/internal/utils/stringutil"
 )
 
 type (
@@ -76,7 +76,7 @@ func hintsToParameters(hints []hint) []model.Parameter {
 		case hintTypeDefaultValue:
 			defaults[h.variable] = h.value
 		case hintTypeValues:
-			if parsedValues := utils.SplitWithEscape(h.value, ',', '\\', true); len(parsedValues) > 0 {
+			if parsedValues := stringutil.SplitWithEscape(h.value, ',', '\\', true); len(parsedValues) > 0 {
 				if alreadyValues, ok := values[h.variable]; !ok {
 					values[h.variable] = parsedValues
 				} else {

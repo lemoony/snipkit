@@ -6,6 +6,7 @@ import (
 
 	"github.com/lemoony/snippet-kit/internal/model"
 	"github.com/lemoony/snippet-kit/internal/utils"
+	"github.com/lemoony/snippet-kit/internal/utils/stringutil"
 )
 
 type Provider struct {
@@ -65,17 +66,15 @@ func (p Provider) Info() model.ProviderInfo {
 		})
 	}
 
-	if libraryURL, err := findLibraryURL(p.system, preferencesPath); err != nil {
-		lines = append(lines, model.ProviderLine{IsError: true, Key: "SnippetsLab library path", Value: err.Error()})
-	} else {
-		lines = append(lines, model.ProviderLine{IsError: true, Key: "SnippetsLab library path", Value: string(libraryURL)})
-	}
+	lines = append(lines, model.ProviderLine{
+		IsError: true, Key: "SnippetsLab library path", Value: string(findLibraryURL(p.system, preferencesPath)),
+	})
 
 	if tags, err := p.getValidTagUUIDs(); err != nil {
 		lines = append(lines, model.ProviderLine{IsError: true, Key: "SnippetsLab tags", Value: err.Error()})
 	} else {
 		lines = append(lines, model.ProviderLine{
-			IsError: true, Key: "SnippetsLab tags", Value: utils.StringOrDefault(strings.Join(tags.Keys(), ","), "None"),
+			IsError: true, Key: "SnippetsLab tags", Value: stringutil.StringOrDefault(strings.Join(tags.Keys(), ","), "None"),
 		})
 	}
 
@@ -118,26 +117,26 @@ func (p *Provider) GetSnippets() ([]model.Snippet, error) {
 	}
 }
 
-func hasValidTag(snippetTagUUIDS []string, validTagUUIDs utils.StringSet) bool {
+func hasValidTag(snippetTagUUIDS []string, validTagUUIDs stringutil.StringSet) bool {
 	for _, tagUUID := range snippetTagUUIDS {
-		if _, ok := validTagUUIDs[tagUUID]; ok {
+		if validTagUUIDs.Contains(tagUUID) {
 			return true
 		}
 	}
 	return false
 }
 
-func (p *Provider) getValidTagUUIDs() (utils.StringSet, error) {
+func (p *Provider) getValidTagUUIDs() (stringutil.StringSet, error) {
 	tags, err := parseTags(p.libraryPath())
 	if err != nil {
 		return nil, err
 	}
 
-	result := utils.StringSet{}
+	result := stringutil.StringSet{}
 	for _, validTag := range p.config.IncludeTags {
 		for tagKey, tagValue := range tags {
 			if strings.Compare(tagValue, validTag) == 0 {
-				result[tagKey] = struct{}{}
+				result.Add(tagKey)
 			}
 		}
 	}

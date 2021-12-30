@@ -54,32 +54,28 @@ func NewSystem(options ...Option) (System, error) {
 	return result, nil
 }
 
-func (s *System) UserDataHome() (string, error) {
+func (s *System) UserDataHome() string {
 	if s.userDataDir != nil {
-		return *s.userDataDir, nil
+		return *s.userDataDir
 	}
-	return xdg.DataHome, nil
+	return xdg.DataHome
 }
 
-func (s *System) UserConfigDirs() ([]string, error) {
+func (s *System) UserConfigDirs() []string {
 	if s.userConfigDirs != nil {
-		return *s.userConfigDirs, nil
+		return *s.userConfigDirs
 	}
-	return xdg.ConfigDirs, nil
+	return xdg.ConfigDirs
 }
 
-func (s *System) UserContainersHome() (string, error) {
+func (s *System) UserContainersHome() string {
 	if s.userContainersDir != nil {
-		return *s.userContainersDir, nil
+		return *s.userContainersDir
 	}
-	return path.Join(xdg.Home, "Library/Containers/"), nil
+	return path.Join(xdg.Home, "Library/Containers/")
 }
 
 func (s *System) UserContainerPreferences(appID string) (string, error) {
-	containerDir, err := s.UserContainersHome()
-	if err != nil {
-		return "", err
-	}
-
+	containerDir := s.UserContainersHome()
 	return path.Join(containerDir, appID, "Data", "Library", "Preferences"), nil
 }

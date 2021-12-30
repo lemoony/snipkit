@@ -1,10 +1,17 @@
-package utils
+package stringutil
 
 import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
+
+func Test_StringOrDefault(t *testing.T) {
+	defaultValue := "default-value"
+	noDefault := "no-default"
+	assert.Equal(t, defaultValue, StringOrDefault("", defaultValue))
+	assert.Equal(t, noDefault, StringOrDefault("no-default", noDefault))
+}
 
 func Test_SplitWithEscape(t *testing.T) {
 	s := "One, Two\\, plus more, Three,, five"
