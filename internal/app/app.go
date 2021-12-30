@@ -17,6 +17,7 @@ type App struct {
 	viper     *viper.Viper
 	system    *utils.System
 	config    *config.Config
+	ui        ui.Terminal
 }
 
 func NewApp(v *viper.Viper) (*App, error) {
@@ -33,7 +34,7 @@ func NewApp(v *viper.Viper) (*App, error) {
 	cfg, err := config.LoadConfig(v)
 	if err != nil {
 		if err == config.ErrNoConfigFound {
-			uimsg.PrintNoConfig()
+			app.ui.PrintError(uimsg.NoConfig())
 			return nil, nil
 		}
 		return nil, err

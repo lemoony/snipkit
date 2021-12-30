@@ -34,7 +34,7 @@ const (
 	yamlDefaultIndent = 2
 )
 
-func CreateConfigFile(system *utils.System, viper *viper.Viper) error {
+func CreateConfigFile(system *utils.System, viper *viper.Viper, term ui.Terminal) error {
 	config := VersionWrapper{
 		Version: "1.0.0",
 		Config:  Config{},
@@ -62,7 +62,7 @@ func CreateConfigFile(system *utils.System, viper *viper.Viper) error {
 		return err
 	}
 
-	uimsg.PrintConfigFileCreate(configPath)
+	term.PrintMessage(uimsg.ConfigFileCreate(configPath))
 
 	return nil
 }

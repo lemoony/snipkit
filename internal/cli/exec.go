@@ -14,14 +14,14 @@ import (
 	"github.com/lemoony/snippet-kit/internal/ui"
 )
 
-func LookupAndExecuteSnippet(v *viper.Viper) error {
-	snippet, err := LookupSnippet(v)
+func LookupAndExecuteSnippet(v *viper.Viper, term ui.Terminal) error {
+	snippet, err := LookupSnippet(v, term)
 	if snippet == nil || err != nil {
 		return err
 	}
 
 	parameters := parser.ParseParameters(snippet.Content)
-	parameterValues, err := ui.ShowParameterForm(parameters)
+	parameterValues, err := term.ShowParameterForm(parameters)
 	if err != nil {
 		return err
 	}

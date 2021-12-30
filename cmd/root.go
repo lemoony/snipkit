@@ -13,6 +13,7 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/lemoony/snippet-kit/internal/cli"
+	"github.com/lemoony/snippet-kit/internal/ui"
 )
 
 type baseDirectory string
@@ -25,6 +26,8 @@ func (d baseDirectory) path() string {
 	return string(d)
 }
 
+var terminal = ui.NewTerminal()
+
 var cfgFile string
 
 var rootCmd = &cobra.Command{
@@ -32,7 +35,7 @@ var rootCmd = &cobra.Command{
 	Short: "Use your favorite command line manager directly from the terminal",
 	Long:  `Snipkit helps you to execute scripts saved in your favorite snippets manager without even leaving the terminal.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return cli.LookupAndExecuteSnippet(viper.GetViper())
+		return cli.LookupAndExecuteSnippet(viper.GetViper(), terminal)
 	},
 }
 

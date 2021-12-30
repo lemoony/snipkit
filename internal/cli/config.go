@@ -7,26 +7,26 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/lemoony/snippet-kit/internal/config"
+	"github.com/lemoony/snippet-kit/internal/ui"
 	"github.com/lemoony/snippet-kit/internal/ui/uimsg"
-	"github.com/lemoony/snippet-kit/internal/ui/uisurvey"
 	"github.com/lemoony/snippet-kit/internal/utils"
 )
 
-func ConfigInit(v *viper.Viper) error {
+func ConfigInit(v *viper.Viper, term ui.Terminal) error {
 	system, err := utils.NewSystem()
 	if err != nil {
 		return err
 	}
 
 	if _, err := config.LoadConfig(v); err == nil {
-		if ok, err2 := uisurvey.ConfirmRecreateConfigFile(v.ConfigFileUsed()); err2 != nil {
+		if ok, err2 := term.Confirm(uimsg.ConfirmRecreateConfigFile(v.ConfigFileUsed())); err2 != nil {
 			return err2
 		} else if !ok {
 			log.Info().Msg("User declined to recreate config file")
 			return nil
 		}
 	} else if err == config.ErrNoConfigFound {
-		if ok, err2 := uisurvey.ConfirmCreateConfigFile(); err2 != nil {
+		if ok, err2 := term.Confirm(uimsg.ConfirmCreateConfigFile()); err2 != nil {
 			return err2
 		} else if !ok {
 			log.Info().Msg("User declined to create config file")
@@ -34,26 +34,26 @@ func ConfigInit(v *viper.Viper) error {
 		}
 	}
 
-	return config.CreateConfigFile(&system, v)
+	return config.CreateConfigFile(&system, v, term)
 }
 
-func ConfigEdit(v *viper.Viper) error {
+func ConfigEdit(v *viper.Viper, term ui.Terminal) error {
 	cfg, err := config.LoadConfig(v)
 	if err == config.ErrNoConfigFound {
-		uimsg.PrintNoConfig()
+		term.PrintError(uimsg.NoConfig())
 		return nil
 	}
 
-	return uisurvey.Edit(v.ConfigFileUsed(), cfg.Editor)
+	return term.OpenEditor(v.ConfigFileUsed(), cfg.Editor)
 }
 
-func ConfigClean(v *viper.Viper) error {
+func ConfigClean(v *viper.Viper, term ui.Terminal) error {
 	if !config.HasConfig(v) {
-		uimsg.PrintNoConfig()
+		term.PrintError(uimsg.NoConfig())
 		return nil
 	}
 
-	if ok, err := uisurvey.ConfirmDeleteConfigFile(); err != nil {
+	if ok, err := term.Confirm(uimsg.ConfirmDeleteConfigFile()); err != nil {
 		return err
 	} else if !ok {
 		return nil
@@ -63,6 +63,6 @@ func ConfigClean(v *viper.Viper) error {
 		return err
 	}
 
-	uimsg.PrintConfigDeleted(v.ConfigFileUsed())
+	term.PrintMessage(uimsg.ConfigFileDeleted(v.ConfigFileUsed()))
 	return nil
 }

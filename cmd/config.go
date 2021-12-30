@@ -18,7 +18,7 @@ var configInitCommand = &cobra.Command{
 	Long: `A snipkit configuration file will be generated at a default location best suited for your operation system.
 Snipkit will try to detect any supported snippet manager application and configure them accordingly.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return cli.ConfigInit(viper.GetViper())
+		return cli.ConfigInit(viper.GetViper(), terminal)
 	},
 }
 
@@ -28,7 +28,7 @@ var configCleanCommand = &cobra.Command{
 	Long: `The snipkit configuration file will be deleted. You have to initialize a new configuration before using snipkit again.
 This command is helpful if your configuration file is corrupted or you want to prepare the uninstalling snipkit.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return cli.ConfigClean(viper.GetViper())
+		return cli.ConfigClean(viper.GetViper(), terminal)
 	},
 }
 
@@ -40,7 +40,7 @@ The editor is defined by the $VISUAL or $EDITOR environment variables. Alternati
 the editor can also be defined via the snipkit config file. If neither of those are 
 present, notepad (on Windows) or vim (Linux or Mac) is used.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return cli.ConfigEdit(viper.GetViper())
+		return cli.ConfigEdit(viper.GetViper(), terminal)
 	},
 }
 

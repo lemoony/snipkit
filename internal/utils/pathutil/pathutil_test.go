@@ -14,6 +14,8 @@ func Test_Exists(t *testing.T) {
 	assert.NoError(t, err)
 	assert.True(t, Exists(file.Name()))
 
+	assert.NoError(t, file.Close())
+
 	assert.NoError(t, os.Remove(file.Name()))
 	assert.False(t, Exists(file.Name()))
 }

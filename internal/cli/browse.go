@@ -8,7 +8,7 @@ import (
 	"github.com/lemoony/snippet-kit/internal/ui"
 )
 
-func LookupSnippet(v *viper.Viper) (*model.Snippet, error) {
+func LookupSnippet(v *viper.Viper, term ui.Terminal) (*model.Snippet, error) {
 	snipkit, err := app.NewApp(v)
 	if snipkit == nil || err != nil {
 		return nil, err
@@ -19,7 +19,7 @@ func LookupSnippet(v *viper.Viper) (*model.Snippet, error) {
 		return nil, err
 	}
 
-	index, err := ui.ShowLookup(snippets)
+	index, err := term.ShowLookup(snippets)
 	if index < 0 || err != nil {
 		return nil, err
 	}
