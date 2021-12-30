@@ -1,12 +1,9 @@
 package ui
 
 import (
-	"io/ioutil"
 	"os"
-	"path"
 	"runtime"
 	"testing"
-	"time"
 
 	"github.com/AlecAivazis/survey/v2/core"
 	"github.com/AlecAivazis/survey/v2/terminal"
@@ -29,26 +26,6 @@ func Test_Confirm(t *testing.T) {
 		confirmed, err := term.Confirm("Are you sure?")
 		assert.NoError(t, err)
 		assert.True(t, confirmed)
-	})
-}
-
-func Test_OpenEditor(t *testing.T) {
-	runTest(t, func(c *expect.Console) {
-		_, _ = c.Send("iHello world\x1b")
-		time.Sleep(time.Second)
-		_, _ = c.SendLine(":wq!")
-	}, func(stdio terminal.Stdio) {
-		term := ActualCLI{stdio: stdio}
-
-		testFile := path.Join(t.TempDir(), "testfile")
-		_, err := os.Create(testFile)
-		assert.NoError(t, err)
-
-		err = term.OpenEditor(testFile, "")
-		assert.NoError(t, err)
-		bytes, err := ioutil.ReadFile(testFile) //nolint:gosec // potential file inclusion via variable
-		assert.NoError(t, err)
-		assert.Equal(t, "Hello world\n", string(bytes))
 	})
 }
 
