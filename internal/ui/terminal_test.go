@@ -39,7 +39,7 @@ func Test_getEditor(t *testing.T) {
 		expected  string
 	}{
 		{name: "default editor unix", disabled: runtime.GOOS == windows, expected: defaultEditor},
-		{name: "default editor windows", disabled: runtime.GOOS != windows, expected: defaultEditor},
+		{name: "default editor windows", disabled: runtime.GOOS != windows, expected: defaultEditorWindows},
 		{name: "editor env set", envEditor: "foo-editor", expected: "foo-editor"},
 		{name: "visual env set", envVisual: "some-editor", expected: "some-editor"},
 		{name: "editor + visual env set", envEditor: "some-editor", envVisual: "foo-editor", expected: "foo-editor"},
