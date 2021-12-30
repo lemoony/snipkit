@@ -58,19 +58,19 @@ func Test_getEditor(t *testing.T) {
 				t.Skipf("Test %s is not enabled for this platform", tt.name)
 			} else {
 				if tt.envEditor == "" {
-					assert.NoError(t, os.Unsetenv(tt.envEditor))
+					_ = os.Unsetenv(envEditor)
 				} else {
-					assert.NoError(t, os.Setenv("EDITOR", tt.envEditor))
+					_ = os.Setenv(envEditor, tt.envEditor)
 				}
 				if tt.envVisual == "" {
-					assert.NoError(t, os.Unsetenv(tt.envVisual))
+					_ = os.Unsetenv(envVisual)
 				} else {
-					assert.NoError(t, os.Setenv("VISUAL", tt.envVisual))
+					_ = os.Setenv(envVisual, tt.envVisual)
 				}
 
 				defer func() {
-					_ = os.Unsetenv("VISUAL")
-					_ = os.Unsetenv("EDITOR")
+					_ = os.Unsetenv(envVisual)
+					_ = os.Unsetenv(envEditor)
 				}()
 
 				editor := getEditor(tt.preferred)

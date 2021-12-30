@@ -15,6 +15,8 @@ import (
 )
 
 const (
+	envEditor            = "EDITOR"
+	envVisual            = "VISUAL"
 	defaultEditor        = "vim"
 	defaultEditorWindows = "notepad"
 	windows              = "windows"
@@ -95,9 +97,9 @@ func getEditor(preferred string) string {
 	preferred = strings.TrimSpace(preferred)
 	if preferred != "" {
 		result = preferred
-	} else if v := os.Getenv("VISUAL"); v != "" {
+	} else if v := os.Getenv(envVisual); v != "" {
 		result = v
-	} else if e := os.Getenv("EDITOR"); e != "" {
+	} else if e := os.Getenv(envEditor); e != "" {
 		result = e
 	}
 
