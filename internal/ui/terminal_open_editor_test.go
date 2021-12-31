@@ -18,7 +18,7 @@ import (
 // it on macOS. We exclude this test from race tests by putting it
 // into a file with a corresponding build constraint.
 func Test_OpenEditor(t *testing.T) {
-	runTest(t, func(c *expect.Console) {
+	runExpectTest(t, func(c *expect.Console) {
 		_, _ = c.Send("iHello world\x1b")
 		time.Sleep(time.Second)
 		_, _ = c.SendLine(":wq!")

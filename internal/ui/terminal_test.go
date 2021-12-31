@@ -9,7 +9,10 @@ import (
 	"github.com/AlecAivazis/survey/v2/core"
 	"github.com/AlecAivazis/survey/v2/terminal"
 	expect "github.com/Netflix/go-expect"
+	"github.com/gdamore/tcell/v2"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/lemoony/snippet-kit/internal/model"
 )
 
 func init() {
@@ -18,7 +21,7 @@ func init() {
 }
 
 func Test_PrintMessage(t *testing.T) {
-	runTest(t, func(c *expect.Console) {
+	runExpectTest(t, func(c *expect.Console) {
 		_, err := c.ExpectString("Hello world")
 		assert.NoError(t, err)
 		_, err = c.ExpectEOF()
@@ -31,7 +34,7 @@ func Test_PrintMessage(t *testing.T) {
 }
 
 func Test_PrintError(t *testing.T) {
-	runTest(t, func(c *expect.Console) {
+	runExpectTest(t, func(c *expect.Console) {
 		_, err := c.ExpectString("Some error message")
 		assert.NoError(t, err)
 		_, err = c.ExpectEOF()
@@ -44,7 +47,7 @@ func Test_PrintError(t *testing.T) {
 }
 
 func Test_Confirm(t *testing.T) {
-	runTest(t, func(c *expect.Console) {
+	runExpectTest(t, func(c *expect.Console) {
 		_, err := c.ExpectString("Are you sure? (y/N)")
 		assert.NoError(t, err)
 		_, err = c.SendLine("Y")
@@ -108,4 +111,35 @@ func Test_getEditor(t *testing.T) {
 			}
 		})
 	}
+}
+
+func Test_ShowLookup(t *testing.T) {
+	snippets := []model.Snippet{
+		{
+			Title:    "Title 1",
+			Content:  "Content: One",
+			Language: model.LanguageYAML,
+		},
+		{
+			Title:    "Title 2",
+			Content:  "Content: Two",
+			Language: model.LanguageYAML,
+		},
+	}
+
+	runScreenTest(t, func(s tcell.Screen) {
+		selected, err := showLookup(snippets, s)
+
+		assert.NoError(t, err)
+		assert.Equal(t, 1, selected)
+	}, func(screen tcell.SimulationScreen) {
+		time.Sleep(time.Millisecond * 50)
+		assert.NoError(t, screen.PostEvent(tcell.NewEventKey(tcell.KeyUp, 0, tcell.ModNone)))
+
+		time.Sleep(time.Millisecond * 50)
+		previewContent := getPreviewContents(screen)
+		assert.Equal(t, snippets[1].Content, previewContent)
+
+		assert.NoError(t, screen.PostEvent(tcell.NewEventKey(tcell.KeyEnter, 0, tcell.ModNone)))
+	})
 }

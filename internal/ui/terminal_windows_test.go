@@ -7,7 +7,7 @@ import (
 	expect "github.com/Netflix/go-expect"
 )
 
-func runTest(t *testing.T, procedure func(*expect.Console), test func(terminal.Stdio)) {
+func runExpectTest(t *testing.T, procedure func(*expect.Console), test func(terminal.Stdio)) {
 	t.Helper()
 	t.Skip("Windows does not support psuedoterminals")
 }
