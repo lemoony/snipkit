@@ -4,13 +4,11 @@ package ui
 
 import (
 	"bytes"
-	"strings"
 	"testing"
 	"time"
 
 	"github.com/AlecAivazis/survey/v2/terminal"
 	expect "github.com/Netflix/go-expect"
-	"github.com/gdamore/tcell/v2"
 	"github.com/hinshun/vt10x"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -48,63 +46,4 @@ func runExpectTest(t *testing.T, procedure func(*expect.Console), test func(term
 
 	// Dump the terminal's screen.
 	t.Logf("\n%s", expect.StripTrailingEmptyLines(state.String()))
-}
-
-func runScreenTest(t *testing.T, procedure func(s tcell.Screen), test func(s tcell.SimulationScreen)) {
-	t.Helper()
-	screen := mkTestScreen(t)
-
-	donec := make(chan struct{})
-	go func() {
-		defer close(donec)
-		time.Sleep(time.Millisecond * 50)
-		test(screen)
-	}()
-
-	procedure(screen)
-	<-donec
-}
-
-func mkTestScreen(t *testing.T) tcell.SimulationScreen {
-	t.Helper()
-	s := tcell.NewSimulationScreen("")
-
-	if s == nil {
-		t.Fatalf("Failed to get simulation screen")
-	}
-	if e := s.Init(); e != nil {
-		t.Fatalf("Failed to initialize screen: %v", e)
-	}
-	return s
-}
-
-func getPreviewContents(screen tcell.SimulationScreen) string {
-	contents, w, h := screen.GetContents()
-
-	startIndex := -1
-
-	for i := range contents {
-		runes := contents[i].Runes
-		if len(runes) == 1 && runes[0] == '┌' {
-			startIndex = i
-		}
-	}
-
-	var indices []int
-
-	prevLength := w - startIndex - 2
-
-	for l := 1; l < h-1; l++ {
-		for p := 0; p < prevLength; p++ {
-			indices = append(indices, startIndex+1+l*w+p)
-		}
-	}
-
-	result := ""
-	for _, i := range indices {
-		r := string(contents[i].Runes[0])
-		result += r
-	}
-
-	return strings.TrimSpace(result)
 }
