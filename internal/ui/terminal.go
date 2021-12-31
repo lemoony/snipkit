@@ -9,6 +9,7 @@ import (
 
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/AlecAivazis/survey/v2/terminal"
+	"github.com/gdamore/tcell/v2"
 	"github.com/kballard/go-shellquote"
 
 	"github.com/lemoony/snippet-kit/internal/model"
@@ -41,6 +42,13 @@ func WithStdio(stdio terminal.Stdio) TerminalOption {
 	})
 }
 
+// WithScreen sets the screen for tview.
+func WithScreen(screen tcell.Screen) TerminalOption {
+	return terminalOptionFunc(func(t *cliTerminal) {
+		t.screen = screen
+	})
+}
+
 type Terminal interface {
 	PrintMessage(message string)
 	PrintError(message string)
@@ -51,7 +59,8 @@ type Terminal interface {
 }
 
 type cliTerminal struct {
-	stdio terminal.Stdio
+	stdio  terminal.Stdio
+	screen tcell.Screen
 }
 
 func NewTerminal(options ...TerminalOption) Terminal {
@@ -108,7 +117,7 @@ func (c cliTerminal) OpenEditor(path string, preferredEditor string) error {
 }
 
 func (c cliTerminal) ShowLookup(snippets []model.Snippet) (int, error) {
-	return showLookup(snippets)
+	return showLookup(snippets, c.screen)
 }
 
 func (c cliTerminal) ShowParameterForm(parameters []model.Parameter) ([]string, error) {
