@@ -5,6 +5,7 @@ package ui
 import (
 	"bytes"
 	"testing"
+	"time"
 
 	"github.com/AlecAivazis/survey/v2/terminal"
 	expect "github.com/Netflix/go-expect"
@@ -13,13 +14,17 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// Source: https://github.com/AlecAivazis/survey/blob/master/survey_posix_test.go
 func runTest(t *testing.T, procedure func(*expect.Console), test func(terminal.Stdio)) {
 	t.Helper()
 	t.Parallel()
 
 	// Multiplex output to a buffer as well for the raw bytes.
 	buf := new(bytes.Buffer)
-	c, state, err := vt10x.NewVT10XConsole(expect.WithStdout(buf))
+	c, state, err := vt10x.NewVT10XConsole(
+		expect.WithStdout(buf),
+		expect.WithDefaultTimeout(time.Second),
+	)
 	require.Nil(t, err)
 	defer func() {
 		_ = c.Close()

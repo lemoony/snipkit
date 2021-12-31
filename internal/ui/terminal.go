@@ -22,6 +22,25 @@ const (
 	windows              = "windows"
 )
 
+// TerminalOption configures a Terminal.
+type TerminalOption interface {
+	apply(p *cliTerminal)
+}
+
+// terminalOptionFunc wraps a func so that it satisfies the Option interface.
+type terminalOptionFunc func(terminal *cliTerminal)
+
+func (f terminalOptionFunc) apply(terminal *cliTerminal) {
+	f(terminal)
+}
+
+// WithStdio sets the stdio for the terminal.
+func WithStdio(stdio terminal.Stdio) TerminalOption {
+	return terminalOptionFunc(func(t *cliTerminal) {
+		t.stdio = stdio
+	})
+}
+
 type Terminal interface {
 	PrintMessage(message string)
 	PrintError(message string)
@@ -31,35 +50,43 @@ type Terminal interface {
 	ShowParameterForm(parameters []model.Parameter) ([]string, error)
 }
 
-type ActualCLI struct {
+type cliTerminal struct {
 	stdio terminal.Stdio
 }
 
-func NewTerminal() Terminal {
-	return ActualCLI{}
+func NewTerminal(options ...TerminalOption) Terminal {
+	term := cliTerminal{
+		stdio: terminal.Stdio{
+			In:  os.Stdin,
+			Out: os.Stdout,
+			Err: os.Stderr,
+		},
+	}
+	for _, option := range options {
+		option.apply(&term)
+	}
+	return term
 }
 
-func (a ActualCLI) PrintMessage(msg string) {
-	fmt.Printf(msg + "\n")
+func (c cliTerminal) PrintMessage(msg string) {
+	fmt.Fprintln(c.stdio.Out, msg)
 }
 
-func (a ActualCLI) PrintError(msg string) {
-	fmt.Printf(msg + "\n")
+func (c cliTerminal) PrintError(msg string) {
+	fmt.Fprintln(c.stdio.Out, msg)
 }
 
-func (a ActualCLI) Confirm(message string) (bool, error) {
+func (c cliTerminal) Confirm(message string) (bool, error) {
 	confirmed := false
 	prompt := &survey.Confirm{Message: message}
-	if err := survey.AskOne(prompt, &confirmed, survey.WithStdio(a.stdio.In, a.stdio.Out, a.stdio.Err)); err != nil {
+	if err := survey.AskOne(prompt, &confirmed, survey.WithStdio(c.stdio.In, c.stdio.Out, c.stdio.Err)); err != nil {
 		return false, err
 	}
 	return confirmed, nil
 }
 
-func (a ActualCLI) OpenEditor(path string, preferredEditor string) error {
+func (c cliTerminal) OpenEditor(path string, preferredEditor string) error {
 	editor := getEditor(preferredEditor)
-
-	fmt.Println("---> " + editor)
 
 	args, err := shellquote.Split(editor)
 	if err != nil {
@@ -67,10 +94,10 @@ func (a ActualCLI) OpenEditor(path string, preferredEditor string) error {
 	}
 	args = append(args, path)
 
-	cmd := exec.Command(args[0], args[1:]...) //nolint:gosec // subprocess launched with a potential tainted input
-	cmd.Stdin = a.stdio.In
-	cmd.Stdout = a.stdio.Out
-	cmd.Stderr = a.stdio.Err
+	cmd := exec.Command(args[0], args[1:]...) //nolint:gosec // subprocess launched with c potential tainted input
+	cmd.Stdin = c.stdio.In
+	cmd.Stdout = c.stdio.Out
+	cmd.Stderr = c.stdio.Err
 
 	err = cmd.Start()
 	if err != nil {
@@ -80,11 +107,11 @@ func (a ActualCLI) OpenEditor(path string, preferredEditor string) error {
 	return cmd.Wait()
 }
 
-func (a ActualCLI) ShowLookup(snippets []model.Snippet) (int, error) {
+func (c cliTerminal) ShowLookup(snippets []model.Snippet) (int, error) {
 	return showLookup(snippets)
 }
 
-func (a ActualCLI) ShowParameterForm(parameters []model.Parameter) ([]string, error) {
+func (c cliTerminal) ShowParameterForm(parameters []model.Parameter) ([]string, error) {
 	return showParameterForm(parameters)
 }
 

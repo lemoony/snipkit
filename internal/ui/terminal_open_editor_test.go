@@ -23,7 +23,7 @@ func Test_OpenEditor(t *testing.T) {
 		time.Sleep(time.Second)
 		_, _ = c.SendLine(":wq!")
 	}, func(stdio terminal.Stdio) {
-		term := ActualCLI{stdio: stdio}
+		term := NewTerminal(WithStdio(stdio))
 
 		testFile := path.Join(t.TempDir(), "testfile")
 		_, err := os.Create(testFile)

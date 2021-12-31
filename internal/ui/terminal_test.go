@@ -4,6 +4,7 @@ import (
 	"os"
 	"runtime"
 	"testing"
+	"time"
 
 	"github.com/AlecAivazis/survey/v2/core"
 	"github.com/AlecAivazis/survey/v2/terminal"
@@ -16,13 +17,42 @@ func init() {
 	core.DisableColor = true
 }
 
+func Test_PrintMessage(t *testing.T) {
+	runTest(t, func(c *expect.Console) {
+		_, err := c.ExpectString("Hello world")
+		assert.NoError(t, err)
+		_, err = c.ExpectEOF()
+		assert.NoError(t, err)
+	}, func(stdio terminal.Stdio) {
+		term := NewTerminal(WithStdio(stdio))
+		term.PrintMessage("Hello world")
+		time.Sleep(time.Millisecond * 100)
+	})
+}
+
+func Test_PrintError(t *testing.T) {
+	runTest(t, func(c *expect.Console) {
+		_, err := c.ExpectString("Some error message")
+		assert.NoError(t, err)
+		_, err = c.ExpectEOF()
+		assert.NoError(t, err)
+	}, func(stdio terminal.Stdio) {
+		term := NewTerminal(WithStdio(stdio))
+		term.PrintError("Some error message")
+		time.Sleep(time.Millisecond * 100)
+	})
+}
+
 func Test_Confirm(t *testing.T) {
 	runTest(t, func(c *expect.Console) {
-		_, _ = c.ExpectString("Are you sure? (y/N)")
-		_, _ = c.SendLine("Y")
-		_, _ = c.ExpectEOF()
+		_, err := c.ExpectString("Are you sure? (y/N)")
+		assert.NoError(t, err)
+		_, err = c.SendLine("Y")
+		assert.NoError(t, err)
+		_, err = c.ExpectEOF()
+		assert.NoError(t, err)
 	}, func(stdio terminal.Stdio) {
-		term := ActualCLI{stdio: stdio}
+		term := NewTerminal(WithStdio(stdio))
 		confirmed, err := term.Confirm("Are you sure?")
 		assert.NoError(t, err)
 		assert.True(t, confirmed)
