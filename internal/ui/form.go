@@ -111,6 +111,6 @@ func padLength(title string, targetLength int) string {
 	return title
 }
 
-func showParameterForm(parameters []model.Parameter) ([]string, error) {
+func (c cliTerminal) ShowParameterForm(parameters []model.Parameter) ([]string, error) {
 	return newAppForm(parameters).show()
 }

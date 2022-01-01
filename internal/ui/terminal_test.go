@@ -129,7 +129,8 @@ func Test_ShowLookup(t *testing.T) {
 	}
 
 	runScreenTest(t, func(s tcell.Screen) {
-		selected, err := showLookup(snippets, s)
+		term := NewTerminal(WithScreen(s))
+		selected, err := term.ShowLookup(snippets)
 
 		assert.NoError(t, err)
 		assert.Equal(t, 1, selected)

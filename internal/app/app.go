@@ -12,6 +12,25 @@ import (
 	"github.com/lemoony/snippet-kit/internal/utils"
 )
 
+// Option configures an App.
+type Option interface {
+	apply(p *App)
+}
+
+// terminalOptionFunc wraps a func so that it satisfies the Option interface.
+type optionFunc func(a *App)
+
+func (f optionFunc) apply(a *App) {
+	f(a)
+}
+
+// WithTerminal sets the terminal for the App.
+func WithTerminal(t ui.Terminal) Option {
+	return optionFunc(func(a *App) {
+		a.ui = t
+	})
+}
+
 type App struct {
 	Providers []providers.Provider
 	viper     *viper.Viper
@@ -20,15 +39,17 @@ type App struct {
 	ui        ui.Terminal
 }
 
-func NewApp(v *viper.Viper) (*App, error) {
-	system, err := utils.NewSystem()
-	if err != nil {
-		return nil, err
-	}
+func NewApp(v *viper.Viper, options ...Option) (*App, error) {
+	system := utils.NewSystem()
 
 	app := &App{
 		viper:  v,
 		system: &system,
+		ui:     ui.NewTerminal(),
+	}
+
+	for _, o := range options {
+		o.apply(app)
 	}
 
 	cfg, err := config.LoadConfig(v)

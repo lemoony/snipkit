@@ -116,14 +116,6 @@ func (c cliTerminal) OpenEditor(path string, preferredEditor string) error {
 	return cmd.Wait()
 }
 
-func (c cliTerminal) ShowLookup(snippets []model.Snippet) (int, error) {
-	return showLookup(snippets, c.screen)
-}
-
-func (c cliTerminal) ShowParameterForm(parameters []model.Parameter) ([]string, error) {
-	return showParameterForm(parameters)
-}
-
 func getEditor(preferred string) string {
 	result := defaultEditor
 	if runtime.GOOS == windows {

@@ -13,10 +13,7 @@ import (
 )
 
 func ConfigInit(v *viper.Viper, term ui.Terminal) error {
-	system, err := utils.NewSystem()
-	if err != nil {
-		return err
-	}
+	system := utils.NewSystem()
 
 	if _, err := config.LoadConfig(v); err == nil {
 		if ok, err2 := term.Confirm(uimsg.ConfirmRecreateConfigFile(v.ConfigFileUsed())); err2 != nil {

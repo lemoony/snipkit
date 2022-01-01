@@ -46,12 +46,12 @@ func WithUserContainersDir(userContainersDir string) Option {
 	})
 }
 
-func NewSystem(options ...Option) (System, error) {
+func NewSystem(options ...Option) System {
 	result := System{}
 	for _, option := range options {
 		option.apply(&result)
 	}
-	return result, nil
+	return result
 }
 
 func (s *System) UserDataHome() string {

@@ -7,8 +7,7 @@ import (
 )
 
 func Test_System_Default(t *testing.T) {
-	s, err := NewSystem()
-	assert.NoError(t, err)
+	s := NewSystem()
 	assert.NotNil(t, s)
 
 	assert.Nil(t, s.userDataDir)
@@ -29,12 +28,11 @@ func Test_System_Default(t *testing.T) {
 }
 
 func Test_System_WithOptions(t *testing.T) {
-	s, err := NewSystem(
+	s := NewSystem(
 		WithUserConfigDirs([]string{"/test/config/dir-0", "/test/config/dir-1"}),
 		WithUserDataDir("/test/user/data"),
 		WithUserContainersDir("/test/container/dir"),
 	)
-	assert.NoError(t, err)
 	assert.NotNil(t, s)
 
 	assert.NotNil(t, s.userConfigDirs)
