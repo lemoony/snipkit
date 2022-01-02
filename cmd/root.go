@@ -12,7 +12,6 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/lemoony/snippet-kit/internal/cli"
 	"github.com/lemoony/snippet-kit/internal/ui"
 )
 
@@ -34,9 +33,6 @@ var rootCmd = &cobra.Command{
 	Use:   "snipkit",
 	Short: "Use your favorite command line manager directly from the terminal",
 	Long:  `Snipkit helps you to execute scripts saved in your favorite snippets manager without even leaving the terminal.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
-		return cli.LookupAndExecuteSnippet(viper.GetViper(), terminal)
-	},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
