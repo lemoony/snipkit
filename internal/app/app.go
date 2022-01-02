@@ -6,7 +6,6 @@ import (
 	"github.com/lemoony/snippet-kit/internal/config"
 	"github.com/lemoony/snippet-kit/internal/model"
 	"github.com/lemoony/snippet-kit/internal/providers"
-	"github.com/lemoony/snippet-kit/internal/providers/snippetslab"
 	"github.com/lemoony/snippet-kit/internal/ui"
 	"github.com/lemoony/snippet-kit/internal/utils"
 )
@@ -30,21 +29,31 @@ func WithTerminal(t ui.Terminal) Option {
 	})
 }
 
+// WithProvidersBuilder sets the builder method for the list of providers.
+func WithProvidersBuilder(builder providers.Builder) Option {
+	return optionFunc(func(a *App) {
+		a.providersBuilder = builder
+	})
+}
+
 type App struct {
 	Providers []providers.Provider
 	viper     *viper.Viper
 	system    *utils.System
 	config    *config.Config
 	ui        ui.Terminal
+
+	providersBuilder providers.Builder
 }
 
 func NewApp(v *viper.Viper, options ...Option) (*App, error) {
 	system := utils.NewSystem()
 
 	app := &App{
-		viper:  v,
-		system: &system,
-		ui:     ui.NewTerminal(),
+		viper:            v,
+		system:           &system,
+		ui:               ui.NewTerminal(),
+		providersBuilder: providers.NewBuilder(),
 	}
 
 	for _, o := range options {
@@ -57,18 +66,11 @@ func NewApp(v *viper.Viper, options ...Option) (*App, error) {
 		app.config = &cfg
 	}
 
-	ui.ApplyConfig(app.config.Style)
-
-	snippetsLab, err := snippetslab.NewProvider(
-		snippetslab.WithSystem(&system),
-		snippetslab.WithConfig(app.config.Providers.SnippetsLab),
-	)
-	if err != nil {
+	app.ui.ApplyConfig(app.config.Style)
+	if p, err := app.providersBuilder.BuildProvider(*app.system, app.config.Providers); err != nil {
 		return nil, err
-	}
-
-	app.Providers = []providers.Provider{
-		snippetsLab,
+	} else {
+		app.Providers = p
 	}
 
 	return app, nil

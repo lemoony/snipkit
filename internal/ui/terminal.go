@@ -50,6 +50,7 @@ func WithScreen(screen tcell.Screen) TerminalOption {
 }
 
 type Terminal interface {
+	ApplyConfig(cfg Config)
 	PrintMessage(message string)
 	PrintError(message string)
 	Confirm(message string) (bool, error)
@@ -75,6 +76,10 @@ func NewTerminal(options ...TerminalOption) Terminal {
 		option.apply(&term)
 	}
 	return term
+}
+
+func (c cliTerminal) ApplyConfig(cfg Config) {
+	ApplyConfig(cfg)
 }
 
 func (c cliTerminal) PrintMessage(msg string) {
