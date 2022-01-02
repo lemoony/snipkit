@@ -8,7 +8,6 @@ import (
 	"github.com/lemoony/snippet-kit/internal/providers"
 	"github.com/lemoony/snippet-kit/internal/providers/snippetslab"
 	"github.com/lemoony/snippet-kit/internal/ui"
-	"github.com/lemoony/snippet-kit/internal/ui/uimsg"
 	"github.com/lemoony/snippet-kit/internal/utils"
 )
 
@@ -52,22 +51,17 @@ func NewApp(v *viper.Viper, options ...Option) (*App, error) {
 		o.apply(app)
 	}
 
-	cfg, err := config.LoadConfig(v)
-	if err != nil {
-		if err == config.ErrNoConfigFound {
-			app.ui.PrintError(uimsg.NoConfig())
-			return nil, nil
-		}
+	if cfg, err := config.LoadConfig(v); err != nil {
 		return nil, err
 	} else {
 		app.config = &cfg
 	}
 
-	ui.ApplyConfig(cfg.Style)
+	ui.ApplyConfig(app.config.Style)
 
 	snippetsLab, err := snippetslab.NewProvider(
 		snippetslab.WithSystem(&system),
-		snippetslab.WithConfig(cfg.Providers.SnippetsLab),
+		snippetslab.WithConfig(app.config.Providers.SnippetsLab),
 	)
 	if err != nil {
 		return nil, err

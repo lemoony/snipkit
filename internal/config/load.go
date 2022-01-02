@@ -1,28 +1,31 @@
 package config
 
 import (
-	"errors"
 	"os"
 
+	"emperror.dev/errors"
 	"github.com/phuslu/log"
 	"github.com/spf13/viper"
+
+	"github.com/lemoony/snippet-kit/internal/utils/errorutil"
 )
 
 var (
 	ErrNoConfigFound = errors.New("no config file use")
+	ErrInvalidConfig = errors.New("invalid config file")
 	invalidConfig    = Config{}
 )
 
 func LoadConfig(v *viper.Viper) (Config, error) {
 	if !HasConfig(v) {
-		return invalidConfig, ErrNoConfigFound
+		return invalidConfig, errorutil.NewError(ErrNoConfigFound, nil)
 	}
 
 	// If a config file is found, read it in.
 	if err := v.ReadInConfig(); err == nil {
 		log.Debug().Str("config file", v.ConfigFileUsed())
 	} else {
-		return invalidConfig, err
+		return invalidConfig, errorutil.NewError(ErrInvalidConfig, err)
 	}
 
 	var wrapper VersionWrapper

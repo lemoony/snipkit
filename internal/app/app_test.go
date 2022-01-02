@@ -1,6 +1,7 @@
 package app
 
 import (
+	"errors"
 	"io/ioutil"
 	"path"
 	"testing"
@@ -8,18 +9,14 @@ import (
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/lemoony/snippet-kit/internal/ui/uimsg"
-	"github.com/lemoony/snippet-kit/mocks"
+	"github.com/lemoony/snippet-kit/internal/config"
 )
 
 func Test_NewApp_NoConfigFile(t *testing.T) {
 	v := viper.NewWithOptions()
 
-	term := mocks.Terminal{}
-	term.On(mocks.PrintError, uimsg.NoConfig()).Return()
-
-	_, err := NewApp(v, WithTerminal(&term))
-	assert.NoError(t, err)
+	_, err := NewApp(v)
+	assert.True(t, errors.Is(err, config.ErrNoConfigFound))
 }
 
 func Test_NewAppInvalidConfigFile(t *testing.T) {
@@ -30,5 +27,5 @@ func Test_NewAppInvalidConfigFile(t *testing.T) {
 	v.SetConfigFile(cfgFile)
 
 	_, err := NewApp(v)
-	assert.Error(t, err)
+	assert.True(t, errors.Is(err, config.ErrInvalidConfig))
 }
