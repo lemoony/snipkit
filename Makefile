@@ -23,7 +23,7 @@ install: ## go install tools
 generate: ## go generate
 	$(call print-target)
 	go generate ./...
-	# mockery --name="^Builder|Provider|Terminal$" --recursive
+	mockery --name='^Builder|Provider|Terminal$$' --recursive
 
 .PHONY: vet
 vet: ## go vet
