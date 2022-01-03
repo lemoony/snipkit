@@ -57,8 +57,7 @@ func Test_Confirm(t *testing.T) {
 		assert.NoError(t, err)
 	}, func(stdio terminal.Stdio) {
 		term := NewTerminal(WithStdio(stdio))
-		confirmed, err := term.Confirm("Are you sure?")
-		assert.NoError(t, err)
+		confirmed := term.Confirm("Are you sure?")
 		assert.True(t, confirmed)
 	})
 }
@@ -130,9 +129,7 @@ func Test_ShowLookup(t *testing.T) {
 
 	runScreenTest(t, func(s tcell.Screen) {
 		term := NewTerminal(WithScreen(s))
-		selected, err := term.ShowLookup(snippets)
-
-		assert.NoError(t, err)
+		selected := term.ShowLookup(snippets)
 		assert.Equal(t, 1, selected)
 	}, func(screen tcell.SimulationScreen) {
 		time.Sleep(time.Millisecond * 50)

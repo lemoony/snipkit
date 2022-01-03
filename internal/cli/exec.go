@@ -21,10 +21,7 @@ func LookupAndExecuteSnippet(v *viper.Viper, term ui.Terminal) error {
 	}
 
 	parameters := parser.ParseParameters(snippet.Content)
-	parameterValues, err := term.ShowParameterForm(parameters)
-	if err != nil {
-		return err
-	}
+	parameterValues := term.ShowParameterForm(parameters)
 
 	return executeSnippet(*snippet, parameters, parameterValues)
 }

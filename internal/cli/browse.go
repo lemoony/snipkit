@@ -1,6 +1,8 @@
 package cli
 
 import (
+	"fmt"
+
 	"github.com/spf13/viper"
 
 	"github.com/lemoony/snippet-kit/internal/app"
@@ -19,9 +21,9 @@ func LookupSnippet(v *viper.Viper, term ui.Terminal) (*model.Snippet, error) {
 		return nil, err
 	}
 
-	index, err := term.ShowLookup(snippets)
-	if index < 0 || err != nil {
-		return nil, err
+	index := term.ShowLookup(snippets)
+	if index < 0 {
+		panic(fmt.Sprintf("invalid index: %d", index))
 	}
 
 	return &snippets[index], nil

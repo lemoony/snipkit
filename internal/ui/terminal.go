@@ -7,6 +7,7 @@ import (
 	"runtime"
 	"strings"
 
+	"emperror.dev/errors"
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/AlecAivazis/survey/v2/terminal"
 	"github.com/gdamore/tcell/v2"
@@ -53,10 +54,10 @@ type Terminal interface {
 	ApplyConfig(cfg Config)
 	PrintMessage(message string)
 	PrintError(message string)
-	Confirm(message string) (bool, error)
-	OpenEditor(path string, preferredEditor string) error
-	ShowLookup(snippets []model.Snippet) (int, error)
-	ShowParameterForm(parameters []model.Parameter) ([]string, error)
+	Confirm(message string) bool
+	OpenEditor(path string, preferredEditor string)
+	ShowLookup(snippets []model.Snippet) int
+	ShowParameterForm(parameters []model.Parameter) []string
 }
 
 type cliTerminal struct {
@@ -90,21 +91,21 @@ func (c cliTerminal) PrintError(msg string) {
 	fmt.Fprintln(c.stdio.Out, msg)
 }
 
-func (c cliTerminal) Confirm(message string) (bool, error) {
+func (c cliTerminal) Confirm(message string) bool {
 	confirmed := false
 	prompt := &survey.Confirm{Message: message}
 	if err := survey.AskOne(prompt, &confirmed, survey.WithStdio(c.stdio.In, c.stdio.Out, c.stdio.Err)); err != nil {
-		return false, err
+		panic(errors.Wrap(errors.WithStack(err), "failed to capture user input"))
 	}
-	return confirmed, nil
+	return confirmed
 }
 
-func (c cliTerminal) OpenEditor(path string, preferredEditor string) error {
+func (c cliTerminal) OpenEditor(path string, preferredEditor string) {
 	editor := getEditor(preferredEditor)
 
 	args, err := shellquote.Split(editor)
 	if err != nil {
-		return err
+		panic(errors.Wrap(err, "failed to correctly format editor command"))
 	}
 	args = append(args, path)
 
@@ -115,10 +116,12 @@ func (c cliTerminal) OpenEditor(path string, preferredEditor string) error {
 
 	err = cmd.Start()
 	if err != nil {
-		return err
+		panic(errors.Wrapf(errors.WithStack(err), "failed to open editor: %s", strings.Join(args, " ")))
 	}
 
-	return cmd.Wait()
+	if err := cmd.Wait(); err != nil {
+		panic(err)
+	}
 }
 
 func getEditor(preferred string) string {

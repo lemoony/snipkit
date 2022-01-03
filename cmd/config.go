@@ -37,7 +37,8 @@ The editor is defined by the $VISUAL or $EDITOR environment variables. Alternati
 the editor can also be defined via the snipkit config file. If neither of those are 
 present, notepad (on Windows) or vim (Linux or Mac) is used.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return configService.Edit()
+		configService.Edit()
+		return nil
 	},
 }
 

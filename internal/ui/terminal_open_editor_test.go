@@ -29,10 +29,25 @@ func Test_OpenEditor(t *testing.T) {
 		_, err := os.Create(testFile)
 		assert.NoError(t, err)
 
-		err = term.OpenEditor(testFile, "")
-		assert.NoError(t, err)
+		term.OpenEditor(testFile, "")
 		bytes, err := ioutil.ReadFile(testFile) //nolint:gosec // potential file inclusion via variable
 		assert.NoError(t, err)
 		assert.Equal(t, "Hello world\n", string(bytes))
+	})
+}
+
+func Test_OpenEditor_InvalidCommand(t *testing.T) {
+	runExpectTest(t, func(c *expect.Console) {
+		// nothing to expect since panic will be handled at application root level
+	}, func(stdio terminal.Stdio) {
+		term := NewTerminal(WithStdio(stdio))
+
+		testFile := path.Join(t.TempDir(), "testfile")
+		_, err := os.Create(testFile)
+		assert.NoError(t, err)
+
+		assert.Panics(t, func() {
+			term.OpenEditor(testFile, "foo-editor")
+		})
 	})
 }

@@ -32,12 +32,6 @@ jobs:
           name: coverage
           path: coverage.*
 
-      - name: Upload dist
-        uses: actions/upload-artifact@v2
-        with:
-          name: dist
-          path: dist
-
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v2.1.0
         with:

@@ -20,7 +20,7 @@ var lexerMapping = map[model.Language]string{
 	model.LanguageTOML:     "toml",
 }
 
-func (c cliTerminal) ShowLookup(snippets []model.Snippet) (int, error) {
+func (c cliTerminal) ShowLookup(snippets []model.Snippet) int {
 	app := tview.NewApplication()
 
 	if c.screen != nil {
@@ -75,10 +75,10 @@ func (c cliTerminal) ShowLookup(snippets []model.Snippet) (int, error) {
 	applyStyle(finder, preview, s)
 
 	if err := app.SetRoot(flex, true).Run(); err != nil {
-		return -1, err
+		panic(err)
 	}
 
-	return selectedSnippet, nil
+	return selectedSnippet
 }
 
 func getPreviewFormatterAndStyle() (chroma.Formatter, *chroma.Style) {

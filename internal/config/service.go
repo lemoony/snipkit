@@ -66,7 +66,7 @@ func NewService(options ...Option) Service {
 type Service interface {
 	Create() error
 	LoadConfig() (Config, error)
-	Edit() error
+	Edit()
 	Clean() error
 }
 
@@ -78,19 +78,13 @@ type serviceImpl struct {
 
 func (s serviceImpl) Create() error {
 	if _, err := s.LoadConfig(); err == nil {
-		if ok, err2 := s.terminal.Confirm(uimsg.ConfirmRecreateConfigFile(s.v.ConfigFileUsed())); err2 != nil {
-			return err2
-		} else if !ok {
+		if !s.terminal.Confirm(uimsg.ConfirmRecreateConfigFile(s.v.ConfigFileUsed())) {
 			log.Info().Msg("User declined to recreate config file")
 			return nil
 		}
-	} else if err == ErrNoConfigFound {
-		if ok, err2 := s.terminal.Confirm(uimsg.ConfirmCreateConfigFile()); err2 != nil {
-			return err2
-		} else if !ok {
-			log.Info().Msg("User declined to create config file")
-			return nil
-		}
+	} else if err == ErrNoConfigFound && !s.terminal.Confirm(uimsg.ConfirmCreateConfigFile()) {
+		log.Info().Msg("User declined to create config file")
+		return nil
 	}
 	return createConfigFile(s.system, s.v, s.terminal)
 }
@@ -115,13 +109,13 @@ func (s serviceImpl) LoadConfig() (Config, error) {
 	return wrapper.Config, nil
 }
 
-func (s serviceImpl) Edit() error {
+func (s serviceImpl) Edit() {
 	cfg, err := s.LoadConfig()
 	if err != nil {
-		return err
+		panic(err)
 	}
 
-	return s.terminal.OpenEditor(s.v.ConfigFileUsed(), cfg.Editor)
+	s.terminal.OpenEditor(s.v.ConfigFileUsed(), cfg.Editor)
 }
 
 func (s serviceImpl) Clean() error {
@@ -130,9 +124,7 @@ func (s serviceImpl) Clean() error {
 		return nil
 	}
 
-	if ok, err := s.terminal.Confirm(uimsg.ConfirmDeleteConfigFile()); err != nil {
-		return err
-	} else if !ok {
+	if !s.terminal.Confirm(uimsg.ConfirmDeleteConfigFile()) {
 		return nil
 	}
 

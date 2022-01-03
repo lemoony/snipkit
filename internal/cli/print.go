@@ -18,10 +18,7 @@ func LookupAndCreatePrintableSnippet(v *viper.Viper, term ui.Terminal) (string, 
 	}
 
 	parameters := parser.ParseParameters(snippet.Content)
-	parameterValues, err := term.ShowParameterForm(parameters)
-	if err != nil {
-		return "", err
-	}
+	parameterValues := term.ShowParameterForm(parameters)
 
 	return createSnippetString(*snippet, parameters, parameterValues)
 }

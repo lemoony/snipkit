@@ -62,7 +62,7 @@ func Test_Edit(t *testing.T) {
 
 	s := NewService(WithViper(v), WithTerminal(terminal))
 
-	assert.NoError(t, s.Edit())
+	s.Edit()
 }
 
 func Test_Clean(t *testing.T) {
