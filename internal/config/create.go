@@ -7,7 +7,9 @@ import (
 	"reflect"
 	"strings"
 
+	"emperror.dev/errors"
 	"github.com/phuslu/log"
+	"github.com/spf13/afero"
 	"github.com/spf13/viper"
 	"gopkg.in/yaml.v3"
 
@@ -34,7 +36,7 @@ const (
 	yamlDefaultIndent = 2
 )
 
-func CreateConfigFile(system *utils.System, viper *viper.Viper, term ui.Terminal) error {
+func createConfigFile(system *utils.System, viper *viper.Viper, term ui.Terminal) error {
 	config := VersionWrapper{
 		Version: "1.0.0",
 		Config:  Config{},
@@ -51,19 +53,22 @@ func CreateConfigFile(system *utils.System, viper *viper.Viper, term ui.Terminal
 
 	configPath := viper.ConfigFileUsed()
 
+	if configPath == "" {
+		return errors.New("config path is empty")
+	}
+
 	log.Debug().Msgf("Going to use config path %s", configPath)
-	err = pathutil.CreatePath(configPath)
+	err = pathutil.CreatePath(system.Fs, configPath)
 	if err != nil {
 		return err
 	}
 
-	err = os.WriteFile(configPath, data, fileModeConfig)
+	err = afero.WriteFile(system.Fs, configPath, data, fileModeConfig)
 	if err != nil {
 		return err
 	}
 
 	term.PrintMessage(uimsg.ConfigFileCreate(configPath))
-
 	return nil
 }
 

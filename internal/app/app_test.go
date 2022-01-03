@@ -20,7 +20,7 @@ import (
 func Test_NewApp_NoConfigFile(t *testing.T) {
 	v := viper.NewWithOptions()
 
-	_, err := NewApp(v)
+	_, err := NewApp(v, WithConfigService(config.NewService(config.WithViper(v))))
 	assert.True(t, errors.Is(err, config.ErrNoConfigFound))
 }
 
@@ -31,7 +31,7 @@ func Test_NewAppInvalidConfigFile(t *testing.T) {
 	v := viper.NewWithOptions()
 	v.SetConfigFile(cfgFile)
 
-	_, err := NewApp(v)
+	_, err := NewApp(v, WithConfigService(config.NewService(config.WithViper(v))))
 	assert.True(t, errors.Is(err, config.ErrInvalidConfig))
 }
 
@@ -54,7 +54,11 @@ func Test_NewAppNoProviders(t *testing.T) {
 	builder := mocks.Builder{}
 	builder.On("BuildProvider", mock.Anything, mock.Anything).Return([]providers.Provider{}, nil)
 
-	app, err := NewApp(v, WithTerminal(&term), WithProvidersBuilder(&builder))
+	app, err := NewApp(v,
+		WithConfigService(config.NewService(config.WithViper(v))),
+		WithTerminal(&term),
+		WithProvidersBuilder(&builder),
+	)
 
 	assert.NoError(t, err)
 

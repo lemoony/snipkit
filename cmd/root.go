@@ -12,7 +12,9 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
+	"github.com/lemoony/snippet-kit/internal/config"
 	"github.com/lemoony/snippet-kit/internal/ui"
+	"github.com/lemoony/snippet-kit/internal/utils"
 )
 
 type baseDirectory string
@@ -26,6 +28,12 @@ func (d baseDirectory) path() string {
 }
 
 var terminal = ui.NewTerminal()
+
+var configService = config.NewService(
+	config.WithTerminal(terminal),
+	config.WithViper(viper.GetViper()),
+	config.WithSystem(utils.NewSystem()),
+)
 
 var cfgFile string
 

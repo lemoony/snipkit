@@ -1,6 +1,7 @@
 package app
 
 import (
+	"emperror.dev/errors"
 	"github.com/spf13/viper"
 
 	"github.com/lemoony/snippet-kit/internal/config"
@@ -36,6 +37,20 @@ func WithProvidersBuilder(builder providers.Builder) Option {
 	})
 }
 
+// WithConfig sets the config for the App.
+func WithConfig(config config.Config) Option {
+	return optionFunc(func(a *App) {
+		a.config = &config
+	})
+}
+
+// WithConfigService sets the config service for the App.
+func WithConfigService(service config.Service) Option {
+	return optionFunc(func(a *App) {
+		a.configService = service
+	})
+}
+
 type App struct {
 	Providers []providers.Provider
 	viper     *viper.Viper
@@ -43,6 +58,7 @@ type App struct {
 	config    *config.Config
 	ui        ui.Terminal
 
+	configService    config.Service
 	providersBuilder providers.Builder
 }
 
@@ -51,7 +67,7 @@ func NewApp(v *viper.Viper, options ...Option) (*App, error) {
 
 	app := &App{
 		viper:            v,
-		system:           &system,
+		system:           system,
 		ui:               ui.NewTerminal(),
 		providersBuilder: providers.NewBuilder(),
 	}
@@ -60,10 +76,16 @@ func NewApp(v *viper.Viper, options ...Option) (*App, error) {
 		o.apply(app)
 	}
 
-	if cfg, err := config.LoadConfig(v); err != nil {
-		return nil, err
-	} else {
-		app.config = &cfg
+	if app.configService != nil {
+		if cfg, err := app.configService.LoadConfig(); err != nil {
+			return nil, err
+		} else {
+			app.config = &cfg
+		}
+	}
+
+	if app.config == nil {
+		return nil, errors.New("no config provided")
 	}
 
 	app.ui.ApplyConfig(app.config.Style)

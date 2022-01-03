@@ -11,14 +11,14 @@ import (
 func Test_getLibraryURLFromPreferencesFile(t *testing.T) {
 	system := utils.NewSystem(utils.WithUserContainersDir(testdataContainersPath))
 
-	url := findLibraryURL(&system, testDataPreferencesWithUserDefinedLibraryPath)
+	url := findLibraryURL(system, testDataPreferencesWithUserDefinedLibraryPath)
 	assert.Equal(t, snippetsLabLibrary("file://"+testDataDefaultLibraryPath), url)
 }
 
 func Test_getLibraryURLDefault(t *testing.T) {
 	system := utils.NewSystem(utils.WithUserContainersDir(testdataContainersPath))
 
-	url := findLibraryURL(&system, testDataPreferencesPath)
+	url := findLibraryURL(system, testDataPreferencesPath)
 	assert.Equal(t, snippetsLabLibrary(testDataDefaultLibraryPath), url)
 }
 
@@ -42,7 +42,7 @@ func Test_parsePreferencesForLibraryPath_Notound(t *testing.T) {
 func Test_getPreferencesURL(t *testing.T) {
 	system := utils.NewSystem(utils.WithUserContainersDir(testdataContainersPath))
 
-	urls, err := getPossiblePreferencesURLs(&system)
+	urls, err := getPossiblePreferencesURLs(system)
 	assert.NoError(t, err)
 	assert.Len(t, urls, 1)
 	assert.Equal(t, testDataPreferencesPath, urls[0])
@@ -55,7 +55,7 @@ func Test_findPreferencesPath_NoUserDefinedPath(t *testing.T) {
 	// encoder := plist.NewEncoderForFormat(f, plist.BinaryFormat)
 	// encoder.Encode(fileMap)
 	system := utils.NewSystem(utils.WithUserContainersDir(testdataContainersPath))
-	path, err := findPreferencesPath(&system)
+	path, err := findPreferencesPath(system)
 	assert.Error(t, err)
 	assert.ErrorIs(t, errNoUserDefinedLibraryPathFound, err)
 	assert.Equal(t, "", path)

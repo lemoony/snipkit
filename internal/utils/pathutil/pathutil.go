@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+
+	"github.com/spf13/afero"
 )
 
 const (
@@ -12,12 +14,15 @@ const (
 
 // CreatePath returns a suitable location relative to which the file pointed by
 // `path` can be written.
-func CreatePath(path string) error {
+func CreatePath(fs afero.Fs, path string) error {
 	dir := filepath.Dir(path)
-	if Exists(dir) {
+	if ok, err := afero.DirExists(fs, path); err != nil {
+		panic(err)
+	} else if ok {
 		return nil
 	}
-	if err := os.MkdirAll(dir, fileModeDirectory); err == nil {
+
+	if err := fs.MkdirAll(dir, fileModeDirectory); err == nil {
 		return nil
 	}
 
@@ -25,7 +30,10 @@ func CreatePath(path string) error {
 }
 
 // Exists returns true if the specified path exists.
-func Exists(path string) bool {
-	_, err := os.Stat(path)
-	return err == nil || os.IsExist(err)
+func Exists(fs afero.Fs, path string) bool {
+	ok, err := afero.Exists(fs, path)
+	if err != nil {
+		panic(err)
+	}
+	return ok
 }
