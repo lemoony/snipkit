@@ -4,9 +4,12 @@ import (
 	"path"
 
 	"github.com/adrg/xdg"
+	"github.com/spf13/afero"
 )
 
 type System struct {
+	Fs afero.Fs
+
 	userDataDir    *string
 	userConfigDirs *[]string
 	// userContainersDir is macOS only
@@ -46,12 +49,28 @@ func WithUserContainersDir(userContainersDir string) Option {
 	})
 }
 
-func NewSystem(options ...Option) (System, error) {
-	result := System{}
+// WithFS sets the file system.
+func WithFS(fs afero.Fs) Option {
+	return optionFunc(func(p *System) {
+		p.Fs = fs
+	})
+}
+
+func NewSystem(options ...Option) *System {
+	result := System{
+		Fs: afero.NewOsFs(),
+	}
 	for _, option := range options {
 		option.apply(&result)
 	}
-	return result, nil
+	return &result
+}
+
+func NewTestSystem() *System {
+	base := afero.NewOsFs()
+	roBase := afero.NewReadOnlyFs(base)
+	ufs := afero.NewCopyOnWriteFs(roBase, afero.NewMemMapFs())
+	return NewSystem(WithFS(ufs))
 }
 
 func (s *System) UserDataHome() string {

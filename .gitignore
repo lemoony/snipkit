@@ -18,6 +18,9 @@ coverage.html
 # Dependency directories (remove the comment below to include it)
 #vendor/
 
+mocks/
+!mocks/method_names.go
+
 # Output of GoReleaser
 dist/
 

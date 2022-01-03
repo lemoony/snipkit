@@ -20,8 +20,12 @@ var lexerMapping = map[model.Language]string{
 	model.LanguageTOML:     "toml",
 }
 
-func showLookup(snippets []model.Snippet) (int, error) {
+func (c cliTerminal) ShowLookup(snippets []model.Snippet) (int, error) {
 	app := tview.NewApplication()
+
+	if c.screen != nil {
+		app.SetScreen(c.screen)
+	}
 
 	preview := tview.NewTextView()
 	preview.SetBorder(true)

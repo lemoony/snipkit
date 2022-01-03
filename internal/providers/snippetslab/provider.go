@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/phuslu/log"
+
 	"github.com/lemoony/snippet-kit/internal/model"
 	"github.com/lemoony/snippet-kit/internal/utils"
 	"github.com/lemoony/snippet-kit/internal/utils/stringutil"
@@ -44,6 +46,11 @@ func NewProvider(options ...Option) (*Provider, error) {
 
 	for _, o := range options {
 		o.apply(provider)
+	}
+
+	if !provider.config.Enabled {
+		log.Debug().Msg("No snippetsLab provider because it is disabled")
+		return nil, nil
 	}
 
 	return provider, nil
