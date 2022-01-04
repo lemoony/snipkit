@@ -1,7 +1,6 @@
 package app
 
 import (
-	"errors"
 	"io/ioutil"
 	"path"
 	"testing"
@@ -14,14 +13,16 @@ import (
 	"github.com/lemoony/snippet-kit/internal/config"
 	"github.com/lemoony/snippet-kit/internal/model"
 	"github.com/lemoony/snippet-kit/internal/providers"
+	"github.com/lemoony/snippet-kit/internal/utils/testutil"
 	"github.com/lemoony/snippet-kit/mocks"
 )
 
 func Test_NewApp_NoConfigFile(t *testing.T) {
 	v := viper.NewWithOptions()
 
-	_, err := NewApp(WithConfigService(config.NewService(config.WithViper(v))))
-	assert.True(t, errors.Is(err, config.ErrNoConfigFound))
+	assert.PanicsWithValue(t, config.ErrNoConfigFound, func() {
+		_ = NewApp(WithConfigService(config.NewService(config.WithViper(v))))
+	})
 }
 
 func Test_NewAppInvalidConfigFile(t *testing.T) {
@@ -31,8 +32,9 @@ func Test_NewAppInvalidConfigFile(t *testing.T) {
 	v := viper.NewWithOptions()
 	v.SetConfigFile(cfgFile)
 
-	_, err := NewApp(WithConfigService(config.NewService(config.WithViper(v))))
-	assert.True(t, errors.Is(err, config.ErrInvalidConfig))
+	testutil.AssertPanicsWithError(t, config.ErrInvalidConfig, func() {
+		_ = NewApp(WithConfigService(config.NewService(config.WithViper(v))))
+	})
 }
 
 func Test_NewAppNoProviders(t *testing.T) {
@@ -54,13 +56,11 @@ func Test_NewAppNoProviders(t *testing.T) {
 	builder := mocks.Builder{}
 	builder.On("BuildProvider", mock.Anything, mock.Anything).Return([]providers.Provider{}, nil)
 
-	app, err := NewApp(
+	app := NewApp(
 		WithConfigService(config.NewService(config.WithViper(v))),
 		WithTerminal(&term),
 		WithProvidersBuilder(&builder),
 	)
-
-	assert.NoError(t, err)
 
 	term.AssertNumberOfCalls(t, "ApplyConfig", 1)
 	builder.AssertNumberOfCalls(t, "BuildProvider", 1)

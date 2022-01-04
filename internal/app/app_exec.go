@@ -12,19 +12,19 @@ import (
 	"github.com/lemoony/snippet-kit/internal/parser"
 )
 
-func (a *appImpl) LookupAndExecuteSnippet() error {
-	snippet, err := a.LookupSnippet()
-	if snippet == nil || err != nil {
-		return err
+func (a *appImpl) LookupAndExecuteSnippet() {
+	snippet := a.LookupSnippet()
+	if snippet == nil {
+		return
 	}
 
 	parameters := parser.ParseParameters(snippet.Content)
 	parameterValues := a.ui.ShowParameterForm(parameters)
 
-	return executeSnippet(*snippet, parameters, parameterValues)
+	executeSnippet(*snippet, parameters, parameterValues)
 }
 
-func executeSnippet(snippet model.Snippet, params []model.Parameter, paramValues []string) error {
+func executeSnippet(snippet model.Snippet, params []model.Parameter, paramValues []string) {
 	script := snippet.Content
 	for i, p := range params {
 		value := paramValues[i]
@@ -33,21 +33,20 @@ func executeSnippet(snippet model.Snippet, params []model.Parameter, paramValues
 		}
 		script = strings.ReplaceAll(script, fmt.Sprintf("${%s}", p.Key), value)
 	}
-	return executeScript(script)
+	executeScript(script)
 }
 
-func executeScript(script string) error {
+func executeScript(script string) {
 	shell := os.Getenv("SHELL")
 	if shell == "" {
-		return errors.New("no shell found")
+		panic(errors.New("no shell found"))
 	}
 
 	//nolint:gosec // since it would report G204 complaining about using a variable as input for exec.Command
 	cmd, err := exec.Command(shell, "-c", script).Output()
 	if err != nil {
-		return err
+		panic(err)
 	}
 
 	fmt.Print(string(cmd))
-	return nil
 }

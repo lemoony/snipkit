@@ -4,7 +4,7 @@ import (
 	"fmt"
 )
 
-func (a *appImpl) Info() error {
+func (a *appImpl) Info() {
 	a.ui.PrintMessage(fmt.Sprintf("%s: %s\n", "Config file", a.configService.ConfigFilePath()))
 
 	for _, provider := range a.Providers {
@@ -16,5 +16,4 @@ func (a *appImpl) Info() error {
 			}
 		}
 	}
-	return nil
 }

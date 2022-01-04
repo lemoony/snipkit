@@ -11,16 +11,8 @@ var printCmd = &cobra.Command{
 	Short: "Prints the snippet on stdout",
 	Long:  `Prints the selected snippet on stdout with all parameters being replaced.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		app, err := getAppFromContext(cmd.Context())
-		if err != nil {
-			return err
-		}
-
-		snippet, err := app.LookupAndCreatePrintableSnippet()
-		if err != nil {
-			return err
-		}
-
+		app := getAppFromContext(cmd.Context())
+		snippet := app.LookupAndCreatePrintableSnippet()
 		fmt.Println(snippet)
 		return nil
 	},

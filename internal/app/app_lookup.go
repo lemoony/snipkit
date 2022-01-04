@@ -6,10 +6,10 @@ import (
 	"github.com/lemoony/snippet-kit/internal/model"
 )
 
-func (a *appImpl) LookupSnippet() (*model.Snippet, error) {
+func (a *appImpl) LookupSnippet() *model.Snippet {
 	snippets, err := a.getAllSnippets()
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
 
 	index := a.ui.ShowLookup(snippets)
@@ -17,5 +17,5 @@ func (a *appImpl) LookupSnippet() (*model.Snippet, error) {
 		panic(fmt.Sprintf("invalid index: %d", index))
 	}
 
-	return &snippets[index], nil
+	return &snippets[index]
 }

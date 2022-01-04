@@ -1,8 +1,6 @@
 package app
 
 import (
-	"emperror.dev/errors"
-
 	"github.com/lemoony/snippet-kit/internal/config"
 	"github.com/lemoony/snippet-kit/internal/model"
 	"github.com/lemoony/snippet-kit/internal/providers"
@@ -11,10 +9,10 @@ import (
 )
 
 type App interface {
-	LookupSnippet() (*model.Snippet, error)
-	LookupAndCreatePrintableSnippet() (string, error)
-	LookupAndExecuteSnippet() error
-	Info() error
+	LookupSnippet() *model.Snippet
+	LookupAndCreatePrintableSnippet() string
+	LookupAndExecuteSnippet()
+	Info()
 }
 
 // Option configures an App.
@@ -57,7 +55,7 @@ func WithConfigService(service config.Service) Option {
 	})
 }
 
-func NewApp(options ...Option) (App, error) {
+func NewApp(options ...Option) App {
 	system := utils.NewSystem()
 
 	app := &appImpl{
@@ -72,24 +70,24 @@ func NewApp(options ...Option) (App, error) {
 
 	if app.configService != nil {
 		if cfg, err := app.configService.LoadConfig(); err != nil {
-			return nil, err
+			panic(err)
 		} else {
 			app.config = &cfg
 		}
 	}
 
 	if app.config == nil {
-		return nil, errors.New("no config provided")
+		panic("no config provided")
 	}
 
 	app.ui.ApplyConfig(app.config.Style)
 	if p, err := app.providersBuilder.BuildProvider(*app.system, app.config.Providers); err != nil {
-		return nil, err
+		panic(err)
 	} else {
 		app.Providers = p
 	}
 
-	return app, nil
+	return app
 }
 
 type appImpl struct {

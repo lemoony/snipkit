@@ -49,9 +49,9 @@ var (
 	_appKey   = ctxKey("_app")
 )
 
-func getAppFromContext(ctx context.Context) (app.App, error) {
+func getAppFromContext(ctx context.Context) app.App {
 	if v := ctx.Value(_appKey); v != nil {
-		return v.(app.App), nil
+		return v.(app.App)
 	}
 
 	s := getSetupFromContext(ctx)
