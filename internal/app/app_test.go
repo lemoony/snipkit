@@ -20,7 +20,7 @@ import (
 func Test_NewApp_NoConfigFile(t *testing.T) {
 	v := viper.NewWithOptions()
 
-	_, err := NewApp(v, WithConfigService(config.NewService(config.WithViper(v))))
+	_, err := NewApp(WithConfigService(config.NewService(config.WithViper(v))))
 	assert.True(t, errors.Is(err, config.ErrNoConfigFound))
 }
 
@@ -31,7 +31,7 @@ func Test_NewAppInvalidConfigFile(t *testing.T) {
 	v := viper.NewWithOptions()
 	v.SetConfigFile(cfgFile)
 
-	_, err := NewApp(v, WithConfigService(config.NewService(config.WithViper(v))))
+	_, err := NewApp(WithConfigService(config.NewService(config.WithViper(v))))
 	assert.True(t, errors.Is(err, config.ErrInvalidConfig))
 }
 
@@ -54,7 +54,7 @@ func Test_NewAppNoProviders(t *testing.T) {
 	builder := mocks.Builder{}
 	builder.On("BuildProvider", mock.Anything, mock.Anything).Return([]providers.Provider{}, nil)
 
-	app, err := NewApp(v,
+	app, err := NewApp(
 		WithConfigService(config.NewService(config.WithViper(v))),
 		WithTerminal(&term),
 		WithProvidersBuilder(&builder),
@@ -65,10 +65,10 @@ func Test_NewAppNoProviders(t *testing.T) {
 	term.AssertNumberOfCalls(t, "ApplyConfig", 1)
 	builder.AssertNumberOfCalls(t, "BuildProvider", 1)
 
-	assert.Len(t, app.Providers, 0)
+	assert.Len(t, app.(*appImpl).Providers, 0)
 }
 
-func Test_App_GetAllSnippets(t *testing.T) {
+func Test_appImpl_GetAllSnippets(t *testing.T) {
 	snippets := []model.Snippet{
 		{UUID: "uuid1", Title: "title-1", Language: model.LanguageYAML, TagUUIDs: []string{}, Content: "content-1"},
 		{UUID: "uuid2", Title: "title-2", Language: model.LanguageBash, TagUUIDs: []string{}, Content: "content-2"},
@@ -77,9 +77,10 @@ func Test_App_GetAllSnippets(t *testing.T) {
 	provider := mocks.Provider{}
 
 	provider.On("GetSnippets").Return(snippets, nil)
-	app := App{Providers: []providers.Provider{&provider}}
 
-	s, err := app.GetAllSnippets()
+	app := appImpl{Providers: []providers.Provider{&provider}}
+
+	s, err := app.getAllSnippets()
 	assert.NoError(t, err)
 	assert.Equal(t, snippets, s)
 }

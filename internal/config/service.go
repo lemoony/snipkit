@@ -68,6 +68,7 @@ type Service interface {
 	LoadConfig() (Config, error)
 	Edit()
 	Clean() error
+	ConfigFilePath() string
 }
 
 type serviceImpl struct {
@@ -134,6 +135,10 @@ func (s serviceImpl) Clean() error {
 
 	s.terminal.PrintMessage(uimsg.ConfigFileDeleted(s.v.ConfigFileUsed()))
 	return nil
+}
+
+func (s serviceImpl) ConfigFilePath() string {
+	return s.v.ConfigFileUsed()
 }
 
 func (s serviceImpl) hasConfig() bool {

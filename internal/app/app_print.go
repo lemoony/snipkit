@@ -1,24 +1,21 @@
-package cli
+package app
 
 import (
 	"fmt"
 	"strings"
 
-	"github.com/spf13/viper"
-
 	"github.com/lemoony/snippet-kit/internal/model"
 	"github.com/lemoony/snippet-kit/internal/parser"
-	"github.com/lemoony/snippet-kit/internal/ui"
 )
 
-func LookupAndCreatePrintableSnippet(v *viper.Viper, term ui.Terminal) (string, error) {
-	snippet, err := LookupSnippet(v, term)
+func (a *appImpl) LookupAndCreatePrintableSnippet() (string, error) {
+	snippet, err := a.LookupSnippet()
 	if snippet == nil || err != nil {
 		return "", err
 	}
 
 	parameters := parser.ParseParameters(snippet.Content)
-	parameterValues := term.ShowParameterForm(parameters)
+	parameterValues := a.ui.ShowParameterForm(parameters)
 
 	return createSnippetString(*snippet, parameters, parameterValues)
 }

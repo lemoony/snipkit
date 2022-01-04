@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 	"os"
@@ -12,10 +13,68 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
+	"github.com/lemoony/snippet-kit/internal/app"
 	"github.com/lemoony/snippet-kit/internal/config"
+	"github.com/lemoony/snippet-kit/internal/providers"
 	"github.com/lemoony/snippet-kit/internal/ui"
 	"github.com/lemoony/snippet-kit/internal/utils"
 )
+
+type setup struct {
+	terminal         ui.Terminal
+	providersBuilder providers.Builder
+	v                *viper.Viper
+	system           *utils.System
+}
+
+func (s *setup) configService() config.Service {
+	return config.NewService(
+		config.WithTerminal(s.terminal),
+		config.WithViper(s.v),
+		config.WithSystem(s.system),
+	)
+}
+
+var _defaultSetup = setup{
+	terminal:         ui.NewTerminal(),
+	providersBuilder: providers.NewBuilder(),
+	v:                viper.GetViper(),
+	system:           utils.NewTestSystem(),
+}
+
+type ctxKey string
+
+var (
+	_setupKey = ctxKey("_setupKey")
+	_appKey   = ctxKey("_app")
+)
+
+func getAppFromContext(ctx context.Context) (app.App, error) {
+	if v := ctx.Value(_appKey); v != nil {
+		return v.(app.App), nil
+	}
+
+	s := getSetupFromContext(ctx)
+	return app.NewApp(
+		app.WithTerminal(s.terminal),
+		app.WithConfigService(s.configService()),
+		app.WithProvidersBuilder(s.providersBuilder),
+	)
+}
+
+func getSetupFromContext(ctx context.Context) setup {
+	if v := ctx.Value(_setupKey); v != nil {
+		if s, ok := v.(*setup); ok {
+			return *s
+		}
+	}
+	return _defaultSetup
+}
+
+func getConfigServiceFromContext(ctx context.Context) config.Service {
+	s := getSetupFromContext(ctx)
+	return s.configService()
+}
 
 type baseDirectory string
 
@@ -26,14 +85,6 @@ func (d baseDirectory) configPath() string {
 func (d baseDirectory) path() string {
 	return string(d)
 }
-
-var terminal = ui.NewTerminal()
-
-var configService = config.NewService(
-	config.WithTerminal(terminal),
-	config.WithViper(viper.GetViper()),
-	config.WithSystem(utils.NewSystem()),
-)
 
 var cfgFile string
 

@@ -1,27 +1,25 @@
-package cli
+package app
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"os/exec"
 	"strings"
 
-	"github.com/spf13/viper"
+	"emperror.dev/errors"
 
 	"github.com/lemoony/snippet-kit/internal/model"
 	"github.com/lemoony/snippet-kit/internal/parser"
-	"github.com/lemoony/snippet-kit/internal/ui"
 )
 
-func LookupAndExecuteSnippet(v *viper.Viper, term ui.Terminal) error {
-	snippet, err := LookupSnippet(v, term)
+func (a *appImpl) LookupAndExecuteSnippet() error {
+	snippet, err := a.LookupSnippet()
 	if snippet == nil || err != nil {
 		return err
 	}
 
 	parameters := parser.ParseParameters(snippet.Content)
-	parameterValues := term.ShowParameterForm(parameters)
+	parameterValues := a.ui.ShowParameterForm(parameters)
 
 	return executeSnippet(*snippet, parameters, parameterValues)
 }

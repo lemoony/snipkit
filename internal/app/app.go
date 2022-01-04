@@ -2,7 +2,6 @@ package app
 
 import (
 	"emperror.dev/errors"
-	"github.com/spf13/viper"
 
 	"github.com/lemoony/snippet-kit/internal/config"
 	"github.com/lemoony/snippet-kit/internal/model"
@@ -11,62 +10,57 @@ import (
 	"github.com/lemoony/snippet-kit/internal/utils"
 )
 
+type App interface {
+	LookupSnippet() (*model.Snippet, error)
+	LookupAndCreatePrintableSnippet() (string, error)
+	LookupAndExecuteSnippet() error
+	Info() error
+}
+
 // Option configures an App.
 type Option interface {
-	apply(p *App)
+	apply(p *appImpl)
 }
 
 // terminalOptionFunc wraps a func so that it satisfies the Option interface.
-type optionFunc func(a *App)
+type optionFunc func(a *appImpl)
 
-func (f optionFunc) apply(a *App) {
+func (f optionFunc) apply(a *appImpl) {
 	f(a)
 }
 
 // WithTerminal sets the terminal for the App.
 func WithTerminal(t ui.Terminal) Option {
-	return optionFunc(func(a *App) {
+	return optionFunc(func(a *appImpl) {
 		a.ui = t
 	})
 }
 
 // WithProvidersBuilder sets the builder method for the list of providers.
 func WithProvidersBuilder(builder providers.Builder) Option {
-	return optionFunc(func(a *App) {
+	return optionFunc(func(a *appImpl) {
 		a.providersBuilder = builder
 	})
 }
 
 // WithConfig sets the config for the App.
 func WithConfig(config config.Config) Option {
-	return optionFunc(func(a *App) {
+	return optionFunc(func(a *appImpl) {
 		a.config = &config
 	})
 }
 
 // WithConfigService sets the config service for the App.
 func WithConfigService(service config.Service) Option {
-	return optionFunc(func(a *App) {
+	return optionFunc(func(a *appImpl) {
 		a.configService = service
 	})
 }
 
-type App struct {
-	Providers []providers.Provider
-	viper     *viper.Viper
-	system    *utils.System
-	config    *config.Config
-	ui        ui.Terminal
-
-	configService    config.Service
-	providersBuilder providers.Builder
-}
-
-func NewApp(v *viper.Viper, options ...Option) (*App, error) {
+func NewApp(options ...Option) (App, error) {
 	system := utils.NewSystem()
 
-	app := &App{
-		viper:            v,
+	app := &appImpl{
 		system:           system,
 		ui:               ui.NewTerminal(),
 		providersBuilder: providers.NewBuilder(),
@@ -98,7 +92,17 @@ func NewApp(v *viper.Viper, options ...Option) (*App, error) {
 	return app, nil
 }
 
-func (a *App) GetAllSnippets() ([]model.Snippet, error) {
+type appImpl struct {
+	Providers []providers.Provider
+	system    *utils.System
+	config    *config.Config
+	ui        ui.Terminal
+
+	configService    config.Service
+	providersBuilder providers.Builder
+}
+
+func (a *appImpl) getAllSnippets() ([]model.Snippet, error) {
 	var result []model.Snippet
 	for _, provider := range a.Providers {
 		if snippets, err := provider.GetSnippets(); err != nil {
