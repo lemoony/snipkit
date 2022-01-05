@@ -5,14 +5,14 @@ import (
 )
 
 func (a *appImpl) Info() {
-	a.ui.PrintMessage(fmt.Sprintf("%s: %s\n", "Config file", a.configService.ConfigFilePath()))
+	a.ui.PrintMessage(fmt.Sprintf("%s: %s", "Config file", a.configService.ConfigFilePath()))
 
 	for _, provider := range a.Providers {
 		for _, line := range provider.Info().Lines {
 			if line.IsError {
-				a.ui.PrintError(fmt.Sprintf("%s: %s\n", line.Key, line.Value))
+				a.ui.PrintError(fmt.Sprintf("%s: %s", line.Key, line.Value))
 			} else {
-				a.ui.PrintMessage(fmt.Sprintf("%s: %s\n", line.Key, line.Value))
+				a.ui.PrintMessage(fmt.Sprintf("%s: %s", line.Key, line.Value))
 			}
 		}
 	}
