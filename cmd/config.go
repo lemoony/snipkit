@@ -35,7 +35,7 @@ var configEditCommand = &cobra.Command{
 	Long: `The snipkit configuration file will opened in your preferred editor. 
 The editor is defined by the $VISUAL or $EDITOR environment variables. Alternatively, 
 the editor can also be defined via the snipkit config file. If neither of those are 
-present, notepad (on Windows) or vim (Linux or Mac) is used.`,
+present, vim is used.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		getConfigServiceFromContext(cmd.Context()).Edit()
 		return nil
