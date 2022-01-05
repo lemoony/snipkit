@@ -45,8 +45,9 @@ var _defaultSetup = setup{
 type ctxKey string
 
 var (
-	_setupKey = ctxKey("_setupKey")
-	_appKey   = ctxKey("_app")
+	_setupKey         = ctxKey("_setupKey")
+	_appKey           = ctxKey("_app")
+	_configServiceKey = ctxKey("_cfgService")
 )
 
 func getAppFromContext(ctx context.Context) app.App {
@@ -72,6 +73,10 @@ func getSetupFromContext(ctx context.Context) setup {
 }
 
 func getConfigServiceFromContext(ctx context.Context) config.Service {
+	if v := ctx.Value(_configServiceKey); v != nil {
+		return v.(config.Service)
+	}
+
 	s := getSetupFromContext(ctx)
 	return s.configService()
 }

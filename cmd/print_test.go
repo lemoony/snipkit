@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/lemoony/snippet-kit/mocks"
+	mocks "github.com/lemoony/snippet-kit/mocks/app"
 )
 
 func Test_Print(t *testing.T) {
@@ -13,7 +13,7 @@ func Test_Print(t *testing.T) {
 	app.On("LookupAndCreatePrintableSnippet").
 		Return("snippet-printed", nil)
 
-	err := runMockedTest(t, []string{"print"}, &app)
+	err := runMockedTest(t, []string{"print"}, withApp(&app))
 
 	assert.NoError(t, err)
 	app.AssertNumberOfCalls(t, "LookupAndCreatePrintableSnippet", 1)

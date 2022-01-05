@@ -14,7 +14,8 @@ import (
 	"github.com/lemoony/snippet-kit/internal/model"
 	"github.com/lemoony/snippet-kit/internal/providers"
 	"github.com/lemoony/snippet-kit/internal/utils/testutil"
-	"github.com/lemoony/snippet-kit/mocks"
+	providerMocks "github.com/lemoony/snippet-kit/mocks/provider"
+	uiMocks "github.com/lemoony/snippet-kit/mocks/ui"
 )
 
 func Test_NewApp_NoConfigFile(t *testing.T) {
@@ -50,10 +51,10 @@ func Test_NewAppNoProviders(t *testing.T) {
 	v := viper.NewWithOptions()
 	v.SetConfigFile(cfgFile)
 
-	term := mocks.Terminal{}
+	term := uiMocks.Terminal{}
 	term.On("ApplyConfig", mock.AnythingOfType("ui.Config")).Return()
 
-	builder := mocks.Builder{}
+	builder := providerMocks.ProviderBuilder{}
 	builder.On("BuildProvider", mock.Anything, mock.Anything).Return([]providers.Provider{}, nil)
 
 	app := NewApp(
@@ -74,7 +75,7 @@ func Test_appImpl_GetAllSnippets(t *testing.T) {
 		{UUID: "uuid2", Title: "title-2", Language: model.LanguageBash, TagUUIDs: []string{}, Content: "content-2"},
 	}
 
-	provider := mocks.Provider{}
+	provider := providerMocks.Provider{}
 
 	provider.On("GetSnippets").Return(snippets, nil)
 

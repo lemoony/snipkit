@@ -16,16 +16,19 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/lemoony/snippet-kit/internal/app"
+	"github.com/lemoony/snippet-kit/internal/config"
 	"github.com/lemoony/snippet-kit/internal/providers"
 	"github.com/lemoony/snippet-kit/internal/ui"
 	"github.com/lemoony/snippet-kit/internal/utils"
-	"github.com/lemoony/snippet-kit/mocks"
+	mocks "github.com/lemoony/snippet-kit/mocks/provider"
 )
 
 type testSetup struct {
 	system           *utils.System
 	v                *viper.Viper
 	providersBuilder providers.Builder
+	app              app.App
+	configService    config.Service
 }
 
 func newTestSetup() *testSetup {
@@ -40,26 +43,22 @@ func newTestSetup() *testSetup {
 	}
 }
 
-// option configures an App.
 type option interface {
 	apply(t *testSetup)
 }
 
-// terminalOptionFunc wraps a func so that it satisfies the option interface.
 type optionFunc func(t *testSetup)
 
 func (f optionFunc) apply(t *testSetup) {
 	f(t)
 }
 
-// withConfigFilePath sets the config file path for the App.
 func withConfigFilePath(cfgFilePath string) option {
 	return optionFunc(func(t *testSetup) {
 		t.v.SetConfigFile(cfgFilePath)
 	})
 }
 
-// withSystem sets the system for test.
 func withSystem(s *utils.System) option {
 	return optionFunc(func(t *testSetup) {
 		t.system = s
@@ -67,19 +66,41 @@ func withSystem(s *utils.System) option {
 	})
 }
 
-// withProviders sets the providers for test.
 func withProviders(p ...providers.Provider) option {
 	return optionFunc(func(t *testSetup) {
-		builder := mocks.Builder{}
+		builder := mocks.ProviderBuilder{}
 		builder.On("BuildProvider", mock.Anything, mock.Anything).Return(p, nil)
 		t.providersBuilder = &builder
 	})
 }
 
-func runMockedTest(t *testing.T, args []string, app app.App) error {
+func withConfigService(configService config.Service) option {
+	return optionFunc(func(t *testSetup) {
+		t.configService = configService
+	})
+}
+
+func withApp(app app.App) option {
+	return optionFunc(func(t *testSetup) {
+		t.app = app
+	})
+}
+
+func runMockedTest(t *testing.T, args []string, options ...option) error {
 	t.Helper()
 
-	ctx := context.WithValue(context.Background(), _appKey, app)
+	testSetup := newTestSetup()
+	for _, o := range options {
+		o.apply(testSetup)
+	}
+
+	ctx := context.Background()
+	if testSetup.app != nil {
+		ctx = context.WithValue(ctx, _appKey, testSetup.app)
+	}
+	if testSetup.configService != nil {
+		ctx = context.WithValue(ctx, _configServiceKey, testSetup.configService)
+	}
 
 	defer rootCmd.ResetFlags()
 	rootCmd.SetArgs(args)

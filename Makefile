@@ -20,10 +20,18 @@ install: ## go install tools
 	cd tools && go install $(shell cd tools && go list -f '{{ join .Imports " " }}' -tags=tools)
 
 .PHONY: generate
-generate: ## go generate
+generate: mocks ## go generate
 	$(call print-target)
 	go generate ./...
-	mockery --name='^Builder|Provider|App|Terminal$$' --recursive
+
+.PHONY: mocks
+mocks: ## go generate
+	$(call print-target)
+	mockery --name='App' --output="./mocks/app" --dir="./internal/app"
+	mockery --name='Service' --output="./mocks/config" --structname="ConfigService"  --dir="./internal/config"
+	mockery --name='Builder' --output="./mocks/provider"  --structname="ProviderBuilder"  --dir="./internal/providers"
+	mockery --name='Provider' --output="./mocks/provider" --dir="./internal/providers"
+	mockery --name='^Terminal$$' --output="./mocks/ui" --dir="./internal/ui"
 
 .PHONY: vet
 vet: ## go vet

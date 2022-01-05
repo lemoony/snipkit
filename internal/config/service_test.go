@@ -10,7 +10,7 @@ import (
 
 	"github.com/lemoony/snippet-kit/internal/ui/uimsg"
 	"github.com/lemoony/snippet-kit/internal/utils"
-	"github.com/lemoony/snippet-kit/mocks"
+	mocks "github.com/lemoony/snippet-kit/mocks/ui"
 )
 
 const testDataExampleConfig = "testdata/example-config.yaml"
