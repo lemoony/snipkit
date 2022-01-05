@@ -36,7 +36,7 @@ const (
 	yamlDefaultIndent = 2
 )
 
-func createConfigFile(system *utils.System, viper *viper.Viper, term ui.Terminal) error {
+func createConfigFile(system *utils.System, viper *viper.Viper, term ui.Terminal) {
 	config := VersionWrapper{
 		Version: "1.0.0",
 		Config:  Config{},
@@ -48,28 +48,23 @@ func createConfigFile(system *utils.System, viper *viper.Viper, term ui.Terminal
 
 	data, err := serializeToYamlWithComment(config)
 	if err != nil {
-		return err
+		panic(errors.Wrap(err, "failed to serialize config to yaml"))
 	}
 
 	configPath := viper.ConfigFileUsed()
 
-	if configPath == "" {
-		return errors.New("config path is empty")
-	}
-
 	log.Debug().Msgf("Going to use config path %s", configPath)
 	err = pathutil.CreatePath(system.Fs, configPath)
 	if err != nil {
-		return err
+		panic(errors.Wrap(err, "failed to create path to config file"))
 	}
 
 	err = afero.WriteFile(system.Fs, configPath, data, fileModeConfig)
 	if err != nil {
-		return err
+		panic(errors.Wrap(err, "failed to write config file"))
 	}
 
 	term.PrintMessage(uimsg.ConfigFileCreate(configPath))
-	return nil
 }
 
 func serializeToYamlWithComment(value interface{}) ([]byte, error) {

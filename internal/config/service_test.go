@@ -4,12 +4,14 @@ import (
 	"path"
 	"testing"
 
+	"github.com/spf13/afero"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/lemoony/snippet-kit/internal/ui/uimsg"
 	"github.com/lemoony/snippet-kit/internal/utils"
+	"github.com/lemoony/snippet-kit/internal/utils/testutil"
 	mocks "github.com/lemoony/snippet-kit/mocks/ui"
 )
 
@@ -44,13 +46,80 @@ func Test_Create(t *testing.T) {
 	v.SetConfigFile(cfgFilePath)
 
 	terminal := &mocks.Terminal{}
-	terminal.On("Confirm", mock.Anything).Return(true, nil)
+	terminal.On("Confirm", uimsg.ConfirmCreateConfigFile()).Return(true, nil)
 	terminal.On("PrintMessage", mock.Anything).Return()
 
 	s := NewService(WithSystem(system), WithViper(v), WithTerminal(terminal))
 
-	assert.NoError(t, s.Create())
+	s.Create()
+	terminal.AssertCalled(t, "Confirm", uimsg.ConfirmCreateConfigFile())
+	terminal.AssertNumberOfCalls(t, "Confirm", 1)
+
 	assert.True(t, s.(serviceImpl).hasConfig())
+}
+
+func Test_Create_Decline(t *testing.T) {
+	cfgFilePath := path.Join(t.TempDir(), "test-config.yaml")
+
+	system := utils.NewTestSystem()
+
+	v := viper.New()
+	v.SetFs(system.Fs)
+	v.SetConfigFile(cfgFilePath)
+
+	terminal := &mocks.Terminal{}
+	terminal.On("Confirm", uimsg.ConfirmCreateConfigFile()).Return(false, nil)
+
+	terminal.On("PrintMessage", mock.Anything).Return()
+
+	s := NewService(WithSystem(system), WithViper(v), WithTerminal(terminal))
+
+	s.Create()
+	assert.False(t, s.(serviceImpl).hasConfig())
+	terminal.AssertCalled(t, "Confirm", uimsg.ConfirmCreateConfigFile())
+	terminal.AssertNumberOfCalls(t, "Confirm", 1)
+
+	if exists, err := afero.Exists(system.Fs, cfgFilePath); err != nil {
+		assert.NoError(t, err)
+	} else {
+		assert.False(t, exists)
+	}
+}
+
+func Test_Create_Recreate_Decline(t *testing.T) {
+	cfgFilePath := path.Join(t.TempDir(), "test-config.yaml")
+
+	system := utils.NewTestSystem()
+
+	v := viper.New()
+	v.SetFs(system.Fs)
+	v.SetConfigFile(cfgFilePath)
+
+	terminal := &mocks.Terminal{}
+	terminal.On("Confirm", uimsg.ConfirmCreateConfigFile()).Return(true, nil)
+	terminal.On("Confirm", uimsg.ConfirmRecreateConfigFile(cfgFilePath)).Return(false, nil)
+
+	terminal.On("PrintMessage", mock.Anything).Return()
+
+	s := NewService(WithSystem(system), WithViper(v), WithTerminal(terminal))
+
+	s.Create()
+	assert.True(t, s.(serviceImpl).hasConfig())
+	terminal.AssertCalled(t, "Confirm", uimsg.ConfirmCreateConfigFile())
+	terminal.AssertNumberOfCalls(t, "Confirm", 1)
+
+	stat, _ := system.Fs.Stat(cfgFilePath)
+	modTime := stat.ModTime()
+
+	s.Create()
+
+	assert.True(t, s.(serviceImpl).hasConfig())
+	terminal.AssertCalled(t, "Confirm", uimsg.ConfirmRecreateConfigFile(cfgFilePath))
+	terminal.AssertNumberOfCalls(t, "Confirm", 2)
+
+	// assert file was not changed by comparing the last modification time
+	stat, _ = system.Fs.Stat(cfgFilePath)
+	assert.Equal(t, modTime, stat.ModTime())
 }
 
 func Test_Edit(t *testing.T) {
@@ -80,10 +149,10 @@ func Test_Clean(t *testing.T) {
 
 	s := NewService(WithSystem(system), WithViper(v), WithTerminal(terminal))
 
-	assert.NoError(t, s.Create())
+	s.Create()
 	assert.True(t, s.(serviceImpl).hasConfig())
 
-	assert.NoError(t, s.Clean())
+	s.Clean()
 	assert.False(t, s.(serviceImpl).hasConfig())
 }
 
@@ -102,12 +171,12 @@ func Test_Clean_Decline(t *testing.T) {
 
 	s := NewService(WithSystem(system), WithViper(v), WithTerminal(terminal))
 
-	assert.NoError(t, s.Create())
+	s.Create()
 	assert.True(t, s.(serviceImpl).hasConfig())
 
 	terminal.On("Confirm", uimsg.ConfirmDeleteConfigFile()).Return(false, nil)
 
-	assert.NoError(t, s.Clean())
+	s.Clean()
 	assert.True(t, s.(serviceImpl).hasConfig())
 }
 
@@ -120,10 +189,23 @@ func Test_Clean_NoConfig(t *testing.T) {
 	v.SetConfigFile(cfgFilePath)
 	v.SetFs(system.Fs)
 
-	terminal := &mocks.Terminal{}
-	terminal.On("PrintError", uimsg.NoConfig()).Return()
+	s := NewService(WithSystem(system), WithViper(v))
 
-	s := NewService(WithSystem(system), WithViper(v), WithTerminal(terminal))
+	_ = testutil.AssertPanicsWithError(t, ErrConfigNotFound{}, func() {
+		s.Clean()
+	})
+}
 
-	assert.NoError(t, s.Clean())
+func Test_ConfigFilePath(t *testing.T) {
+	cfgFilePath := path.Join(t.TempDir(), "config.yaml")
+
+	system := utils.NewTestSystem()
+
+	v := viper.New()
+	v.SetConfigFile(cfgFilePath)
+	v.SetFs(system.Fs)
+
+	s := NewService(WithSystem(system), WithViper(v))
+
+	assert.Equal(t, cfgFilePath, s.ConfigFilePath())
 }

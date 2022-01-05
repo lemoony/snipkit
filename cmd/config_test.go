@@ -11,7 +11,7 @@ import (
 func Test_ConfigInit(t *testing.T) {
 	configService := mocks.ConfigService{}
 
-	configService.On("Create").Return(nil)
+	configService.On("Create").Return()
 
 	err := runMockedTest(t, []string{"config", "init"}, withConfigService(&configService))
 

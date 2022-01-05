@@ -14,8 +14,8 @@ var configInitCommand = &cobra.Command{
 	Short: "Initializes the snipkit config",
 	Long: `A snipkit configuration file will be generated at a default location best suited for your operation system.
 Snipkit will try to detect any supported snippet manager application and configure them accordingly.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
-		return getConfigServiceFromContext(cmd.Context()).Create()
+	Run: func(cmd *cobra.Command, args []string) {
+		getConfigServiceFromContext(cmd.Context()).Create()
 	},
 }
 
@@ -24,8 +24,8 @@ var configCleanCommand = &cobra.Command{
 	Short: "Deletes the snipkit config",
 	Long: `The snipkit configuration file will be deleted. You have to initialize a new configuration before using snipkit again.
 This command is helpful if your configuration file is corrupted or you want to prepare the uninstalling snipkit.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
-		return getConfigServiceFromContext(cmd.Context()).Clean()
+	Run: func(cmd *cobra.Command, args []string) {
+		getConfigServiceFromContext(cmd.Context()).Clean()
 	},
 }
 

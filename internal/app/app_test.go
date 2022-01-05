@@ -21,7 +21,7 @@ import (
 func Test_NewApp_NoConfigFile(t *testing.T) {
 	v := viper.NewWithOptions()
 
-	_ = testutil.AssertPanicsWithError(t, config.ErrNoConfigFound, func() {
+	_ = testutil.AssertPanicsWithError(t, config.ErrConfigNotFound{}, func() {
 		_ = NewApp(WithConfigService(config.NewService(config.WithViper(v))))
 	})
 }

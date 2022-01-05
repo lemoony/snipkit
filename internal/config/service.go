@@ -9,14 +9,9 @@ import (
 	"github.com/lemoony/snippet-kit/internal/ui"
 	"github.com/lemoony/snippet-kit/internal/ui/uimsg"
 	"github.com/lemoony/snippet-kit/internal/utils"
-	"github.com/lemoony/snippet-kit/internal/utils/errorutil"
 )
 
-var (
-	ErrNoConfigFound = errors.New("config file not found")
-	ErrInvalidConfig = errors.New("invalid config file")
-	invalidConfig    = Config{}
-)
+var invalidConfig = Config{}
 
 // Option configures an App.
 type Option interface {
@@ -64,10 +59,10 @@ func NewService(options ...Option) Service {
 }
 
 type Service interface {
-	Create() error
+	Create()
 	LoadConfig() (Config, error)
 	Edit()
-	Clean() error
+	Clean()
 	ConfigFilePath() string
 }
 
@@ -77,29 +72,30 @@ type serviceImpl struct {
 	terminal ui.Terminal
 }
 
-func (s serviceImpl) Create() error {
-	if _, err := s.LoadConfig(); err == nil {
+func (s serviceImpl) Create() {
+	_, err := s.LoadConfig()
+	switch {
+	case err == nil:
 		if !s.terminal.Confirm(uimsg.ConfirmRecreateConfigFile(s.v.ConfigFileUsed())) {
 			log.Info().Msg("User declined to recreate config file")
-			return nil
 		}
-	} else if err == ErrNoConfigFound && !s.terminal.Confirm(uimsg.ConfirmCreateConfigFile()) {
+	case errors.Is(err, ErrConfigNotFound{}) && !s.terminal.Confirm(uimsg.ConfirmCreateConfigFile()):
 		log.Info().Msg("User declined to create config file")
-		return nil
+	default:
+		createConfigFile(s.system, s.v, s.terminal)
 	}
-	return createConfigFile(s.system, s.v, s.terminal)
 }
 
 func (s serviceImpl) LoadConfig() (Config, error) {
 	if !s.hasConfig() {
-		return invalidConfig, errors.Wrapf(ErrNoConfigFound, "not found: %s", s.v.ConfigFileUsed())
+		return invalidConfig, ErrConfigNotFound{s.v.ConfigFileUsed()}
 	}
 
 	// If a config file is found, read it in.
 	if err := s.v.ReadInConfig(); err == nil {
 		log.Debug().Str("config file", s.v.ConfigFileUsed())
 	} else {
-		return invalidConfig, errorutil.NewError(ErrInvalidConfig, err)
+		return invalidConfig, errors.Wrap(ErrInvalidConfig, "failed to read config")
 	}
 
 	var wrapper VersionWrapper
@@ -111,30 +107,30 @@ func (s serviceImpl) LoadConfig() (Config, error) {
 }
 
 func (s serviceImpl) Edit() {
-	cfg, err := s.LoadConfig()
-	if err != nil {
+	cfgEditor := ""
+	if cfg, err := s.LoadConfig(); errors.Is(err, ErrConfigNotFound{}) {
 		panic(err)
+	} else {
+		cfgEditor = cfg.Editor
 	}
 
-	s.terminal.OpenEditor(s.v.ConfigFileUsed(), cfg.Editor)
+	s.terminal.OpenEditor(s.v.ConfigFileUsed(), cfgEditor)
 }
 
-func (s serviceImpl) Clean() error {
+func (s serviceImpl) Clean() {
 	if !s.hasConfig() {
-		s.terminal.PrintError(uimsg.NoConfig())
-		return nil
+		panic(ErrConfigNotFound{s.v.ConfigFileUsed()})
 	}
 
 	if !s.terminal.Confirm(uimsg.ConfirmDeleteConfigFile()) {
-		return nil
+		return
 	}
 
 	if err := s.system.Fs.Remove(s.v.ConfigFileUsed()); err != nil {
-		return err
+		panic(errors.Wrapf(err, "failed to remove config file: %s", s.v.ConfigFileUsed()))
 	}
 
 	s.terminal.PrintMessage(uimsg.ConfigFileDeleted(s.v.ConfigFileUsed()))
-	return nil
 }
 
 func (s serviceImpl) ConfigFilePath() string {
@@ -142,9 +138,6 @@ func (s serviceImpl) ConfigFilePath() string {
 }
 
 func (s serviceImpl) hasConfig() bool {
-	ok, err := afero.Exists(s.system.Fs, s.v.ConfigFileUsed())
-	if err != nil {
-		panic(err)
-	}
+	ok, _ := afero.Exists(s.system.Fs, s.v.ConfigFileUsed())
 	return ok
 }
