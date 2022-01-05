@@ -3,6 +3,7 @@ package cmd
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"runtime"
 	"testing"
 	"time"
@@ -105,7 +106,13 @@ func runMockedTest(t *testing.T, args []string, options ...option) error {
 	defer rootCmd.ResetFlags()
 	rootCmd.SetArgs(args)
 
-	return rootCmd.ExecuteContext(ctx)
+	// need to re-init the config in case custom flags have been apssed
+	rootCmd.ResetFlags()
+	res := rootCmd.ExecuteContext(ctx)
+
+	fmt.Println(res)
+
+	return res
 }
 
 func runVT10XCommandTest(

@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	ErrNoConfigFound = errors.New("no config file use")
+	ErrNoConfigFound = errors.New("config file not found")
 	ErrInvalidConfig = errors.New("invalid config file")
 	invalidConfig    = Config{}
 )
@@ -92,7 +92,7 @@ func (s serviceImpl) Create() error {
 
 func (s serviceImpl) LoadConfig() (Config, error) {
 	if !s.hasConfig() {
-		return invalidConfig, errorutil.NewError(ErrNoConfigFound, nil)
+		return invalidConfig, errors.Wrapf(ErrNoConfigFound, "not found: %s", s.v.ConfigFileUsed())
 	}
 
 	// If a config file is found, read it in.

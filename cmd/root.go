@@ -4,9 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/url"
-	"os"
 	"path"
-	"strings"
 
 	"github.com/adrg/xdg"
 	"github.com/phuslu/log"
@@ -18,6 +16,7 @@ import (
 	"github.com/lemoony/snippet-kit/internal/providers"
 	"github.com/lemoony/snippet-kit/internal/ui"
 	"github.com/lemoony/snippet-kit/internal/utils"
+	"github.com/lemoony/snippet-kit/internal/utils/logutil"
 )
 
 type setup struct {
@@ -120,8 +119,8 @@ func init() {
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
-	viper.SetConfigFile(cfgFile) // use config file from the flag.
-	viper.AutomaticEnv()         // read in environment variables that match
+	_defaultSetup.v.SetConfigFile(cfgFile) // use config file from the flag.
+	_defaultSetup.v.AutomaticEnv()         // read in environment variables that match
 }
 
 func defaultBaseDirectory() (baseDirectory, error) {
@@ -133,39 +132,14 @@ func defaultBaseDirectory() (baseDirectory, error) {
 }
 
 func configureLogging() {
-	if log.IsTerminal(os.Stderr.Fd()) {
-		log.DefaultLogger = log.Logger{
-			TimeFormat: "15:04:05",
-			Caller:     1,
-			Writer: &log.ConsoleWriter{
-				ColorOutput:    true,
-				QuoteString:    true,
-				EndWithMessage: true,
-			},
-		}
-	}
-
-	allLevels := []string{
-		log.TraceLevel.String(),
-		log.DebugLevel.String(),
-		log.InfoLevel.String(),
-		log.WarnLevel.String(),
-		log.ErrorLevel.String(),
-		log.FatalLevel.String(),
-		log.PanicLevel.String(),
-	}
-
 	var logLevel string
 	rootCmd.PersistentFlags().StringVarP(
 		&logLevel,
 		"log-level",
 		"l",
 		log.PanicLevel.String(),
-		fmt.Sprintf("log level used for debugging problems (supported values: %s)", strings.Join(allLevels, ",")))
+		fmt.Sprintf("log level used for debugging problems (supported values: %s)", logutil.AllLevelsAsString()))
 
-	for _, level := range allLevels {
-		if logLevel == level {
-			log.DefaultLogger.Level = log.ParseLevel(level)
-		}
-	}
+	logutil.ConfigureDefaultLogger()
+	logutil.SetDefaultLogLevel(logLevel)
 }

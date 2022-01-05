@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func AssertPanicsWithError(t *testing.T, expected error, f assert.PanicTestFunc, msgAndArgs ...interface{}) {
+func AssertPanicsWithError(t *testing.T, expected error, f assert.PanicTestFunc, msgAndArgs ...interface{}) error {
 	t.Helper()
 
 	funcDidPanic, panicValue, panickedStack := didPanic(f)
@@ -26,7 +26,11 @@ func AssertPanicsWithError(t *testing.T, expected error, f assert.PanicTestFunc,
 			),
 			msgAndArgs...,
 		)
+	} else {
+		return err
 	}
+
+	return nil
 }
 
 // didPanic returns true if the function passed to it panics. Otherwise, it returns false.
