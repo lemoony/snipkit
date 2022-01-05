@@ -6,6 +6,7 @@ import (
 
 	"github.com/lemoony/snippet-kit/internal/parser"
 	"github.com/lemoony/snippet-kit/internal/ui"
+	"github.com/lemoony/snippet-kit/internal/utils/stringutil"
 )
 
 func (a *appImpl) LookupAndExecuteSnippet() {
@@ -23,7 +24,7 @@ func (a *appImpl) LookupAndExecuteSnippet() {
 }
 
 func executeScript(script string, term ui.Terminal) {
-	shell := os.Getenv("SHELL")
+	shell := stringutil.StringOrDefault(os.Getenv("SHELL"), "/bin/bash")
 
 	//nolint:gosec // since it would report G204 complaining about using a variable as input for exec.Command
 	cmd, err := exec.Command(shell, "-c", script).CombinedOutput()

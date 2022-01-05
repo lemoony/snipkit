@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"runtime"
 	"testing"
 	"time"
 
@@ -119,9 +118,6 @@ func runVT10XCommandTest(
 	t *testing.T, args []string, hasError bool, test func(*expect.Console, *setup), options ...option,
 ) {
 	t.Helper()
-	if runtime.GOOS == "windows" {
-		t.Skip("Windows does not support psuedoterminals")
-	}
 
 	// Multiplex output to a buffer as well for the raw bytes.
 	buf := new(bytes.Buffer)

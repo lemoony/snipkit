@@ -1,8 +1,10 @@
 package ui
 
 import (
+	"bytes"
+	"io/ioutil"
 	"os"
-	"runtime"
+	"path"
 	"strings"
 	"testing"
 	"time"
@@ -11,7 +13,9 @@ import (
 	"github.com/AlecAivazis/survey/v2/terminal"
 	expect "github.com/Netflix/go-expect"
 	"github.com/gdamore/tcell/v2"
+	"github.com/hinshun/vt10x"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/lemoony/snippet-kit/internal/model"
 )
@@ -65,14 +69,12 @@ func Test_Confirm(t *testing.T) {
 func Test_getEditor(t *testing.T) {
 	tests := []struct {
 		name      string
-		disabled  bool
 		envVisual string
 		envEditor string
 		preferred string
 		expected  string
 	}{
-		{name: "default editor unix", disabled: runtime.GOOS == windows, expected: defaultEditor},
-		{name: "default editor windows", disabled: runtime.GOOS != windows, expected: defaultEditorWindows},
+		{name: "default editor unix", expected: defaultEditor},
 		{name: "editor env set", envEditor: "foo-editor", expected: "foo-editor"},
 		{name: "visual env set", envVisual: "some-editor", expected: "some-editor"},
 		{name: "editor + visual env set", envEditor: "some-editor", envVisual: "foo-editor", expected: "foo-editor"},
@@ -87,28 +89,24 @@ func Test_getEditor(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if tt.disabled {
-				t.Skipf("Test %s is not enabled for this platform", tt.name)
+			if tt.envEditor == "" {
+				_ = os.Unsetenv(envEditor)
 			} else {
-				if tt.envEditor == "" {
-					_ = os.Unsetenv(envEditor)
-				} else {
-					_ = os.Setenv(envEditor, tt.envEditor)
-				}
-				if tt.envVisual == "" {
-					_ = os.Unsetenv(envVisual)
-				} else {
-					_ = os.Setenv(envVisual, tt.envVisual)
-				}
-
-				defer func() {
-					_ = os.Unsetenv(envVisual)
-					_ = os.Unsetenv(envEditor)
-				}()
-
-				editor := getEditor(tt.preferred)
-				assert.Equal(t, tt.expected, editor)
+				_ = os.Setenv(envEditor, tt.envEditor)
 			}
+			if tt.envVisual == "" {
+				_ = os.Unsetenv(envVisual)
+			} else {
+				_ = os.Setenv(envVisual, tt.envVisual)
+			}
+
+			defer func() {
+				_ = os.Unsetenv(envVisual)
+				_ = os.Unsetenv(envEditor)
+			}()
+
+			editor := getEditor(tt.preferred)
+			assert.Equal(t, tt.expected, editor)
 		})
 	}
 }
@@ -140,6 +138,41 @@ func Test_ShowLookup(t *testing.T) {
 		assert.Equal(t, snippets[1].Content, previewContent)
 
 		assert.NoError(t, screen.PostEvent(tcell.NewEventKey(tcell.KeyEnter, 0, tcell.ModNone)))
+	})
+}
+
+func Test_OpenEditor(t *testing.T) {
+	runExpectTest(t, func(c *expect.Console) {
+		_, _ = c.Send("iHello world\x1b")
+		time.Sleep(time.Second)
+		_, _ = c.SendLine(":wq!")
+	}, func(stdio terminal.Stdio) {
+		term := NewTerminal(WithStdio(stdio))
+
+		testFile := path.Join(t.TempDir(), "testfile")
+		_, err := os.Create(testFile)
+		assert.NoError(t, err)
+
+		term.OpenEditor(testFile, "")
+		bytes, err := ioutil.ReadFile(testFile) //nolint:gosec // potential file inclusion via variable
+		assert.NoError(t, err)
+		assert.Equal(t, "Hello world\n", string(bytes))
+	})
+}
+
+func Test_OpenEditor_InvalidCommand(t *testing.T) {
+	runExpectTest(t, func(c *expect.Console) {
+		// nothing to expect since panic will be handled at application root level
+	}, func(stdio terminal.Stdio) {
+		term := NewTerminal(WithStdio(stdio))
+
+		testFile := path.Join(t.TempDir(), "testfile")
+		_, err := os.Create(testFile)
+		assert.NoError(t, err)
+
+		assert.Panics(t, func() {
+			term.OpenEditor(testFile, "foo-editor")
+		})
 	})
 }
 
@@ -200,4 +233,38 @@ func getPreviewContents(screen tcell.SimulationScreen) string {
 	}
 
 	return strings.TrimSpace(result)
+}
+
+// Source: https://github.com/AlecAivazis/survey/blob/master/survey_posix_test.go
+func runExpectTest(t *testing.T, procedure func(*expect.Console), test func(terminal.Stdio)) {
+	t.Helper()
+	t.Parallel()
+
+	// Multiplex output to a buffer as well for the raw bytes.
+	buf := new(bytes.Buffer)
+	c, state, err := vt10x.NewVT10XConsole(
+		expect.WithStdout(buf),
+		expect.WithDefaultTimeout(time.Second),
+	)
+	require.Nil(t, err)
+	defer func() {
+		_ = c.Close()
+	}()
+
+	donec := make(chan struct{})
+	go func() {
+		defer close(donec)
+		procedure(c)
+	}()
+
+	test(terminal.Stdio{In: c.Tty(), Out: c.Tty(), Err: c.Tty()})
+
+	// Close the slave end of the pty, and read the remaining bytes from the master end.
+	assert.NoError(t, c.Tty().Close())
+	<-donec
+
+	t.Logf("Raw output: %q", buf.String())
+
+	// Dump the terminal's screen.
+	t.Logf("\n%s", expect.StripTrailingEmptyLines(state.String()))
 }

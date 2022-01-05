@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"runtime"
 	"strings"
 
 	"emperror.dev/errors"
@@ -17,11 +16,9 @@ import (
 )
 
 const (
-	envEditor            = "EDITOR"
-	envVisual            = "VISUAL"
-	defaultEditor        = "vim"
-	defaultEditorWindows = "notepad"
-	windows              = "windows"
+	envEditor     = "EDITOR"
+	envVisual     = "VISUAL"
+	defaultEditor = "vim"
 )
 
 // TerminalOption configures a Terminal.
@@ -126,9 +123,6 @@ func (c cliTerminal) OpenEditor(path string, preferredEditor string) {
 
 func getEditor(preferred string) string {
 	result := defaultEditor
-	if runtime.GOOS == windows {
-		result = defaultEditorWindows
-	}
 
 	preferred = strings.TrimSpace(preferred)
 	if preferred != "" {
