@@ -18,7 +18,7 @@ func (a *appImpl) LookupAndExecuteSnippet() {
 	parameters := parser.ParseParameters(snippet.Content)
 	parameterValues := a.ui.ShowParameterForm(parameters)
 
-	script := createSnippetString(*snippet, parameters, parameterValues)
+	script := parser.CreateSnippet(snippet.Content, parameters, parameterValues)
 
 	executeScript(script, a.ui)
 }

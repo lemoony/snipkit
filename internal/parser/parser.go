@@ -17,6 +17,7 @@ type (
 		variable       string
 		typeDescriptor hintTypeDescriptor
 		value          string
+		position       int
 	}
 )
 
@@ -42,6 +43,32 @@ var hintRegex = regexp.MustCompile(fmt.Sprintf(
 func ParseParameters(snippet string) []model.Parameter {
 	hints := parseHints(snippet)
 	return hintsToParameters(hints)
+}
+
+func CreateSnippet(snippet string, parameters []model.Parameter, values []string) string {
+	hints := parseHints(snippet)
+
+	start := 0
+	result := ""
+	for i, parameter := range parameters {
+		maxPosition := 0
+		for _, hint := range hints {
+			if hint.variable == parameter.Key {
+				if hint.position > maxPosition {
+					maxPosition = hint.position
+				}
+			}
+		}
+
+		newLine := fmt.Sprintf("%s=\"%s\"\n", parameter.Key, values[i])
+
+		result += snippet[start:maxPosition] + newLine
+		start = maxPosition
+	}
+
+	result += snippet[start:]
+
+	return result
 }
 
 func hintsToParameters(hints []hint) []model.Parameter {
@@ -109,11 +136,14 @@ func parseHints(snippet string) []hint {
 	var result []hint
 
 	scanner := bufio.NewScanner(strings.NewReader(snippet))
+	position := 0
 	for scanner.Scan() {
 		line := scanner.Text()
+		position += len(line) + 1
 
 		currentHint := hint{
 			typeDescriptor: hintTypeInvalid,
+			position:       position,
 		}
 
 		match := hintRegex.FindStringSubmatch(line)

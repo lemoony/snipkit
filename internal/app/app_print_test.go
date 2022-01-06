@@ -12,15 +12,9 @@ import (
 )
 
 func Test_LookupAndCreatePrintableSnippet(t *testing.T) {
-	snippetContent := `# some comment
-# ${VAR1} Name: First Output
+	snippetContent := `# ${VAR1} Name: First Output
 # ${VAR1} Description: What to print on the terminal first
-echo "${VAR1}
-# ${VAR2} Name: Second Output
-# ${VAR2} Description: What to print on the terminal second
-# ${VAR2} Default: default-value
-echo "${VAR2}"
-`
+echo "${VAR1}`
 
 	snippets := []model.Snippet{
 		{UUID: "uuid1", Title: "title-1", Language: model.LanguageYAML, TagUUIDs: []string{}, Content: "content-1"},
@@ -30,20 +24,15 @@ echo "${VAR2}"
 	terminal := uiMocks.Terminal{}
 	terminal.On("ApplyConfig", mock.Anything).Return()
 	terminal.On("ShowLookup", snippets).Return(1)
-	terminal.On("ShowParameterForm", mock.Anything).Return([]string{"foo-value", ""})
+	terminal.On("ShowParameterForm", mock.Anything).Return([]string{"foo-value"})
 
 	app := NewApp(
 		WithTerminal(&terminal), WithConfig(configtest.NewTestConfig().Config), withProviderSnippets(snippets),
 	)
 
 	s := app.LookupAndCreatePrintableSnippet()
-	assert.Equal(t, `# some comment
-# foo-value Name: First Output
-# foo-value Description: What to print on the terminal first
-echo "foo-value
-# default-value Name: Second Output
-# default-value Description: What to print on the terminal second
-# default-value Default: default-value
-echo "default-value"
-`, s)
+	assert.Equal(t, `# ${VAR1} Name: First Output
+# ${VAR1} Description: What to print on the terminal first
+VAR1="foo-value"
+echo "${VAR1}`, s)
 }
