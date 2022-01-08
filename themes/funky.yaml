@@ -1,0 +1,40 @@
+version: 1.0.0 # Don't change this version string - it is used by snipkit internally
+# If a color value is set to "", a default color will be used.
+variables:
+  backgroundColor: "#3E436B" # darkblue
+  borderColor: "#ADADAD" # gray
+  defaultTextColor: "#A2A4B7"
+  selectionColor: "#E86258" # red
+  selectionColorReverse: "F2B1AE" # red-ish-gray
+  secondarySelectionColor: "#e9d8a6"
+  secondarySelectionColorReverse: "#005f73"
+  tertiaryColor: "#F5D25F"
+  fieldTextColor: "red"
+  fieldBackgroundColor: "#1cdebb"
+  fieldPlaceholderColor: "#2593d1"
+theme:
+  backgroundColor: ${backgroundColor}
+  borderColor: ${borderColor}
+  borderTitleColor: ${borderColor}
+  previewColorSchemeName: solarized-light # All available schemes: https://xyproto.github.io/splash/docs/
+  previewApplyMainBackground: false # If set to false, the background color defined by previewColorSchemeName will be applied
+  previewOverwriteBackgroundColor: "" # If set to a non-empty string and previewApplyMainBackground = false, this color will be used for the preview
+  previewDefaultTextColor: "black" # Default text color of the preview window.
+  itemTextColor: ${defaultTextColor}
+  selectedItemTextColor: ${selectionColorReverse}
+  selectedItemBackgroundColor: ${selectionColor}
+  itemHighlightMatchBackgroundColor: ${secondarySelectionColor}
+  itemHighlightMatchTextColor: ${secondarySelectionColorReverse}
+  counterTextColor: ${tertiaryColor}
+  lookupInputTextColor: ${fieldTextColor}
+  lookupInputPlaceholderColor: ${fieldPlaceholderColor}
+  lookupInputBackgroundColor: ${fieldBackgroundColor}
+  parametersLabelTextColor: ${tertiaryColor}
+  parametersFieldBackgroundColor: ${fieldBackgroundColor}
+  parametersFieldTextColor: ${fieldTextColor}
+  selectedButtonBackgroundColor: ${selectionColor}
+  selectedButtonTextColor: ${selectionColorReverse}
+  parameterAutocompleteBackgroundColor: ${secondarySelectionColor}
+  parameterAutocompleteTextColor: ${secondarySelectionColorReverse}
+  parameterAutocompleteSelectedBackgroundColor: ${selectionColor}
+  parameterAutocompleteSelectedTextColor: ${selectionColorReverse}

@@ -2,7 +2,7 @@ module github.com/lemoony/snippet-kit
 
 go 1.16
 
-replace github.com/rivo/tview v0.0.0-20211202162923-2a6de950f73b => github.com/lemoony/tview v0.0.0-20211229164304-89f0d77016e8
+replace github.com/rivo/tview v0.0.0-20211202162923-2a6de950f73b => github.com/lemoony/tview v0.0.0-20220108075851-caa9ee4cec2d
 
 require (
 	emperror.dev/errors v0.8.0

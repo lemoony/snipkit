@@ -1,71 +1,89 @@
 package ui
 
 import (
+	_ "embed"
+	"path/filepath"
+	"reflect"
+	"regexp"
+
+	"emperror.dev/errors"
 	"github.com/gdamore/tcell/v2"
+	"gopkg.in/yaml.v3"
+
+	themedata "github.com/lemoony/snippet-kit/themes"
 )
 
-type simpleThemeValues struct {
-	syntaxHighlightingColorSchemeName     string
-	syntaxHighlightingApplyMainBackground bool
-	backgroundColor                       string
-	itemTextColor                         string
-	selectedItemTextColor                 string
-	selectionColor                        string
-	highlightColor                        string
-	placeholderColor                      string
-	secondaryLabelColor                   string
+const (
+	defaultThemeName       = "default"
+	variablePatternMatches = 2
+	filenamePatternMatches = 2
+)
+
+var (
+	variablePattern = regexp.MustCompile(`^\${(?P<varName>.*)}$`)
+	filenamePattern = regexp.MustCompile(`^(?P<filename>.*)\.ya?ml$`)
+	ErrInvalidTheme = errors.New("invalid theme")
+)
+
+type themeWrapper struct {
+	Version   string `yaml:"version"`
+	Variables map[string]string
+	Theme     ThemeValues `yaml:"theme"`
 }
 
-func (s *simpleThemeValues) toThemeValues() ThemeValues {
-	return ThemeValues{
-		SyntaxHighlightingColorSchemeName:     s.syntaxHighlightingColorSchemeName,
-		SyntaxHighlightingApplyMainBackground: s.syntaxHighlightingApplyMainBackground,
-		PreviewSnippetDefaultTextColor:        "",
-		BackgroundColor:                       s.backgroundColor,
-		BorderColor:                           s.itemTextColor,
-		BorderTitleColor:                      s.itemTextColor,
-		ItemTextColor:                         s.itemTextColor,
-		SelectedItemTextColor:                 s.selectedItemTextColor,
-		SelectedItemBackgroundColor:           s.selectionColor,
-		ItemHighlightMatchColor:               s.highlightColor,
-		CounterTextColor:                      s.secondaryLabelColor,
-		CounterBackgroundColor:                "",
-		LookupInputTextColor:                  s.itemTextColor,
-		LookupInputPlaceholderColor:           s.placeholderColor,
-		LookupInputBackgroundColor:            "",
-		LookupLabelTextColor:                  s.secondaryLabelColor,
+func embeddedTheme(name string) ThemeValues {
+	entries, err := themedata.Files.ReadDir(".")
+	if err != nil {
+		panic(err)
 	}
+
+	for _, entry := range entries {
+		m := filenamePattern.FindStringSubmatch(filepath.Base(entry.Name()))
+		if len(m) == filenamePatternMatches {
+			themeName := m[1]
+			if name == themeName {
+				return readTheme(entry.Name())
+			}
+		}
+	}
+
+	panic(errors.Wrapf(ErrInvalidTheme, "theme not found: "+name))
 }
 
-var themeNames = map[string]ThemeValues{
-	"default": themeDefault,
-	"dracula": themeDracula.toThemeValues(),
+func readTheme(path string) ThemeValues {
+	bytes, err := themedata.Files.ReadFile(path)
+	if err != nil {
+		panic(errors.Wrapf(err, "failed to read theme %s", path))
+	}
+
+	var wrapper themeWrapper
+	err = yaml.Unmarshal(bytes, &wrapper)
+	if err != nil {
+		panic(err)
+	}
+
+	return wrapper.theme()
 }
 
-var themeDefault = themeSimple.toThemeValues()
+func (t *themeWrapper) theme() ThemeValues {
+	result := t.Theme
+	v := reflect.Indirect(reflect.ValueOf(&result))
 
-var themeSimple = simpleThemeValues{
-	syntaxHighlightingColorSchemeName:     "friendly",
-	syntaxHighlightingApplyMainBackground: true,
-	backgroundColor:                       "",
-	itemTextColor:                         "",
-	selectedItemTextColor:                 "#f8f8f2",
-	selectionColor:                        "#ff5555",
-	highlightColor:                        "#50fa7b",
-	secondaryLabelColor:                   "#B79103",
-	placeholderColor:                      "#6272a4",
-}
-
-var themeDracula = simpleThemeValues{
-	syntaxHighlightingColorSchemeName:     "dracula",
-	syntaxHighlightingApplyMainBackground: true,
-	backgroundColor:                       "#282a36",
-	itemTextColor:                         "#f8f8f2",
-	selectedItemTextColor:                 "#f8f8f2",
-	selectionColor:                        "#ff5555",
-	highlightColor:                        "#50fa7b",
-	secondaryLabelColor:                   "#f1fa8c",
-	placeholderColor:                      "#6272a4",
+	for i := 0; i < v.NumField(); i++ {
+		if v.Field(i).Kind() == reflect.String {
+			matches := variablePattern.FindStringSubmatch(v.Field(i).String())
+			if len(matches) != variablePatternMatches {
+				continue
+			}
+			varName := matches[1]
+			if val, ok := t.Variables[varName]; !ok {
+				panic(errors.Wrapf(ErrInvalidTheme, "variable %s not found", varName))
+			} else {
+				v.Field(i).SetString(val)
+			}
+		}
+	}
+	return result
 }
 
 func (r *ThemeValues) backgroundColor() tcell.Color {
@@ -97,11 +115,11 @@ func (r *ThemeValues) selectedItemStyle() tcell.Style {
 }
 
 func (r *ThemeValues) highlightItemMatchStyle() tcell.Style {
-	return tcell.StyleDefault.Background(tcell.ColorReset).Foreground(tcell.GetColor(r.ItemHighlightMatchColor))
+	return tcell.StyleDefault.Background(tcell.GetColor(r.ItemHighlightMatchBackgroundColor)).Foreground(tcell.GetColor(r.ItemHighlightMatchTextColor))
 }
 
 func (r *ThemeValues) counterStyle() tcell.Style {
-	return tcell.StyleDefault.Background(tcell.GetColor(r.CounterBackgroundColor)).Foreground(tcell.GetColor(r.CounterTextColor))
+	return tcell.StyleDefault.Foreground(tcell.GetColor(r.CounterTextColor))
 }
 
 func (r *ThemeValues) lookupInputStyle() tcell.Style {
@@ -109,13 +127,53 @@ func (r *ThemeValues) lookupInputStyle() tcell.Style {
 }
 
 func (r *ThemeValues) lookupLabelStyle() tcell.Style {
-	return tcell.StyleDefault.Background(tcell.GetColor(r.BackgroundColor)).Foreground(tcell.GetColor(r.LookupLabelTextColor))
+	return tcell.StyleDefault.Background(tcell.GetColor(r.BackgroundColor))
 }
 
 func (r *ThemeValues) lookupInputPlaceholderStyle() tcell.Style {
-	return tcell.StyleDefault.Background(tcell.ColorReset).Foreground(tcell.GetColor(r.LookupInputPlaceholderColor))
+	return tcell.StyleDefault.Background(tcell.ColorDefault).Foreground(tcell.GetColor(r.LookupInputPlaceholderColor))
 }
 
-func (r *ThemeValues) previewSnippetDefaultTextColor() tcell.Color {
-	return tcell.GetColor(r.PreviewSnippetDefaultTextColor)
+func (r *ThemeValues) parametersLabelColor() tcell.Color {
+	return tcell.GetColor(r.ParametersLabelTextColor)
+}
+
+func (r *ThemeValues) parametersFieldBackgroundColor() tcell.Color {
+	return tcell.GetColor(r.ParametersFieldBackgroundColor)
+}
+
+func (r *ThemeValues) parametersFieldTextColor() tcell.Color {
+	return tcell.GetColor(r.ParametersFieldTextColor)
+}
+
+func (r *ThemeValues) parametersAutocompleteTextColor() tcell.Color {
+	return tcell.GetColor(r.ParameterAutocompleteTextColor)
+}
+
+func (r *ThemeValues) parametersAutocompleteSelectedTextColor() tcell.Color {
+	return tcell.GetColor(r.ParameterAutocompleteSelectedTextColor)
+}
+
+func (r *ThemeValues) parametersAutocompleteBackgroundColor() tcell.Color {
+	return tcell.GetColor(r.ParameterAutocompleteBackgroundColor)
+}
+
+func (r *ThemeValues) parametersAutocompleteSelectedBackgroundColor() tcell.Color {
+	return tcell.GetColor(r.ParameterAutocompleteSelectedBackgroundColor)
+}
+
+func (r *ThemeValues) selectedButtonBackgroundColor() tcell.Color {
+	return tcell.GetColor(r.SelectedItemBackgroundColor)
+}
+
+func (r *ThemeValues) previewDefaultTextColor() tcell.Color {
+	return tcell.GetColor(r.PreviewDefaultTextColor)
+}
+
+func (r *ThemeValues) previewOverwriteBackgroundColor() (tcell.Color, bool) {
+	if r.PreviewOverwriteBackgroundColor != "" {
+		return tcell.GetColor(r.PreviewOverwriteBackgroundColor), true
+	} else {
+		return tcell.ColorDefault, false
+	}
 }

@@ -4,8 +4,6 @@ config:
     # The theme defines the terminal colors used by Snipkit.
     # Available themes:default,dracula.
     theme: dracula
-    # List of custom themes with values.
-    customThemes: []
   # Your preferred editor to open the config file when typing 'snipkit config edit'.
   editor: foo-editor # Defaults to a reasonable value for your operation system when empty.
   provider:

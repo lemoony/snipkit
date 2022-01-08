@@ -1,13 +1,11 @@
 package ui
 
 import (
-	"github.com/phuslu/log"
 	"github.com/rivo/tview"
 )
 
 type Config struct {
-	Theme        string       `yaml:"theme" head_comment:"The theme defines the terminal colors used by Snipkit.\nAvailable themes:default,dracula."`
-	CustomThemes []NamedTheme `yaml:"customThemes" head_comment:"List of custom themes with values."`
+	Theme string `yaml:"theme" head_comment:"The theme defines the terminal colors used by Snipkit.\nAvailable themes:default,dracula."`
 }
 
 type NamedTheme struct {
@@ -16,31 +14,35 @@ type NamedTheme struct {
 }
 
 type ThemeValues struct {
-	BackgroundColor                       string
-	BorderColor                           string
-	BorderTitleColor                      string
-	SyntaxHighlightingColorSchemeName     string
-	SyntaxHighlightingApplyMainBackground bool
-	PreviewSnippetDefaultTextColor        string
-	ItemTextColor                         string
-	SelectedItemTextColor                 string
-	SelectedItemBackgroundColor           string
-	ItemHighlightMatchColor               string
-	CounterTextColor                      string
-	CounterBackgroundColor                string
-	LookupInputTextColor                  string
-	LookupInputPlaceholderColor           string
-	LookupInputBackgroundColor            string
-	LookupLabelTextColor                  string
+	BackgroundColor                              string `yaml:"backgroundColor"`
+	BorderColor                                  string `yaml:"borderColor"`
+	BorderTitleColor                             string `yaml:"borderTitleColor"`
+	PreviewColorSchemeName                       string `yaml:"previewColorSchemeName"`
+	PreviewApplyMainBackground                   bool   `yaml:"previewApplyMainBackground"`
+	PreviewOverwriteBackgroundColor              string `yaml:"previewOverwriteBackgroundColor"`
+	PreviewDefaultTextColor                      string `yaml:"previewDefaultTextColor"`
+	ItemTextColor                                string `yaml:"itemTextColor"`
+	SelectedItemTextColor                        string `yaml:"selectedItemTextColor"`
+	SelectedItemBackgroundColor                  string `yaml:"selectedItemBackgroundColor"`
+	ItemHighlightMatchBackgroundColor            string `yaml:"itemHighlightMatchBackgroundColor"`
+	ItemHighlightMatchTextColor                  string `yaml:"itemHighlightMatchTextColor"`
+	CounterTextColor                             string `yaml:"counterTextColor"`
+	LookupInputTextColor                         string `yaml:"lookupInputTextColor"`
+	LookupInputPlaceholderColor                  string `yaml:"lookupInputPlaceholderColor"`
+	LookupInputBackgroundColor                   string `yaml:"lookupInputBackgroundColor"`
+	ParametersLabelTextColor                     string `yaml:"parametersLabelTextColor"`
+	ParametersFieldBackgroundColor               string `yaml:"parametersFieldBackgroundColor"`
+	ParametersFieldTextColor                     string `yaml:"parametersFieldTextColor"`
+	ParameterAutocompleteBackgroundColor         string `yaml:"parameterAutocompleteBackgroundColor"`
+	ParameterAutocompleteTextColor               string `yaml:"parameterAutocompleteTextColor"`
+	ParameterAutocompleteSelectedBackgroundColor string `yaml:"parameterAutocompleteSelectedBackgroundColor"`
+	ParameterAutocompleteSelectedTextColor       string `yaml:"parameterAutocompleteSelectedTextColor"`
+	SelectedButtonBackgroundColor                string `yaml:"selectedButtonBackgroundColor"`
+	SelectedButtonTextColor                      string `yaml:"selectedButtonTextColor"`
 }
 
 func (c *Config) GetSelectedTheme() ThemeValues {
-	for i := range c.CustomThemes {
-		if c.CustomThemes[i].Name == c.Theme {
-			return c.CustomThemes[i].Values
-		}
-	}
-	return themeDefault
+	return embeddedTheme(c.Theme)
 }
 
 var currentTheme ThemeValues
@@ -52,19 +54,12 @@ func DefaultConfig() Config {
 }
 
 func ApplyConfig(cfg Config) {
-	theme := themeDefault
-	for _, t := range cfg.CustomThemes {
-		if t.Name == cfg.Theme {
-			log.Debug().Msgf("Applied custom theme: %s", t.Name)
-			theme = t.Values
-		}
+	var theme ThemeValues
+	if cfg.Theme == "" {
+		theme = embeddedTheme(defaultThemeName)
+	} else {
+		theme = embeddedTheme(cfg.Theme)
 	}
-
-	if t, ok := themeNames[cfg.Theme]; ok {
-		log.Debug().Msgf("Applied provided theme: %s", cfg.Theme)
-		theme = t
-	}
-
 	setTheme(theme)
 }
 

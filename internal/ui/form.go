@@ -18,9 +18,20 @@ type appForm struct {
 	success        bool
 }
 
-func newAppForm(parameters []model.Parameter) *appForm {
+func (c cliTerminal) ShowParameterForm(parameters []model.Parameter) []string {
+	if parameters, err := newAppForm(parameters, c.screen).show(); err != nil {
+		panic(err)
+	} else {
+		return parameters
+	}
+}
+
+func newAppForm(parameters []model.Parameter, screen tcell.Screen) *appForm {
+	app := tview.NewApplication()
+	app.SetScreen(screen)
+
 	return &appForm{
-		app:            tview.NewApplication(),
+		app:            app,
 		form:           tview.NewForm(),
 		parameters:     parameters,
 		maxTitleLength: getMaxWidthParameter(parameters),
@@ -44,6 +55,11 @@ func (a *appForm) show() ([]string, error) {
 
 	a.addNextInput()
 
+	a.form.SetLabelColor(currentTheme.parametersLabelColor())
+	a.form.SetButtonBackgroundColor(currentTheme.selectedButtonBackgroundColor())
+	a.form.SetFieldBackgroundColor(currentTheme.parametersFieldBackgroundColor())
+	a.form.SetFieldTextColor(currentTheme.parametersFieldTextColor())
+
 	if err := a.app.SetRoot(a.form, true).SetFocus(a.form).Run(); err != nil {
 		return nil, err
 	}
@@ -61,25 +77,33 @@ func (a *appForm) addNextInput() {
 		return
 	case a.nextInputIndex == len(a.parameters):
 		a.form.
-			AddButton("Save", func() {
+			AddButton("Execute", func() {
 				a.success = true
 				a.app.Stop()
 			}).
-			AddButton("Quit", func() { a.app.Stop() })
+			AddButton("Quit", func() {
+				a.app.Stop()
+			})
+
 	case a.nextInputIndex < len(a.parameters):
 		param := a.parameters[a.nextInputIndex]
 		if len(param.Values) == 0 {
 			a.form.AddInputField(padLength(param.Name, a.maxTitleLength), param.DefaultValue, defaultInputWidth, nil, nil)
 		} else {
-			a.form.AddFormItem(tview.NewInputField().
+			field := tview.NewInputField().
 				SetLabel(padLength(param.Name, a.maxTitleLength)).
 				SetText("value").
 				SetFieldWidth(defaultInputWidth).
 				SetText(param.DefaultValue).
+				SetAutocompleteBackgroundColor(currentTheme.parametersAutocompleteBackgroundColor()).
+				SetAutocompleteSelectBackgroundColor(currentTheme.parametersAutocompleteSelectedBackgroundColor()).
+				SetAutocompleteMainTextColor(currentTheme.parametersAutocompleteTextColor()).
+				SetAutocompleteSelectedTextColor(currentTheme.parametersAutocompleteSelectedTextColor()).
 				SetAutocompleteFunc(func(currentText string) (entries []string) {
 					return param.Values
-				}),
-			)
+				})
+
+			a.form.AddFormItem(field)
 		}
 	}
 
@@ -109,12 +133,4 @@ func padLength(title string, targetLength int) string {
 		title += " "
 	}
 	return title
-}
-
-func (c cliTerminal) ShowParameterForm(parameters []model.Parameter) []string {
-	if parameters, err := newAppForm(parameters).show(); err != nil {
-		panic(err)
-	} else {
-		return parameters
-	}
 }

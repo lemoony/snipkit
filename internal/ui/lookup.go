@@ -87,7 +87,7 @@ func getPreviewFormatterAndStyle() (chroma.Formatter, *chroma.Style) {
 		f = formatters.Fallback
 	}
 
-	s := styles.Get(currentTheme.SyntaxHighlightingColorSchemeName)
+	s := styles.Get(currentTheme.PreviewColorSchemeName)
 	if s == nil {
 		s = styles.Fallback
 	}
@@ -109,12 +109,16 @@ func applyStyle(finder *tview.Finder, preview *tview.TextView, chromaStyle *chro
 	finder.SetSelectedItemStyle(currentTheme.selectedItemStyle())
 	finder.SetCounterStyle(currentTheme.counterStyle())
 	finder.SetHighlightMatchStyle(currentTheme.highlightItemMatchStyle())
+	finder.SetHighlightMatchMaintainBackgroundColor(false)
 	finder.SetFieldStyle(currentTheme.lookupInputStyle())
 	finder.SetPlaceholderStyle(currentTheme.lookupInputPlaceholderStyle())
 
-	preview.SetTextColor(currentTheme.previewSnippetDefaultTextColor())
-
-	if !currentTheme.SyntaxHighlightingApplyMainBackground {
-		preview.SetBackgroundColor(tcell.GetColor(chromaStyle.Get(chroma.Background).Background.String()))
+	preview.SetTextColor(currentTheme.previewDefaultTextColor())
+	if !currentTheme.PreviewApplyMainBackground {
+		if bgColor, ok := currentTheme.previewOverwriteBackgroundColor(); ok {
+			preview.SetBackgroundColor(bgColor)
+		} else {
+			preview.SetBackgroundColor(tcell.GetColor(chromaStyle.Get(chroma.Background).Background.String()))
+		}
 	}
 }
