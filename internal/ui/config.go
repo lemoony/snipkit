@@ -42,6 +42,9 @@ type ThemeValues struct {
 }
 
 func (c *Config) GetSelectedTheme() ThemeValues {
+	if c.Theme == "" {
+		return embeddedTheme(defaultThemeName)
+	}
 	return embeddedTheme(c.Theme)
 }
 
@@ -54,13 +57,7 @@ func DefaultConfig() Config {
 }
 
 func ApplyConfig(cfg Config) {
-	var theme ThemeValues
-	if cfg.Theme == "" {
-		theme = embeddedTheme(defaultThemeName)
-	} else {
-		theme = embeddedTheme(cfg.Theme)
-	}
-	setTheme(theme)
+	setTheme(cfg.GetSelectedTheme())
 }
 
 func setTheme(theme ThemeValues) {
