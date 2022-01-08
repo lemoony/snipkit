@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/lemoony/snippet-kit/internal/utils"
+	"github.com/lemoony/snippet-kit/internal/utils/pathutil"
 	"github.com/lemoony/snippet-kit/internal/utils/testutil"
 )
 
@@ -24,10 +25,9 @@ func Test_Config_apply(t *testing.T) {
 	if bytes, err := afero.ReadFile(system.Fs, "testdata/test-custom.yaml"); err != nil {
 		assert.NoError(t, err)
 	} else {
-		assert.NoError(
-			t,
-			afero.WriteFile(system.Fs, filepath.Join(system.ThemesDir(), "test-custom.yaml"), bytes, 0o600),
-		)
+		path := filepath.Join(system.ThemesDir(), "test-custom.yaml")
+		assert.NoError(t, pathutil.CreatePath(system.Fs, path))
+		assert.NoError(t, afero.WriteFile(system.Fs, path, bytes, 0o600))
 	}
 
 	testdata := []struct {
