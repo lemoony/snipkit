@@ -80,7 +80,7 @@ func NewApp(options ...Option) App {
 		panic("no config provided")
 	}
 
-	app.ui.ApplyConfig(app.config.Style)
+	app.ui.ApplyConfig(app.config.Style, system)
 	if p, err := app.providersBuilder.BuildProvider(*app.system, app.config.Providers); err != nil {
 		panic(err)
 	} else {

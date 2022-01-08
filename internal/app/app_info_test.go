@@ -14,7 +14,7 @@ import (
 
 func Test_App_Info(t *testing.T) {
 	terminal := uiMocks.Terminal{}
-	terminal.On("ApplyConfig", mock.Anything).Return()
+	terminal.On("ApplyConfig", mock.Anything, mock.Anything).Return()
 
 	cfg := configtest.NewTestConfig().Config
 

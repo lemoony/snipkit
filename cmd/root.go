@@ -3,10 +3,7 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"net/url"
-	"path"
 
-	"github.com/adrg/xdg"
 	"github.com/phuslu/log"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -80,16 +77,6 @@ func getConfigServiceFromContext(ctx context.Context) config.Service {
 	return s.configService()
 }
 
-type baseDirectory string
-
-func (d baseDirectory) configPath() string {
-	return path.Join(d.path(), "/config.yaml")
-}
-
-func (d baseDirectory) path() string {
-	return string(d)
-}
-
 var cfgFile string
 
 var rootCmd = &cobra.Command{
@@ -107,12 +94,8 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initConfig)
 
-	if defaultBaseDirectoryPath, err := defaultBaseDirectory(); err != nil {
-		cobra.CheckErr(err)
-	} else {
-		rootCmd.PersistentFlags().
-			StringVarP(&cfgFile, "config", "c", defaultBaseDirectoryPath.configPath(), "config file")
-	}
+	rootCmd.PersistentFlags().
+		StringVarP(&cfgFile, "config", "c", _defaultSetup.system.ConfigPath(), "config file")
 
 	configureLogging()
 }
@@ -121,14 +104,6 @@ func init() {
 func initConfig() {
 	_defaultSetup.v.SetConfigFile(cfgFile) // use config file from the flag.
 	_defaultSetup.v.AutomaticEnv()         // read in environment variables that match
-}
-
-func defaultBaseDirectory() (baseDirectory, error) {
-	u, err := url.Parse(xdg.ConfigHome)
-	if err != nil {
-		return "", err
-	}
-	return baseDirectory(path.Join(u.Path, "snipkit/")), nil
 }
 
 func configureLogging() {

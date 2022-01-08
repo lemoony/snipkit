@@ -52,7 +52,7 @@ func Test_NewAppNoProviders(t *testing.T) {
 	v.SetConfigFile(cfgFile)
 
 	term := uiMocks.Terminal{}
-	term.On("ApplyConfig", mock.AnythingOfType("ui.Config")).Return()
+	term.On("ApplyConfig", mock.AnythingOfType("ui.Config"), mock.Anything).Return()
 
 	builder := providerMocks.ProviderBuilder{}
 	builder.On("BuildProvider", mock.Anything, mock.Anything).Return([]providers.Provider{}, nil)

@@ -8,8 +8,11 @@ import (
 
 	"emperror.dev/errors"
 	"github.com/gdamore/tcell/v2"
+	"github.com/phuslu/log"
+	"github.com/spf13/afero"
 	"gopkg.in/yaml.v3"
 
+	"github.com/lemoony/snippet-kit/internal/utils"
 	themedata "github.com/lemoony/snippet-kit/themes"
 )
 
@@ -31,7 +34,7 @@ type themeWrapper struct {
 	Theme     ThemeValues `yaml:"theme"`
 }
 
-func embeddedTheme(name string) ThemeValues {
+func embeddedTheme(name string) (*ThemeValues, bool) {
 	entries, err := themedata.Files.ReadDir(".")
 	if err != nil {
 		panic(err)
@@ -42,16 +45,58 @@ func embeddedTheme(name string) ThemeValues {
 		if len(m) == filenamePatternMatches {
 			themeName := m[1]
 			if name == themeName {
-				return readTheme(entry.Name())
+				theme := readEmbeddedTheme(entry.Name())
+				return &theme, true
 			}
 		}
 	}
 
-	panic(errors.Wrapf(ErrInvalidTheme, "theme not found: "+name))
+	return nil, false
 }
 
-func readTheme(path string) ThemeValues {
+func customTheme(name string, system *utils.System) (*ThemeValues, bool) {
+	if ok, _ := afero.DirExists(system.Fs, system.ThemesDir()); !ok {
+		log.Trace().Msgf("Dir does not exist: %s", system.ThemesDir())
+		return nil, false
+	}
+
+	entries, err := afero.ReadDir(system.Fs, system.ThemesDir())
+	if err != nil {
+		panic(err)
+	}
+
+	for _, entry := range entries {
+		m := filenamePattern.FindStringSubmatch(filepath.Base(entry.Name()))
+		if len(m) == filenamePatternMatches {
+			themeName := m[1]
+			if name == themeName {
+				themePath := filepath.Join(system.ThemesDir(), entry.Name())
+				theme := readCustomTheme(themePath, system.Fs)
+				return &theme, true
+			}
+		}
+	}
+
+	return nil, false
+}
+
+func readEmbeddedTheme(path string) ThemeValues {
 	bytes, err := themedata.Files.ReadFile(path)
+	if err != nil {
+		panic(errors.Wrapf(err, "failed to read theme %s", path))
+	}
+
+	var wrapper themeWrapper
+	err = yaml.Unmarshal(bytes, &wrapper)
+	if err != nil {
+		panic(err)
+	}
+
+	return wrapper.theme()
+}
+
+func readCustomTheme(path string, fs afero.Fs) ThemeValues {
+	bytes, err := afero.ReadFile(fs, path)
 	if err != nil {
 		panic(errors.Wrapf(err, "failed to read theme %s", path))
 	}
@@ -87,7 +132,7 @@ func (t *themeWrapper) theme() ThemeValues {
 }
 
 func (r *ThemeValues) backgroundColor() tcell.Color {
-	return tcell.GetColor(r.BackgroundColor)
+	return tcell.GetColor(r.BackgroundColor).TrueColor()
 }
 
 func (r *ThemeValues) borderColor() tcell.Color {

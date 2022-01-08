@@ -1,16 +1,23 @@
 package utils
 
 import (
+	"net/url"
+	"os"
 	"path"
 
 	"github.com/adrg/xdg"
 	"github.com/spf13/afero"
 )
 
+const (
+	envSnipkitHome = "SNIPKIT_HOME"
+)
+
 type System struct {
 	Fs afero.Fs
 
 	userDataDir    *string
+	userConfigHome *string
 	userConfigDirs *[]string
 	// userContainersDir is macOS only
 	userContainersDir *string
@@ -39,6 +46,13 @@ func WithUserDataDir(userDataDir string) Option {
 func WithUserConfigDirs(configDirs []string) Option {
 	return optionFunc(func(p *System) {
 		p.userConfigDirs = &configDirs
+	})
+}
+
+// WithConfigCome sets the primary config home directory of the user.
+func WithConfigCome(configHome string) Option {
+	return optionFunc(func(p *System) {
+		p.userConfigHome = &configHome
 	})
 }
 
@@ -97,4 +111,29 @@ func (s *System) UserContainersHome() string {
 func (s *System) UserContainerPreferences(appID string) (string, error) {
 	containerDir := s.UserContainersHome()
 	return path.Join(containerDir, appID, "Data", "Library", "Preferences"), nil
+}
+
+func (s *System) ConfigPath() string {
+	return path.Join(s.homeDir(), "config.yaml")
+}
+
+func (s *System) ThemesDir() string {
+	return path.Join(s.homeDir(), "themes/")
+}
+
+func (s *System) homeDir() string {
+	dir := os.Getenv(envSnipkitHome)
+	if dir != "" {
+		return dir
+	}
+
+	if s.userConfigHome != nil {
+		return *s.userConfigHome
+	}
+
+	u, err := url.Parse(xdg.ConfigHome)
+	if err != nil {
+		panic(err)
+	}
+	return path.Join(u.Path, "snipkit/")
 }

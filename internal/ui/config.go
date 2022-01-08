@@ -1,7 +1,10 @@
 package ui
 
 import (
+	"emperror.dev/errors"
 	"github.com/rivo/tview"
+
+	"github.com/lemoony/snippet-kit/internal/utils"
 )
 
 type Config struct {
@@ -41,11 +44,21 @@ type ThemeValues struct {
 	SelectedButtonTextColor                      string `yaml:"selectedButtonTextColor"`
 }
 
-func (c *Config) GetSelectedTheme() ThemeValues {
-	if c.Theme == "" {
-		return embeddedTheme(defaultThemeName)
+func (c *Config) GetSelectedTheme(system *utils.System) ThemeValues {
+	themeName := defaultThemeName
+	if c.Theme != "" {
+		themeName = c.Theme
 	}
-	return embeddedTheme(c.Theme)
+
+	if theme, ok := embeddedTheme(themeName); ok {
+		return *theme
+	}
+
+	if theme, ok := customTheme(themeName, system); ok {
+		return *theme
+	}
+
+	panic(errors.Wrapf(ErrInvalidTheme, "theme not found: %s", themeName))
 }
 
 var currentTheme ThemeValues
@@ -56,8 +69,8 @@ func DefaultConfig() Config {
 	}
 }
 
-func ApplyConfig(cfg Config) {
-	setTheme(cfg.GetSelectedTheme())
+func ApplyConfig(cfg Config, system *utils.System) {
+	setTheme(cfg.GetSelectedTheme(system))
 }
 
 func setTheme(theme ThemeValues) {

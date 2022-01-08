@@ -1,8 +1,11 @@
 package utils
 
 import (
+	"fmt"
+	"os"
 	"testing"
 
+	"github.com/adrg/xdg"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -49,5 +52,45 @@ func Test_System_WithOptions(t *testing.T) {
 		assert.NoError(t, err)
 	} else {
 		assert.Equal(t, v, "/test/container/dir/test-app/Data/Library/Preferences")
+	}
+}
+
+func Test_getConfigPath(t *testing.T) {
+	tests := []struct {
+		name              string
+		prepare           func()
+		system            *System
+		expectedConfig    string
+		expectedThemesDir string
+	}{
+		{
+			name:              "default",
+			system:            NewSystem(),
+			prepare:           func() { assert.NoError(t, os.Unsetenv(envSnipkitHome)) },
+			expectedConfig:    fmt.Sprintf("%s/snipkit/config.yaml", xdg.ConfigHome),
+			expectedThemesDir: fmt.Sprintf("%s/snipkit/themes", xdg.ConfigHome),
+		},
+		{
+			name:              "overwrite config home",
+			system:            NewSystem(WithConfigCome("/custom/home")),
+			prepare:           func() { assert.NoError(t, os.Unsetenv(envSnipkitHome)) },
+			expectedConfig:    "/custom/home/config.yaml",
+			expectedThemesDir: "/custom/home/themes",
+		},
+		{
+			name:              "config home via env var",
+			system:            NewSystem(),
+			prepare:           func() { assert.NoError(t, os.Setenv(envSnipkitHome, "/custom/home/via/env")) },
+			expectedConfig:    "/custom/home/via/env/config.yaml",
+			expectedThemesDir: "/custom/home/via/env/themes",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.prepare()
+			assert.Equal(t, tt.expectedConfig, tt.system.ConfigPath())
+			assert.Equal(t, tt.expectedThemesDir, tt.system.ThemesDir())
+		})
 	}
 }

@@ -7,28 +7,26 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-
-	"github.com/lemoony/snippet-kit/internal/utils/testutil"
 )
 
 func Test_defaultThemeAvailable(t *testing.T) {
 	themeNames := []string{
 		defaultThemeName,
-		"funky",
+		"example",
 	}
 	for _, themeName := range themeNames {
 		t.Run(themeName, func(t *testing.T) {
-			assert.NotNil(t, embeddedTheme(themeName))
+			theme, ok := embeddedTheme(themeName)
+			assert.True(t, ok)
+			assert.NotNil(t, theme)
 		})
 	}
 }
 
 func Test_themeNotFound(t *testing.T) {
-	err := testutil.AssertPanicsWithError(t, ErrInvalidTheme, func() {
-		embeddedTheme("foo-theme")
-	})
-
-	assert.Contains(t, err.Error(), "theme not found: foo-theme")
+	theme, ok := embeddedTheme("foo-theme")
+	assert.Nil(t, theme)
+	assert.False(t, ok)
 }
 
 func Test_embeddedThemes(t *testing.T) {
@@ -41,6 +39,8 @@ func Test_embeddedThemes(t *testing.T) {
 		}
 
 		themeName := strings.TrimSuffix(fileInfo.Name(), ".yaml")
-		assert.NotNil(t, embeddedTheme(themeName))
+		theme, ok := embeddedTheme(themeName)
+		assert.True(t, ok)
+		assert.NotNil(t, theme)
 	}
 }
