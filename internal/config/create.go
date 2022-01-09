@@ -13,7 +13,7 @@ import (
 	"github.com/spf13/viper"
 	"gopkg.in/yaml.v3"
 
-	"github.com/lemoony/snippet-kit/internal/providers/filesystem"
+	"github.com/lemoony/snippet-kit/internal/providers/fslibrary"
 	"github.com/lemoony/snippet-kit/internal/providers/snippetslab"
 	"github.com/lemoony/snippet-kit/internal/ui"
 	"github.com/lemoony/snippet-kit/internal/ui/uimsg"
@@ -44,7 +44,7 @@ func createConfigFile(system *utils.System, viper *viper.Viper, term ui.Terminal
 
 	config.Config.Style = ui.DefaultConfig()
 	config.Config.Providers.SnippetsLab = snippetslab.AutoDiscoveryConfig(system)
-	config.Config.Providers.FileSystem = filesystem.AutoDiscoveryConfig(system)
+	config.Config.Providers.FsLibrary = fslibrary.AutoDiscoveryConfig(system)
 
 	data, err := serializeToYamlWithComment(config)
 	if err != nil {

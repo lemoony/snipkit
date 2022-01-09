@@ -35,7 +35,7 @@ var _defaultSetup = setup{
 	terminal:         ui.NewTerminal(),
 	providersBuilder: providers.NewBuilder(),
 	v:                viper.GetViper(),
-	system:           utils.NewTestSystem(),
+	system:           utils.NewSystem(),
 }
 
 type ctxKey string

@@ -71,8 +71,8 @@ func Test_NewAppNoProviders(t *testing.T) {
 
 func Test_appImpl_GetAllSnippets(t *testing.T) {
 	snippets := []model.Snippet{
-		{UUID: "uuid1", Title: "title-1", Language: model.LanguageYAML, TagUUIDs: []string{}, Content: "content-1"},
-		{UUID: "uuid2", Title: "title-2", Language: model.LanguageBash, TagUUIDs: []string{}, Content: "content-2"},
+		{UUID: "uuid1", TitleFunc: testutil.SimpleTitle("title-1"), LanguageFunc: testutil.FixedLanguage(model.LanguageYAML), TagUUIDs: []string{}, ContentFunc: testutil.SimpleTitle("content-1")},
+		{UUID: "uuid2", TitleFunc: testutil.SimpleTitle("title-1"), LanguageFunc: testutil.FixedLanguage(model.LanguageBash), TagUUIDs: []string{}, ContentFunc: testutil.SimpleTitle("content-2")},
 	}
 
 	provider := providerMocks.Provider{}
@@ -83,5 +83,5 @@ func Test_appImpl_GetAllSnippets(t *testing.T) {
 
 	s, err := app.getAllSnippets()
 	assert.NoError(t, err)
-	assert.Equal(t, snippets, s)
+	testutil.AssertSnippetsEqual(t, snippets, s)
 }

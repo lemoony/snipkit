@@ -23,7 +23,7 @@ func Test_parseSnippets(t *testing.T) {
 	assert.Len(t, snippets, 2)
 
 	then.AssertThat(t,
-		snippets[0].Title,
+		snippets[0].GetTitle(),
 		is.AnyOf(is.EqualTo("Simple echo"), is.EqualTo("Foos script")),
 	)
 }

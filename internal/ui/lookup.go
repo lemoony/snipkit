@@ -39,7 +39,7 @@ func (c cliTerminal) ShowLookup(snippets []model.Snippet) int {
 	finder := tview.NewFinder().
 		SetWrapAround(true).
 		SetItems(len(snippets), func(index int) string {
-			return snippets[index].Title
+			return snippets[index].GetTitle()
 		}).
 		SetDoneFunc(func(index int) {
 			app.Stop()
@@ -49,12 +49,12 @@ func (c cliTerminal) ShowLookup(snippets []model.Snippet) int {
 			if index >= 0 {
 				preview.SetText("")
 
-				l := lexers.Get(lexerMapping[snippets[index].Language])
+				l := lexers.Get(lexerMapping[snippets[index].GetLanguage()])
 				if l == nil {
 					l = lexers.Fallback
 				}
 				l = chroma.Coalesce(l)
-				it, err := l.Tokenise(nil, snippets[index].Content)
+				it, err := l.Tokenise(nil, snippets[index].GetContent())
 				if err != nil {
 					_, _ = preview.Write([]byte(fmt.Sprintf("Error: %s", err.Error())))
 				}

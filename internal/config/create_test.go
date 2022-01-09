@@ -17,6 +17,11 @@ func Test_serializeToYamlWithComment(t *testing.T) {
 	testConfig.Config.Providers.SnippetsLab.IncludeTags = []string{"snipkit", "othertag"}
 	testConfig.Config.Providers.SnippetsLab.ExcludeTags = []string{}
 
+	testConfig.Config.Providers.FsLibrary.Enabled = true
+	testConfig.Config.Providers.FsLibrary.LibraryPath = []string{"/path/to/file/system/library"}
+	testConfig.Config.Providers.FsLibrary.SuffixRegex = []string{".sh"}
+	testConfig.Config.Providers.FsLibrary.LazyOpen = true
+
 	expectedConfigBytes, err := ioutil.ReadFile(testDataExampleConfig)
 	assert.NoError(t, err)
 

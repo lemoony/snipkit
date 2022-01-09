@@ -14,6 +14,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/lemoony/snippet-kit/internal/model"
+	"github.com/lemoony/snippet-kit/internal/utils/testutil"
 )
 
 func Test_PrintMessage(t *testing.T) {
@@ -105,14 +106,14 @@ func Test_getEditor(t *testing.T) {
 func Test_ShowLookup(t *testing.T) {
 	snippets := []model.Snippet{
 		{
-			Title:    "Title 1",
-			Content:  "Content: One",
-			Language: model.LanguageYAML,
+			TitleFunc:    testutil.SimpleTitle("Title 1"),
+			ContentFunc:  testutil.SimpleTitle("Content: One"),
+			LanguageFunc: testutil.FixedLanguage(model.LanguageYAML),
 		},
 		{
-			Title:    "Title 2",
-			Content:  "Content: Two",
-			Language: model.LanguageYAML,
+			TitleFunc:    testutil.SimpleTitle("Title 2"),
+			ContentFunc:  testutil.SimpleTitle("Content: Two"),
+			LanguageFunc: testutil.FixedLanguage(model.LanguageYAML),
 		},
 	}
 
@@ -126,7 +127,7 @@ func Test_ShowLookup(t *testing.T) {
 
 		time.Sleep(time.Millisecond * 50)
 		previewContent := getPreviewContents(screen)
-		assert.Equal(t, snippets[1].Content, previewContent)
+		assert.Equal(t, snippets[1].GetContent(), previewContent)
 
 		assert.NoError(t, screen.PostEvent(tcell.NewEventKey(tcell.KeyEnter, 0, tcell.ModNone)))
 	})
