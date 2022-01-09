@@ -121,7 +121,7 @@ func (p *Provider) GetSnippets() ([]model.Snippet, error) {
 			fileName := filepath.Base(entry.Name())
 			filePath := filepath.Join(dir, fileName)
 
-			if !p.checkSuffix(fileName) {
+			if !checkSuffix(fileName, p.suffixRegex) {
 				continue
 			}
 
@@ -154,14 +154,14 @@ func (p *Provider) GetSnippets() ([]model.Snippet, error) {
 	return result, nil
 }
 
-func (p *Provider) checkSuffix(filename string) bool {
-	if len(p.suffixRegex) == 0 {
+func checkSuffix(filename string, regexes []*regexp.Regexp) bool {
+	if len(regexes) == 0 {
 		return true
 	}
 
 	suffix := filepath.Ext(filename)
 
-	for _, r := range p.suffixRegex {
+	for _, r := range regexes {
 		if r.MatchString(suffix) {
 			return true
 		}

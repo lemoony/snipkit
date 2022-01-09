@@ -3,6 +3,7 @@ package fslibrary
 import (
 	"fmt"
 	"path/filepath"
+	"regexp"
 	"testing"
 
 	"github.com/spf13/afero"
@@ -11,6 +12,35 @@ import (
 	"github.com/lemoony/snippet-kit/internal/model"
 	"github.com/lemoony/snippet-kit/internal/utils"
 )
+
+func Test_GetInfo(t *testing.T) {
+	system := utils.NewTestSystem()
+	libraryPath := t.TempDir()
+	config := Config{
+		Enabled:     true,
+		LibraryPath: []string{libraryPath},
+		SuffixRegex: []string{".sh", ".yaml"},
+	}
+
+	provider, err := NewProvider(WithSystem(system), WithConfig(config))
+	assert.NoError(t, err)
+
+	info := provider.Info()
+
+	assert.Len(t, info.Lines, 3)
+
+	assert.Equal(t, info.Lines[0].Key, "Filesystem library paths")
+	assert.Equal(t, info.Lines[0].Value, fmt.Sprintf("[%s]", libraryPath))
+	assert.False(t, info.Lines[0].IsError)
+
+	assert.Equal(t, info.Lines[1].Key, "Filesystem library allowed suffixes")
+	assert.Equal(t, info.Lines[1].Value, "[.sh, .yaml]")
+	assert.False(t, info.Lines[1].IsError)
+
+	assert.Equal(t, info.Lines[2].Key, "Filesystem library total number of snippets")
+	assert.Equal(t, info.Lines[2].Value, "0")
+	assert.False(t, info.Lines[2].IsError)
+}
 
 func Test_GetSnippets(t *testing.T) {
 	system := utils.NewTestSystem()
@@ -103,6 +133,44 @@ func Test_getSnippetName(t *testing.T) {
 			} else {
 				assert.Equal(t, filepath.Base(file.Name()), name)
 			}
+		})
+	}
+}
+
+func Test_checkSuffix(t *testing.T) {
+	tests := []struct {
+		filename string
+		re       []*regexp.Regexp
+		expected bool
+	}{
+		{filename: ".sh", re: []*regexp.Regexp{regexp.MustCompile(".sh")}, expected: true},
+		{filename: ".yaml", re: []*regexp.Regexp{regexp.MustCompile(".sh")}, expected: false},
+		{filename: ".sh", re: []*regexp.Regexp{}, expected: true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.filename, func(t *testing.T) {
+			assert.Equal(t, tt.expected, checkSuffix(tt.filename, tt.re))
+		})
+	}
+}
+
+func Test_languageForSuffix(t *testing.T) {
+	tests := []struct {
+		suffix   string
+		expected model.Language
+	}{
+		{suffix: ".sh", expected: model.LanguageBash},
+		{suffix: ".yaml", expected: model.LanguageYAML},
+		{suffix: ".yml", expected: model.LanguageYAML},
+		{suffix: ".md", expected: model.LanguageMarkdown},
+		{suffix: ".toml", expected: model.LanguageTOML},
+		{suffix: ".txt", expected: model.LanguageUnknown},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.suffix, func(t *testing.T) {
+			assert.Equal(t, tt.expected, languageForSuffix(tt.suffix))
 		})
 	}
 }
