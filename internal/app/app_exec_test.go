@@ -20,10 +20,10 @@ echo "${VAR1}"`
 	snippets := []model.Snippet{
 		{
 			UUID:         "uuid1",
-			TitleFunc:    testutil.SimpleTitle("title-1"),
+			TitleFunc:    testutil.FixedString("title-1"),
 			LanguageFunc: testutil.FixedLanguage(model.LanguageYAML),
 			TagUUIDs:     []string{},
-			ContentFunc:  testutil.SimpleTitle(snippetContent),
+			ContentFunc:  testutil.FixedString(snippetContent),
 		},
 	}
 

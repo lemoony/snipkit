@@ -6,6 +6,8 @@ import (
 	"github.com/corbym/gocrest/is"
 	"github.com/corbym/gocrest/then"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/lemoony/snippet-kit/internal/model"
 )
 
 func Test_parseTags(t *testing.T) {
@@ -26,4 +28,9 @@ func Test_parseSnippets(t *testing.T) {
 		snippets[0].GetTitle(),
 		is.AnyOf(is.EqualTo("Simple echo"), is.EqualTo("Foos script")),
 	)
+	then.AssertThat(t,
+		snippets[0].GetContent(),
+		is.MatchForPattern("^# some comment.*"),
+	)
+	assert.Equal(t, model.LanguageBash, snippets[0].GetLanguage())
 }

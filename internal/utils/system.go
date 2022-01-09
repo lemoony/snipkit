@@ -80,11 +80,12 @@ func NewSystem(options ...Option) *System {
 	return &result
 }
 
-func NewTestSystem() *System {
+func NewTestSystem(options ...Option) *System {
 	base := afero.NewOsFs()
 	roBase := afero.NewReadOnlyFs(base)
 	ufs := afero.NewCopyOnWriteFs(roBase, afero.NewMemMapFs())
-	return NewSystem(WithFS(ufs))
+	options = append(options, WithFS(ufs))
+	return NewSystem(options...)
 }
 
 func (s *System) UserDataHome() string {
@@ -114,14 +115,14 @@ func (s *System) UserContainerPreferences(appID string) (string, error) {
 }
 
 func (s *System) ConfigPath() string {
-	return path.Join(s.homeDir(), "config.yaml")
+	return path.Join(s.HomeDir(), "config.yaml")
 }
 
 func (s *System) ThemesDir() string {
-	return path.Join(s.homeDir(), "themes/")
+	return path.Join(s.HomeDir(), "themes/")
 }
 
-func (s *System) homeDir() string {
+func (s *System) HomeDir() string {
 	dir := os.Getenv(envSnipkitHome)
 	if dir != "" {
 		return dir

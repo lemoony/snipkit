@@ -6,21 +6,17 @@ import (
 	"testing"
 
 	"emperror.dev/errors"
+	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/lemoony/snippet-kit/internal/model"
 )
 
-func SimpleTitle(title string) func() string {
-	return func() string {
-		return title
-	}
-}
-
-func FixedLanguage(lang model.Language) func() model.Language {
-	return func() model.Language {
-		return lang
-	}
+func AssertExists(t *testing.T, fs afero.Fs, path string, expected bool) {
+	t.Helper()
+	exists, err := afero.Exists(fs, path)
+	assert.NoError(t, err)
+	assert.Equal(t, expected, exists)
 }
 
 func AssertSnippetsEqual(t *testing.T, expected []model.Snippet, actual []model.Snippet) {

@@ -1,6 +1,8 @@
 package config
 
 import (
+	"path/filepath"
+
 	"emperror.dev/errors"
 	"github.com/phuslu/log"
 	"github.com/spf13/afero"
@@ -118,19 +120,40 @@ func (s serviceImpl) Edit() {
 }
 
 func (s serviceImpl) Clean() {
-	if !s.hasConfig() {
-		panic(ErrConfigNotFound{s.v.ConfigFileUsed()})
+	configPath := s.v.ConfigFileUsed()
+
+	if s.hasConfig() {
+		if s.terminal.Confirm(uimsg.ConfirmDeleteConfigFile(configPath)) {
+			if err := s.system.Fs.Remove(s.v.ConfigFileUsed()); err != nil {
+				panic(errors.Wrapf(err, "failed to remove config file: %s", configPath))
+			}
+
+			s.terminal.PrintMessage(uimsg.ConfigFileDeleted(configPath))
+		} else {
+			s.terminal.PrintMessage(uimsg.ConfigNotDeleted())
+		}
+	} else {
+		s.terminal.PrintMessage(uimsg.ConfigNotFound(configPath))
 	}
 
-	if !s.terminal.Confirm(uimsg.ConfirmDeleteConfigFile()) {
-		return
+	if s.hasThemes() {
+		if s.terminal.Confirm(uimsg.ConfirmDeleteThemesDir(s.system.ThemesDir())) {
+			if err := s.system.Fs.RemoveAll(s.system.ThemesDir()); err != nil {
+				panic(errors.Wrapf(err, "failed to remove themes dir: %s", s.system.ThemesDir()))
+			}
+
+			s.terminal.PrintMessage(uimsg.ThemesDeleted())
+		} else {
+			s.terminal.PrintMessage(uimsg.ThemesNotDeleted())
+		}
 	}
 
-	if err := s.system.Fs.Remove(s.v.ConfigFileUsed()); err != nil {
-		panic(errors.Wrapf(err, "failed to remove config file: %s", s.v.ConfigFileUsed()))
-	}
+	s.deleteDirectoryIfEmpty(s.system.ThemesDir())
+	s.deleteDirectoryIfEmpty(filepath.Dir(s.system.ConfigPath()))
 
-	s.terminal.PrintMessage(uimsg.ConfigFileDeleted(s.v.ConfigFileUsed()))
+	if exists, _ := afero.DirExists(s.system.Fs, s.system.HomeDir()); exists {
+		s.terminal.PrintMessage(uimsg.HomeDirectoryStillExists(s.system.HomeDir()))
+	}
 }
 
 func (s serviceImpl) ConfigFilePath() string {
@@ -140,4 +163,32 @@ func (s serviceImpl) ConfigFilePath() string {
 func (s serviceImpl) hasConfig() bool {
 	ok, _ := afero.Exists(s.system.Fs, s.v.ConfigFileUsed())
 	return ok
+}
+
+func (s serviceImpl) hasThemes() bool {
+	themesDir := s.system.ThemesDir()
+	if exists, _ := afero.DirExists(s.system.Fs, themesDir); !exists {
+		return false
+	}
+
+	empty, err := afero.IsEmpty(s.system.Fs, themesDir)
+	if err != nil {
+		panic(err)
+	}
+
+	return !empty
+}
+
+func (s serviceImpl) deleteDirectoryIfEmpty(path string) {
+	if exists, err := afero.DirExists(s.system.Fs, path); err == nil && exists {
+		if empty, err2 := afero.IsEmpty(s.system.Fs, path); empty {
+			if err3 := s.system.Fs.Remove(path); err2 != nil {
+				log.Error().Err(err3)
+			}
+		} else if err != nil {
+			log.Error().Err(err2)
+		}
+	} else if err != nil {
+		log.Error().Err(err)
+	}
 }

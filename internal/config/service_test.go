@@ -2,6 +2,7 @@ package config
 
 import (
 	"path"
+	"path/filepath"
 	"testing"
 
 	"github.com/spf13/afero"
@@ -11,6 +12,7 @@ import (
 
 	"github.com/lemoony/snippet-kit/internal/ui/uimsg"
 	"github.com/lemoony/snippet-kit/internal/utils"
+	"github.com/lemoony/snippet-kit/internal/utils/pathutil"
 	"github.com/lemoony/snippet-kit/internal/utils/testutil"
 	mocks "github.com/lemoony/snippet-kit/mocks/ui"
 )
@@ -135,12 +137,19 @@ func Test_Edit(t *testing.T) {
 }
 
 func Test_Clean(t *testing.T) {
-	cfgFilePath := path.Join(t.TempDir(), "config.yaml")
+	system := utils.NewTestSystem(utils.WithConfigCome("~/.snipkit"))
 
-	system := utils.NewTestSystem()
+	// create a config file
+	assert.NoError(t, pathutil.CreatePath(system.Fs, system.ConfigPath()))
+	assert.NoError(t, afero.WriteFile(system.Fs, system.ConfigPath(), []byte(""), fileModeConfig))
+
+	// create a custom theme
+	themePath := filepath.Join(system.ThemesDir(), "custom.yaml")
+	assert.NoError(t, pathutil.CreatePath(system.Fs, themePath))
+	assert.NoError(t, afero.WriteFile(system.Fs, themePath, []byte(""), fileModeConfig))
 
 	v := viper.New()
-	v.SetConfigFile(cfgFilePath)
+	v.SetConfigFile(system.ConfigPath())
 	v.SetFs(system.Fs)
 
 	terminal := &mocks.Terminal{}
@@ -149,51 +158,74 @@ func Test_Clean(t *testing.T) {
 
 	s := NewService(WithSystem(system), WithViper(v), WithTerminal(terminal))
 
-	s.Create()
 	assert.True(t, s.(serviceImpl).hasConfig())
 
 	s.Clean()
+
+	terminal.AssertCalled(t, "Confirm", uimsg.ConfirmDeleteConfigFile(system.ConfigPath()))
+	terminal.AssertCalled(t, "PrintMessage", uimsg.ConfigFileDeleted(system.ConfigPath()))
+
+	terminal.AssertCalled(t, "Confirm", uimsg.ConfirmDeleteThemesDir(system.ThemesDir()))
+	terminal.AssertCalled(t, "PrintMessage", uimsg.ThemesDeleted())
+
 	assert.False(t, s.(serviceImpl).hasConfig())
+	testutil.AssertExists(t, system.Fs, system.ConfigPath(), false)
+	testutil.AssertExists(t, system.Fs, system.ThemesDir(), false)
 }
 
 func Test_Clean_Decline(t *testing.T) {
-	cfgFilePath := path.Join(t.TempDir(), "config.yaml")
+	system := utils.NewTestSystem(utils.WithConfigCome("~/.snipkit"))
 
-	system := utils.NewTestSystem()
+	// create a config file
+	assert.NoError(t, pathutil.CreatePath(system.Fs, system.ConfigPath()))
+	assert.NoError(t, afero.WriteFile(system.Fs, system.ConfigPath(), []byte(""), fileModeConfig))
+
+	// create a custom theme
+	themePath := filepath.Join(system.ThemesDir(), "custom.yaml")
+	assert.NoError(t, pathutil.CreatePath(system.Fs, themePath))
+	assert.NoError(t, afero.WriteFile(system.Fs, themePath, []byte(""), fileModeConfig))
 
 	v := viper.New()
-	v.SetConfigFile(cfgFilePath)
+	v.SetConfigFile(system.ConfigPath())
 	v.SetFs(system.Fs)
 
 	terminal := &mocks.Terminal{}
-	terminal.On("Confirm", uimsg.ConfirmCreateConfigFile()).Return(true, nil)
-	terminal.On("PrintMessage", mock.Anything).Return()
 
 	s := NewService(WithSystem(system), WithViper(v), WithTerminal(terminal))
-
-	s.Create()
 	assert.True(t, s.(serviceImpl).hasConfig())
 
-	terminal.On("Confirm", uimsg.ConfirmDeleteConfigFile()).Return(false, nil)
+	terminal.On("PrintMessage", mock.Anything).Return()
+	terminal.On("Confirm", uimsg.ConfirmDeleteConfigFile(system.ConfigPath())).Return(false, nil)
+	terminal.On("Confirm", uimsg.ConfirmDeleteThemesDir(system.ThemesDir())).Return(false, nil)
 
 	s.Clean()
+
+	terminal.AssertCalled(t, "Confirm", uimsg.ConfirmDeleteConfigFile(system.ConfigPath()))
+	terminal.AssertCalled(t, "PrintMessage", uimsg.ConfigNotDeleted())
+
+	terminal.AssertCalled(t, "Confirm", uimsg.ConfirmDeleteThemesDir(system.ThemesDir()))
+	terminal.AssertCalled(t, "PrintMessage", uimsg.ThemesNotDeleted())
+
 	assert.True(t, s.(serviceImpl).hasConfig())
+	testutil.AssertExists(t, system.Fs, system.ConfigPath(), true)
 }
 
 func Test_Clean_NoConfig(t *testing.T) {
 	cfgFilePath := path.Join(t.TempDir(), "config.yaml")
 
-	system := utils.NewTestSystem()
+	system := utils.NewTestSystem(utils.WithConfigCome(cfgFilePath))
+
+	term := mocks.Terminal{}
+	term.On("PrintMessage", mock.Anything).Return()
 
 	v := viper.New()
 	v.SetConfigFile(cfgFilePath)
 	v.SetFs(system.Fs)
 
-	s := NewService(WithSystem(system), WithViper(v))
+	s := NewService(WithSystem(system), WithTerminal(&term), WithViper(v))
+	s.Clean()
 
-	_ = testutil.AssertPanicsWithError(t, ErrConfigNotFound{}, func() {
-		s.Clean()
-	})
+	term.AssertCalled(t, "PrintMessage", uimsg.ConfigNotFound(cfgFilePath))
 }
 
 func Test_ConfigFilePath(t *testing.T) {

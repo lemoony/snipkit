@@ -16,6 +16,27 @@ func ConfigFileDeleted(path string) string {
 	return fmt.Sprintf(`Snipkit configuration file deleted: %s`, path)
 }
 
+func ThemesDeleted() string {
+	return "Themes directory deleted"
+}
+
+func ThemesNotDeleted() string {
+	return "Themes directory not deleted"
+}
+
+func ConfigNotDeleted() string {
+	return "Config not deleted"
+}
+
+func ConfigNotFound(path string) string {
+	return fmt.Sprintf("No config found at: %s", path)
+}
+
+func HomeDirectoryStillExists(path string) string {
+	return fmt.Sprintf(`The snipkit home directory still exists exists since it holds non-deleted data (%s).
+Please check for yourself if it can be deleted safely.`, path)
+}
+
 func ConfirmRecreateConfigFile(path string) string {
 	return fmt.Sprintf("The configuration file already exists at %s.\nDo you want to recreate it?", path)
 }
@@ -24,6 +45,10 @@ func ConfirmCreateConfigFile() string {
 	return "There is no snipkit config file currently. Do you want to create one?"
 }
 
-func ConfirmDeleteConfigFile() string {
-	return "Do you really want to delete the snipkit configuration file?"
+func ConfirmDeleteConfigFile(path string) string {
+	return fmt.Sprintf("Do you really want to delete the snipkit configuration file (%s) ?", path)
+}
+
+func ConfirmDeleteThemesDir(path string) string {
+	return fmt.Sprintf("The themes directory is not emtpty (%s). Should the custom themes be deleted as well?", path)
 }
