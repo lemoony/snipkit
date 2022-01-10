@@ -7,6 +7,7 @@ import (
 
 	"github.com/lemoony/snippet-kit/internal/config/configtest"
 	"github.com/lemoony/snippet-kit/internal/model"
+	"github.com/lemoony/snippet-kit/internal/utils/testutil"
 	uiMocks "github.com/lemoony/snippet-kit/mocks/ui"
 )
 
@@ -17,14 +18,20 @@ func Test_App_Exec(t *testing.T) {
 echo "${VAR1}"`
 
 	snippets := []model.Snippet{
-		{UUID: "uuid1", Title: "title-1", Language: model.LanguageYAML, TagUUIDs: []string{}, Content: snippetContent},
+		{
+			UUID:         "uuid1",
+			TitleFunc:    testutil.FixedString("title-1"),
+			LanguageFunc: testutil.FixedLanguage(model.LanguageYAML),
+			TagUUIDs:     []string{},
+			ContentFunc:  testutil.FixedString(snippetContent),
+		},
 	}
 
 	inputVar1Value := "foo-value"
 
 	terminal := uiMocks.Terminal{}
 	terminal.On("ApplyConfig", mock.Anything, mock.Anything).Return()
-	terminal.On("ShowLookup", snippets).Return(0)
+	terminal.On("ShowLookup", mock.Anything).Return(0)
 	terminal.On("ShowParameterForm", mock.Anything).Return([]string{inputVar1Value, ""})
 
 	terminal.On("PrintMessage", inputVar1Value+"\n").Return()

@@ -1,4 +1,4 @@
-package utils
+package system
 
 import (
 	"net/url"
@@ -80,13 +80,6 @@ func NewSystem(options ...Option) *System {
 	return &result
 }
 
-func NewTestSystem() *System {
-	base := afero.NewOsFs()
-	roBase := afero.NewReadOnlyFs(base)
-	ufs := afero.NewCopyOnWriteFs(roBase, afero.NewMemMapFs())
-	return NewSystem(WithFS(ufs))
-}
-
 func (s *System) UserDataHome() string {
 	if s.userDataDir != nil {
 		return *s.userDataDir
@@ -114,14 +107,14 @@ func (s *System) UserContainerPreferences(appID string) (string, error) {
 }
 
 func (s *System) ConfigPath() string {
-	return path.Join(s.homeDir(), "config.yaml")
+	return path.Join(s.HomeDir(), "config.yaml")
 }
 
 func (s *System) ThemesDir() string {
-	return path.Join(s.homeDir(), "themes/")
+	return path.Join(s.HomeDir(), "themes/")
 }
 
-func (s *System) homeDir() string {
+func (s *System) HomeDir() string {
 	dir := os.Getenv(envSnipkitHome)
 	if dir != "" {
 		return dir
@@ -136,4 +129,32 @@ func (s *System) homeDir() string {
 		panic(err)
 	}
 	return path.Join(u.Path, "snipkit/")
+}
+
+func (s *System) Remove(path string) {
+	if err := s.Fs.Remove(path); err != nil {
+		panic(NewErrFileSystem(err, path, "failed to remove"))
+	}
+}
+
+func (s *System) RemoveAll(path string) {
+	if err := s.Fs.RemoveAll(path); err != nil {
+		panic(NewErrFileSystem(err, path, "failed to remove all"))
+	}
+}
+
+func (s *System) DirExists(path string) bool {
+	exists, err := afero.DirExists(s.Fs, path)
+	if err != nil {
+		panic(NewErrFileSystem(err, path, "failed to check if exists"))
+	}
+	return exists
+}
+
+func (s *System) IsEmpty(path string) bool {
+	exists, err := afero.IsEmpty(s.Fs, path)
+	if err != nil {
+		panic(NewErrFileSystem(err, path, "failed to check if empty"))
+	}
+	return exists
 }

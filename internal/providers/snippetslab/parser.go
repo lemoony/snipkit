@@ -114,7 +114,7 @@ func parseSnippets(library snippetsLabLibrary) ([]model.Snippet, error) {
 	return snippets, nil
 }
 
-//nolint:forcetypeassert // since we will catch any panic error and checking each statement explicitly is too much work
+//nolint:forcetypeassert,funlen // since we will catch any panic error and checking each statement explicitly is too much work
 func parseSnippet(path string) (model.Snippet, error) {
 	fileBytes, err := ioutil.ReadFile(filepath.Clean(path))
 	if err != nil {
@@ -169,13 +169,20 @@ func parseSnippet(path string) (model.Snippet, error) {
 	partMap0LanguageIndex := uint64(partMap0[SnippetPartLanguage].(plist.UID))
 	partMap0Language := objects[partMap0LanguageIndex].(string)
 
-	return model.Snippet{
-		UUID:     snippetUIID,
-		Title:    objects[titleIndex].(string),
-		Language: mapToLanguage(partMap0Language),
+	snippet := model.Snippet{
+		UUID: snippetUIID,
+		LanguageFunc: func() model.Language {
+			return mapToLanguage(partMap0Language)
+		},
 		TagUUIDs: tagUUIDS,
-		Content:  string(partMap0ContentData),
-	}, nil
+		ContentFunc: func() string {
+			return string(partMap0ContentData)
+		},
+	}
+
+	snippet.SetTitle(objects[titleIndex].(string))
+
+	return snippet, nil
 }
 
 func readPblistFile(path string) (map[string]interface{}, error) {

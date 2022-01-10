@@ -1,4 +1,4 @@
-package testutil
+package assertutil
 
 import (
 	"fmt"
@@ -6,8 +6,34 @@ import (
 	"testing"
 
 	"emperror.dev/errors"
+	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/lemoony/snippet-kit/internal/model"
 )
+
+func AssertExists(t *testing.T, fs afero.Fs, path string, expected bool) {
+	t.Helper()
+	exists, err := afero.Exists(fs, path)
+	assert.NoError(t, err)
+	assert.Equal(t, expected, exists)
+}
+
+func AssertSnippetsEqual(t *testing.T, expected []model.Snippet, actual []model.Snippet) {
+	t.Helper()
+
+	assert.Len(t, actual, len(expected))
+
+	for i, e := range expected {
+		a := actual[i]
+
+		assert.Equal(t, e.UUID, a.UUID)
+		assert.Equal(t, e.TagUUIDs, a.TagUUIDs)
+		assert.Equal(t, e.GetLanguage(), a.GetLanguage())
+		assert.Equal(t, e.GetTitle(), a.GetTitle())
+		assert.Equal(t, e.GetContent(), a.GetContent())
+	}
+}
 
 func AssertPanicsWithError(t *testing.T, expected error, f assert.PanicTestFunc, msgAndArgs ...interface{}) error {
 	t.Helper()

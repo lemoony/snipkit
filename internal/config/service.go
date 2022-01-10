@@ -1,6 +1,8 @@
 package config
 
 import (
+	"path/filepath"
+
 	"emperror.dev/errors"
 	"github.com/phuslu/log"
 	"github.com/spf13/afero"
@@ -8,7 +10,7 @@ import (
 
 	"github.com/lemoony/snippet-kit/internal/ui"
 	"github.com/lemoony/snippet-kit/internal/ui/uimsg"
-	"github.com/lemoony/snippet-kit/internal/utils"
+	"github.com/lemoony/snippet-kit/internal/utils/system"
 )
 
 var invalidConfig = Config{}
@@ -40,7 +42,7 @@ func WithViper(v *viper.Viper) Option {
 }
 
 // WithSystem sets the system instance for the Service.
-func WithSystem(system *utils.System) Option {
+func WithSystem(system *system.System) Option {
 	return optionFunc(func(s *serviceImpl) {
 		s.system = system
 	})
@@ -50,7 +52,7 @@ func WithSystem(system *utils.System) Option {
 func NewService(options ...Option) Service {
 	service := serviceImpl{
 		v:      viper.GetViper(),
-		system: utils.NewSystem(),
+		system: system.NewSystem(),
 	}
 	for _, o := range options {
 		o.apply(&service)
@@ -68,7 +70,7 @@ type Service interface {
 
 type serviceImpl struct {
 	v        *viper.Viper
-	system   *utils.System
+	system   *system.System
 	terminal ui.Terminal
 }
 
@@ -118,19 +120,34 @@ func (s serviceImpl) Edit() {
 }
 
 func (s serviceImpl) Clean() {
-	if !s.hasConfig() {
-		panic(ErrConfigNotFound{s.v.ConfigFileUsed()})
+	configPath := s.v.ConfigFileUsed()
+
+	if s.hasConfig() {
+		if s.terminal.Confirm(uimsg.ConfirmDeleteConfigFile(configPath)) {
+			s.system.Remove(s.v.ConfigFileUsed())
+			s.terminal.PrintMessage(uimsg.ConfigFileDeleted(configPath))
+		} else {
+			s.terminal.PrintMessage(uimsg.ConfigNotDeleted())
+		}
+	} else {
+		s.terminal.PrintMessage(uimsg.ConfigNotFound(configPath))
 	}
 
-	if !s.terminal.Confirm(uimsg.ConfirmDeleteConfigFile()) {
-		return
+	if s.hasThemes() {
+		if s.terminal.Confirm(uimsg.ConfirmDeleteThemesDir(s.system.ThemesDir())) {
+			s.system.RemoveAll(s.system.ThemesDir())
+			s.terminal.PrintMessage(uimsg.ThemesDeleted())
+		} else {
+			s.terminal.PrintMessage(uimsg.ThemesNotDeleted())
+		}
 	}
 
-	if err := s.system.Fs.Remove(s.v.ConfigFileUsed()); err != nil {
-		panic(errors.Wrapf(err, "failed to remove config file: %s", s.v.ConfigFileUsed()))
-	}
+	s.deleteDirectoryIfEmpty(s.system.ThemesDir())
+	s.deleteDirectoryIfEmpty(filepath.Dir(s.system.ConfigPath()))
 
-	s.terminal.PrintMessage(uimsg.ConfigFileDeleted(s.v.ConfigFileUsed()))
+	if exists, _ := afero.DirExists(s.system.Fs, s.system.HomeDir()); exists {
+		s.terminal.PrintMessage(uimsg.HomeDirectoryStillExists(s.system.HomeDir()))
+	}
 }
 
 func (s serviceImpl) ConfigFilePath() string {
@@ -140,4 +157,24 @@ func (s serviceImpl) ConfigFilePath() string {
 func (s serviceImpl) hasConfig() bool {
 	ok, _ := afero.Exists(s.system.Fs, s.v.ConfigFileUsed())
 	return ok
+}
+
+func (s serviceImpl) hasThemes() bool {
+	themesDir := s.system.ThemesDir()
+	if exists, _ := afero.DirExists(s.system.Fs, themesDir); !exists {
+		return false
+	}
+
+	empty, err := afero.IsEmpty(s.system.Fs, themesDir)
+	if err != nil {
+		panic(err)
+	}
+
+	return !empty
+}
+
+func (s serviceImpl) deleteDirectoryIfEmpty(path string) {
+	if s.system.DirExists(path) && s.system.IsEmpty(path) {
+		s.system.Remove(path)
+	}
 }

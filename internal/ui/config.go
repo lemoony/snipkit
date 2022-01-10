@@ -4,7 +4,7 @@ import (
 	"emperror.dev/errors"
 	"github.com/rivo/tview"
 
-	"github.com/lemoony/snippet-kit/internal/utils"
+	"github.com/lemoony/snippet-kit/internal/utils/system"
 )
 
 type Config struct {
@@ -44,7 +44,7 @@ type ThemeValues struct {
 	SelectedButtonTextColor                      string `yaml:"selectedButtonTextColor"`
 }
 
-func (c *Config) GetSelectedTheme(system *utils.System) ThemeValues {
+func (c *Config) GetSelectedTheme(system *system.System) ThemeValues {
 	themeName := defaultThemeName
 	if c.Theme != "" {
 		themeName = c.Theme
@@ -69,7 +69,7 @@ func DefaultConfig() Config {
 	}
 }
 
-func ApplyConfig(cfg Config, system *utils.System) {
+func ApplyConfig(cfg Config, system *system.System) {
 	setTheme(cfg.GetSelectedTheme(system))
 }
 

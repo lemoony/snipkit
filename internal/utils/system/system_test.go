@@ -1,12 +1,16 @@
-package utils
+package system
 
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/adrg/xdg"
+	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/lemoony/snippet-kit/internal/utils/assertutil"
 )
 
 func Test_System_Default(t *testing.T) {
@@ -93,4 +97,98 @@ func Test_getConfigPath(t *testing.T) {
 			assert.Equal(t, tt.expectedThemesDir, tt.system.ThemesDir())
 		})
 	}
+}
+
+func Test_IsEmpty(t *testing.T) {
+	fs := afero.NewMemMapFs()
+	path := filepath.Join(t.TempDir(), "foo.txt")
+
+	const dirPerm = 0o755
+	assert.NoError(t, fs.Mkdir(filepath.Dir(path), dirPerm))
+
+	system := NewSystem(WithFS(fs))
+
+	assert.True(t, system.IsEmpty(filepath.Dir(path)))
+
+	createTestFile(t, fs, path)
+	assert.False(t, system.IsEmpty(filepath.Dir(path)))
+}
+
+func Test_DirExists(t *testing.T) {
+	fs := afero.NewMemMapFs()
+	path := filepath.Join(t.TempDir(), "foo.txt")
+
+	system := NewSystem(WithFS(fs))
+	assert.False(t, system.DirExists(filepath.Dir(path)))
+
+	const dirPerm = 0o755
+	assert.NoError(t, fs.Mkdir(filepath.Dir(path), dirPerm))
+
+	assert.True(t, system.DirExists(filepath.Dir(path)))
+}
+
+func Test_Remove(t *testing.T) {
+	fs := afero.NewMemMapFs()
+	path := filepath.Join(t.TempDir(), "foo.txt")
+	createTestFile(t, fs, path)
+
+	system := NewSystem(WithFS(fs))
+	system.Remove(path)
+
+	exists, err := afero.Exists(fs, path)
+	assert.NoError(t, err)
+	assert.False(t, exists)
+}
+
+func Test_RemoveNoPermission(t *testing.T) {
+	fs := afero.NewMemMapFs()
+	path := filepath.Join(t.TempDir(), "foo.txt")
+	createTestFile(t, fs, path)
+
+	system := NewSystem(WithFS(afero.NewReadOnlyFs(fs)))
+	_ = assertutil.AssertPanicsWithError(t, ErrFileSystem{}, func() {
+		system.Remove(filepath.Dir(path))
+	})
+}
+
+func Test_RemoveAll(t *testing.T) {
+	fs := afero.NewMemMapFs()
+	path := filepath.Join(t.TempDir(), "some/path", "foo.txt")
+	createTestFile(t, fs, path)
+
+	system := NewSystem(WithFS(fs))
+	system.RemoveAll(filepath.Dir(path))
+
+	exists, err := afero.Exists(fs, filepath.Dir(path))
+	assert.NoError(t, err)
+	assert.False(t, exists)
+}
+
+func Test_RemoveAllNoPermission(t *testing.T) {
+	fs := afero.NewMemMapFs()
+
+	path := filepath.Join(t.TempDir(), "some/path", "foo.txt")
+	createTestFile(t, fs, path)
+
+	system := NewSystem(WithFS(afero.NewReadOnlyFs(fs)))
+
+	_ = assertutil.AssertPanicsWithError(t, ErrFileSystem{}, func() {
+		system.RemoveAll(filepath.Dir(path))
+	})
+}
+
+func createTestFile(t *testing.T, fs afero.Fs, path string) {
+	t.Helper()
+
+	const dirPerm = 0o755
+	const filePerm = 0o600
+
+	dirPath := filepath.Dir(path)
+
+	assert.NoError(t, os.MkdirAll(dirPath, dirPerm))
+	assert.NoError(t, afero.WriteFile(fs, path, []byte("foo"), filePerm))
+
+	exists, err := afero.Exists(fs, path)
+	assert.NoError(t, err)
+	assert.True(t, exists)
 }

@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/lemoony/snippet-kit/internal/utils"
+	"github.com/lemoony/snippet-kit/internal/utils/assertutil"
 	"github.com/lemoony/snippet-kit/internal/utils/pathutil"
 	"github.com/lemoony/snippet-kit/internal/utils/testutil"
 )
@@ -20,7 +20,7 @@ func Test_Config_apply(t *testing.T) {
 		return cfg
 	}
 
-	system := utils.NewTestSystem()
+	system := testutil.NewTestSystem()
 
 	if bytes, err := afero.ReadFile(system.Fs, "testdata/test-custom.yaml"); err != nil {
 		assert.NoError(t, err)
@@ -56,9 +56,9 @@ func Test_GetUnknownTheme(t *testing.T) {
 	cfg := DefaultConfig()
 	cfg.Theme = "foo-theme"
 
-	system := utils.NewTestSystem()
+	system := testutil.NewTestSystem()
 
-	err := testutil.AssertPanicsWithError(t, ErrInvalidTheme, func() {
+	err := assertutil.AssertPanicsWithError(t, ErrInvalidTheme, func() {
 		cfg.GetSelectedTheme(system)
 	})
 

@@ -19,8 +19,14 @@ config:
         - othertag
       # If this list is not empty, snippets that have one of the listed tags will not be provided to you.
       excludeTags: []
-    fileSystem:
+    fsLibrary:
       # If set to false, the files specified via libraryPath will not be provided to you.
-      enabled: false
-      # Path to a directory that holds snippets files. Each file must hold one snippet only.
-      libraryPath: ""
+      enabled: true
+      # Paths directories that hold snippets files. Each file must hold one snippet only.
+      libraryPath:
+        - /path/to/file/system/library
+      # Only files with endings which match one of the listed suffixes will be considered.
+      suffixRegex:
+        - .sh
+      # If set to true, the files will not be parsed in advance. This means, only the filename can be used as the snippet name.
+      lazyOpen: true

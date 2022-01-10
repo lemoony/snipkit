@@ -7,12 +7,12 @@ import (
 	"github.com/phuslu/log"
 
 	"github.com/lemoony/snippet-kit/internal/model"
-	"github.com/lemoony/snippet-kit/internal/utils"
 	"github.com/lemoony/snippet-kit/internal/utils/stringutil"
+	"github.com/lemoony/snippet-kit/internal/utils/system"
 )
 
 type Provider struct {
-	system *utils.System
+	system *system.System
 	config Config
 }
 
@@ -29,7 +29,7 @@ func (f optionFunc) apply(provider *Provider) {
 }
 
 // WithSystem sets the utils.System instance to be used by Provider.
-func WithSystem(system *utils.System) Option {
+func WithSystem(system *system.System) Option {
 	return optionFunc(func(p *Provider) {
 		p.system = system
 	})
@@ -63,27 +63,23 @@ func (p Provider) libraryPath() snippetsLabLibrary {
 func (p Provider) Info() model.ProviderInfo {
 	var lines []model.ProviderLine
 
-	var preferencesPath string
 	if path, err := findPreferencesPath(p.system); err != nil {
-		lines = append(lines, model.ProviderLine{IsError: true, Key: "SnippetsLab library Path", Value: err.Error()})
+		lines = append(lines, model.ProviderLine{IsError: true, Key: "SnippetsLab preferences path", Value: err.Error()})
 	} else {
-		preferencesPath = path
 		lines = append(lines, model.ProviderLine{
 			IsError: true, Key: "SnippetsLab preferences path", Value: path,
 		})
 	}
 
 	lines = append(lines, model.ProviderLine{
-		IsError: true, Key: "SnippetsLab library path", Value: string(findLibraryURL(p.system, preferencesPath)),
+		IsError: false, Key: "SnippetsLab library path", Value: p.config.LibraryPath,
 	})
 
-	if tags, err := p.getValidTagUUIDs(); err != nil {
-		lines = append(lines, model.ProviderLine{IsError: true, Key: "SnippetsLab tags", Value: err.Error()})
-	} else {
-		lines = append(lines, model.ProviderLine{
-			IsError: true, Key: "SnippetsLab tags", Value: stringutil.StringOrDefault(strings.Join(tags.Keys(), ","), "None"),
-		})
-	}
+	lines = append(lines, model.ProviderLine{
+		IsError: false,
+		Key:     "SnippetsLab tags",
+		Value:   stringutil.StringOrDefault(strings.Join(p.config.IncludeTags, ","), "None"),
+	})
 
 	if snippets, err := p.GetSnippets(); err != nil {
 		lines = append(lines, model.ProviderLine{

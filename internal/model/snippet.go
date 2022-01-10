@@ -7,19 +7,45 @@ import (
 
 type Snippet struct {
 	UUID     string
-	Title    string
-	Language Language
+	title    string
 	TagUUIDs []string
-	Content  string
+
+	TitleFunc    func() string
+	ContentFunc  func() string
+	LanguageFunc func() Language
+}
+
+func (s *Snippet) GetTitle() string {
+	if s.TitleFunc != nil {
+		return s.TitleFunc()
+	}
+
+	return s.title
+}
+
+func (s *Snippet) SetTitle(title string) {
+	s.title = title
+}
+
+func (s *Snippet) GetContent() string {
+	if s.ContentFunc != nil {
+		return s.ContentFunc()
+	}
+
+	return s.title
+}
+
+func (s *Snippet) GetLanguage() Language {
+	return s.LanguageFunc()
 }
 
 func (s Snippet) String() string {
 	return fmt.Sprintf(
 		"UUD: %s, Title: %s, Tags: [%s], Language: %d Content: %s",
 		s.UUID,
-		s.Title,
+		s.title,
 		strings.Join(s.TagUUIDs, ","),
-		s.Language,
-		s.Content,
+		s.GetLanguage(),
+		s.GetContent(),
 	)
 }

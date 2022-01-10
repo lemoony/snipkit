@@ -8,12 +8,12 @@ import (
 
 	"github.com/lemoony/snippet-kit/internal/config/configtest"
 	"github.com/lemoony/snippet-kit/internal/model"
-	"github.com/lemoony/snippet-kit/internal/utils"
+	"github.com/lemoony/snippet-kit/internal/utils/testutil"
 	mocks "github.com/lemoony/snippet-kit/mocks/provider"
 )
 
 func Test_Info(t *testing.T) {
-	system := utils.NewTestSystem()
+	system := testutil.NewTestSystem()
 	cfgFilePath := configtest.NewTestConfigFilePath(t, system.Fs)
 
 	provider := mocks.Provider{}

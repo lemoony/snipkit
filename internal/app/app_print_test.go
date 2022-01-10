@@ -8,6 +8,7 @@ import (
 
 	"github.com/lemoony/snippet-kit/internal/config/configtest"
 	"github.com/lemoony/snippet-kit/internal/model"
+	"github.com/lemoony/snippet-kit/internal/utils/testutil"
 	uiMocks "github.com/lemoony/snippet-kit/mocks/ui"
 )
 
@@ -17,13 +18,13 @@ func Test_LookupAndCreatePrintableSnippet(t *testing.T) {
 echo "${VAR1}`
 
 	snippets := []model.Snippet{
-		{UUID: "uuid1", Title: "title-1", Language: model.LanguageYAML, TagUUIDs: []string{}, Content: "content-1"},
-		{UUID: "uuid2", Title: "title-2", Language: model.LanguageBash, TagUUIDs: []string{}, Content: snippetContent},
+		{UUID: "uuid1", TitleFunc: testutil.FixedString("title-1"), LanguageFunc: testutil.FixedLanguage(model.LanguageYAML), TagUUIDs: []string{}, ContentFunc: testutil.FixedString("content-1")},
+		{UUID: "uuid2", TitleFunc: testutil.FixedString("title-2"), LanguageFunc: testutil.FixedLanguage(model.LanguageBash), TagUUIDs: []string{}, ContentFunc: testutil.FixedString(snippetContent)},
 	}
 
 	terminal := uiMocks.Terminal{}
 	terminal.On("ApplyConfig", mock.Anything, mock.Anything).Return()
-	terminal.On("ShowLookup", snippets).Return(1)
+	terminal.On("ShowLookup", mock.Anything).Return(1)
 	terminal.On("ShowParameterForm", mock.Anything).Return([]string{"foo-value"})
 
 	app := NewApp(

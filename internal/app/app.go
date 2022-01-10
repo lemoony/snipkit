@@ -5,7 +5,7 @@ import (
 	"github.com/lemoony/snippet-kit/internal/model"
 	"github.com/lemoony/snippet-kit/internal/providers"
 	"github.com/lemoony/snippet-kit/internal/ui"
-	"github.com/lemoony/snippet-kit/internal/utils"
+	"github.com/lemoony/snippet-kit/internal/utils/system"
 )
 
 type App interface {
@@ -56,7 +56,7 @@ func WithConfigService(service config.Service) Option {
 }
 
 func NewApp(options ...Option) App {
-	system := utils.NewSystem()
+	system := system.NewSystem()
 
 	app := &appImpl{
 		system:           system,
@@ -92,7 +92,7 @@ func NewApp(options ...Option) App {
 
 type appImpl struct {
 	Providers []providers.Provider
-	system    *utils.System
+	system    *system.System
 	config    *config.Config
 	ui        ui.Terminal
 

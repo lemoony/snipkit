@@ -11,7 +11,7 @@ import (
 
 	"github.com/lemoony/snippet-kit/internal/config"
 	"github.com/lemoony/snippet-kit/internal/providers"
-	"github.com/lemoony/snippet-kit/internal/providers/filesystem"
+	"github.com/lemoony/snippet-kit/internal/providers/fslibrary"
 	"github.com/lemoony/snippet-kit/internal/providers/snippetslab"
 	"github.com/lemoony/snippet-kit/internal/ui"
 )
@@ -70,7 +70,7 @@ func NewTestConfig() config.VersionWrapper {
 				SnippetsLab: snippetslab.Config{
 					Enabled: false,
 				},
-				FileSystem: filesystem.Config{
+				FsLibrary: fslibrary.Config{
 					Enabled: false,
 				},
 			},

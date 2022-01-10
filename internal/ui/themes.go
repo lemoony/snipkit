@@ -12,7 +12,7 @@ import (
 	"github.com/spf13/afero"
 	"gopkg.in/yaml.v3"
 
-	"github.com/lemoony/snippet-kit/internal/utils"
+	"github.com/lemoony/snippet-kit/internal/utils/system"
 	themedata "github.com/lemoony/snippet-kit/themes"
 )
 
@@ -54,7 +54,7 @@ func embeddedTheme(name string) (*ThemeValues, bool) {
 	return nil, false
 }
 
-func customTheme(name string, system *utils.System) (*ThemeValues, bool) {
+func customTheme(name string, system *system.System) (*ThemeValues, bool) {
 	if ok, _ := afero.DirExists(system.Fs, system.ThemesDir()); !ok {
 		log.Trace().Msgf("Dir does not exist: %s", system.ThemesDir())
 		return nil, false
