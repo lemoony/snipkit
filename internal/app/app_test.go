@@ -13,6 +13,7 @@ import (
 	"github.com/lemoony/snippet-kit/internal/config"
 	"github.com/lemoony/snippet-kit/internal/model"
 	"github.com/lemoony/snippet-kit/internal/providers"
+	"github.com/lemoony/snippet-kit/internal/utils/assertutil"
 	"github.com/lemoony/snippet-kit/internal/utils/testutil"
 	providerMocks "github.com/lemoony/snippet-kit/mocks/provider"
 	uiMocks "github.com/lemoony/snippet-kit/mocks/ui"
@@ -21,7 +22,7 @@ import (
 func Test_NewApp_NoConfigFile(t *testing.T) {
 	v := viper.NewWithOptions()
 
-	_ = testutil.AssertPanicsWithError(t, config.ErrConfigNotFound{}, func() {
+	_ = assertutil.AssertPanicsWithError(t, config.ErrConfigNotFound{}, func() {
 		_ = NewApp(WithConfigService(config.NewService(config.WithViper(v))))
 	})
 }
@@ -33,7 +34,7 @@ func Test_NewAppInvalidConfigFile(t *testing.T) {
 	v := viper.NewWithOptions()
 	v.SetConfigFile(cfgFile)
 
-	_ = testutil.AssertPanicsWithError(t, config.ErrInvalidConfig, func() {
+	_ = assertutil.AssertPanicsWithError(t, config.ErrInvalidConfig, func() {
 		_ = NewApp(WithConfigService(config.NewService(config.WithViper(v))))
 	})
 }
@@ -83,5 +84,5 @@ func Test_appImpl_GetAllSnippets(t *testing.T) {
 
 	s, err := app.getAllSnippets()
 	assert.NoError(t, err)
-	testutil.AssertSnippetsEqual(t, snippets, s)
+	assertutil.AssertSnippetsEqual(t, snippets, s)
 }

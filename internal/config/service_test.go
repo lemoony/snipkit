@@ -11,8 +11,9 @@ import (
 	"github.com/stretchr/testify/mock"
 
 	"github.com/lemoony/snippet-kit/internal/ui/uimsg"
-	"github.com/lemoony/snippet-kit/internal/utils"
+	"github.com/lemoony/snippet-kit/internal/utils/assertutil"
 	"github.com/lemoony/snippet-kit/internal/utils/pathutil"
+	"github.com/lemoony/snippet-kit/internal/utils/system"
 	"github.com/lemoony/snippet-kit/internal/utils/testutil"
 	mocks "github.com/lemoony/snippet-kit/mocks/ui"
 )
@@ -41,7 +42,7 @@ func Test_LoadConfig(t *testing.T) {
 func Test_Create(t *testing.T) {
 	cfgFilePath := path.Join(t.TempDir(), "test-config.yaml")
 
-	system := utils.NewTestSystem()
+	system := testutil.NewTestSystem()
 
 	v := viper.New()
 	v.SetFs(system.Fs)
@@ -63,7 +64,7 @@ func Test_Create(t *testing.T) {
 func Test_Create_Decline(t *testing.T) {
 	cfgFilePath := path.Join(t.TempDir(), "test-config.yaml")
 
-	system := utils.NewTestSystem()
+	system := testutil.NewTestSystem()
 
 	v := viper.New()
 	v.SetFs(system.Fs)
@@ -91,7 +92,7 @@ func Test_Create_Decline(t *testing.T) {
 func Test_Create_Recreate_Decline(t *testing.T) {
 	cfgFilePath := path.Join(t.TempDir(), "test-config.yaml")
 
-	system := utils.NewTestSystem()
+	system := testutil.NewTestSystem()
 
 	v := viper.New()
 	v.SetFs(system.Fs)
@@ -137,7 +138,7 @@ func Test_Edit(t *testing.T) {
 }
 
 func Test_Clean(t *testing.T) {
-	system := utils.NewTestSystem(utils.WithConfigCome("~/.snipkit"))
+	system := testutil.NewTestSystem(system.WithConfigCome("~/.snipkit"))
 
 	// create a config file
 	assert.NoError(t, pathutil.CreatePath(system.Fs, system.ConfigPath()))
@@ -169,12 +170,12 @@ func Test_Clean(t *testing.T) {
 	terminal.AssertCalled(t, "PrintMessage", uimsg.ThemesDeleted())
 
 	assert.False(t, s.(serviceImpl).hasConfig())
-	testutil.AssertExists(t, system.Fs, system.ConfigPath(), false)
-	testutil.AssertExists(t, system.Fs, system.ThemesDir(), false)
+	assertutil.AssertExists(t, system.Fs, system.ConfigPath(), false)
+	assertutil.AssertExists(t, system.Fs, system.ThemesDir(), false)
 }
 
 func Test_Clean_Decline(t *testing.T) {
-	system := utils.NewTestSystem(utils.WithConfigCome("~/.snipkit"))
+	system := testutil.NewTestSystem(system.WithConfigCome("~/.snipkit"))
 
 	// create a config file
 	assert.NoError(t, pathutil.CreatePath(system.Fs, system.ConfigPath()))
@@ -207,13 +208,13 @@ func Test_Clean_Decline(t *testing.T) {
 	terminal.AssertCalled(t, "PrintMessage", uimsg.ThemesNotDeleted())
 
 	assert.True(t, s.(serviceImpl).hasConfig())
-	testutil.AssertExists(t, system.Fs, system.ConfigPath(), true)
+	assertutil.AssertExists(t, system.Fs, system.ConfigPath(), true)
 }
 
 func Test_Clean_NoConfig(t *testing.T) {
 	cfgFilePath := path.Join(t.TempDir(), "config.yaml")
 
-	system := utils.NewTestSystem(utils.WithConfigCome(cfgFilePath))
+	system := testutil.NewTestSystem(system.WithConfigCome(cfgFilePath))
 
 	term := mocks.Terminal{}
 	term.On("PrintMessage", mock.Anything).Return()
@@ -231,7 +232,7 @@ func Test_Clean_NoConfig(t *testing.T) {
 func Test_ConfigFilePath(t *testing.T) {
 	cfgFilePath := path.Join(t.TempDir(), "config.yaml")
 
-	system := utils.NewTestSystem()
+	system := testutil.NewTestSystem()
 
 	v := viper.New()
 	v.SetConfigFile(cfgFilePath)

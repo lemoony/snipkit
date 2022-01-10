@@ -11,7 +11,7 @@ import (
 	"github.com/spf13/afero"
 
 	"github.com/lemoony/snippet-kit/internal/model"
-	"github.com/lemoony/snippet-kit/internal/utils"
+	"github.com/lemoony/snippet-kit/internal/utils/system"
 )
 
 const (
@@ -27,7 +27,7 @@ var suffixLanguageMap = map[string]model.Language{
 }
 
 type Provider struct {
-	system      *utils.System
+	system      *system.System
 	config      Config
 	suffixRegex []*regexp.Regexp
 }
@@ -45,7 +45,7 @@ func (f optionFunc) apply(provider *Provider) {
 }
 
 // WithSystem sets the utils.System instance to be used by Provider.
-func WithSystem(system *utils.System) Option {
+func WithSystem(system *system.System) Option {
 	return optionFunc(func(p *Provider) {
 		p.system = system
 	})

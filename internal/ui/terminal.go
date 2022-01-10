@@ -13,7 +13,7 @@ import (
 	"github.com/kballard/go-shellquote"
 
 	"github.com/lemoony/snippet-kit/internal/model"
-	"github.com/lemoony/snippet-kit/internal/utils"
+	"github.com/lemoony/snippet-kit/internal/utils/system"
 )
 
 const (
@@ -49,7 +49,7 @@ func WithScreen(screen tcell.Screen) TerminalOption {
 }
 
 type Terminal interface {
-	ApplyConfig(cfg Config, system *utils.System)
+	ApplyConfig(cfg Config, system *system.System)
 	PrintMessage(message string)
 	PrintError(message string)
 	Confirm(message string) bool
@@ -77,7 +77,7 @@ func NewTerminal(options ...TerminalOption) Terminal {
 	return term
 }
 
-func (c cliTerminal) ApplyConfig(cfg Config, system *utils.System) {
+func (c cliTerminal) ApplyConfig(cfg Config, system *system.System) {
 	ApplyConfig(cfg, system)
 }
 

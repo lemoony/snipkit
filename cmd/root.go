@@ -12,15 +12,15 @@ import (
 	"github.com/lemoony/snippet-kit/internal/config"
 	"github.com/lemoony/snippet-kit/internal/providers"
 	"github.com/lemoony/snippet-kit/internal/ui"
-	"github.com/lemoony/snippet-kit/internal/utils"
 	"github.com/lemoony/snippet-kit/internal/utils/logutil"
+	"github.com/lemoony/snippet-kit/internal/utils/system"
 )
 
 type setup struct {
 	terminal         ui.Terminal
 	providersBuilder providers.Builder
 	v                *viper.Viper
-	system           *utils.System
+	system           *system.System
 }
 
 func (s *setup) configService() config.Service {
@@ -35,7 +35,7 @@ var _defaultSetup = setup{
 	terminal:         ui.NewTerminal(),
 	providersBuilder: providers.NewBuilder(),
 	v:                viper.GetViper(),
-	system:           utils.NewSystem(),
+	system:           system.NewSystem(),
 }
 
 type ctxKey string

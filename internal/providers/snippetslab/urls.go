@@ -9,7 +9,7 @@ import (
 	"github.com/phuslu/log"
 	"howett.net/plist"
 
-	"github.com/lemoony/snippet-kit/internal/utils"
+	"github.com/lemoony/snippet-kit/internal/utils/system"
 )
 
 var (
@@ -17,7 +17,7 @@ var (
 	errNoPreferencesFound            = errors.New("no valid preferences url found")
 )
 
-func findLibraryURL(system *utils.System, preferencesPath string) snippetsLabLibrary {
+func findLibraryURL(system *system.System, preferencesPath string) snippetsLabLibrary {
 	libPath := invalidSnippetsLabLibrary
 
 	if preferencesPath != "" {
@@ -33,7 +33,7 @@ func findLibraryURL(system *utils.System, preferencesPath string) snippetsLabLib
 	return libPath
 }
 
-func findPreferencesPath(system *utils.System) (string, error) {
+func findPreferencesPath(system *system.System) (string, error) {
 	preferencesURLs, err := getPossiblePreferencesURLs(system)
 	if err != nil {
 		return "", err
@@ -65,7 +65,7 @@ func findPreferencesPath(system *utils.System) (string, error) {
 	return "", errNoPreferencesFound
 }
 
-func getPossiblePreferencesURLs(system *utils.System) ([]string, error) {
+func getPossiblePreferencesURLs(system *system.System) ([]string, error) {
 	var configDirs []string
 
 	if containerPreferences, err := system.UserContainerPreferences(appID); err != nil {

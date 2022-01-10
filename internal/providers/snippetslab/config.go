@@ -1,7 +1,7 @@
 package snippetslab
 
 import (
-	"github.com/lemoony/snippet-kit/internal/utils"
+	"github.com/lemoony/snippet-kit/internal/utils/system"
 )
 
 type Config struct {
@@ -11,7 +11,7 @@ type Config struct {
 	ExcludeTags []string `yaml:"excludeTags" head_comment:"If this list is not empty, snippets that have one of the listed tags will not be provided to you."`
 }
 
-func AutoDiscoveryConfig(system *utils.System) Config {
+func AutoDiscoveryConfig(system *system.System) Config {
 	result := Config{
 		Enabled:     false,
 		LibraryPath: "/path/to/main.snippetslablibrary",

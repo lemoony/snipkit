@@ -3,11 +3,11 @@ package providers
 import (
 	"github.com/lemoony/snippet-kit/internal/providers/fslibrary"
 	"github.com/lemoony/snippet-kit/internal/providers/snippetslab"
-	"github.com/lemoony/snippet-kit/internal/utils"
+	"github.com/lemoony/snippet-kit/internal/utils/system"
 )
 
 type Builder interface {
-	BuildProvider(system utils.System, config Config) ([]Provider, error)
+	BuildProvider(system system.System, config Config) ([]Provider, error)
 }
 
 type builderImpl struct{}
@@ -16,7 +16,7 @@ func NewBuilder() Builder {
 	return builderImpl{}
 }
 
-func (b builderImpl) BuildProvider(system utils.System, config Config) ([]Provider, error) {
+func (b builderImpl) BuildProvider(system system.System, config Config) ([]Provider, error) {
 	var providers []Provider
 
 	if provider, err := snippetslab.NewProvider(

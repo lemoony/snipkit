@@ -10,7 +10,7 @@ import (
 
 	"github.com/lemoony/snippet-kit/internal/ui"
 	"github.com/lemoony/snippet-kit/internal/ui/uimsg"
-	"github.com/lemoony/snippet-kit/internal/utils"
+	"github.com/lemoony/snippet-kit/internal/utils/system"
 )
 
 var invalidConfig = Config{}
@@ -42,7 +42,7 @@ func WithViper(v *viper.Viper) Option {
 }
 
 // WithSystem sets the system instance for the Service.
-func WithSystem(system *utils.System) Option {
+func WithSystem(system *system.System) Option {
 	return optionFunc(func(s *serviceImpl) {
 		s.system = system
 	})
@@ -52,7 +52,7 @@ func WithSystem(system *utils.System) Option {
 func NewService(options ...Option) Service {
 	service := serviceImpl{
 		v:      viper.GetViper(),
-		system: utils.NewSystem(),
+		system: system.NewSystem(),
 	}
 	for _, o := range options {
 		o.apply(&service)
@@ -70,7 +70,7 @@ type Service interface {
 
 type serviceImpl struct {
 	v        *viper.Viper
-	system   *utils.System
+	system   *system.System
 	terminal ui.Terminal
 }
 
@@ -124,10 +124,7 @@ func (s serviceImpl) Clean() {
 
 	if s.hasConfig() {
 		if s.terminal.Confirm(uimsg.ConfirmDeleteConfigFile(configPath)) {
-			if err := s.system.Fs.Remove(s.v.ConfigFileUsed()); err != nil {
-				panic(errors.Wrapf(err, "failed to remove config file: %s", configPath))
-			}
-
+			s.system.Remove(s.v.ConfigFileUsed())
 			s.terminal.PrintMessage(uimsg.ConfigFileDeleted(configPath))
 		} else {
 			s.terminal.PrintMessage(uimsg.ConfigNotDeleted())
@@ -138,10 +135,7 @@ func (s serviceImpl) Clean() {
 
 	if s.hasThemes() {
 		if s.terminal.Confirm(uimsg.ConfirmDeleteThemesDir(s.system.ThemesDir())) {
-			if err := s.system.Fs.RemoveAll(s.system.ThemesDir()); err != nil {
-				panic(errors.Wrapf(err, "failed to remove themes dir: %s", s.system.ThemesDir()))
-			}
-
+			s.system.RemoveAll(s.system.ThemesDir())
 			s.terminal.PrintMessage(uimsg.ThemesDeleted())
 		} else {
 			s.terminal.PrintMessage(uimsg.ThemesNotDeleted())
@@ -180,15 +174,7 @@ func (s serviceImpl) hasThemes() bool {
 }
 
 func (s serviceImpl) deleteDirectoryIfEmpty(path string) {
-	if exists, err := afero.DirExists(s.system.Fs, path); err == nil && exists {
-		if empty, err2 := afero.IsEmpty(s.system.Fs, path); empty {
-			if err3 := s.system.Fs.Remove(path); err2 != nil {
-				log.Error().Err(err3)
-			}
-		} else if err != nil {
-			log.Error().Err(err2)
-		}
-	} else if err != nil {
-		log.Error().Err(err)
+	if s.system.DirExists(path) && s.system.IsEmpty(path) {
+		s.system.Remove(path)
 	}
 }

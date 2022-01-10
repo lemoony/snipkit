@@ -5,18 +5,18 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/lemoony/snippet-kit/internal/utils"
+	"github.com/lemoony/snippet-kit/internal/utils/system"
 )
 
 func Test_getLibraryURLFromPreferencesFile(t *testing.T) {
-	system := utils.NewSystem(utils.WithUserContainersDir(testdataContainersPath))
+	system := system.NewSystem(system.WithUserContainersDir(testdataContainersPath))
 
 	url := findLibraryURL(system, testDataPreferencesWithUserDefinedLibraryPath)
 	assert.Equal(t, snippetsLabLibrary("file://"+testDataDefaultLibraryPath), url)
 }
 
 func Test_getLibraryURLDefault(t *testing.T) {
-	system := utils.NewSystem(utils.WithUserContainersDir(testdataContainersPath))
+	system := system.NewSystem(system.WithUserContainersDir(testdataContainersPath))
 
 	url := findLibraryURL(system, testDataPreferencesPath)
 	assert.Equal(t, snippetsLabLibrary(testDataDefaultLibraryPath), url)
@@ -40,7 +40,7 @@ func Test_parsePreferencesForLibraryPath_Notound(t *testing.T) {
 }
 
 func Test_getPreferencesURL(t *testing.T) {
-	system := utils.NewSystem(utils.WithUserContainersDir(testdataContainersPath))
+	system := system.NewSystem(system.WithUserContainersDir(testdataContainersPath))
 
 	urls, err := getPossiblePreferencesURLs(system)
 	assert.NoError(t, err)
@@ -54,7 +54,7 @@ func Test_findPreferencesPath_NoUserDefinedPath(t *testing.T) {
 	// f, _ := os.Create(testDataPreferencesPath)
 	// encoder := plist.NewEncoderForFormat(f, plist.BinaryFormat)
 	// encoder.Encode(fileMap)
-	system := utils.NewSystem(utils.WithUserContainersDir(testdataContainersPath))
+	system := system.NewSystem(system.WithUserContainersDir(testdataContainersPath))
 	path, err := findPreferencesPath(system)
 	assert.Error(t, err)
 	assert.ErrorIs(t, errNoUserDefinedLibraryPathFound, err)

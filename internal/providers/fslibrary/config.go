@@ -1,7 +1,7 @@
 package fslibrary
 
 import (
-	"github.com/lemoony/snippet-kit/internal/utils"
+	"github.com/lemoony/snippet-kit/internal/utils/system"
 )
 
 type Config struct {
@@ -11,7 +11,7 @@ type Config struct {
 	LazyOpen    bool     `yaml:"lazyOpen" head_comment:"If set to true, the files will not be parsed in advance. This means, only the filename can be used as the snippet name."`
 }
 
-func AutoDiscoveryConfig(system *utils.System) Config {
+func AutoDiscoveryConfig(system *system.System) Config {
 	return Config{
 		Enabled:     false,
 		LibraryPath: []string{"/path/to/file/system/library"},

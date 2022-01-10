@@ -10,11 +10,11 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/lemoony/snippet-kit/internal/model"
-	"github.com/lemoony/snippet-kit/internal/utils"
+	"github.com/lemoony/snippet-kit/internal/utils/testutil"
 )
 
 func Test_GetInfo(t *testing.T) {
-	system := utils.NewTestSystem()
+	system := testutil.NewTestSystem()
 	libraryPath := t.TempDir()
 	config := Config{
 		Enabled:     true,
@@ -43,7 +43,7 @@ func Test_GetInfo(t *testing.T) {
 }
 
 func Test_GetSnippets(t *testing.T) {
-	system := utils.NewTestSystem()
+	system := testutil.NewTestSystem()
 	config := Config{
 		Enabled:     true,
 		LibraryPath: []string{t.TempDir()},
@@ -109,7 +109,7 @@ func Test_getSnippetName(t *testing.T) {
 		{title: "title 9", content: "\n\n#\n# title 9\n#", ok: true},
 	}
 
-	system := utils.NewTestSystem()
+	system := testutil.NewTestSystem()
 	config := Config{
 		Enabled: true,
 	}

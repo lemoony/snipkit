@@ -1,4 +1,4 @@
-package utils
+package system
 
 import (
 	"net/url"
@@ -80,14 +80,6 @@ func NewSystem(options ...Option) *System {
 	return &result
 }
 
-func NewTestSystem(options ...Option) *System {
-	base := afero.NewOsFs()
-	roBase := afero.NewReadOnlyFs(base)
-	ufs := afero.NewCopyOnWriteFs(roBase, afero.NewMemMapFs())
-	options = append(options, WithFS(ufs))
-	return NewSystem(options...)
-}
-
 func (s *System) UserDataHome() string {
 	if s.userDataDir != nil {
 		return *s.userDataDir
@@ -137,4 +129,32 @@ func (s *System) HomeDir() string {
 		panic(err)
 	}
 	return path.Join(u.Path, "snipkit/")
+}
+
+func (s *System) Remove(path string) {
+	if err := s.Fs.Remove(path); err != nil {
+		panic(NewErrFileSystem(err, path, "failed to remove"))
+	}
+}
+
+func (s *System) RemoveAll(path string) {
+	if err := s.Fs.RemoveAll(path); err != nil {
+		panic(NewErrFileSystem(err, path, "failed to remove all"))
+	}
+}
+
+func (s *System) DirExists(path string) bool {
+	exists, err := afero.DirExists(s.Fs, path)
+	if err != nil {
+		panic(NewErrFileSystem(err, path, "failed to check if exists"))
+	}
+	return exists
+}
+
+func (s *System) IsEmpty(path string) bool {
+	exists, err := afero.IsEmpty(s.Fs, path)
+	if err != nil {
+		panic(NewErrFileSystem(err, path, "failed to check if empty"))
+	}
+	return exists
 }

@@ -19,12 +19,13 @@ import (
 	"github.com/lemoony/snippet-kit/internal/config"
 	"github.com/lemoony/snippet-kit/internal/providers"
 	"github.com/lemoony/snippet-kit/internal/ui"
-	"github.com/lemoony/snippet-kit/internal/utils"
+	"github.com/lemoony/snippet-kit/internal/utils/system"
+	"github.com/lemoony/snippet-kit/internal/utils/testutil"
 	mocks "github.com/lemoony/snippet-kit/mocks/provider"
 )
 
 type testSetup struct {
-	system           *utils.System
+	system           *system.System
 	v                *viper.Viper
 	providersBuilder providers.Builder
 	app              app.App
@@ -32,7 +33,7 @@ type testSetup struct {
 }
 
 func newTestSetup() *testSetup {
-	system := utils.NewTestSystem()
+	system := testutil.NewTestSystem()
 	v := viper.New()
 	v.SetFs(system.Fs)
 
@@ -59,7 +60,7 @@ func withConfigFilePath(cfgFilePath string) option {
 	})
 }
 
-func withSystem(s *utils.System) option {
+func withSystem(s *system.System) option {
 	return optionFunc(func(t *testSetup) {
 		t.system = s
 		t.v.SetFs(s.Fs)
