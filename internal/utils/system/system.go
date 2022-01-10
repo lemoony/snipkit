@@ -1,16 +1,18 @@
 package system
 
 import (
-	"net/url"
 	"os"
 	"path"
+	"path/filepath"
 
 	"github.com/adrg/xdg"
 	"github.com/spf13/afero"
 )
 
 const (
-	envSnipkitHome = "SNIPKIT_HOME"
+	envSnipkitHome    = "SNIPKIT_HOME"
+	fileModeDirectory = os.ModeDir | 0o700
+	fileModeConfig    = os.FileMode(0o600)
 )
 
 type System struct {
@@ -124,11 +126,7 @@ func (s *System) HomeDir() string {
 		return *s.userConfigHome
 	}
 
-	u, err := url.Parse(xdg.ConfigHome)
-	if err != nil {
-		panic(err)
-	}
-	return path.Join(u.Path, "snipkit/")
+	return path.Join(xdg.ConfigHome, "snipkit/")
 }
 
 func (s *System) Remove(path string) {
@@ -157,4 +155,33 @@ func (s *System) IsEmpty(path string) bool {
 		panic(NewErrFileSystem(err, path, "failed to check if empty"))
 	}
 	return exists
+}
+
+// CreatePath returns a suitable location relative to which the file pointed by
+// `path` can be written.
+func (s *System) CreatePath(path string) {
+	dir := filepath.Dir(path)
+
+	if s.DirExists(dir) {
+		return
+	}
+
+	if err := s.Fs.MkdirAll(dir, fileModeDirectory); err != nil {
+		panic(ErrFileSystem{path: dir, msg: "failed to create path", cause: err})
+	}
+}
+
+func (s *System) WriteFile(path string, data []byte) {
+	if err := afero.WriteFile(s.Fs, path, data, fileModeConfig); err != nil {
+		panic(ErrFileSystem{path: path, msg: "failed to write file", cause: err})
+	}
+}
+
+func (s *System) ReadFile(path string) []byte {
+	bytes, err := afero.ReadFile(s.Fs, path)
+	if err != nil {
+		panic(ErrFileSystem{path: path, msg: "failed to read file", cause: err})
+	}
+
+	return bytes
 }

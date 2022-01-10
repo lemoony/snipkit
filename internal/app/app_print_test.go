@@ -25,13 +25,14 @@ echo "${VAR1}`
 	terminal := uiMocks.Terminal{}
 	terminal.On("ApplyConfig", mock.Anything, mock.Anything).Return()
 	terminal.On("ShowLookup", mock.Anything).Return(1)
-	terminal.On("ShowParameterForm", mock.Anything).Return([]string{"foo-value"})
+	terminal.On("ShowParameterForm", mock.Anything).Return([]string{"foo-value"}, true)
 
 	app := NewApp(
 		WithTerminal(&terminal), WithConfig(configtest.NewTestConfig().Config), withProviderSnippets(snippets),
 	)
 
-	s := app.LookupAndCreatePrintableSnippet()
+	s, ok := app.LookupAndCreatePrintableSnippet()
+	assert.True(t, ok)
 	assert.Equal(t, `# ${VAR1} Name: First Output
 # ${VAR1} Description: What to print on the terminal first
 VAR1="foo-value"

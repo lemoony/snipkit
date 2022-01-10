@@ -3,6 +3,7 @@ package system
 import (
 	"fmt"
 	"os"
+	"path"
 	"path/filepath"
 	"testing"
 
@@ -191,4 +192,76 @@ func createTestFile(t *testing.T, fs afero.Fs, path string) {
 	exists, err := afero.Exists(fs, path)
 	assert.NoError(t, err)
 	assert.True(t, exists)
+}
+
+func Test_CreatePath(t *testing.T) {
+	fs := afero.NewMemMapFs()
+	system := NewSystem(WithFS(fs))
+	tempDir := t.TempDir()
+
+	testDir := filepath.Join(tempDir, "/foo-dir/testfile")
+	testFile := filepath.Join(testDir, "testfile")
+
+	assertutil.AssertExists(t, fs, testDir, false)
+	assertutil.AssertExists(t, fs, testFile, false)
+
+	system.CreatePath(testFile)
+
+	assertutil.AssertExists(t, fs, testDir, true)
+	assertutil.AssertExists(t, fs, testFile, false)
+
+	system.CreatePath(testFile)
+}
+
+func Test_CreatePath_NoPermission(t *testing.T) {
+	fs := afero.NewMemMapFs()
+	system := NewSystem(WithFS(afero.NewReadOnlyFs(fs)))
+	testFile := path.Join(t.TempDir(), "/foo-dir/testfile", "testfile")
+
+	_ = assertutil.AssertPanicsWithError(t, ErrFileSystem{}, func() {
+		system.CreatePath(testFile)
+	})
+}
+
+func Test_WriteFile(t *testing.T) {
+	fs := afero.NewMemMapFs()
+	system := NewSystem(WithFS(fs))
+	filePath := filepath.Join(t.TempDir(), "test.txt")
+
+	assertutil.AssertExists(t, fs, filePath, false)
+	system.WriteFile(filePath, []byte("foo"))
+	assertutil.AssertExists(t, fs, filePath, true)
+
+	contents, err := afero.ReadFile(fs, filePath)
+	assert.NoError(t, err)
+	assert.Equal(t, "foo", string(contents))
+}
+
+func Test_WriteFileNoPermission(t *testing.T) {
+	fs := afero.NewMemMapFs()
+	system := NewSystem(WithFS(afero.NewReadOnlyFs(fs)))
+	filePath := filepath.Join(t.TempDir(), "test.txt")
+
+	_ = assertutil.AssertPanicsWithError(t, ErrFileSystem{}, func() {
+		system.WriteFile(filePath, []byte("foo"))
+	})
+}
+
+func Test_ReadFile(t *testing.T) {
+	fs := afero.NewMemMapFs()
+	system := NewSystem(WithFS(fs))
+	filePath := filepath.Join(t.TempDir(), "test.txt")
+
+	assert.NoError(t, afero.WriteFile(fs, filePath, []byte("foo"), fileModeConfig))
+
+	assert.Equal(t, "foo", string(system.ReadFile(filePath)))
+}
+
+func Test_ReadFile_DoesntExist(t *testing.T) {
+	fs := afero.NewMemMapFs()
+	filePath := filepath.Join(t.TempDir(), "test.txt")
+	system := NewSystem(WithFS(fs))
+	_ = assertutil.AssertPanicsWithError(t, ErrFileSystem{}, func() {
+		_ = system.ReadFile(filePath)
+	})
 }

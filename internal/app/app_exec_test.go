@@ -32,7 +32,7 @@ echo "${VAR1}"`
 	terminal := uiMocks.Terminal{}
 	terminal.On("ApplyConfig", mock.Anything, mock.Anything).Return()
 	terminal.On("ShowLookup", mock.Anything).Return(0)
-	terminal.On("ShowParameterForm", mock.Anything).Return([]string{inputVar1Value, ""})
+	terminal.On("ShowParameterForm", mock.Anything).Return([]string{inputVar1Value, ""}, true)
 
 	terminal.On("PrintMessage", inputVar1Value+"\n").Return()
 

@@ -12,7 +12,6 @@ import (
 
 	"github.com/lemoony/snippet-kit/internal/ui/uimsg"
 	"github.com/lemoony/snippet-kit/internal/utils/assertutil"
-	"github.com/lemoony/snippet-kit/internal/utils/pathutil"
 	"github.com/lemoony/snippet-kit/internal/utils/system"
 	"github.com/lemoony/snippet-kit/internal/utils/testutil"
 	mocks "github.com/lemoony/snippet-kit/mocks/ui"
@@ -141,13 +140,13 @@ func Test_Clean(t *testing.T) {
 	system := testutil.NewTestSystem(system.WithConfigCome("~/.snipkit"))
 
 	// create a config file
-	assert.NoError(t, pathutil.CreatePath(system.Fs, system.ConfigPath()))
-	assert.NoError(t, afero.WriteFile(system.Fs, system.ConfigPath(), []byte(""), fileModeConfig))
+	system.CreatePath(system.ConfigPath())
+	system.WriteFile(system.ConfigPath(), []byte(""))
 
 	// create a custom theme
 	themePath := filepath.Join(system.ThemesDir(), "custom.yaml")
-	assert.NoError(t, pathutil.CreatePath(system.Fs, themePath))
-	assert.NoError(t, afero.WriteFile(system.Fs, themePath, []byte(""), fileModeConfig))
+	system.CreatePath(themePath)
+	system.WriteFile(themePath, []byte(""))
 
 	v := viper.New()
 	v.SetConfigFile(system.ConfigPath())
@@ -178,13 +177,13 @@ func Test_Clean_Decline(t *testing.T) {
 	system := testutil.NewTestSystem(system.WithConfigCome("~/.snipkit"))
 
 	// create a config file
-	assert.NoError(t, pathutil.CreatePath(system.Fs, system.ConfigPath()))
-	assert.NoError(t, afero.WriteFile(system.Fs, system.ConfigPath(), []byte(""), fileModeConfig))
+	system.CreatePath(system.ConfigPath())
+	system.WriteFile(system.ConfigPath(), []byte(""))
 
 	// create a custom theme
 	themePath := filepath.Join(system.ThemesDir(), "custom.yaml")
-	assert.NoError(t, pathutil.CreatePath(system.Fs, themePath))
-	assert.NoError(t, afero.WriteFile(system.Fs, themePath, []byte(""), fileModeConfig))
+	system.CreatePath(themePath)
+	system.WriteFile(themePath, []byte(""))
 
 	v := viper.New()
 	v.SetConfigFile(system.ConfigPath())

@@ -4,11 +4,16 @@ import (
 	"github.com/lemoony/snippet-kit/internal/parser"
 )
 
-func (a *appImpl) LookupAndCreatePrintableSnippet() string {
+func (a *appImpl) LookupAndCreatePrintableSnippet() (string, bool) {
 	snippet := a.LookupSnippet()
+	if snippet == nil {
+		return "", false
+	}
 
 	parameters := parser.ParseParameters(snippet.GetContent())
-	parameterValues := a.ui.ShowParameterForm(parameters)
+	if parameterValues, ok := a.ui.ShowParameterForm(parameters); ok {
+		return parser.CreateSnippet(snippet.GetContent(), parameters, parameterValues), true
+	}
 
-	return parser.CreateSnippet(snippet.GetContent(), parameters, parameterValues)
+	return "", false
 }

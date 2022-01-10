@@ -18,12 +18,8 @@ type appForm struct {
 	success        bool
 }
 
-func (c cliTerminal) ShowParameterForm(parameters []model.Parameter) []string {
-	if parameters, err := newAppForm(parameters, c.screen).show(); err != nil {
-		panic(err)
-	} else {
-		return parameters
-	}
+func (c cliTerminal) ShowParameterForm(parameters []model.Parameter) ([]string, bool) {
+	return newAppForm(parameters, c.screen).show()
 }
 
 func newAppForm(parameters []model.Parameter, screen tcell.Screen) *appForm {
@@ -39,7 +35,7 @@ func newAppForm(parameters []model.Parameter, screen tcell.Screen) *appForm {
 	}
 }
 
-func (a *appForm) show() ([]string, error) {
+func (a *appForm) show() ([]string, bool) {
 	a.form.
 		SetItemPadding(1).
 		SetBorder(true).
@@ -61,14 +57,14 @@ func (a *appForm) show() ([]string, error) {
 	a.form.SetFieldTextColor(currentTheme.parametersFieldTextColor())
 
 	if err := a.app.SetRoot(a.form, true).SetFocus(a.form).Run(); err != nil {
-		return nil, err
+		panic(err)
 	}
 
 	if a.success {
-		return a.collectParameterValues(), nil
+		return a.collectParameterValues(), true
 	}
 
-	return []string{}, nil
+	return []string{}, false
 }
 
 func (a *appForm) addNextInput() {

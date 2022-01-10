@@ -5,11 +5,9 @@ import (
 	"testing"
 
 	"github.com/rivo/tview"
-	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/lemoony/snippet-kit/internal/utils/assertutil"
-	"github.com/lemoony/snippet-kit/internal/utils/pathutil"
 	"github.com/lemoony/snippet-kit/internal/utils/testutil"
 )
 
@@ -22,13 +20,10 @@ func Test_Config_apply(t *testing.T) {
 
 	system := testutil.NewTestSystem()
 
-	if bytes, err := afero.ReadFile(system.Fs, "testdata/test-custom.yaml"); err != nil {
-		assert.NoError(t, err)
-	} else {
-		path := filepath.Join(system.ThemesDir(), "test-custom.yaml")
-		assert.NoError(t, pathutil.CreatePath(system.Fs, path))
-		assert.NoError(t, afero.WriteFile(system.Fs, path, bytes, 0o600))
-	}
+	bytes := system.ReadFile("testdata/test-custom.yaml")
+	path := filepath.Join(system.ThemesDir(), "test-custom.yaml")
+	system.CreatePath(path)
+	system.WriteFile(path, bytes)
 
 	testdata := []struct {
 		name          string

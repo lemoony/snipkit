@@ -164,13 +164,7 @@ func (s serviceImpl) hasThemes() bool {
 	if exists, _ := afero.DirExists(s.system.Fs, themesDir); !exists {
 		return false
 	}
-
-	empty, err := afero.IsEmpty(s.system.Fs, themesDir)
-	if err != nil {
-		panic(err)
-	}
-
-	return !empty
+	return !s.system.IsEmpty(themesDir)
 }
 
 func (s serviceImpl) deleteDirectoryIfEmpty(path string) {

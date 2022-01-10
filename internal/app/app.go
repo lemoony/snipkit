@@ -10,7 +10,7 @@ import (
 
 type App interface {
 	LookupSnippet() *model.Snippet
-	LookupAndCreatePrintableSnippet() string
+	LookupAndCreatePrintableSnippet() (string, bool)
 	LookupAndExecuteSnippet()
 	Info()
 }

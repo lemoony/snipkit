@@ -17,7 +17,8 @@ func Test_Form_MultipleParameters(t *testing.T) {
 
 	runScreenTest(t, func(s tcell.Screen) {
 		term := NewTerminal(WithScreen(s))
-		values := term.ShowParameterForm(parameters)
+		values, ok := term.ShowParameterForm(parameters)
+		assert.True(t, ok)
 		assert.Len(t, values, 2)
 		assert.Equal(t, "First", values[0])
 		assert.Equal(t, "Second", values[1])
@@ -40,7 +41,8 @@ func Test_Form_EnumParameter(t *testing.T) {
 
 	runScreenTest(t, func(s tcell.Screen) {
 		term := NewTerminal(WithScreen(s))
-		values := term.ShowParameterForm(parameters)
+		values, ok := term.ShowParameterForm(parameters)
+		assert.True(t, ok)
 		assert.Len(t, values, 1)
 		assert.Equal(t, "SECOND_VAL", values[0])
 	}, func(screen tcell.SimulationScreen) {
@@ -62,7 +64,8 @@ func Test_Form_DefaultValue(t *testing.T) {
 
 	runScreenTest(t, func(s tcell.Screen) {
 		term := NewTerminal(WithScreen(s))
-		values := term.ShowParameterForm(parameters)
+		values, ok := term.ShowParameterForm(parameters)
+		assert.True(t, ok)
 		assert.Len(t, values, 1)
 		assert.Equal(t, "default-value", values[0])
 	}, func(screen tcell.SimulationScreen) {

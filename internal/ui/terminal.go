@@ -55,7 +55,7 @@ type Terminal interface {
 	Confirm(message string) bool
 	OpenEditor(path string, preferredEditor string)
 	ShowLookup(snippets []model.Snippet) int
-	ShowParameterForm(parameters []model.Parameter) []string
+	ShowParameterForm(parameters []model.Parameter) ([]string, bool)
 }
 
 type cliTerminal struct {

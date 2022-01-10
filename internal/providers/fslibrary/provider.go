@@ -132,12 +132,7 @@ func (p *Provider) GetSnippets() ([]model.Snippet, error) {
 					return languageForSuffix(filepath.Ext(fileName))
 				},
 				ContentFunc: func() string {
-					bytes, err2 := afero.ReadFile(p.system.Fs, filePath)
-					if err2 != nil {
-						panic(err2)
-					}
-
-					return string(bytes)
+					return string(p.system.ReadFile(filePath))
 				},
 			}
 

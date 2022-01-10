@@ -7,10 +7,13 @@ import (
 func (a *appImpl) LookupSnippet() *model.Snippet {
 	snippets, err := a.getAllSnippets()
 	if err != nil {
+		// TODO: Handle no snippets
 		panic(err)
 	}
 
-	index := a.ui.ShowLookup(snippets)
-
-	return &snippets[index]
+	if index := a.ui.ShowLookup(snippets); index < 0 {
+		return nil
+	} else {
+		return &snippets[index]
+	}
 }

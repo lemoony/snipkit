@@ -71,7 +71,7 @@ func customTheme(name string, system *system.System) (*ThemeValues, bool) {
 			themeName := m[1]
 			if name == themeName {
 				themePath := filepath.Join(system.ThemesDir(), entry.Name())
-				theme := readCustomTheme(themePath, system.Fs)
+				theme := readCustomTheme(themePath, system)
 				return &theme, true
 			}
 		}
@@ -95,14 +95,11 @@ func readEmbeddedTheme(path string) ThemeValues {
 	return wrapper.theme()
 }
 
-func readCustomTheme(path string, fs afero.Fs) ThemeValues {
-	bytes, err := afero.ReadFile(fs, path)
-	if err != nil {
-		panic(errors.Wrapf(err, "failed to read theme %s", path))
-	}
+func readCustomTheme(path string, system *system.System) ThemeValues {
+	bytes := system.ReadFile(path)
 
 	var wrapper themeWrapper
-	err = yaml.Unmarshal(bytes, &wrapper)
+	err := yaml.Unmarshal(bytes, &wrapper)
 	if err != nil {
 		panic(err)
 	}

@@ -3,13 +3,11 @@ package config
 import (
 	"bytes"
 	"fmt"
-	"os"
 	"reflect"
 	"strings"
 
 	"emperror.dev/errors"
 	"github.com/phuslu/log"
-	"github.com/spf13/afero"
 	"github.com/spf13/viper"
 	"gopkg.in/yaml.v3"
 
@@ -17,7 +15,6 @@ import (
 	"github.com/lemoony/snippet-kit/internal/providers/snippetslab"
 	"github.com/lemoony/snippet-kit/internal/ui"
 	"github.com/lemoony/snippet-kit/internal/ui/uimsg"
-	"github.com/lemoony/snippet-kit/internal/utils/pathutil"
 	"github.com/lemoony/snippet-kit/internal/utils/system"
 )
 
@@ -29,7 +26,6 @@ type yamlComment struct {
 }
 
 const (
-	fileModeConfig  = os.FileMode(0o600)
 	yamlCommentLine = yamlCommentKind(1)
 	yamlCommentHead = yamlCommentKind(2)
 
@@ -46,38 +42,26 @@ func createConfigFile(system *system.System, viper *viper.Viper, term ui.Termina
 	config.Config.Providers.SnippetsLab = snippetslab.AutoDiscoveryConfig(system)
 	config.Config.Providers.FsLibrary = fslibrary.AutoDiscoveryConfig(system)
 
-	data, err := serializeToYamlWithComment(config)
-	if err != nil {
-		panic(errors.Wrap(err, "failed to serialize config to yaml"))
-	}
+	data := serializeToYamlWithComment(config)
 
 	configPath := viper.ConfigFileUsed()
 
 	log.Debug().Msgf("Going to use config path %s", configPath)
-	err = pathutil.CreatePath(system.Fs, configPath)
-	if err != nil {
-		panic(errors.Wrap(err, "failed to create path to config file"))
-	}
-
-	err = afero.WriteFile(system.Fs, configPath, data, fileModeConfig)
-	if err != nil {
-		panic(errors.Wrap(err, "failed to write config file"))
-	}
+	system.CreatePath(configPath)
+	system.WriteFile(configPath, data)
 
 	term.PrintMessage(uimsg.ConfigFileCreate(configPath))
 }
 
-func serializeToYamlWithComment(value interface{}) ([]byte, error) {
+func serializeToYamlWithComment(value interface{}) []byte {
 	// get all tag comments
 	commentMap := map[string][]yamlComment{}
 	traverseYamlTagComments(reflect.TypeOf(value), []string{}, &commentMap)
 
 	// parse raw yaml string into yaml.Node
 	var tree yaml.Node
-	if initialBytes, err := marshalToYAML(value); err != nil {
-		return nil, err
-	} else if err := yaml.Unmarshal(initialBytes, &tree); err != nil {
-		return nil, err
+	if err := yaml.Unmarshal(marshalToYAML(value), &tree); err != nil {
+		panic(errors.Wrap(err, "failed to unmarshal yaml"))
 	}
 
 	// traverse yaml tree to get a map of all node paths
@@ -126,14 +110,14 @@ func traverseYamlTagComments(t reflect.Type, path []string, commentsMap *map[str
 	}
 }
 
-func marshalToYAML(value interface{}) ([]byte, error) {
+func marshalToYAML(value interface{}) []byte {
 	buf := bytes.NewBufferString("")
 	encoder := yaml.NewEncoder(buf)
 	encoder.SetIndent(yamlDefaultIndent)
 	if err := encoder.Encode(value); err != nil {
-		return nil, err
+		panic(errors.Wrap(err, "failed to marshal to yaml"))
 	}
-	return buf.Bytes(), nil
+	return buf.Bytes()
 }
 
 func traverseYamlTree(node *yaml.Node, path []string, treeMap *map[string]*yaml.Node) {

@@ -11,7 +11,7 @@ import (
 func Test_Print(t *testing.T) {
 	app := mocks.App{}
 	app.On("LookupAndCreatePrintableSnippet").
-		Return("snippet-printed", nil)
+		Return("snippet-printed", true)
 
 	err := runMockedTest(t, []string{"print"}, withApp(&app))
 

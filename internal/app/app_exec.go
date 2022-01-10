@@ -16,11 +16,10 @@ func (a *appImpl) LookupAndExecuteSnippet() {
 	}
 
 	parameters := parser.ParseParameters(snippet.GetContent())
-	parameterValues := a.ui.ShowParameterForm(parameters)
-
-	script := parser.CreateSnippet(snippet.GetContent(), parameters, parameterValues)
-
-	executeScript(script, a.ui)
+	if parameterValues, ok := a.ui.ShowParameterForm(parameters); ok {
+		script := parser.CreateSnippet(snippet.GetContent(), parameters, parameterValues)
+		executeScript(script, a.ui)
+	}
 }
 
 func executeScript(script string, term ui.Terminal) {
