@@ -77,7 +77,10 @@ func getConfigServiceFromContext(ctx context.Context) config.Service {
 	return s.configService()
 }
 
-var cfgFile string
+var (
+	cfgFile  string
+	logLevel string
+)
 
 var rootCmd = &cobra.Command{
 	Use:   "snipkit",
@@ -88,6 +91,7 @@ var rootCmd = &cobra.Command{
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
+	defer handlePanic()
 	cobra.CheckErr(rootCmd.Execute())
 }
 
@@ -97,24 +101,35 @@ func init() {
 	rootCmd.PersistentFlags().
 		StringVarP(&cfgFile, "config", "c", _defaultSetup.system.ConfigPath(), "config file")
 
-	configureLogging()
-}
-
-// initConfig reads in config file and ENV variables if set.
-func initConfig() {
-	_defaultSetup.v.SetConfigFile(cfgFile) // use config file from the flag.
-	_defaultSetup.v.AutomaticEnv()         // read in environment variables that match
-}
-
-func configureLogging() {
-	var logLevel string
 	rootCmd.PersistentFlags().StringVarP(
 		&logLevel,
 		"log-level",
 		"l",
 		log.PanicLevel.String(),
 		fmt.Sprintf("log level used for debugging problems (supported values: %s)", logutil.AllLevelsAsString()))
+}
 
+// initConfig reads in config file and ENV variables if set.
+func initConfig() {
+	_defaultSetup.v.SetConfigFile(cfgFile) // use config file from the flag.
+	_defaultSetup.v.AutomaticEnv()         // read in environment variables that match
+
+	configureLogging()
+}
+
+func configureLogging() {
 	logutil.ConfigureDefaultLogger()
 	logutil.SetDefaultLogLevel(logLevel)
+}
+
+func handlePanic() {
+	if err := recover(); err != nil {
+		fmt.Println(err)
+
+		if e, ok := err.(error); ok {
+			log.Error().Err(e).Stack().Msgf("Exited with panic error: %s", e)
+		} else {
+			log.Error().Msgf("Exited with panic: %s", err)
+		}
+	}
 }

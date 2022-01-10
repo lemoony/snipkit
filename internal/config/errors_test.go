@@ -5,10 +5,12 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"github.com/lemoony/snippet-kit/internal/ui/uimsg"
 )
 
 func Test_ErrConfigNotFound_string(t *testing.T) {
-	assert.Equal(t, "config not found: path", ErrConfigNotFound{"path"}.Error())
+	assert.Equal(t, uimsg.ConfigNotFound("path"), ErrConfigNotFound{"path"}.Error())
 }
 
 func Test_ErrConfigNotFound_Is(t *testing.T) {

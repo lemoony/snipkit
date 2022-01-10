@@ -81,7 +81,7 @@ func (s serviceImpl) Create() {
 		if !s.terminal.Confirm(uimsg.ConfirmRecreateConfigFile(s.v.ConfigFileUsed())) {
 			log.Info().Msg("User declined to recreate config file")
 		}
-	case errors.Is(err, ErrConfigNotFound{}) && !s.terminal.Confirm(uimsg.ConfirmCreateConfigFile()):
+	case errors.Is(err, ErrConfigNotFound{}) && !s.terminal.Confirm(uimsg.ConfirmCreateConfigFile(s.v.ConfigFileUsed())):
 		log.Info().Msg("User declined to create config file")
 	default:
 		createConfigFile(s.system, s.v, s.terminal)

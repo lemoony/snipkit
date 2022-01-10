@@ -1,6 +1,8 @@
 package app
 
 import (
+	"emperror.dev/errors"
+
 	"github.com/lemoony/snippet-kit/internal/config"
 	"github.com/lemoony/snippet-kit/internal/model"
 	"github.com/lemoony/snippet-kit/internal/providers"
@@ -70,7 +72,7 @@ func NewApp(options ...Option) App {
 
 	if app.configService != nil {
 		if cfg, err := app.configService.LoadConfig(); err != nil {
-			panic(err)
+			panic(errors.WithStack(err))
 		} else {
 			app.config = &cfg
 		}

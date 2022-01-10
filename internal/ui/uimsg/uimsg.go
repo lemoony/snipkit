@@ -29,7 +29,7 @@ func ConfigNotDeleted() string {
 }
 
 func ConfigNotFound(path string) string {
-	return fmt.Sprintf("No config found at: %s", path)
+	return fmt.Sprintf(`No config found at: %s\nType in 'snipkit config init' to create a configuration file.`, path)
 }
 
 func HomeDirectoryStillExists(path string) string {
@@ -41,8 +41,8 @@ func ConfirmRecreateConfigFile(path string) string {
 	return fmt.Sprintf("The configuration file already exists at %s.\nDo you want to recreate it?", path)
 }
 
-func ConfirmCreateConfigFile() string {
-	return "There is no snipkit config file currently. Do you want to create one?"
+func ConfirmCreateConfigFile(path string) string {
+	return fmt.Sprintf("Do you want to create a configuration file at %s?", path)
 }
 
 func ConfirmDeleteConfigFile(path string) string {
