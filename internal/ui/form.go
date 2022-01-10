@@ -9,6 +9,13 @@ import (
 
 const defaultInputWidth = 25
 
+type OkButton string
+
+const (
+	OkButtonExecute = "Execute"
+	OkButtonPrint   = "Print"
+)
+
 type appForm struct {
 	app            *tview.Application
 	form           *tview.Form
@@ -16,13 +23,17 @@ type appForm struct {
 	maxTitleLength int
 	nextInputIndex int
 	success        bool
+	okButton       OkButton
 }
 
-func (c cliTerminal) ShowParameterForm(parameters []model.Parameter) ([]string, bool) {
-	return newAppForm(parameters, c.screen).show()
+func (c cliTerminal) ShowParameterForm(parameters []model.Parameter, okButton OkButton) ([]string, bool) {
+	if len(parameters) == 0 {
+		return []string{}, true
+	}
+	return newAppForm(parameters, c.screen, okButton).show()
 }
 
-func newAppForm(parameters []model.Parameter, screen tcell.Screen) *appForm {
+func newAppForm(parameters []model.Parameter, screen tcell.Screen, okButton OkButton) *appForm {
 	app := tview.NewApplication()
 	app.SetScreen(screen)
 
@@ -32,6 +43,7 @@ func newAppForm(parameters []model.Parameter, screen tcell.Screen) *appForm {
 		parameters:     parameters,
 		maxTitleLength: getMaxWidthParameter(parameters),
 		nextInputIndex: 0,
+		okButton:       okButton,
 	}
 }
 
@@ -73,7 +85,7 @@ func (a *appForm) addNextInput() {
 		return
 	case a.nextInputIndex == len(a.parameters):
 		a.form.
-			AddButton("Execute", func() {
+			AddButton(string(a.okButton), func() {
 				a.success = true
 				a.app.Stop()
 			}).

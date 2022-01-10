@@ -25,7 +25,7 @@ echo "${VAR1}`
 	terminal := uiMocks.Terminal{}
 	terminal.On("ApplyConfig", mock.Anything, mock.Anything).Return()
 	terminal.On("ShowLookup", mock.Anything).Return(1)
-	terminal.On("ShowParameterForm", mock.Anything).Return([]string{"foo-value"}, true)
+	terminal.On("ShowParameterForm", mock.Anything, mock.Anything).Return([]string{"foo-value"}, true)
 
 	app := NewApp(
 		WithTerminal(&terminal), WithConfig(configtest.NewTestConfig().Config), withProviderSnippets(snippets),
