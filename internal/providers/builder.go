@@ -1,6 +1,8 @@
 package providers
 
 import (
+	"github.com/phuslu/log"
+
 	"github.com/lemoony/snippet-kit/internal/providers/fslibrary"
 	"github.com/lemoony/snippet-kit/internal/providers/snippetslab"
 	"github.com/lemoony/snippet-kit/internal/utils/system"
@@ -36,6 +38,8 @@ func (b builderImpl) BuildProvider(system system.System, config Config) ([]Provi
 	} else if provider != nil {
 		providers = append(providers, provider)
 	}
+
+	log.Info().Msgf("Number of enabled providers: %d", len(providers))
 
 	return providers, nil
 }

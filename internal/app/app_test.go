@@ -82,7 +82,6 @@ func Test_appImpl_GetAllSnippets(t *testing.T) {
 
 	app := appImpl{Providers: []providers.Provider{&provider}}
 
-	s, err := app.getAllSnippets()
-	assert.NoError(t, err)
+	s := app.getAllSnippets()
 	assertutil.AssertSnippetsEqual(t, snippets, s)
 }

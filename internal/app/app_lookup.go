@@ -5,10 +5,9 @@ import (
 )
 
 func (a *appImpl) LookupSnippet() *model.Snippet {
-	snippets, err := a.getAllSnippets()
-	if err != nil {
-		// TODO: Handle no snippets
-		panic(err)
+	snippets := a.getAllSnippets()
+	if len(snippets) == 0 {
+		panic(ErrNoSnippetsAvailable)
 	}
 
 	if index := a.ui.ShowLookup(snippets); index < 0 {

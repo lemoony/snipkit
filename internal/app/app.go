@@ -2,6 +2,7 @@ package app
 
 import (
 	"emperror.dev/errors"
+	"github.com/phuslu/log"
 
 	"github.com/lemoony/snippet-kit/internal/config"
 	"github.com/lemoony/snippet-kit/internal/model"
@@ -9,6 +10,8 @@ import (
 	"github.com/lemoony/snippet-kit/internal/ui"
 	"github.com/lemoony/snippet-kit/internal/utils/system"
 )
+
+var ErrNoSnippetsAvailable = errors.New("No snippets are available.")
 
 type App interface {
 	LookupSnippet() *model.Snippet
@@ -102,14 +105,11 @@ type appImpl struct {
 	providersBuilder providers.Builder
 }
 
-func (a *appImpl) getAllSnippets() ([]model.Snippet, error) {
+func (a *appImpl) getAllSnippets() []model.Snippet {
 	var result []model.Snippet
 	for _, provider := range a.Providers {
-		if snippets, err := provider.GetSnippets(); err != nil {
-			return nil, err
-		} else {
-			result = append(result, snippets...)
-		}
+		result = append(result, provider.GetSnippets()...)
 	}
-	return result, nil
+	log.Trace().Msgf("Number of available snippets: %d", len(result))
+	return result
 }

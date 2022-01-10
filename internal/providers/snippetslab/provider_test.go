@@ -36,9 +36,7 @@ func Test_GetSnippets(t *testing.T) {
 			assert.NoError(t, err)
 			assert.NotNil(t, provider)
 
-			snippets, err := provider.GetSnippets()
-			assert.Len(t, snippets, tt.expectedCount)
-			assert.NoError(t, err)
+			assert.Len(t, provider.GetSnippets(), tt.expectedCount)
 		})
 	}
 }

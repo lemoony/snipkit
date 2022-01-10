@@ -81,34 +81,25 @@ func (p Provider) Info() model.ProviderInfo {
 		Value:   stringutil.StringOrDefault(strings.Join(p.config.IncludeTags, ","), "None"),
 	})
 
-	if snippets, err := p.GetSnippets(); err != nil {
-		lines = append(lines, model.ProviderLine{
-			IsError: true, Key: "SnippetsLab total number of snippets", Value: err.Error(),
-		})
-	} else {
-		lines = append(lines, model.ProviderLine{
-			IsError: true, Key: "SnippetsLab total number of snippets", Value: fmt.Sprintf("%d", len(snippets)),
-		})
-	}
+	lines = append(lines, model.ProviderLine{
+		IsError: true, Key: "SnippetsLab total number of snippets", Value: fmt.Sprintf("%d", len(p.GetSnippets())),
+	})
 
 	return model.ProviderInfo{
 		Lines: lines,
 	}
 }
 
-func (p *Provider) GetSnippets() ([]model.Snippet, error) {
-	validTagUUIDs, err := p.getValidTagUUIDs()
-	if err != nil {
-		return nil, err
-	}
+func (p *Provider) GetSnippets() []model.Snippet {
+	validTagUUIDs := p.getValidTagUUIDs()
 
 	snippets, err := parseSnippets(p.libraryPath())
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
 
 	if len(validTagUUIDs) == 0 {
-		return snippets, nil
+		return snippets
 	} else {
 		var result []model.Snippet
 		for _, snippet := range snippets {
@@ -116,7 +107,7 @@ func (p *Provider) GetSnippets() ([]model.Snippet, error) {
 				result = append(result, snippet)
 			}
 		}
-		return result, nil
+		return result
 	}
 }
 
@@ -129,10 +120,10 @@ func hasValidTag(snippetTagUUIDS []string, validTagUUIDs stringutil.StringSet) b
 	return false
 }
 
-func (p *Provider) getValidTagUUIDs() (stringutil.StringSet, error) {
+func (p *Provider) getValidTagUUIDs() stringutil.StringSet {
 	tags, err := parseTags(p.libraryPath())
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
 
 	result := stringutil.StringSet{}
@@ -144,5 +135,5 @@ func (p *Provider) getValidTagUUIDs() (stringutil.StringSet, error) {
 		}
 	}
 
-	return result, nil
+	return result
 }

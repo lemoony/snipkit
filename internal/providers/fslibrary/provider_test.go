@@ -81,8 +81,7 @@ func Test_GetSnippets(t *testing.T) {
 	provider, err := NewProvider(WithSystem(system), WithConfig(config))
 	assert.NoError(t, err)
 
-	snippets, err := provider.GetSnippets()
-	assert.NoError(t, err)
+	snippets := provider.GetSnippets()
 	assert.Len(t, snippets, len(files))
 
 	for i, s := range snippets {

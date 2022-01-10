@@ -89,32 +89,24 @@ func (p Provider) Info() model.ProviderInfo {
 		Value:   fmt.Sprintf("[%s]", strings.Join(p.config.SuffixRegex, ", ")),
 	})
 
-	if s, err := p.GetSnippets(); err != nil {
-		lines = append(lines, model.ProviderLine{
-			IsError: true,
-			Key:     "Filesystem library total number of snippets",
-			Value:   err.Error(),
-		})
-	} else {
-		lines = append(lines, model.ProviderLine{
-			IsError: false,
-			Key:     "Filesystem library total number of snippets",
-			Value:   fmt.Sprintf("%d", len(s)),
-		})
-	}
+	lines = append(lines, model.ProviderLine{
+		IsError: false,
+		Key:     "Filesystem library total number of snippets",
+		Value:   fmt.Sprintf("%d", len(p.GetSnippets())),
+	})
 
 	return model.ProviderInfo{
 		Lines: lines,
 	}
 }
 
-func (p *Provider) GetSnippets() ([]model.Snippet, error) {
+func (p *Provider) GetSnippets() []model.Snippet {
 	var result []model.Snippet
 
 	for _, dir := range p.config.LibraryPath {
 		entries, err := afero.ReadDir(p.system.Fs, dir)
 		if err != nil {
-			return []model.Snippet{}, err
+			panic(err)
 		}
 
 		for _, entry := range entries {
@@ -146,7 +138,7 @@ func (p *Provider) GetSnippets() ([]model.Snippet, error) {
 		}
 	}
 
-	return result, nil
+	return result
 }
 
 func checkSuffix(filename string, regexes []*regexp.Regexp) bool {
