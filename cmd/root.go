@@ -86,6 +86,25 @@ var rootCmd = &cobra.Command{
 	Use:   "snipkit",
 	Short: "Use your favorite command line manager directly from the terminal",
 	Long:  `Snipkit helps you to execute scripts saved in your favorite snippets manager without even leaving the terminal.`,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		cfgService := getConfigServiceFromContext(cmd.Context())
+		if cfg, err := cfgService.LoadConfig(); err == nil && cfg.DefaultRootCommand != "" {
+			getDefaultCommand(cmd, cfg.DefaultRootCommand).Run(cmd, args)
+			return nil
+		}
+
+		return cmd.Help()
+	},
+}
+
+func getDefaultCommand(cmd *cobra.Command, cmdStr string) *cobra.Command {
+	for i := range cmd.Commands() {
+		if cmd.Commands()[i].Use == cmdStr {
+			return cmd.Commands()[i]
+		}
+	}
+
+	panic("Default command not supported: " + cmdStr)
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.

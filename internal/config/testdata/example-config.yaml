@@ -6,6 +6,8 @@ config:
     theme: dracula
   # Your preferred editor to open the config file when typing 'snipkit config edit'.
   editor: foo-editor # Defaults to a reasonable value for your operation system when empty.
+  # The command which should run if you don't provide any subcommand.
+  defaultRootCommand: "" # If not set, the help text will be shown.
   provider:
     snippetsLab:
       # Set to true if you want to use SnippetsLab.
