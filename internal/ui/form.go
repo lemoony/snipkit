@@ -52,14 +52,7 @@ func (a *appForm) show() ([]string, bool) {
 		SetItemPadding(1).
 		SetBorder(true).
 		SetTitle("This snippet requires parameters").
-		SetTitleAlign(tview.AlignLeft).
-		SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-			switch event.Key() {
-			case tcell.KeyEnter, tcell.KeyTAB:
-				a.addNextInput()
-			}
-			return event
-		})
+		SetTitleAlign(tview.AlignLeft)
 
 	a.addNextInput()
 
@@ -95,27 +88,32 @@ func (a *appForm) addNextInput() {
 
 	case a.nextInputIndex < len(a.parameters):
 		param := a.parameters[a.nextInputIndex]
-		if len(param.Values) == 0 {
-			a.form.AddInputField(padLength(param.Name, a.maxTitleLength), param.DefaultValue, defaultInputWidth, nil, nil)
-		} else {
-			field := tview.NewInputField().
-				SetLabel(padLength(param.Name, a.maxTitleLength)).
-				SetText("value").
-				SetFieldWidth(defaultInputWidth).
-				SetText(param.DefaultValue).
-				SetAutocompleteBackgroundColor(currentTheme.parametersAutocompleteBackgroundColor()).
+
+		field := tview.NewInputField().
+			SetLabel(padLength(param.Name, a.maxTitleLength)).
+			SetText(param.DefaultValue).
+			SetFieldWidth(defaultInputWidth).
+			SetDoneFunc(a.fieldDoneFuc)
+
+		if len(param.Values) > 0 {
+			field.SetAutocompleteBackgroundColor(currentTheme.parametersAutocompleteBackgroundColor()).
 				SetAutocompleteSelectBackgroundColor(currentTheme.parametersAutocompleteSelectedBackgroundColor()).
 				SetAutocompleteMainTextColor(currentTheme.parametersAutocompleteTextColor()).
 				SetAutocompleteSelectedTextColor(currentTheme.parametersAutocompleteSelectedTextColor()).
 				SetAutocompleteFunc(func(currentText string) (entries []string) {
 					return param.Values
 				})
-
-			a.form.AddFormItem(field)
 		}
+		a.form.AddFormItem(field)
 	}
 
 	a.nextInputIndex++
+}
+
+func (a *appForm) fieldDoneFuc(key tcell.Key) {
+	if key == tcell.KeyEnter || key == tcell.KeyTAB {
+		a.addNextInput()
+	}
 }
 
 func (a *appForm) collectParameterValues() []string {
