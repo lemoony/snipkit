@@ -91,49 +91,33 @@ func Test_GetSnippets(t *testing.T) {
 	}
 }
 
-func Test_getSnippetName(t *testing.T) {
-	tests := []struct {
-		title   string
-		content string
-		ok      bool
-	}{
-		{title: "title 1", content: "#\n# title 1\n#", ok: true},
-		{title: "title 2", content: "#\n#title 2\n#", ok: true},
-		{title: "title 3", content: "#/bin/bash\n#\n#title 3\n#", ok: true},
-		{title: "title 4", content: "#/bin/bash\n\n#\n#title 4\n#", ok: true},
-		{title: "title 5", content: "#\n#title 2", ok: false},
-		{title: "title 6", content: "#title 2\n#", ok: false},
-		{title: "title 7", content: "#\n# \n#", ok: false},
-		{title: "title 8", content: "\n\n\n#\n# title 8\n#", ok: false},
-		{title: "title 9", content: "\n\n#\n# title 9\n#", ok: true},
-	}
-
+func Test_GetSnippets_LazyOpen_HideTitleHeader(t *testing.T) {
 	system := testutil.NewTestSystem()
 	config := Config{
-		Enabled: true,
+		Enabled:            true,
+		LazyOpen:           true,
+		HideTitleInPreview: true,
+		LibraryPath:        []string{t.TempDir()},
+		SuffixRegex:        []string{".sh", ".yaml"},
 	}
+
+	const filePerm = 0o600
+
+	assert.NoError(t, afero.WriteFile(
+		system.Fs,
+		filepath.Join(config.LibraryPath[0], "snippet.sh"),
+		[]byte("#\n# title\n#\ncontent"),
+		filePerm,
+	))
 
 	provider, err := NewProvider(WithSystem(system), WithConfig(config))
-
 	assert.NoError(t, err)
 
-	for _, tt := range tests {
-		t.Run(tt.title, func(t *testing.T) {
-			file, err := afero.TempFile(system.Fs, t.TempDir(), "*.sh")
+	snippets := provider.GetSnippets()
+	assert.Len(t, snippets, 1)
 
-			assert.NoError(t, err)
-			if _, err := file.Write([]byte(tt.content)); err != nil {
-				assert.NoError(t, err)
-			}
-
-			name := provider.getSnippetName(file.Name())
-			if tt.ok {
-				assert.Equal(t, tt.title, name)
-			} else {
-				assert.Equal(t, filepath.Base(file.Name()), name)
-			}
-		})
-	}
+	assert.Equal(t, "content", snippets[0].GetContent())
+	assert.Equal(t, "snippet.sh", snippets[0].GetTitle())
 }
 
 func Test_checkSuffix(t *testing.T) {

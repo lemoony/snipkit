@@ -21,6 +21,7 @@ func Test_serializeToYamlWithComment(t *testing.T) {
 	testConfig.Config.Providers.FsLibrary.LibraryPath = []string{"/path/to/file/system/library"}
 	testConfig.Config.Providers.FsLibrary.SuffixRegex = []string{".sh"}
 	testConfig.Config.Providers.FsLibrary.LazyOpen = true
+	testConfig.Config.Providers.FsLibrary.HideTitleInPreview = true
 
 	expectedConfigBytes, err := ioutil.ReadFile(testDataExampleConfig)
 	assert.NoError(t, err)

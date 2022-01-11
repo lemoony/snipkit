@@ -30,3 +30,5 @@ config:
         - .sh
       # If set to true, the files will not be parsed in advance. This means, only the filename can be used as the snippet name.
       lazyOpen: true
+      # If set to true, the title comment will not be shown in the preview window.
+      hideTitleInPreview: true

@@ -1,7 +1,6 @@
 package fslibrary
 
 import (
-	"bufio"
 	"fmt"
 	"path/filepath"
 	"regexp"
@@ -124,7 +123,11 @@ func (p *Provider) GetSnippets() []model.Snippet {
 					return languageForSuffix(filepath.Ext(fileName))
 				},
 				ContentFunc: func() string {
-					return string(p.system.ReadFile(filePath))
+					contents := string(p.system.ReadFile(filePath))
+					if p.config.HideTitleInPreview {
+						contents = pruneTitleHeader(strings.NewReader(contents))
+					}
+					return contents
 				},
 			}
 
@@ -165,47 +168,7 @@ func (p *Provider) compileSuffixRegex() {
 }
 
 func (p *Provider) getSnippetName(filePath string) string {
-	file, err := p.system.Fs.Open(filePath)
-	fileName := filepath.Base(filePath)
-	if err != nil {
-		panic(err)
-	}
-	defer func() {
-		_ = file.Close()
-	}()
-
-	scanner := bufio.NewScanner(file)
-	lineNumber := 0
-	titleLine := 0
-
-	title := ""
-	for scanner.Scan() {
-		lineNumber++
-
-		if lineNumber-titleLine > maxLineNumberTitleComment {
-			return fileName
-		}
-
-		line := scanner.Text()
-
-		if strings.HasPrefix(line, "#") {
-			switch {
-			case titleLine == 0 && len(strings.TrimSpace(line)) == 1:
-				titleLine++
-			case titleLine == 1:
-				title = strings.TrimSpace(strings.TrimPrefix(line, "#"))
-				titleLine++
-			case titleLine == 2 && len(strings.TrimSpace(line)) == 1:
-				if title != "" {
-					return title
-				} else {
-					return fileName
-				}
-			}
-		}
-	}
-
-	return fileName
+	return getSnippetName(p.system, filePath)
 }
 
 func languageForSuffix(suffix string) model.Language {
