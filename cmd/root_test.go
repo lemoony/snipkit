@@ -8,6 +8,10 @@ import (
 	"github.com/Netflix/go-expect"
 	"github.com/phuslu/log"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/lemoony/snippet-kit/internal/config"
+	appMocks "github.com/lemoony/snippet-kit/mocks/app"
+	configMocks "github.com/lemoony/snippet-kit/mocks/config"
 )
 
 func Test_Root(t *testing.T) {
@@ -15,6 +19,23 @@ func Test_Root(t *testing.T) {
 		_, err := c.ExpectString(rootCmd.Long)
 		assert.NoError(t, err)
 	})
+}
+
+func Test_Root_default_info(t *testing.T) {
+	cfg := config.Config{}
+	cfg.DefaultRootCommand = "info"
+
+	cfgService := configMocks.ConfigService{}
+	cfgService.On("LoadConfig").Return(cfg, nil)
+	cfgService.On("ConfigFilePath").Return("/path/to/cfg-file")
+
+	app := appMocks.App{}
+	app.On("Info").Return()
+
+	err := runMockedTest(t, []string{}, withConfigService(&cfgService), withApp(&app))
+
+	assert.NoError(t, err)
+	app.AssertNumberOfCalls(t, "Info", 1)
 }
 
 func Test_Help(t *testing.T) {
