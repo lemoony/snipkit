@@ -1,3 +1,4 @@
+
 module github.com/golang-templates/seed/build
 
 go 1.16
