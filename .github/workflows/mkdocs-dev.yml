@@ -1,0 +1,30 @@
+name: Deploy the dev documentation
+on:
+  push:
+    paths:
+      - 'docs/**'
+      - mkdocs.yml
+    branches:
+      - docs
+      - main
+jobs:
+  deploy:
+    name: Deploy the dev documentation
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.x
+      - name: Install dependencies
+        run: |
+          pip install mike
+          pip install mkdocs-material
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Deploy the dev documents
+        run: mike deploy --push dev
