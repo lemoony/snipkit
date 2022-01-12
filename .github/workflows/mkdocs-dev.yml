@@ -1,4 +1,4 @@
-name: Deploy the dev documentation
+name: mkdocs-dev
 on:
   push:
     paths:

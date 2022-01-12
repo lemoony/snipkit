@@ -10,10 +10,10 @@ repo_url: https://github.com/lemoony/snippet-kit
 
 copyright: Copyright &copy; 2022 lemoony
 
-extra:
-  version:
-    provider: mike
-
 theme:
   name: material
   language: en
+
+extra:
+  version:
+    provider: mike
