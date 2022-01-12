@@ -1,13 +1,13 @@
 name: mkdocs-dev
 on:
-  workflow_dispatch:
-    inputs:
-      version:
-        description: Version to be deployed
-        required: true
   push:
-    tags:
-      - "v*"
+    paths:
+      - 'docs/**'
+      - mkdocs.yml
+    branches:
+      - docs
+      - main
+
 jobs:
   deploy:
     name: mkdocs-dev
@@ -31,5 +31,11 @@ jobs:
         run: |
           git config user.name "Github Actions mkdocs Bot"
           git config user.email "actions-mkdocs-bot@github.com"
-      - name: Deploy the dev documents
-        run: mike deploy --push dev
+      - name: Deploy the latest documents from new tag push
+        if: ${{ github.event.inputs.version == '' }}
+        run: |
+          VERSION=$(echo ${{ github.ref }} | sed -e "s#refs/tags/##g")
+          mike deploy --push --update-aliases $VERSION latest
+      - name: Deploy the latest documents from manual trigger
+        if: ${{ github.event.inputs.version != '' }}
+        run: mike deploy --push --update-aliases ${{ github.event.inputs.version }} latest
