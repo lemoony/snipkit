@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/lemoony/snippet-kit/internal/utils/testutil"
+	"github.com/lemoony/snipkit/internal/utils/testutil"
 )
 
 func Test_pruneTitleComment(t *testing.T) {

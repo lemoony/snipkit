@@ -1,8 +1,8 @@
 package app
 
 import (
-	"github.com/lemoony/snippet-kit/internal/parser"
-	"github.com/lemoony/snippet-kit/internal/ui"
+	"github.com/lemoony/snipkit/internal/parser"
+	"github.com/lemoony/snipkit/internal/ui"
 )
 
 func (a *appImpl) LookupAndCreatePrintableSnippet() (string, bool) {

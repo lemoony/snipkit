@@ -6,7 +6,7 @@ import (
 	"github.com/gdamore/tcell/v2"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/lemoony/snippet-kit/internal/model"
+	"github.com/lemoony/snipkit/internal/model"
 )
 
 func Test_Form_MultipleParameters(t *testing.T) {

@@ -3,7 +3,7 @@ package config
 import (
 	"emperror.dev/errors"
 
-	"github.com/lemoony/snippet-kit/internal/ui/uimsg"
+	"github.com/lemoony/snipkit/internal/ui/uimsg"
 )
 
 var ErrInvalidConfig = errors.New("invalid config file")

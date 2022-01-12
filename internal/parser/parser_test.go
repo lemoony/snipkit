@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/lemoony/snippet-kit/internal/model"
+	"github.com/lemoony/snipkit/internal/model"
 )
 
 const (

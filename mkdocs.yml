@@ -1,0 +1,19 @@
+site_name: SnipKit Documentation
+site_url: https://lyrahgames.github.io/snipkit
+
+site_author: lemoony
+site_description: >-
+  SnipKit helps you to execute scripts saved in your favorite snippets manager without even leaving the terminal.
+
+repo_name: lemoony/snipkit
+repo_url: https://github.com/lemoony/snipkit
+
+copyright: Copyright &copy; 2022 lemoony
+
+theme:
+  name: material
+  language: en
+
+extra:
+  version:
+    provider: mike

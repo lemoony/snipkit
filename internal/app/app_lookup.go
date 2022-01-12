@@ -1,7 +1,7 @@
 package app
 
 import (
-	"github.com/lemoony/snippet-kit/internal/model"
+	"github.com/lemoony/snipkit/internal/model"
 )
 
 func (a *appImpl) LookupSnippet() *model.Snippet {

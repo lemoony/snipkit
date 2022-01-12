@@ -9,9 +9,9 @@ import (
 	"github.com/phuslu/log"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/lemoony/snippet-kit/internal/config"
-	appMocks "github.com/lemoony/snippet-kit/mocks/app"
-	configMocks "github.com/lemoony/snippet-kit/mocks/config"
+	"github.com/lemoony/snipkit/internal/config"
+	appMocks "github.com/lemoony/snipkit/mocks/app"
+	configMocks "github.com/lemoony/snipkit/mocks/config"
 )
 
 func Test_Root(t *testing.T) {
@@ -41,6 +41,15 @@ func Test_Root_default_info(t *testing.T) {
 func Test_Help(t *testing.T) {
 	runVT10XCommandTest(t, []string{"--help"}, false, func(c *expect.Console, s *setup) {
 		_, err := c.ExpectString(rootCmd.Long)
+		assert.NoError(t, err)
+	})
+}
+
+func Test_Version(t *testing.T) {
+	version := "0.0.0-SNAPSHOT-cd1c032"
+	SetVersion(version)
+	runVT10XCommandTest(t, []string{"--version"}, false, func(c *expect.Console, s *setup) {
+		_, err := c.ExpectString("snipkit version " + version)
 		assert.NoError(t, err)
 	})
 }

@@ -6,10 +6,10 @@ import (
 	"github.com/Netflix/go-expect"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/lemoony/snippet-kit/internal/config/configtest"
-	"github.com/lemoony/snippet-kit/internal/model"
-	"github.com/lemoony/snippet-kit/internal/utils/testutil"
-	mocks "github.com/lemoony/snippet-kit/mocks/provider"
+	"github.com/lemoony/snipkit/internal/config/configtest"
+	"github.com/lemoony/snipkit/internal/model"
+	"github.com/lemoony/snipkit/internal/utils/testutil"
+	mocks "github.com/lemoony/snipkit/mocks/provider"
 )
 
 func Test_Info(t *testing.T) {

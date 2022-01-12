@@ -3,7 +3,7 @@ variables:
   backgroundColor: "#282a36"
   borderColor: "#6272a4"
   defaultTextColor: "#f8f8f2"
-  selectionColor: "#b58900"
+  selectionColor: "#ff79c6"
   secondarySelectionColor: "#50fa7b"
   secondaryDefaultTextColor: "#44475a"
   tertiaryColor: "#f1fa8c"
@@ -14,7 +14,7 @@ theme:
   borderColor: ${borderColor}
   borderTitleColor: ${borderColor}
   previewColorSchemeName: dracula
-  previewApplyMainBackground: true 
+  previewApplyMainBackground: true
   previewOverwriteBackgroundColor: ""
   previewDefaultTextColor: ""
   itemTextColor: ${defaultTextColor}

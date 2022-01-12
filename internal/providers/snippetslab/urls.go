@@ -9,7 +9,7 @@ import (
 	"github.com/phuslu/log"
 	"howett.net/plist"
 
-	"github.com/lemoony/snippet-kit/internal/utils/system"
+	"github.com/lemoony/snipkit/internal/utils/system"
 )
 
 var (

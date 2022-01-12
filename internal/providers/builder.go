@@ -3,9 +3,9 @@ package providers
 import (
 	"github.com/phuslu/log"
 
-	"github.com/lemoony/snippet-kit/internal/providers/fslibrary"
-	"github.com/lemoony/snippet-kit/internal/providers/snippetslab"
-	"github.com/lemoony/snippet-kit/internal/utils/system"
+	"github.com/lemoony/snipkit/internal/providers/fslibrary"
+	"github.com/lemoony/snipkit/internal/providers/snippetslab"
+	"github.com/lemoony/snipkit/internal/utils/system"
 )
 
 type Builder interface {

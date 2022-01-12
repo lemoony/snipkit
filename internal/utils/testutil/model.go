@@ -1,6 +1,6 @@
 package testutil
 
-import "github.com/lemoony/snippet-kit/internal/model"
+import "github.com/lemoony/snipkit/internal/model"
 
 func FixedString(title string) func() string {
 	return func() string {

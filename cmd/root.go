@@ -8,12 +8,12 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/lemoony/snippet-kit/internal/app"
-	"github.com/lemoony/snippet-kit/internal/config"
-	"github.com/lemoony/snippet-kit/internal/providers"
-	"github.com/lemoony/snippet-kit/internal/ui"
-	"github.com/lemoony/snippet-kit/internal/utils/logutil"
-	"github.com/lemoony/snippet-kit/internal/utils/system"
+	"github.com/lemoony/snipkit/internal/app"
+	"github.com/lemoony/snipkit/internal/config"
+	"github.com/lemoony/snipkit/internal/providers"
+	"github.com/lemoony/snipkit/internal/ui"
+	"github.com/lemoony/snipkit/internal/utils/logutil"
+	"github.com/lemoony/snipkit/internal/utils/system"
 )
 
 type setup struct {
@@ -112,6 +112,10 @@ func getDefaultCommand(cmd *cobra.Command, cmdStr string) *cobra.Command {
 func Execute() {
 	defer handlePanic()
 	cobra.CheckErr(rootCmd.Execute())
+}
+
+func SetVersion(v string) {
+	rootCmd.Version = v
 }
 
 func init() {

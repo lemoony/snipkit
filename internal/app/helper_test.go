@@ -3,9 +3,9 @@ package app
 import (
 	"github.com/stretchr/testify/mock"
 
-	"github.com/lemoony/snippet-kit/internal/model"
-	"github.com/lemoony/snippet-kit/internal/providers"
-	providerMocks "github.com/lemoony/snippet-kit/mocks/provider"
+	"github.com/lemoony/snipkit/internal/model"
+	"github.com/lemoony/snipkit/internal/providers"
+	providerMocks "github.com/lemoony/snipkit/mocks/provider"
 )
 
 func withProviderSnippets(snippets []model.Snippet) Option {

@@ -3,13 +3,26 @@ before:
   hooks:
     - go mod download
 builds:
-- env:
-    - CGO_ENABLED=0
-  goos:
-    - darwin
-    - linux
-  goarch:
-    - amd64
-release:
-  github:
-  prerelease: auto
+  - id: macos
+    env:
+      - CGO_ENABLED=0
+    goos: [ darwin ]
+    goarch: [ amd64, arm64 ]
+  - id: linux
+    env:
+      - CGO_ENABLED=0
+    goos: [ linux ]
+    goarch: [ amd64, arm64, 386, arm ]
+checksum:
+  name_template: "{{ .ProjectName }}_checksums.txt"
+brews:
+  - tap:
+      owner: lemoony
+      name: homebrew-tap
+      token: "{{ .Env.TAP_GITHUB_TOKEN }}"
+    folder: Formula
+    homepage: https://github.com/lemoony/snipkit
+    description: Access snippets from your favorite snippet manager without leaving the terminal
+    #  skip_upload: auto
+    test: |
+      system "#{bin}/snipkit", "--version"

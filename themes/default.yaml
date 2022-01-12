@@ -17,8 +17,8 @@ theme:
   itemTextColor: ${textDefaultColor}
   selectedItemTextColor: ${textSelectionColor}
   selectedItemBackgroundColor: ${selectionBackgroundColor}
-  itemHighlightMatchBackgroundColor: ""
-  itemHighlightMatchTextColor: "#50fa7b"
+  itemHighlightMatchBackgroundColor: "#50fa7b"
+  itemHighlightMatchTextColor: "gray"
   counterTextColor: "#B79103"
   lookupInputTextColor: ${textDefaultColor}
   lookupInputPlaceholderColor: "#6272a4"

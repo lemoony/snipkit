@@ -10,11 +10,11 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
-	"github.com/lemoony/snippet-kit/internal/ui/uimsg"
-	"github.com/lemoony/snippet-kit/internal/utils/assertutil"
-	"github.com/lemoony/snippet-kit/internal/utils/system"
-	"github.com/lemoony/snippet-kit/internal/utils/testutil"
-	mocks "github.com/lemoony/snippet-kit/mocks/ui"
+	"github.com/lemoony/snipkit/internal/ui/uimsg"
+	"github.com/lemoony/snipkit/internal/utils/assertutil"
+	"github.com/lemoony/snipkit/internal/utils/system"
+	"github.com/lemoony/snipkit/internal/utils/testutil"
+	mocks "github.com/lemoony/snipkit/mocks/ui"
 )
 
 const testDataExampleConfig = "testdata/example-config.yaml"

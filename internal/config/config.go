@@ -1,8 +1,8 @@
 package config
 
 import (
-	"github.com/lemoony/snippet-kit/internal/providers"
-	"github.com/lemoony/snippet-kit/internal/ui"
+	"github.com/lemoony/snipkit/internal/providers"
+	"github.com/lemoony/snipkit/internal/ui"
 )
 
 type VersionWrapper struct {

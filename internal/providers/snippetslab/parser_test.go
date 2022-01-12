@@ -7,7 +7,7 @@ import (
 	"github.com/corbym/gocrest/then"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/lemoony/snippet-kit/internal/model"
+	"github.com/lemoony/snipkit/internal/model"
 )
 
 func Test_parseTags(t *testing.T) {
