@@ -5,11 +5,12 @@ before:
 builds:
 - env:
     - CGO_ENABLED=0
-  goos:
-    - darwin
-    - linux
-  goarch:
-    - amd64
+  goos: [darwin]
+  goarch: [amd64, arm64]
+- env:
+    - CGO_ENABLED=0
+  goos: [linux]
+  goarch: [amd64, arm64, 386, arm]
 brews:
 - tap:
     owner: lemoony
@@ -17,7 +18,7 @@ brews:
     token: "{{ .Env.TAP_GITHUB_TOKEN }}"
   folder: Formula
   homepage: https://github.com/lemoony/snippet-kit
-  description: Access snippets from your favorite snippet manager without leaving the terminal.
+  description: Access snippets from your favorite snippet manager without leaving the terminal
 #  skip_upload: auto
   test: |
     system "#{bin}/snipkit", "--version"
