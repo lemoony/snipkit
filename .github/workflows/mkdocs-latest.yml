@@ -1,13 +1,13 @@
 name: mkdocs-dev
 on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version to be deployed
+        required: true
   push:
-    paths:
-      - 'docs/**'
-      - mkdocs.yml
-    branches:
-      - docs
-      - main
-
+    tags:
+      - "v*"
 jobs:
   deploy:
     name: mkdocs-dev

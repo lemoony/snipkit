@@ -14,6 +14,7 @@ brews:
 - tap:
     owner: lemoony
     name: homebrew-tap
+    token: "{{ .Env.TAP_GITHUB_TOKEN }}"
   folder: Formula
   homepage: https://github.com/lemoony/snippet-kit
   description: Access snippets from your favorite snippet manager without leaving the terminal.
