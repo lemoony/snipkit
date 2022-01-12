@@ -6,8 +6,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/lemoony/snippet-kit/internal/model"
-	"github.com/lemoony/snippet-kit/internal/utils/stringutil"
+	"github.com/lemoony/snipkit/internal/model"
+	"github.com/lemoony/snipkit/internal/utils/stringutil"
 )
 
 type (

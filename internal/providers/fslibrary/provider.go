@@ -9,8 +9,8 @@ import (
 	"github.com/phuslu/log"
 	"github.com/spf13/afero"
 
-	"github.com/lemoony/snippet-kit/internal/model"
-	"github.com/lemoony/snippet-kit/internal/utils/system"
+	"github.com/lemoony/snipkit/internal/model"
+	"github.com/lemoony/snipkit/internal/utils/system"
 )
 
 const (

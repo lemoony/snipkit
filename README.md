@@ -1,10 +1,10 @@
 # SnipKit - Snippet CLI manager
 
 [![Language](https://img.shields.io/badge/language-Go-blue.svg)](https://dart.dev)
-[![build](https://github.com/lemoony/snippet-kit/actions/workflows/build.yml/badge.svg)](https://github.com/lemoony/snippet-kit/actions/workflows/build.yml)
+[![build](https://github.com/lemoony/snipkit/actions/workflows/build.yml/badge.svg)](https://github.com/lemoony/snipkit/actions/workflows/build.yml)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Go Report Card](https://goreportcard.com/badge/github.com/lemoony/snippet-kit)](https://goreportcard.com/report/github.com/lemoony/snippet-kit)
-[![codecov](https://codecov.io/gh/lemoony/snippet-kit/branch/main/graph/badge.svg?token=UOG4O1yscP)](https://codecov.io/gh/lemoony/snippet-kit)
+[![Go Report Card](https://goreportcard.com/badge/github.com/lemoony/snipkit)](https://goreportcard.com/report/github.com/lemoony/snipkit)
+[![codecov](https://codecov.io/gh/lemoony/snipkit/branch/main/graph/badge.svg?token=UOG4O1yscP)](https://codecov.io/gh/lemoony/snipkit)
 
 SnipKit aims to paste code snippets from your favorite snippet manager into your terminal without even leaving it.
 
@@ -14,7 +14,7 @@ SnipKit aims to paste code snippets from your favorite snippet manager into your
 
 As of now, only SnippetsLab is supported. Other CLI managers may be added in the future. 
 
-[Documentation](https://lemoony.github.io/snippet-kit/)
+[Documentation](https://lemoony.github.io/snipkit/)
 
 ## Quick Start
 
@@ -99,21 +99,22 @@ brew install lemoony/tap/snipkit
 ### Go
 
 ```bash
-go install github.com/lemoony/snippet-kit@latest
+go install github.com/lemoony/snipkit@latest
 ```
+
 ### Build
 
 ```bash 
-https://github.com/lemoony/snippet-kit.git
-cd snippet-kit 
+https://github.com/lemoony/snipkit.git
+cd snipkit 
 make build
 ```
 
-After the build succeeded, go to `./dist` to find the binary for your OS
+After the build succeeds, go to `./dist` to find the binary for your operating system.
 
 
 ## Features and bugs
 
 Please file feature requests and bugs at the [issue tracker][tracker].
 
-[tracker]: https://github.com/lemoony/snippet-kit/issues
+[tracker]: https://github.com/lemoony/snipkit/issues

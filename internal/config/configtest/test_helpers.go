@@ -9,11 +9,11 @@ import (
 	"github.com/spf13/afero"
 	"gopkg.in/yaml.v3"
 
-	"github.com/lemoony/snippet-kit/internal/config"
-	"github.com/lemoony/snippet-kit/internal/providers"
-	"github.com/lemoony/snippet-kit/internal/providers/fslibrary"
-	"github.com/lemoony/snippet-kit/internal/providers/snippetslab"
-	"github.com/lemoony/snippet-kit/internal/ui"
+	"github.com/lemoony/snipkit/internal/config"
+	"github.com/lemoony/snipkit/internal/providers"
+	"github.com/lemoony/snipkit/internal/providers/fslibrary"
+	"github.com/lemoony/snipkit/internal/providers/snippetslab"
+	"github.com/lemoony/snipkit/internal/ui"
 )
 
 const fileModeConfig = os.FileMode(0o600)

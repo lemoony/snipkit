@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/lemoony/snippet-kit/internal/utils/system"
+	"github.com/lemoony/snipkit/internal/utils/system"
 )
 
 func Test_getLibraryURLFromPreferencesFile(t *testing.T) {

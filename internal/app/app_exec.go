@@ -7,9 +7,9 @@ import (
 	"emperror.dev/errors"
 	"github.com/phuslu/log"
 
-	"github.com/lemoony/snippet-kit/internal/parser"
-	"github.com/lemoony/snippet-kit/internal/ui"
-	"github.com/lemoony/snippet-kit/internal/utils/stringutil"
+	"github.com/lemoony/snipkit/internal/parser"
+	"github.com/lemoony/snipkit/internal/ui"
+	"github.com/lemoony/snipkit/internal/utils/stringutil"
 )
 
 func (a *appImpl) LookupAndExecuteSnippet() {

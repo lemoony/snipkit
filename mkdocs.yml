@@ -1,12 +1,12 @@
-site_name: Snippet Kit Documentation
-site_url: https://lyrahgames.github.io/snippet-kit
+site_name: SnipKit Documentation
+site_url: https://lyrahgames.github.io/snipkit
 
 site_author: lemoony
 site_description: >-
-  Snippet Kit helps you to execute scripts saved in your favorite snippets manager without even leaving the terminal.
+  SnipKit helps you to execute scripts saved in your favorite snippets manager without even leaving the terminal.
 
-repo_name: lemoony/snippet-kit
-repo_url: https://github.com/lemoony/snippet-kit
+repo_name: lemoony/snipkit
+repo_url: https://github.com/lemoony/snipkit
 
 copyright: Copyright &copy; 2022 lemoony
 

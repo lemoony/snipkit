@@ -16,7 +16,7 @@ limitations under the License.
 package main
 
 import (
-	"github.com/lemoony/snippet-kit/cmd"
+	"github.com/lemoony/snipkit/cmd"
 )
 
 var version = "dev"

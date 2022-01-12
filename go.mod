@@ -1,4 +1,4 @@
-module github.com/lemoony/snippet-kit
+module github.com/lemoony/snipkit
 
 go 1.16
 

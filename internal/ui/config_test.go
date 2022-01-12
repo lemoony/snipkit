@@ -7,8 +7,8 @@ import (
 	"github.com/rivo/tview"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/lemoony/snippet-kit/internal/utils/assertutil"
-	"github.com/lemoony/snippet-kit/internal/utils/testutil"
+	"github.com/lemoony/snipkit/internal/utils/assertutil"
+	"github.com/lemoony/snipkit/internal/utils/testutil"
 )
 
 func Test_Config_apply(t *testing.T) {

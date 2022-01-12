@@ -8,9 +8,9 @@ import (
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
 
-	"github.com/lemoony/snippet-kit/internal/ui"
-	"github.com/lemoony/snippet-kit/internal/ui/uimsg"
-	"github.com/lemoony/snippet-kit/internal/utils/system"
+	"github.com/lemoony/snipkit/internal/ui"
+	"github.com/lemoony/snipkit/internal/ui/uimsg"
+	"github.com/lemoony/snipkit/internal/utils/system"
 )
 
 var invalidConfig = Config{}

@@ -1,4 +1,4 @@
-# Snippet Kit
+# SnipKit
 
 ![Demo](images/demo.gif)
 

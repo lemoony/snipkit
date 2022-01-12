@@ -9,9 +9,9 @@ import (
 	"github.com/phuslu/log"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/lemoony/snippet-kit/internal/config"
-	appMocks "github.com/lemoony/snippet-kit/mocks/app"
-	configMocks "github.com/lemoony/snippet-kit/mocks/config"
+	"github.com/lemoony/snipkit/internal/config"
+	appMocks "github.com/lemoony/snipkit/mocks/app"
+	configMocks "github.com/lemoony/snipkit/mocks/config"
 )
 
 func Test_Root(t *testing.T) {

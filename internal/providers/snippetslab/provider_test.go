@@ -5,8 +5,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/lemoony/snippet-kit/internal/utils/system"
-	"github.com/lemoony/snippet-kit/internal/utils/testutil"
+	"github.com/lemoony/snipkit/internal/utils/system"
+	"github.com/lemoony/snipkit/internal/utils/testutil"
 )
 
 func Test_GetSnippets(t *testing.T) {

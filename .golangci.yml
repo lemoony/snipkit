@@ -1,6 +1,6 @@
 linters-settings:
   goimports:
-    local-prefixes: github.com/lemoony/snippet-kit
+    local-prefixes: github.com/lemoony/snipkit
   revive:
     confidence: 0.8
   gocyclo:

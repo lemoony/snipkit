@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/lemoony/snippet-kit/internal/ui/uimsg"
+	"github.com/lemoony/snipkit/internal/ui/uimsg"
 )
 
 func Test_ErrConfigNotFound_string(t *testing.T) {

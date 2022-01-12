@@ -12,8 +12,8 @@ import (
 	"github.com/spf13/afero"
 	"gopkg.in/yaml.v3"
 
-	"github.com/lemoony/snippet-kit/internal/utils/system"
-	themedata "github.com/lemoony/snippet-kit/themes"
+	"github.com/lemoony/snipkit/internal/utils/system"
+	themedata "github.com/lemoony/snipkit/themes"
 )
 
 const (

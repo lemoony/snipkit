@@ -15,13 +15,13 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
-	"github.com/lemoony/snippet-kit/internal/app"
-	"github.com/lemoony/snippet-kit/internal/config"
-	"github.com/lemoony/snippet-kit/internal/providers"
-	"github.com/lemoony/snippet-kit/internal/ui"
-	"github.com/lemoony/snippet-kit/internal/utils/system"
-	"github.com/lemoony/snippet-kit/internal/utils/testutil"
-	mocks "github.com/lemoony/snippet-kit/mocks/provider"
+	"github.com/lemoony/snipkit/internal/app"
+	"github.com/lemoony/snipkit/internal/config"
+	"github.com/lemoony/snipkit/internal/providers"
+	"github.com/lemoony/snipkit/internal/ui"
+	"github.com/lemoony/snipkit/internal/utils/system"
+	"github.com/lemoony/snipkit/internal/utils/testutil"
+	mocks "github.com/lemoony/snipkit/mocks/provider"
 )
 
 type testSetup struct {

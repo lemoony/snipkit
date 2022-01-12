@@ -11,11 +11,11 @@ import (
 	"github.com/spf13/viper"
 	"gopkg.in/yaml.v3"
 
-	"github.com/lemoony/snippet-kit/internal/providers/fslibrary"
-	"github.com/lemoony/snippet-kit/internal/providers/snippetslab"
-	"github.com/lemoony/snippet-kit/internal/ui"
-	"github.com/lemoony/snippet-kit/internal/ui/uimsg"
-	"github.com/lemoony/snippet-kit/internal/utils/system"
+	"github.com/lemoony/snipkit/internal/providers/fslibrary"
+	"github.com/lemoony/snipkit/internal/providers/snippetslab"
+	"github.com/lemoony/snipkit/internal/ui"
+	"github.com/lemoony/snipkit/internal/ui/uimsg"
+	"github.com/lemoony/snipkit/internal/utils/system"
 )
 
 type yamlCommentKind int

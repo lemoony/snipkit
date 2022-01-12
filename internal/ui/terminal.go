@@ -12,8 +12,8 @@ import (
 	"github.com/gdamore/tcell/v2"
 	"github.com/kballard/go-shellquote"
 
-	"github.com/lemoony/snippet-kit/internal/model"
-	"github.com/lemoony/snippet-kit/internal/utils/system"
+	"github.com/lemoony/snipkit/internal/model"
+	"github.com/lemoony/snipkit/internal/utils/system"
 )
 
 const (

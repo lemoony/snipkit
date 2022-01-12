@@ -5,10 +5,10 @@ import (
 
 	"github.com/stretchr/testify/mock"
 
-	"github.com/lemoony/snippet-kit/internal/config/configtest"
-	"github.com/lemoony/snippet-kit/internal/model"
-	"github.com/lemoony/snippet-kit/internal/utils/testutil"
-	uiMocks "github.com/lemoony/snippet-kit/mocks/ui"
+	"github.com/lemoony/snipkit/internal/config/configtest"
+	"github.com/lemoony/snipkit/internal/model"
+	"github.com/lemoony/snipkit/internal/utils/testutil"
+	uiMocks "github.com/lemoony/snipkit/mocks/ui"
 )
 
 func Test_App_Exec(t *testing.T) {

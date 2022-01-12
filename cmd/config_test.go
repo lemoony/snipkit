@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	mocks "github.com/lemoony/snippet-kit/mocks/config"
+	mocks "github.com/lemoony/snipkit/mocks/config"
 )
 
 func Test_ConfigInit(t *testing.T) {

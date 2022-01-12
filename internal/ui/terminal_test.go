@@ -13,8 +13,8 @@ import (
 	"github.com/gdamore/tcell/v2"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/lemoony/snippet-kit/internal/model"
-	"github.com/lemoony/snippet-kit/internal/utils/testutil"
+	"github.com/lemoony/snipkit/internal/model"
+	"github.com/lemoony/snipkit/internal/utils/testutil"
 )
 
 func Test_PrintMessage(t *testing.T) {

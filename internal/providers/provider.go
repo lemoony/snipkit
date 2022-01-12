@@ -1,6 +1,6 @@
 package providers
 
-import "github.com/lemoony/snippet-kit/internal/model"
+import "github.com/lemoony/snipkit/internal/model"
 
 type Provider interface {
 	Info() model.ProviderInfo

@@ -11,7 +11,7 @@ import (
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/lemoony/snippet-kit/internal/utils/assertutil"
+	"github.com/lemoony/snipkit/internal/utils/assertutil"
 )
 
 func Test_System_Default(t *testing.T) {

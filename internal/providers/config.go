@@ -1,8 +1,8 @@
 package providers
 
 import (
-	"github.com/lemoony/snippet-kit/internal/providers/fslibrary"
-	"github.com/lemoony/snippet-kit/internal/providers/snippetslab"
+	"github.com/lemoony/snipkit/internal/providers/fslibrary"
+	"github.com/lemoony/snipkit/internal/providers/snippetslab"
 )
 
 type Config struct {

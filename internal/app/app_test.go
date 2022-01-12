@@ -10,13 +10,13 @@ import (
 	"github.com/stretchr/testify/mock"
 	"gopkg.in/yaml.v3"
 
-	"github.com/lemoony/snippet-kit/internal/config"
-	"github.com/lemoony/snippet-kit/internal/model"
-	"github.com/lemoony/snippet-kit/internal/providers"
-	"github.com/lemoony/snippet-kit/internal/utils/assertutil"
-	"github.com/lemoony/snippet-kit/internal/utils/testutil"
-	providerMocks "github.com/lemoony/snippet-kit/mocks/provider"
-	uiMocks "github.com/lemoony/snippet-kit/mocks/ui"
+	"github.com/lemoony/snipkit/internal/config"
+	"github.com/lemoony/snipkit/internal/model"
+	"github.com/lemoony/snipkit/internal/providers"
+	"github.com/lemoony/snipkit/internal/utils/assertutil"
+	"github.com/lemoony/snipkit/internal/utils/testutil"
+	providerMocks "github.com/lemoony/snipkit/mocks/provider"
+	uiMocks "github.com/lemoony/snipkit/mocks/ui"
 )
 
 func Test_NewApp_NoConfigFile(t *testing.T) {

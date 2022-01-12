@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	mocks "github.com/lemoony/snippet-kit/mocks/app"
+	mocks "github.com/lemoony/snipkit/mocks/app"
 )
 
 func Test_Print(t *testing.T) {

@@ -1,7 +1,7 @@
 package fslibrary
 
 import (
-	"github.com/lemoony/snippet-kit/internal/utils/system"
+	"github.com/lemoony/snipkit/internal/utils/system"
 )
 
 type Config struct {
