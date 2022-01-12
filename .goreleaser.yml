@@ -10,6 +10,13 @@ builds:
     - linux
   goarch:
     - amd64
-release:
-  github:
-  prerelease: auto
+brews:
+- tap:
+    owner: lemoony
+    name: homebrew-tap
+  folder: Formula
+  homepage: https://github.com/lemoony/snippet-kit
+  description: Access snippets from your favorite snippet manager without leaving the terminal.
+  skip_upload: auto
+  test: |
+    system "#{bin}/snipkit", "--version"
