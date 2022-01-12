@@ -6,11 +6,12 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/lemoony/snippet-kit)](https://goreportcard.com/report/github.com/lemoony/snippet-kit)
 [![codecov](https://codecov.io/gh/lemoony/snippet-kit/branch/main/graph/badge.svg?token=UOG4O1yscP)](https://codecov.io/gh/lemoony/snippet-kit)
 
-> This repository is still work in progress!
 
-SnipKit aims to paste code snippets from your favorite snippet manager into your terminal without even 
-leaving it.
+![Demo](docs/docs/images/demo.gif)
+
+
+SnipKit aims to paste code snippets from your favorite snippet manager into your terminal without even leaving it.
+
+> This repository is still work in the early stages of development!
 
 As of now, only SnippetsLab is supported. Other CLI managers may be added in the future.
-
-

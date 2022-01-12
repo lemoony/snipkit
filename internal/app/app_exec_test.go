@@ -41,6 +41,4 @@ echo "${VAR1}"`
 	)
 
 	app.LookupAndExecuteSnippet()
-
-	terminal.AssertCalled(t, "PrintMessage", inputVar1Value+"\n")
 }

@@ -7,8 +7,6 @@ import (
 	"github.com/lemoony/snippet-kit/internal/model"
 )
 
-const defaultInputWidth = 25
-
 type OkButton string
 
 const (
@@ -20,7 +18,8 @@ type appForm struct {
 	app            *tview.Application
 	form           *tview.Form
 	parameters     []model.Parameter
-	maxTitleLength int
+	labelWidth     int
+	fieldWidth     int
 	nextInputIndex int
 	success        bool
 	okButton       OkButton
@@ -34,14 +33,14 @@ func (c cliTerminal) ShowParameterForm(parameters []model.Parameter, okButton Ok
 }
 
 func newAppForm(parameters []model.Parameter, screen tcell.Screen, okButton OkButton) *appForm {
-	app := tview.NewApplication()
-	app.SetScreen(screen)
+	app := tview.NewApplication().SetScreen(screen)
 
 	return &appForm{
 		app:            app,
 		form:           tview.NewForm(),
 		parameters:     parameters,
-		maxTitleLength: getMaxWidthParameter(parameters),
+		labelWidth:     getMaxWidthLabel(parameters),
+		fieldWidth:     getMaxWidthField(parameters),
 		nextInputIndex: 0,
 		okButton:       okButton,
 	}
@@ -90,9 +89,9 @@ func (a *appForm) addNextInput() {
 		param := a.parameters[a.nextInputIndex]
 
 		field := tview.NewInputField().
-			SetLabel(padLength(param.Name, a.maxTitleLength)).
+			SetLabel(padLength(param.Name, a.labelWidth)).
 			SetText(param.DefaultValue).
-			SetFieldWidth(defaultInputWidth).
+			SetFieldWidth(a.fieldWidth).
 			SetDoneFunc(a.fieldDoneFuc)
 
 		if len(param.Values) > 0 {
@@ -124,11 +123,23 @@ func (a *appForm) collectParameterValues() []string {
 	return results
 }
 
-func getMaxWidthParameter(parameters []model.Parameter) int {
+func getMaxWidthLabel(parameters []model.Parameter) int {
 	max := 0
 	for i := range parameters {
 		if l := len(parameters[i].Name); l > max {
 			max = l
+		}
+	}
+	return max
+}
+
+func getMaxWidthField(parameters []model.Parameter) int {
+	max := 0
+	for i := range parameters {
+		for v := range parameters[i].Values {
+			if l := len(parameters[i].Values[v]); l > max {
+				max = l
+			}
 		}
 	}
 	return max

@@ -4,6 +4,9 @@ import (
 	"os"
 	"os/exec"
 
+	"emperror.dev/errors"
+	"github.com/phuslu/log"
+
 	"github.com/lemoony/snippet-kit/internal/parser"
 	"github.com/lemoony/snippet-kit/internal/ui"
 	"github.com/lemoony/snippet-kit/internal/utils/stringutil"
@@ -18,18 +21,25 @@ func (a *appImpl) LookupAndExecuteSnippet() {
 	parameters := parser.ParseParameters(snippet.GetContent())
 	if parameterValues, ok := a.ui.ShowParameterForm(parameters, ui.OkButtonExecute); ok {
 		script := parser.CreateSnippet(snippet.GetContent(), parameters, parameterValues)
-		executeScript(script, a.ui)
+		executeScript(script)
 	}
 }
 
-func executeScript(script string, term ui.Terminal) {
+func executeScript(script string) {
 	shell := stringutil.StringOrDefault(os.Getenv("SHELL"), "/bin/bash")
 
 	//nolint:gosec // since it would report G204 complaining about using a variable as input for exec.Command
-	cmd, err := exec.Command(shell, "-c", script).CombinedOutput()
+	cmd := exec.Command(shell, "-c", script)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	err := cmd.Start()
 	if err != nil {
-		panic(err)
+		panic(errors.Wrapf(errors.WithStack(err), "failed to run command"))
 	}
 
-	term.PrintMessage(string(cmd))
+	if err := cmd.Wait(); err != nil {
+		log.Info().Err(err)
+	}
 }
