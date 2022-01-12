@@ -90,6 +90,12 @@ the `print` command instead, just type `sn print`.
 
 ## Installation
 
+### Homebrew
+
+```bash 
+brew install lemoony/tap/snipkit
+```
+
 ### Go
 
 ```bash
