@@ -114,6 +114,10 @@ func Execute() {
 	cobra.CheckErr(rootCmd.Execute())
 }
 
+func SetVersion(v string) {
+	rootCmd.Version = v
+}
+
 func init() {
 	cobra.OnInitialize(initConfig)
 
