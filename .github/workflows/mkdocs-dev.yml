@@ -26,5 +26,9 @@ jobs:
           pip install mkdocs-material
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Configure the git user
+        run: |
+          git config user.name "Github Actions mkdocs Bot"
+          git config user.email "actions-mkdocs-bot@github.com"
       - name: Deploy the dev documents
         run: mike deploy --push dev
