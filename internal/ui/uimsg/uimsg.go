@@ -4,7 +4,6 @@ import "fmt"
 
 func ConfigFileCreate(configPath string) string {
 	return fmt.Sprintf(`Config file created at: %s
-
 If you want to reset snipkit or delete the config, type in 'snipkit config clean'.`, configPath)
 }
 
@@ -40,8 +39,21 @@ func ConfirmRecreateConfigFile(path string) string {
 	return fmt.Sprintf("The configuration file already exists at %s.\nDo you want to recreate it?", path)
 }
 
+func HelpCreateConfigFile(path string, homeEnv string) string {
+	result := "No configuration file found!\n\n"
+
+	if homeEnv != "" {
+		result += fmt.Sprintf("SNIPKIT_HOME is set to : %s\n", homeEnv)
+	} else {
+		result += "SNIPKIT_HOME is not set.\n"
+	}
+
+	result += fmt.Sprintf("Thus, the config file location is specified to be: %s", path)
+	return result
+}
+
 func ConfirmCreateConfigFile(path string) string {
-	return fmt.Sprintf("Do you want to create a configuration file at %s?", path)
+	return fmt.Sprintf(`Do you want to create a configuration file at %s?`, path)
 }
 
 func ConfirmDeleteConfigFile(path string) string {

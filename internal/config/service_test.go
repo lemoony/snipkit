@@ -35,7 +35,6 @@ func Test_LoadConfig(t *testing.T) {
 	assert.True(t, config.Providers.SnippetsLab.Enabled)
 	assert.Equal(t, "/path/to/lib", config.Providers.SnippetsLab.LibraryPath)
 	assert.Len(t, config.Providers.SnippetsLab.IncludeTags, 2)
-	assert.Len(t, config.Providers.SnippetsLab.ExcludeTags, 0)
 }
 
 func Test_Create(t *testing.T) {
@@ -48,14 +47,14 @@ func Test_Create(t *testing.T) {
 	v.SetConfigFile(cfgFilePath)
 
 	terminal := &mocks.Terminal{}
-	terminal.On("Confirm", uimsg.ConfirmCreateConfigFile(cfgFilePath)).Return(true, nil)
+	terminal.On("ConfirmWithHelp", uimsg.ConfirmCreateConfigFile(cfgFilePath), mock.Anything).Return(true, nil)
 	terminal.On("PrintMessage", mock.Anything).Return()
 
 	s := NewService(WithSystem(system), WithViper(v), WithTerminal(terminal))
 
 	s.Create()
-	terminal.AssertCalled(t, "Confirm", uimsg.ConfirmCreateConfigFile(cfgFilePath))
-	terminal.AssertNumberOfCalls(t, "Confirm", 1)
+	terminal.AssertCalled(t, "ConfirmWithHelp", uimsg.ConfirmCreateConfigFile(cfgFilePath), mock.Anything)
+	terminal.AssertNumberOfCalls(t, "ConfirmWithHelp", 1)
 
 	assert.True(t, s.(serviceImpl).hasConfig())
 }
@@ -70,7 +69,8 @@ func Test_Create_Decline(t *testing.T) {
 	v.SetConfigFile(cfgFilePath)
 
 	terminal := &mocks.Terminal{}
-	terminal.On("Confirm", uimsg.ConfirmCreateConfigFile(cfgFilePath)).Return(false, nil)
+	terminal.On("ConfirmWithHelp", uimsg.ConfirmCreateConfigFile(cfgFilePath), mock.Anything).
+		Return(false, nil)
 
 	terminal.On("PrintMessage", mock.Anything).Return()
 
@@ -78,8 +78,8 @@ func Test_Create_Decline(t *testing.T) {
 
 	s.Create()
 	assert.False(t, s.(serviceImpl).hasConfig())
-	terminal.AssertCalled(t, "Confirm", uimsg.ConfirmCreateConfigFile(cfgFilePath))
-	terminal.AssertNumberOfCalls(t, "Confirm", 1)
+	terminal.AssertCalled(t, "ConfirmWithHelp", uimsg.ConfirmCreateConfigFile(cfgFilePath), mock.Anything)
+	terminal.AssertNumberOfCalls(t, "ConfirmWithHelp", 1)
 
 	if exists, err := afero.Exists(system.Fs, cfgFilePath); err != nil {
 		assert.NoError(t, err)
@@ -98,7 +98,7 @@ func Test_Create_Recreate_Decline(t *testing.T) {
 	v.SetConfigFile(cfgFilePath)
 
 	terminal := &mocks.Terminal{}
-	terminal.On("Confirm", uimsg.ConfirmCreateConfigFile(cfgFilePath)).Return(true, nil)
+	terminal.On("ConfirmWithHelp", uimsg.ConfirmCreateConfigFile(cfgFilePath), mock.Anything).Return(true, nil)
 	terminal.On("Confirm", uimsg.ConfirmRecreateConfigFile(cfgFilePath)).Return(false, nil)
 
 	terminal.On("PrintMessage", mock.Anything).Return()
@@ -107,8 +107,8 @@ func Test_Create_Recreate_Decline(t *testing.T) {
 
 	s.Create()
 	assert.True(t, s.(serviceImpl).hasConfig())
-	terminal.AssertCalled(t, "Confirm", uimsg.ConfirmCreateConfigFile(cfgFilePath))
-	terminal.AssertNumberOfCalls(t, "Confirm", 1)
+	terminal.AssertCalled(t, "ConfirmWithHelp", uimsg.ConfirmCreateConfigFile(cfgFilePath), mock.Anything)
+	terminal.AssertNumberOfCalls(t, "ConfirmWithHelp", 1)
 
 	stat, _ := system.Fs.Stat(cfgFilePath)
 	modTime := stat.ModTime()
@@ -117,7 +117,7 @@ func Test_Create_Recreate_Decline(t *testing.T) {
 
 	assert.True(t, s.(serviceImpl).hasConfig())
 	terminal.AssertCalled(t, "Confirm", uimsg.ConfirmRecreateConfigFile(cfgFilePath))
-	terminal.AssertNumberOfCalls(t, "Confirm", 2)
+	terminal.AssertNumberOfCalls(t, "Confirm", 1)
 
 	// assert file was not changed by comparing the last modification time
 	stat, _ = system.Fs.Stat(cfgFilePath)
@@ -240,4 +240,7 @@ func Test_ConfigFilePath(t *testing.T) {
 	s := NewService(WithSystem(system), WithViper(v))
 
 	assert.Equal(t, cfgFilePath, s.ConfigFilePath())
+}
+
+func Test_initConfigHelpText(t *testing.T) {
 }

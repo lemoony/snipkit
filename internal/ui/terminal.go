@@ -53,6 +53,7 @@ type Terminal interface {
 	PrintMessage(message string)
 	PrintError(message string)
 	Confirm(message string) bool
+	ConfirmWithHelp(message string, help string, args ...string) bool
 	OpenEditor(path string, preferredEditor string)
 	ShowLookup(snippets []model.Snippet) int
 	ShowParameterForm(parameters []model.Parameter, okButton OkButton) ([]string, bool)
@@ -90,6 +91,16 @@ func (c cliTerminal) PrintError(msg string) {
 }
 
 func (c cliTerminal) Confirm(message string) bool {
+	confirmed := false
+	prompt := &survey.Confirm{Message: message}
+	if err := survey.AskOne(prompt, &confirmed, survey.WithStdio(c.stdio.In, c.stdio.Out, c.stdio.Err)); err != nil {
+		panic(errors.Wrap(errors.WithStack(err), "failed to capture user input"))
+	}
+	return confirmed
+}
+
+func (c cliTerminal) ConfirmWithHelp(message string, help string, args ...string) bool {
+	fmt.Fprintf(c.stdio.Out, help+"\n\n", args)
 	confirmed := false
 	prompt := &survey.Confirm{Message: message}
 	if err := survey.AskOne(prompt, &confirmed, survey.WithStdio(c.stdio.In, c.stdio.Out, c.stdio.Err)); err != nil {

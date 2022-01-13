@@ -17,3 +17,10 @@ theme:
 extra:
   version:
     provider: mike
+
+nav:
+  - 'index.md'
+  - 'configuration.md'
+  - 'themes.md'
+  - 'provider.md'
+  - 'syntax.md'

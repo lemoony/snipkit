@@ -15,7 +15,6 @@ func Test_serializeToYamlWithComment(t *testing.T) {
 	testConfig.Config.Providers.SnippetsLab.Enabled = true
 	testConfig.Config.Providers.SnippetsLab.LibraryPath = "/path/to/lib"
 	testConfig.Config.Providers.SnippetsLab.IncludeTags = []string{"snipkit", "othertag"}
-	testConfig.Config.Providers.SnippetsLab.ExcludeTags = []string{}
 
 	testConfig.Config.Providers.FsLibrary.Enabled = true
 	testConfig.Config.Providers.FsLibrary.LibraryPath = []string{"/path/to/file/system/library"}

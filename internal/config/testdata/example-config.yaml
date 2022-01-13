@@ -19,8 +19,6 @@ config:
       includeTags:
         - snipkit
         - othertag
-      # If this list is not empty, snippets that have one of the listed tags will not be provided to you.
-      excludeTags: []
     fsLibrary:
       # If set to false, the files specified via libraryPath will not be provided to you.
       enabled: true
