@@ -2,10 +2,6 @@ package uimsg
 
 import "fmt"
 
-func NoConfig() string {
-	return `No snipkit configuration file found. Type in 'snipkit config init' to create one.`
-}
-
 func ConfigFileCreate(configPath string) string {
 	return fmt.Sprintf(`Config file created at: %s
 
@@ -29,7 +25,10 @@ func ConfigNotDeleted() string {
 }
 
 func ConfigNotFound(path string) string {
-	return fmt.Sprintf(`No config found at: %s\nType in 'snipkit config init' to create a configuration file.`, path)
+	return fmt.Sprintf(`No config found at: %s
+You can set environment variable 'SNIPKIT_HOME' to change the directory path where snipkit will look for the config file.
+Type in 'snipkit config init' to create a configuration file.
+`, path)
 }
 
 func HomeDirectoryStillExists(path string) string {

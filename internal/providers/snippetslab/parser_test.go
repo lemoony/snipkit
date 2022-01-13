@@ -24,13 +24,15 @@ func Test_parseSnippets(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Len(t, snippets, 2)
 
-	then.AssertThat(t,
-		snippets[0].GetTitle(),
-		is.AnyOf(is.EqualTo("Simple echo"), is.EqualTo("Foos script")),
-	)
-	then.AssertThat(t,
-		snippets[0].GetContent(),
-		is.MatchForPattern("^# some comment.*"),
-	)
+	for _, s := range snippets {
+		then.AssertThat(t,
+			s.GetTitle(),
+			is.AnyOf(is.EqualTo("Simple echo"), is.EqualTo("Foos script")),
+		)
+		then.AssertThat(t,
+			s.GetContent(),
+			is.AnyOf(is.MatchForPattern("^# some comment.*"), is.MatchForPattern("echo \"Foo!\"")),
+		)
+	}
 	assert.Equal(t, model.LanguageBash, snippets[0].GetLanguage())
 }

@@ -89,6 +89,8 @@ func (s serviceImpl) Create() {
 }
 
 func (s serviceImpl) LoadConfig() (Config, error) {
+	log.Debug().Msgf("SnipKit Home: %s", s.system.HomeDir())
+
 	if !s.hasConfig() {
 		return invalidConfig, ErrConfigNotFound{s.v.ConfigFileUsed()}
 	}
