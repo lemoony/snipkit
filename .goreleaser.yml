@@ -40,5 +40,5 @@ nfpms:
     license: Apache 2.0
     formats:
       - deb
-#      - apk
-#      - rpm
+      - apk
+      - rpm
