@@ -16,6 +16,21 @@ As of now, only SnippetsLab is supported. Other CLI managers may be added in the
 
 [Documentation](https://lemoony.github.io/snipkit/)
 
+## Features
+
+`snipkit` supports the following features:
+
+- Load snippets form an external snippet manager (filtered by tags)
+  - SnippetsLab
+  - File system directory
+- Parameter substitution
+- Enum parameters
+- Search for snippets by typing
+- Root command can be adjusted (e.g. set to `print` or `exec`)
+- Themes
+  - Built-in themes (`default`, `dracula`, `solarized-light`, `example`)
+  - Define custom themes
+  
 ## Quick Start
 
 #### Overview of all commands
@@ -73,21 +88,6 @@ defaultRootCommand: "exec"
 With this setup, calling `sn` will yield the same result as `snipkit exec`. If you want to call
 the `print` command instead, just type `sn print`.
 
-## Features
-
-`snipkit` supports the following features:
-
-- Load snippets form an external snippet manager (filtered by tags)
-    - SnippetsLab
-    - File system directory
-- Parameter substitution
-- Enum parameters
-- Search for snippets by typing
-- Root command can be adjusted (e.g. set to `print` or `exec`)
-- Themes
-    - Built-in themes (`default`, `dracula`, `solarized-light`, `example`)
-    - Define custom themes
-
 ## Installation
 
 ### Homebrew
@@ -95,6 +95,30 @@ the `print` command instead, just type `sn print`.
 ```bash 
 brew install lemoony/tap/snipkit
 ```
+
+### apt 
+
+```bash 
+echo 'deb [trusted=yes] https://apt.fury.io/lemoony/ /' | sudo tee /etc/apt/sources.list.d/snipkit.list
+sudo apt update
+sudo apt install snipkit
+```
+
+### yum
+
+```bash 
+echo '[snipkit]
+name=Snipkit Private Repo
+baseurl=https://yum.fury.io/lemoony/
+enabled=1
+gpgcheck=0' | sudo tee /etc/yum.repos.d/snipkit.repo
+sudo yum install snipkit
+```
+### deb, rpm and apk packages 
+
+Download the .deb, .rpm or .apk packages from [releases page](https://github.com/lemoony/snipkit/releases) and install 
+them with the appropriate tools.
+
 
 ### Go
 
