@@ -96,6 +96,14 @@ the `print` command instead, just type `sn print`.
 brew install lemoony/tap/snipkit
 ```
 
+### apt 
+
+```bash 
+echo 'deb [trusted=yes] https://apt.fury.io/lemoony/ /' | sudo tee /etc/apt/sources.list.d/fury.list
+sudo apt update
+sudo apt install snipkit
+```
+
 ### Go
 
 ```bash

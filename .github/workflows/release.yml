@@ -25,3 +25,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAP_GITHUB_TOKEN: ${{ secrets.TAP_GITHUB_TOKEN }}
+
+      - name: Publish to apt
+        run: |
+          for i in dist/*.deb; do
+            curl -F package=@${i} https://${PUSH_TOKEN}Q@push.fury.io/lemoony/
+          done
+        env:
+          PUSH_TOKEN: ${{ secrets.GEMFURY_PUSH_TOKEN }}
