@@ -76,17 +76,27 @@ type serviceImpl struct {
 
 func (s serviceImpl) Create() {
 	_, err := s.LoadConfig()
+
+	create := false
 	switch {
 	case err == nil:
-		if !s.terminal.Confirm(uimsg.ConfirmRecreateConfigFile(s.v.ConfigFileUsed())) {
+		create = s.terminal.ConfirmWithHelp(
+			uimsg.ConfigFileRecreateConfirm(),
+			uimsg.ConfigFileRecreateDescription(s.v.ConfigFileUsed()),
+		)
+		if !create {
 			log.Info().Msg("User declined to recreate config file")
 		}
 	case errors.Is(err, ErrConfigNotFound{}) && !s.terminal.ConfirmWithHelp(
-		uimsg.ConfirmCreateConfigFile(s.v.ConfigFileUsed()),
-		uimsg.HelpCreateConfigFile(s.v.ConfigFileUsed(), s.system.HomeEnvValue()),
+		uimsg.ConfigFileCreateConfirm(s.v.ConfigFileUsed()),
+		uimsg.ConfigFileCreateDescription(s.v.ConfigFileUsed(), s.system.HomeEnvValue()),
 	):
 		log.Info().Msg("User declined to create config file")
 	default:
+		create = true
+	}
+
+	if create {
 		createConfigFile(s.system, s.v, s.terminal)
 	}
 }
@@ -128,7 +138,7 @@ func (s serviceImpl) Clean() {
 	configPath := s.v.ConfigFileUsed()
 
 	if s.hasConfig() {
-		if s.terminal.Confirm(uimsg.ConfirmDeleteConfigFile(configPath)) {
+		if s.terminal.Confirm(uimsg.ConfigFileDeleteConfirm(configPath)) {
 			s.system.Remove(s.v.ConfigFileUsed())
 			s.terminal.PrintMessage(uimsg.ConfigFileDeleted(configPath))
 		} else {
@@ -139,7 +149,7 @@ func (s serviceImpl) Clean() {
 	}
 
 	if s.hasThemes() {
-		if s.terminal.Confirm(uimsg.ConfirmDeleteThemesDir(s.system.ThemesDir())) {
+		if s.terminal.Confirm(uimsg.ThemesDirDeleteConfirm(s.system.ThemesDir())) {
 			s.system.RemoveAll(s.system.ThemesDir())
 			s.terminal.PrintMessage(uimsg.ThemesDeleted())
 		} else {

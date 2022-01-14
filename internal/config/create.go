@@ -50,7 +50,7 @@ func createConfigFile(system *system.System, viper *viper.Viper, term ui.Termina
 	system.CreatePath(configPath)
 	system.WriteFile(configPath, data)
 
-	term.PrintMessage(uimsg.ConfigFileCreate(configPath))
+	term.PrintMessage(uimsg.ConfigFileCreated(configPath))
 }
 
 func serializeToYamlWithComment(value interface{}) []byte {

@@ -1,14 +1,40 @@
 package uimsg
 
-import "fmt"
+import (
+	"bytes"
+	"embed"
+	"fmt"
+	"path/filepath"
+	"text/template"
+)
 
-func ConfigFileCreate(configPath string) string {
-	return fmt.Sprintf(`Config file created at: %s
-If you want to reset snipkit or delete the config, type in 'snipkit config clean'.`, configPath)
+const (
+	configFileCreated             = "config_file_created.gotmpl"
+	configFileDelete              = "config_file_deleted.gotmpl"
+	configNotFound                = "config_not_found.gotmpl"
+	configFileCreateDescription   = "config_file_create_description.gotmpl"
+	configFileRecreateDescription = "config_file_recreate_description.gotmpl"
+	homeDirStillExists            = "home_dir_still_exists.gotmpl"
+	themesDirDeleteConfirm        = "themes_dir_delete_confirm.gotmpl"
+)
+
+//go:embed templates/*.gotmpl
+var templateFilesFS embed.FS
+
+func ConfigFileCreated(configPath string) string {
+	return render(configFileCreated, map[string]interface{}{"cfgPath": configPath})
 }
 
-func ConfigFileDeleted(path string) string {
-	return fmt.Sprintf(`Snipkit configuration file deleted: %s`, path)
+func ConfigFileDeleted(configPath string) string {
+	return render(configFileDelete, map[string]interface{}{"cfgPath": configPath})
+}
+
+func ConfigNotFound(configPath string) string {
+	return render(configNotFound, map[string]interface{}{"cfgPath": configPath})
+}
+
+func ConfigNotDeleted() string {
+	return "Config not deleted"
 }
 
 func ThemesDeleted() string {
@@ -19,47 +45,51 @@ func ThemesNotDeleted() string {
 	return "Themes directory not deleted"
 }
 
-func ConfigNotDeleted() string {
-	return "Config not deleted"
+func HomeDirectoryStillExists(configPath string) string {
+	return render(homeDirStillExists, map[string]interface{}{"cfgPath": configPath})
 }
 
-func ConfigNotFound(path string) string {
-	return fmt.Sprintf(`No config found at: %s
-You can set environment variable 'SNIPKIT_HOME' to change the directory path where snipkit will look for the config file.
-Type in 'snipkit config init' to create a configuration file.
-`, path)
+func ConfigFileRecreateDescription(configPath string) string {
+	return render(configFileRecreateDescription, map[string]interface{}{"cfgPath": configPath})
 }
 
-func HomeDirectoryStillExists(path string) string {
-	return fmt.Sprintf(`The snipkit home directory still exists exists since it holds non-deleted data (%s).
-Please check for yourself if it can be deleted safely.`, path)
+func ConfigFileRecreateConfirm() string {
+	return "Do you want to recreate the config file?"
 }
 
-func ConfirmRecreateConfigFile(path string) string {
-	return fmt.Sprintf("The configuration file already exists at %s.\nDo you want to recreate it?", path)
+func ConfigFileCreateDescription(path string, homeEnv string) string {
+	return render(configFileCreateDescription, map[string]interface{}{
+		"homeEnvSet": homeEnv != "",
+		"homeEnv":    homeEnv,
+		"cfgPath":    path,
+	})
 }
 
-func HelpCreateConfigFile(path string, homeEnv string) string {
-	result := "No configuration file found!\n\n"
-
-	if homeEnv != "" {
-		result += fmt.Sprintf("SNIPKIT_HOME is set to : %s\n", homeEnv)
-	} else {
-		result += "SNIPKIT_HOME is not set.\n"
-	}
-
-	result += fmt.Sprintf("Thus, the config file location is specified to be: %s", path)
-	return result
-}
-
-func ConfirmCreateConfigFile(path string) string {
+func ConfigFileCreateConfirm(path string) string {
 	return fmt.Sprintf(`Do you want to create a configuration file at %s?`, path)
 }
 
-func ConfirmDeleteConfigFile(path string) string {
-	return fmt.Sprintf("Do you really want to delete the snipkit configuration file (%s) ?", path)
+func ConfigFileDeleteConfirm(path string) string {
+	return fmt.Sprintf("Do you really want to delete the snipkit configuration file at %s?", path)
 }
 
-func ConfirmDeleteThemesDir(path string) string {
-	return fmt.Sprintf("The themes directory is not emtpty (%s). Should the custom themes be deleted as well?", path)
+func ThemesDirDeleteConfirm(path string) string {
+	return render(themesDirDeleteConfirm, map[string]interface{}{"themesPath": path})
+}
+
+func render(templateFile string, data interface{}) string {
+	t := newTemplate(templateFile)
+	writer := bytes.NewBufferString("")
+	if err := t.Execute(writer, data); err != nil {
+		panic(err)
+	}
+	return writer.String()
+}
+
+func newTemplate(fileName string) *template.Template {
+	t, err := template.ParseFS(templateFilesFS, filepath.Join("templates", fileName))
+	if err != nil {
+		panic(err)
+	}
+	return t
 }
