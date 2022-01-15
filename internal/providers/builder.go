@@ -4,6 +4,7 @@ import (
 	"github.com/phuslu/log"
 
 	"github.com/lemoony/snipkit/internal/providers/fslibrary"
+	"github.com/lemoony/snipkit/internal/providers/pictarinesnip"
 	"github.com/lemoony/snipkit/internal/providers/snippetslab"
 	"github.com/lemoony/snipkit/internal/utils/system"
 )
@@ -33,6 +34,15 @@ func (b builderImpl) BuildProvider(system system.System, config Config) ([]Provi
 	if provider, err := fslibrary.NewProvider(
 		fslibrary.WithSystem(&system),
 		fslibrary.WithConfig(config.FsLibrary),
+	); err != nil {
+		return nil, err
+	} else if provider != nil {
+		providers = append(providers, provider)
+	}
+
+	if provider, err := pictarinesnip.NewProvider(
+		pictarinesnip.WithSystem(&system),
+		pictarinesnip.WithConfig(config.PictarineSnip),
 	); err != nil {
 		return nil, err
 	} else if provider != nil {

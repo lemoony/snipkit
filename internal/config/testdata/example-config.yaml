@@ -19,6 +19,13 @@ config:
       includeTags:
         - snipkit
         - othertag
+    pictarineSnip:
+      # Set to true if you want to use Snip.
+      enabled: false
+      # Path to the snippets file.
+      libraryPath: ""
+      # If this list is not empty, only those snippets that match the listed tags will be provided to you.
+      includeTags: []
     fsLibrary:
       # If set to false, the files specified via libraryPath will not be provided to you.
       enabled: true

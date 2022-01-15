@@ -1,0 +1,44 @@
+[
+    {
+        "id": "88235A31-F0AD-4206-96DE-19E0EDEE79B2",
+        "lastUpdateDate": 663946440.240493,
+        "name": "Echo something",
+        "isFavorite": false,
+        "remoteURL": null,
+        "gistNodeId": null,
+        "tags": [
+            "snipkit"
+        ],
+        "snippet": "# some comment\n# ${VAR1} Name: First Output\n# ${VAR1} Description: What to print on the terminal first\necho \"${VAR1}\"\n\n# ${VAR2} Name: Second Output\n# ${VAR2} Description: What to print on the terminal second\n# ${VAR2} Default: friend\necho \"${VAR2}\"\n\n# ${VAR3} Name: Third Output\n# ${VAR3} Description: hat to print on the terminal third\n# ${VAR3} Values: One + some more, \"Two\",Three,  ,\n# ${VAR3} Values: Four\\, and some more, Five\n# ${VAR3} Default: Three\necho \"${VAR3}\"\n",
+        "gistId": null,
+        "mode": {
+            "name": "shell",
+            "mimeType": "application/x-sh"
+        },
+        "syncState": 0,
+        "gistURL": null,
+        "kind": 1,
+        "creationDate": 663946416.148411,
+        "content": []
+    },
+    {
+        "id": "B3473DF8-6ED6-4589-BFFC-C75F73B1B522",
+        "lastUpdateDate": 663947994.338797,
+        "name": "Another snippet",
+        "isFavorite": false,
+        "remoteURL": null,
+        "gistNodeId": null,
+        "tags": [],
+        "snippet": "echo \"Hello\"",
+        "gistId": null,
+        "mode": {
+            "name": "text",
+            "mimeType": "text/plain-text"
+        },
+        "syncState": 0,
+        "gistURL": null,
+        "kind": 1,
+        "creationDate": 663947934.156118,
+        "content": []
+    }
+]

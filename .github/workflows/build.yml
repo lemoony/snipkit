@@ -1,10 +1,10 @@
 name: build
 
 on:
-  push: 
-    branches: [ main ]
+  push:
+    branches: [ * ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, * ]
   workflow_dispatch:
 
 jobs:

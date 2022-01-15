@@ -12,6 +12,7 @@ import (
 	"gopkg.in/yaml.v3"
 
 	"github.com/lemoony/snipkit/internal/providers/fslibrary"
+	"github.com/lemoony/snipkit/internal/providers/pictarinesnip"
 	"github.com/lemoony/snipkit/internal/providers/snippetslab"
 	"github.com/lemoony/snipkit/internal/ui"
 	"github.com/lemoony/snipkit/internal/ui/uimsg"
@@ -40,6 +41,7 @@ func createConfigFile(system *system.System, viper *viper.Viper, term ui.Termina
 
 	config.Config.Style = ui.DefaultConfig()
 	config.Config.Providers.SnippetsLab = snippetslab.AutoDiscoveryConfig(system)
+	config.Config.Providers.PictarineSnip = pictarinesnip.AutoDiscoveryConfig(system)
 	config.Config.Providers.FsLibrary = fslibrary.AutoDiscoveryConfig(system)
 
 	data := serializeToYamlWithComment(config)
