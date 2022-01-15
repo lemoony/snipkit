@@ -28,6 +28,57 @@ var (
 	templateFilesFS embed.FS
 )
 
+type Confirm struct {
+	Prompt string
+
+	template string
+	data     map[string]interface{}
+}
+
+func (c *Confirm) Header() string {
+	return render(c.template, c.data)
+}
+
+func SetHighlightColor(color string) {
+	highlightColor = color
+}
+
+func ConfirmConfigCreation(path string, homeEnv string) Confirm {
+	return Confirm{
+		Prompt:   "Do you want to create the config file at this path?",
+		template: configFileCreateDescription,
+		data: map[string]interface{}{
+			"homeEnvSet": homeEnv != "",
+			"homeEnv":    homeEnv,
+			"cfgPath":    path,
+		},
+	}
+}
+
+func ConfirmConfigRecreate(path string) Confirm {
+	return Confirm{
+		Prompt:   "Do you want to reset the config file?",
+		template: configFileRecreateDescription,
+		data:     map[string]interface{}{"cfgPath": path},
+	}
+}
+
+func ConfirmConfigDelete(path string) Confirm {
+	return Confirm{
+		Prompt:   "Do you want to delete the config file?",
+		template: configFileDeleteDescription,
+		data:     map[string]interface{}{"cfgPath": path},
+	}
+}
+
+func ConfirmThemesDelete(path string) Confirm {
+	return Confirm{
+		Prompt:   "Do you want to the custom themes?",
+		template: themesDirDeleteDescription,
+		data:     map[string]interface{}{"themesPath": path},
+	}
+}
+
 func ConfigFileCreated(configPath string) string {
 	return render(configFileCreated, map[string]interface{}{"cfgPath": configPath})
 }
@@ -40,52 +91,8 @@ func ConfigNotFound(configPath string) string {
 	return render(configNotFound, map[string]interface{}{"cfgPath": configPath})
 }
 
-func ThemesDeleted() string {
-	return "Themes directory deleted"
-}
-
-func ThemesNotDeleted() string {
-	return "Themes directory not deleted"
-}
-
 func HomeDirectoryStillExists(configPath string) string {
 	return render(homeDirStillExists, map[string]interface{}{"cfgPath": configPath})
-}
-
-func ConfigFileRecreateDescription(configPath string) string {
-	return render(configFileRecreateDescription, map[string]interface{}{"cfgPath": configPath})
-}
-
-func ConfigFileDeleteDescription(configPath string) string {
-	return render(configFileDeleteDescription, map[string]interface{}{"cfgPath": configPath})
-}
-
-func ThemesDirDeleteDescription(configPath string) string {
-	return render(themesDirDeleteDescription, map[string]interface{}{"themesPath": configPath})
-}
-
-func ConfigFileRecreateConfirm() string {
-	return "Do you want to recreate the config file?"
-}
-
-func ConfigFileCreateDescription(path string, homeEnv string) string {
-	return render(configFileCreateDescription, map[string]interface{}{
-		"homeEnvSet": homeEnv != "",
-		"homeEnv":    homeEnv,
-		"cfgPath":    path,
-	})
-}
-
-func ConfigFileCreateConfirm() string {
-	return "Do you want to create the config file at this path?"
-}
-
-func ConfigFileDeleteConfirm() string {
-	return "Do you want to delete config file?"
-}
-
-func ThemesDirDeleteConfirm() string {
-	return "Do you want to the custom themes as well?"
 }
 
 func render(templateFile string, data interface{}) string {
@@ -107,10 +114,6 @@ func newTemplate(fileName string) *template.Template {
 		panic(err)
 	}
 	return t
-}
-
-func SetHighlightColor(color string) {
-	highlightColor = color
 }
 
 func templateFuncs() template.FuncMap {

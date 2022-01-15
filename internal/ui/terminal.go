@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"emperror.dev/errors"
-	"github.com/AlecAivazis/survey/v2"
 	"github.com/AlecAivazis/survey/v2/terminal"
 	"github.com/gdamore/tcell/v2"
 	"github.com/kballard/go-shellquote"
@@ -15,6 +14,7 @@ import (
 
 	"github.com/lemoony/snipkit/internal/model"
 	"github.com/lemoony/snipkit/internal/ui/confirm"
+	"github.com/lemoony/snipkit/internal/ui/uimsg"
 	"github.com/lemoony/snipkit/internal/utils/system"
 )
 
@@ -54,8 +54,7 @@ type Terminal interface {
 	ApplyConfig(cfg Config, system *system.System)
 	PrintMessage(message string)
 	PrintError(message string)
-	Confirm(message string) bool
-	ConfirmWithHelp(message string, help string, args ...string) bool
+	Confirmation(confirm uimsg.Confirm) bool
 	OpenEditor(path string, preferredEditor string)
 	ShowLookup(snippets []model.Snippet) int
 	ShowParameterForm(parameters []model.Parameter, okButton OkButton) ([]string, bool)
@@ -96,17 +95,10 @@ func (c cliTerminal) PrintError(msg string) {
 	fmt.Fprintln(c.stdio.Out, msg)
 }
 
-func (c cliTerminal) Confirm(message string) bool {
-	confirmed := false
-	prompt := &survey.Confirm{Message: message}
-	if err := survey.AskOne(prompt, &confirmed, survey.WithStdio(c.stdio.In, c.stdio.Out, c.stdio.Err)); err != nil {
-		panic(errors.Wrap(errors.WithStack(err), "failed to capture user input"))
-	}
-	return confirmed
-}
-
-func (c cliTerminal) ConfirmWithHelp(message string, help string, args ...string) bool {
-	return confirm.Confirm(message, help,
+func (c cliTerminal) Confirmation(confirmation uimsg.Confirm) bool {
+	return confirm.Confirm(
+		confirmation.Prompt,
+		confirmation.Header(),
 		confirm.WithSelectionColor(currentTheme.PromptSelectionTextColor),
 		confirm.WithOut(c.stdio.Out),
 		confirm.WithIn(c.stdio.In),

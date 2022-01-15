@@ -32,24 +32,6 @@ func Test_ConfigNotFound(t *testing.T) {
 	assert.Contains(t, ConfigNotFound(testCfgPath), testCfgPath)
 }
 
-func Test_SimpleStrings(t *testing.T) {
-	tests := []struct {
-		name     string
-		testFunc func() string
-	}{
-		{name: "ThemesDeleted", testFunc: ThemesDeleted},
-		{name: "ThemesNotDeleted", testFunc: ThemesNotDeleted},
-		{name: "ConfigFileCreateConfirm", testFunc: ConfigFileCreateConfirm},
-		{name: "ConfigFileRecreateConfirm", testFunc: ConfigFileRecreateConfirm},
-		{name: "ThemesDirDeleteConfirm", testFunc: ThemesDirDeleteConfirm},
-		{name: "ConfigFileDeleteConfirm", testFunc: ConfigFileDeleteConfirm},
-	}
-
-	for _, tt := range tests {
-		assert.NotEmpty(t, tt.testFunc())
-	}
-}
-
 func Test_ConfigFileCreateDescription(t *testing.T) {
 	tests := []struct {
 		name    string
@@ -70,9 +52,9 @@ func Test_ConfigFileCreateDescription(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			str := ConfigFileCreateDescription(tt.cfgPath, tt.homeEnv)
-			assert.Contains(t, str, tt.cfgPath)
-			assert.Contains(t, str, tt.homeEnv)
+			c := ConfirmConfigCreation(tt.cfgPath, tt.homeEnv)
+			assert.Contains(t, c.Header(), tt.cfgPath)
+			assert.Contains(t, c.Header(), tt.homeEnv)
 		})
 	}
 }
@@ -82,15 +64,21 @@ func Test_HomeDirectoryStillExists(t *testing.T) {
 }
 
 func Test_ConfigFileRecreateDescription(t *testing.T) {
-	assert.Contains(t, ConfigFileRecreateDescription(testHomePath), testHomePath)
+	c := ConfirmConfigRecreate(testCfgPath)
+	assert.NotEmpty(t, c.Prompt)
+	assert.Contains(t, c.Header(), testCfgPath)
 }
 
-func Test_ConfigFileDeleteDescription(t *testing.T) {
-	assert.Contains(t, ConfigFileDeleteDescription(testHomePath), testHomePath)
+func Test_ConfigFilDelete(t *testing.T) {
+	c := ConfirmConfigDelete(testCfgPath)
+	assert.NotEmpty(t, c.Prompt)
+	assert.Contains(t, c.Header(), testCfgPath)
 }
 
 func Test_ThemesDirDeleteDescription(t *testing.T) {
-	assert.Contains(t, ThemesDirDeleteDescription(testThemesPath), testThemesPath)
+	c := ConfirmThemesDelete(testThemesPath)
+	assert.NotEmpty(t, c.Prompt)
+	assert.Contains(t, c.Header(), testThemesPath)
 }
 
 func Test_renderInvalidTemplate(t *testing.T) {
