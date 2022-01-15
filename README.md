@@ -137,8 +137,6 @@ make build
 After the build succeeds, go to `./dist` to find the binary for your operating system.
 
 
-## Features and bugs
+## Contributing
 
-Please file feature requests and bugs at the [issue tracker][tracker].
-
-[tracker]: https://github.com/lemoony/snipkit/issues
+See [CONTRIBUTING.md](./CONTRIBUTING.md).
