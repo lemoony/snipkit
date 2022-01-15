@@ -8,6 +8,7 @@ import (
 	"github.com/lemoony/snipkit/internal/config/configtest"
 	"github.com/lemoony/snipkit/internal/model"
 	"github.com/lemoony/snipkit/internal/utils/testutil"
+	"github.com/lemoony/snipkit/internal/utils/testutil/mockutil"
 	uiMocks "github.com/lemoony/snipkit/mocks/ui"
 )
 
@@ -34,7 +35,7 @@ echo "${VAR1}"`
 	terminal.On("ShowLookup", mock.Anything).Return(0)
 	terminal.On("ShowParameterForm", mock.Anything, mock.Anything).Return([]string{inputVar1Value, ""}, true)
 
-	terminal.On("PrintMessage", inputVar1Value+"\n").Return()
+	terminal.On(mockutil.PrintMessage, inputVar1Value+"\n").Return()
 
 	app := NewApp(
 		WithTerminal(&terminal), WithConfig(configtest.NewTestConfig().Config), withProviderSnippets(snippets),

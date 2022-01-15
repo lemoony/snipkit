@@ -3,9 +3,10 @@ package uimsg
 import (
 	"bytes"
 	"embed"
-	"fmt"
 	"path/filepath"
 	"text/template"
+
+	"github.com/muesli/termenv"
 )
 
 const (
@@ -14,12 +15,69 @@ const (
 	configNotFound                = "config_not_found.gotmpl"
 	configFileCreateDescription   = "config_file_create_description.gotmpl"
 	configFileRecreateDescription = "config_file_recreate_description.gotmpl"
+	configFileDeleteDescription   = "config_file_delete_description.gotmpl"
+	themesDirDeleteDescription    = "themes_dir_delete_description.gotmpl"
 	homeDirStillExists            = "home_dir_still_exists.gotmpl"
-	themesDirDeleteConfirm        = "themes_dir_delete_confirm.gotmpl"
 )
 
-//go:embed templates/*.gotmpl
-var templateFilesFS embed.FS
+var (
+	highlightColor string
+	colorProfile   = termenv.ColorProfile()
+
+	//go:embed templates/*.gotmpl
+	templateFilesFS embed.FS
+)
+
+type Confirm struct {
+	Prompt string
+
+	template string
+	data     map[string]interface{}
+}
+
+func (c *Confirm) Header() string {
+	return render(c.template, c.data)
+}
+
+func SetHighlightColor(color string) {
+	highlightColor = color
+}
+
+func ConfirmConfigCreation(path string, homeEnv string) Confirm {
+	return Confirm{
+		Prompt:   "Do you want to create the config file at this path?",
+		template: configFileCreateDescription,
+		data: map[string]interface{}{
+			"homeEnvSet": homeEnv != "",
+			"homeEnv":    homeEnv,
+			"cfgPath":    path,
+		},
+	}
+}
+
+func ConfirmConfigRecreate(path string) Confirm {
+	return Confirm{
+		Prompt:   "Do you want to reset the config file?",
+		template: configFileRecreateDescription,
+		data:     map[string]interface{}{"cfgPath": path},
+	}
+}
+
+func ConfirmConfigDelete(path string) Confirm {
+	return Confirm{
+		Prompt:   "Do you want to delete the config file?",
+		template: configFileDeleteDescription,
+		data:     map[string]interface{}{"cfgPath": path},
+	}
+}
+
+func ConfirmThemesDelete(path string) Confirm {
+	return Confirm{
+		Prompt:   "Do you want to the custom themes?",
+		template: themesDirDeleteDescription,
+		data:     map[string]interface{}{"themesPath": path},
+	}
+}
 
 func ConfigFileCreated(configPath string) string {
 	return render(configFileCreated, map[string]interface{}{"cfgPath": configPath})
@@ -33,48 +91,8 @@ func ConfigNotFound(configPath string) string {
 	return render(configNotFound, map[string]interface{}{"cfgPath": configPath})
 }
 
-func ConfigNotDeleted() string {
-	return "Config not deleted"
-}
-
-func ThemesDeleted() string {
-	return "Themes directory deleted"
-}
-
-func ThemesNotDeleted() string {
-	return "Themes directory not deleted"
-}
-
 func HomeDirectoryStillExists(configPath string) string {
 	return render(homeDirStillExists, map[string]interface{}{"cfgPath": configPath})
-}
-
-func ConfigFileRecreateDescription(configPath string) string {
-	return render(configFileRecreateDescription, map[string]interface{}{"cfgPath": configPath})
-}
-
-func ConfigFileRecreateConfirm() string {
-	return "Do you want to recreate the config file?"
-}
-
-func ConfigFileCreateDescription(path string, homeEnv string) string {
-	return render(configFileCreateDescription, map[string]interface{}{
-		"homeEnvSet": homeEnv != "",
-		"homeEnv":    homeEnv,
-		"cfgPath":    path,
-	})
-}
-
-func ConfigFileCreateConfirm(path string) string {
-	return fmt.Sprintf(`Do you want to create a configuration file at %s?`, path)
-}
-
-func ConfigFileDeleteConfirm(path string) string {
-	return fmt.Sprintf("Do you really want to delete the snipkit configuration file at %s?", path)
-}
-
-func ThemesDirDeleteConfirm(path string) string {
-	return render(themesDirDeleteConfirm, map[string]interface{}{"themesPath": path})
 }
 
 func render(templateFile string, data interface{}) string {
@@ -87,9 +105,24 @@ func render(templateFile string, data interface{}) string {
 }
 
 func newTemplate(fileName string) *template.Template {
-	t, err := template.ParseFS(templateFilesFS, filepath.Join("templates", fileName))
+	t, err := template.
+		New(fileName).
+		Funcs(termenv.TemplateFuncs(colorProfile)).
+		Funcs(templateFuncs()).
+		ParseFS(templateFilesFS, filepath.Join("templates", fileName))
 	if err != nil {
 		panic(err)
 	}
 	return t
+}
+
+func templateFuncs() template.FuncMap {
+	return template.FuncMap{
+		"Highlighted": func(values ...interface{}) string {
+			s := termenv.String(values[0].(string))
+			s = s.Foreground(colorProfile.Color(highlightColor))
+			s = s.Italic()
+			return s.String()
+		},
+	}
 }

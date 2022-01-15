@@ -16,7 +16,7 @@ theme:
   borderColor: ${borderColor}
   borderTitleColor: ${borderColor}
   previewColorSchemeName: solarized-light
-  previewApplyMainBackground: true 
+  previewApplyMainBackground: true
   previewOverwriteBackgroundColor: ""
   previewDefaultTextColor: ""
   itemTextColor: ${defaultTextColor}
@@ -37,3 +37,5 @@ theme:
   parameterAutocompleteTextColor: ${secondaryDefaultTextColor}
   parameterAutocompleteSelectedBackgroundColor: ${selectionColor}
   parameterAutocompleteSelectedTextColor: ${selectionReverseColor}
+  promptSelectionTextColor: ${selectionColor}
+  promptHighlightTextColor: "#139601"

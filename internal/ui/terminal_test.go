@@ -43,21 +43,6 @@ func Test_PrintError(t *testing.T) {
 	})
 }
 
-func Test_Confirm(t *testing.T) {
-	runExpectTest(t, func(c *expect.Console) {
-		_, err := c.ExpectString("Are you sure? (y/N)")
-		assert.NoError(t, err)
-		_, err = c.SendLine("Y")
-		assert.NoError(t, err)
-		_, err = c.ExpectEOF()
-		assert.NoError(t, err)
-	}, func(stdio terminal.Stdio) {
-		term := NewTerminal(WithStdio(stdio))
-		confirmed := term.Confirm("Are you sure?")
-		assert.True(t, confirmed)
-	})
-}
-
 func Test_getEditor(t *testing.T) {
 	tests := []struct {
 		name      string
