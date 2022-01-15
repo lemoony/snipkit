@@ -3,21 +3,33 @@ package uimsg
 import (
 	"testing"
 
+	"github.com/AlecAivazis/survey/v2/core"
 	"github.com/stretchr/testify/assert"
 )
 
-const testPath = "path/to/config.yml"
+const (
+	testHomePath   = "path/to/tome"
+	testCfgPath    = "path/to/config.yml"
+	testThemesPath = "path/to/themes"
+)
+
+func init() {
+	// disable color output for all prompts to simplify testing
+	core.DisableColor = true
+
+	SetHighlightColor("#ffffff")
+}
 
 func Test_ConfigFileCreated(t *testing.T) {
-	assert.Contains(t, ConfigFileCreated(testPath), testPath)
+	assert.Contains(t, ConfigFileCreated(testCfgPath), testCfgPath)
 }
 
 func Test_ConfigFileDeleted(t *testing.T) {
-	assert.Contains(t, ConfigFileDeleted(testPath), testPath)
+	assert.Contains(t, ConfigFileDeleted(testCfgPath), testCfgPath)
 }
 
 func Test_ConfigNotFound(t *testing.T) {
-	assert.Contains(t, ConfigNotFound(testPath), testPath)
+	assert.Contains(t, ConfigNotFound(testCfgPath), testCfgPath)
 }
 
 func Test_SimpleStrings(t *testing.T) {
@@ -25,12 +37,12 @@ func Test_SimpleStrings(t *testing.T) {
 		name     string
 		testFunc func() string
 	}{
-		{name: "ConfigNotDeleted", testFunc: ConfigNotDeleted},
 		{name: "ThemesDeleted", testFunc: ThemesDeleted},
 		{name: "ThemesNotDeleted", testFunc: ThemesNotDeleted},
-		{name: "ConfigFileCreateConfirm", testFunc: func() string { return ConfigFileCreateConfirm("path/to") }},
+		{name: "ConfigFileCreateConfirm", testFunc: ConfigFileCreateConfirm},
 		{name: "ConfigFileRecreateConfirm", testFunc: ConfigFileRecreateConfirm},
-		{name: "ConfigFileDeleteConfirm", testFunc: func() string { return ConfigFileDeleteConfirm("path/to") }},
+		{name: "ThemesDirDeleteConfirm", testFunc: ThemesDirDeleteConfirm},
+		{name: "ConfigFileDeleteConfirm", testFunc: ConfigFileDeleteConfirm},
 	}
 
 	for _, tt := range tests {
@@ -66,18 +78,19 @@ func Test_ConfigFileCreateDescription(t *testing.T) {
 }
 
 func Test_HomeDirectoryStillExists(t *testing.T) {
-	path := "path/to/home"
-	assert.Contains(t, HomeDirectoryStillExists(path), path)
+	assert.Contains(t, HomeDirectoryStillExists(testHomePath), testHomePath)
 }
 
 func Test_ConfigFileRecreateDescription(t *testing.T) {
-	path := "path/to/home"
-	assert.Contains(t, ConfigFileRecreateDescription(path), path)
+	assert.Contains(t, ConfigFileRecreateDescription(testHomePath), testHomePath)
 }
 
-func Test_ThemesDirDeleteConfirm(t *testing.T) {
-	path := "path/to/themes"
-	assert.Contains(t, ThemesDirDeleteConfirm(path), path)
+func Test_ConfigFileDeleteDescription(t *testing.T) {
+	assert.Contains(t, ConfigFileDeleteDescription(testHomePath), testHomePath)
+}
+
+func Test_ThemesDirDeleteDescription(t *testing.T) {
+	assert.Contains(t, ThemesDirDeleteDescription(testThemesPath), testThemesPath)
 }
 
 func Test_renderInvalidTemplate(t *testing.T) {

@@ -9,9 +9,11 @@ import (
 	"emperror.dev/errors"
 	"github.com/gdamore/tcell/v2"
 	"github.com/phuslu/log"
+	"github.com/rivo/tview"
 	"github.com/spf13/afero"
 	"gopkg.in/yaml.v3"
 
+	"github.com/lemoony/snipkit/internal/ui/uimsg"
 	"github.com/lemoony/snipkit/internal/utils/system"
 	themedata "github.com/lemoony/snipkit/themes"
 )
@@ -26,12 +28,22 @@ var (
 	variablePattern = regexp.MustCompile(`^\${(?P<varName>.*)}$`)
 	filenamePattern = regexp.MustCompile(`^(?P<filename>.*)\.ya?ml$`)
 	ErrInvalidTheme = errors.New("invalid theme")
+
+	currentTheme ThemeValues
 )
 
 type themeWrapper struct {
 	Version   string `yaml:"version"`
 	Variables map[string]string
 	Theme     ThemeValues `yaml:"theme"`
+}
+
+func applyTheme(theme ThemeValues) {
+	currentTheme = theme
+	tview.Styles.PrimitiveBackgroundColor = currentTheme.backgroundColor()
+	tview.Styles.BorderColor = currentTheme.borderColor()
+	tview.Styles.TitleColor = currentTheme.borderTitleColor()
+	uimsg.SetHighlightColor(currentTheme.PromptHighlightTextColor)
 }
 
 func embeddedTheme(name string) (*ThemeValues, bool) {

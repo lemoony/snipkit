@@ -47,13 +47,13 @@ func Test_Create(t *testing.T) {
 	v.SetConfigFile(cfgFilePath)
 
 	terminal := &mocks.Terminal{}
-	terminal.On("ConfirmWithHelp", uimsg.ConfigFileCreateConfirm(cfgFilePath), mock.Anything).Return(true, nil)
+	terminal.On("ConfirmWithHelp", uimsg.ConfigFileCreateConfirm(), mock.Anything).Return(true, nil)
 	terminal.On("PrintMessage", mock.Anything).Return()
 
 	s := NewService(WithSystem(system), WithViper(v), WithTerminal(terminal))
 
 	s.Create()
-	terminal.AssertCalled(t, "ConfirmWithHelp", uimsg.ConfigFileCreateConfirm(cfgFilePath), mock.Anything)
+	terminal.AssertCalled(t, "ConfirmWithHelp", uimsg.ConfigFileCreateConfirm(), mock.Anything)
 	terminal.AssertNumberOfCalls(t, "ConfirmWithHelp", 1)
 
 	assert.True(t, s.(serviceImpl).hasConfig())
@@ -69,7 +69,7 @@ func Test_Create_Decline(t *testing.T) {
 	v.SetConfigFile(cfgFilePath)
 
 	terminal := &mocks.Terminal{}
-	terminal.On("ConfirmWithHelp", uimsg.ConfigFileCreateConfirm(cfgFilePath), mock.Anything).
+	terminal.On("ConfirmWithHelp", uimsg.ConfigFileCreateConfirm(), mock.Anything).
 		Return(false, nil)
 
 	terminal.On("PrintMessage", mock.Anything).Return()
@@ -78,7 +78,7 @@ func Test_Create_Decline(t *testing.T) {
 
 	s.Create()
 	assert.False(t, s.(serviceImpl).hasConfig())
-	terminal.AssertCalled(t, "ConfirmWithHelp", uimsg.ConfigFileCreateConfirm(cfgFilePath), mock.Anything)
+	terminal.AssertCalled(t, "ConfirmWithHelp", uimsg.ConfigFileCreateConfirm(), mock.Anything)
 	terminal.AssertNumberOfCalls(t, "ConfirmWithHelp", 1)
 
 	if exists, err := afero.Exists(system.Fs, cfgFilePath); err != nil {
@@ -98,7 +98,7 @@ func Test_Create_Recreate_Decline(t *testing.T) {
 	v.SetConfigFile(cfgFilePath)
 
 	terminal := &mocks.Terminal{}
-	terminal.On("ConfirmWithHelp", uimsg.ConfigFileCreateConfirm(cfgFilePath), mock.Anything).
+	terminal.On("ConfirmWithHelp", uimsg.ConfigFileCreateConfirm(), mock.Anything).
 		Return(true, nil)
 	terminal.On(
 		"ConfirmWithHelp",
@@ -111,7 +111,7 @@ func Test_Create_Recreate_Decline(t *testing.T) {
 
 	s.Create()
 	assert.True(t, s.(serviceImpl).hasConfig())
-	terminal.AssertCalled(t, "ConfirmWithHelp", uimsg.ConfigFileCreateConfirm(cfgFilePath), mock.Anything)
+	terminal.AssertCalled(t, "ConfirmWithHelp", uimsg.ConfigFileCreateConfirm(), mock.Anything)
 	terminal.AssertNumberOfCalls(t, "ConfirmWithHelp", 1)
 
 	stat, _ := system.Fs.Stat(cfgFilePath)
@@ -160,6 +160,7 @@ func Test_Clean(t *testing.T) {
 
 	terminal := &mocks.Terminal{}
 	terminal.On("Confirm", mock.Anything).Return(true, nil)
+	terminal.On("ConfirmWithHelp", mock.Anything, mock.Anything).Return(true, nil)
 	terminal.On("PrintMessage", mock.Anything).Return()
 
 	s := NewService(WithSystem(system), WithViper(v), WithTerminal(terminal))
@@ -168,10 +169,16 @@ func Test_Clean(t *testing.T) {
 
 	s.Clean()
 
-	terminal.AssertCalled(t, "Confirm", uimsg.ConfigFileDeleteConfirm(system.ConfigPath()))
+	terminal.AssertCalled(t, "ConfirmWithHelp",
+		uimsg.ConfigFileDeleteConfirm(),
+		uimsg.ConfigFileDeleteDescription(v.ConfigFileUsed()),
+	)
 	terminal.AssertCalled(t, "PrintMessage", uimsg.ConfigFileDeleted(system.ConfigPath()))
 
-	terminal.AssertCalled(t, "Confirm", uimsg.ThemesDirDeleteConfirm(system.ThemesDir()))
+	terminal.AssertCalled(t, "ConfirmWithHelp",
+		uimsg.ThemesDirDeleteConfirm(),
+		uimsg.ThemesDirDeleteDescription(system.ThemesDir()),
+	)
 	terminal.AssertCalled(t, "PrintMessage", uimsg.ThemesDeleted())
 
 	assert.False(t, s.(serviceImpl).hasConfig())
@@ -201,15 +208,28 @@ func Test_Clean_Decline(t *testing.T) {
 	assert.True(t, s.(serviceImpl).hasConfig())
 
 	terminal.On("PrintMessage", mock.Anything).Return()
-	terminal.On("Confirm", uimsg.ConfigFileDeleteConfirm(system.ConfigPath())).Return(false, nil)
-	terminal.On("Confirm", uimsg.ThemesDirDeleteConfirm(system.ThemesDir())).Return(false, nil)
+	terminal.
+		On("ConfirmWithHelp",
+			uimsg.ConfigFileDeleteConfirm(),
+			uimsg.ConfigFileDeleteDescription(system.ConfigPath()),
+		).
+		Return(false, nil)
+	terminal.On("ConfirmWithHelp",
+		uimsg.ThemesDirDeleteConfirm(),
+		uimsg.ThemesDirDeleteDescription(system.ThemesDir()),
+	).Return(false, nil)
 
 	s.Clean()
 
-	terminal.AssertCalled(t, "Confirm", uimsg.ConfigFileDeleteConfirm(system.ConfigPath()))
-	terminal.AssertCalled(t, "PrintMessage", uimsg.ConfigNotDeleted())
+	terminal.AssertCalled(t, "ConfirmWithHelp",
+		uimsg.ConfigFileDeleteConfirm(),
+		uimsg.ConfigFileDeleteDescription(system.ConfigPath()),
+	)
 
-	terminal.AssertCalled(t, "Confirm", uimsg.ThemesDirDeleteConfirm(system.ThemesDir()))
+	terminal.AssertCalled(t, "ConfirmWithHelp",
+		uimsg.ThemesDirDeleteConfirm(),
+		uimsg.ThemesDirDeleteDescription(system.ThemesDir()),
+	)
 	terminal.AssertCalled(t, "PrintMessage", uimsg.ThemesNotDeleted())
 
 	assert.True(t, s.(serviceImpl).hasConfig())

@@ -38,3 +38,5 @@ theme:
   parameterAutocompleteTextColor: ${secondarySelectionColorReverse}
   parameterAutocompleteSelectedBackgroundColor: ${selectionColor}
   parameterAutocompleteSelectedTextColor: ${selectionColorReverse}
+  promptSelectionTextColor: ${selectionColor}
+  promptHighlightTextColor: "#139601"

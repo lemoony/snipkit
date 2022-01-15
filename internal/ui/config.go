@@ -2,7 +2,6 @@ package ui
 
 import (
 	"emperror.dev/errors"
-	"github.com/rivo/tview"
 
 	"github.com/lemoony/snipkit/internal/utils/system"
 )
@@ -42,6 +41,8 @@ type ThemeValues struct {
 	ParameterAutocompleteSelectedTextColor       string `yaml:"parameterAutocompleteSelectedTextColor"`
 	SelectedButtonBackgroundColor                string `yaml:"selectedButtonBackgroundColor"`
 	SelectedButtonTextColor                      string `yaml:"selectedButtonTextColor"`
+	PromptSelectionTextColor                     string `yaml:"promptSelectionTextColor"`
+	PromptHighlightTextColor                     string `yaml:"promptHighlightTextColor"`
 }
 
 func (c *Config) GetSelectedTheme(system *system.System) ThemeValues {
@@ -61,8 +62,6 @@ func (c *Config) GetSelectedTheme(system *system.System) ThemeValues {
 	panic(errors.Wrapf(ErrInvalidTheme, "theme not found: %s", themeName))
 }
 
-var currentTheme ThemeValues
-
 func DefaultConfig() Config {
 	return Config{
 		Theme: "default",
@@ -70,12 +69,5 @@ func DefaultConfig() Config {
 }
 
 func ApplyConfig(cfg Config, system *system.System) {
-	setTheme(cfg.GetSelectedTheme(system))
-}
-
-func setTheme(theme ThemeValues) {
-	currentTheme = theme
-	tview.Styles.PrimitiveBackgroundColor = theme.backgroundColor()
-	tview.Styles.BorderColor = theme.borderColor()
-	tview.Styles.TitleColor = theme.borderTitleColor()
+	applyTheme(cfg.GetSelectedTheme(system))
 }

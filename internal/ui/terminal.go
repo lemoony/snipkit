@@ -11,8 +11,10 @@ import (
 	"github.com/AlecAivazis/survey/v2/terminal"
 	"github.com/gdamore/tcell/v2"
 	"github.com/kballard/go-shellquote"
+	"github.com/rivo/tview"
 
 	"github.com/lemoony/snipkit/internal/model"
+	"github.com/lemoony/snipkit/internal/ui/confirm"
 	"github.com/lemoony/snipkit/internal/utils/system"
 )
 
@@ -79,7 +81,11 @@ func NewTerminal(options ...TerminalOption) Terminal {
 }
 
 func (c cliTerminal) ApplyConfig(cfg Config, system *system.System) {
-	ApplyConfig(cfg, system)
+	theme := cfg.GetSelectedTheme(system)
+
+	tview.Styles.PrimitiveBackgroundColor = theme.backgroundColor()
+	tview.Styles.BorderColor = theme.borderColor()
+	tview.Styles.TitleColor = theme.borderTitleColor()
 }
 
 func (c cliTerminal) PrintMessage(msg string) {
@@ -100,13 +106,11 @@ func (c cliTerminal) Confirm(message string) bool {
 }
 
 func (c cliTerminal) ConfirmWithHelp(message string, help string, args ...string) bool {
-	fmt.Fprintf(c.stdio.Out, help+"\n\n", args)
-	confirmed := false
-	prompt := &survey.Confirm{Message: message}
-	if err := survey.AskOne(prompt, &confirmed, survey.WithStdio(c.stdio.In, c.stdio.Out, c.stdio.Err)); err != nil {
-		panic(errors.Wrap(errors.WithStack(err), "failed to capture user input"))
-	}
-	return confirmed
+	return confirm.Confirm(message, help,
+		confirm.WithSelectionColor(currentTheme.PromptSelectionTextColor),
+		confirm.WithOut(c.stdio.Out),
+		confirm.WithIn(c.stdio.In),
+	)
 }
 
 func (c cliTerminal) OpenEditor(path string, preferredEditor string) {

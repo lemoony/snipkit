@@ -75,8 +75,9 @@ type serviceImpl struct {
 }
 
 func (s serviceImpl) Create() {
-	_, err := s.LoadConfig()
+	s.applyConfigTheme()
 
+	_, err := s.LoadConfig()
 	create := false
 	switch {
 	case err == nil:
@@ -88,7 +89,7 @@ func (s serviceImpl) Create() {
 			log.Info().Msg("User declined to recreate config file")
 		}
 	case errors.Is(err, ErrConfigNotFound{}) && !s.terminal.ConfirmWithHelp(
-		uimsg.ConfigFileCreateConfirm(s.v.ConfigFileUsed()),
+		uimsg.ConfigFileCreateConfirm(),
 		uimsg.ConfigFileCreateDescription(s.v.ConfigFileUsed(), s.system.HomeEnvValue()),
 	):
 		log.Info().Msg("User declined to create config file")
@@ -136,20 +137,19 @@ func (s serviceImpl) Edit() {
 
 func (s serviceImpl) Clean() {
 	configPath := s.v.ConfigFileUsed()
+	s.applyConfigTheme()
 
 	if s.hasConfig() {
-		if s.terminal.Confirm(uimsg.ConfigFileDeleteConfirm(configPath)) {
+		if s.terminal.ConfirmWithHelp(uimsg.ConfigFileDeleteConfirm(), uimsg.ConfigFileDeleteDescription(configPath)) {
 			s.system.Remove(s.v.ConfigFileUsed())
 			s.terminal.PrintMessage(uimsg.ConfigFileDeleted(configPath))
-		} else {
-			s.terminal.PrintMessage(uimsg.ConfigNotDeleted())
 		}
 	} else {
 		s.terminal.PrintMessage(uimsg.ConfigNotFound(configPath))
 	}
 
 	if s.hasThemes() {
-		if s.terminal.Confirm(uimsg.ThemesDirDeleteConfirm(s.system.ThemesDir())) {
+		if s.terminal.ConfirmWithHelp(uimsg.ThemesDirDeleteConfirm(), uimsg.ThemesDirDeleteDescription(s.system.ThemesDir())) {
 			s.system.RemoveAll(s.system.ThemesDir())
 			s.terminal.PrintMessage(uimsg.ThemesDeleted())
 		} else {
@@ -185,5 +185,14 @@ func (s serviceImpl) hasThemes() bool {
 func (s serviceImpl) deleteDirectoryIfEmpty(path string) {
 	if s.system.DirExists(path) && s.system.IsEmpty(path) {
 		s.system.Remove(path)
+	}
+}
+
+func (s serviceImpl) applyConfigTheme() {
+	cfg, err := s.LoadConfig()
+	if err == nil {
+		ui.ApplyConfig(cfg.Style, s.system)
+	} else {
+		ui.ApplyConfig(ui.DefaultConfig(), s.system)
 	}
 }
