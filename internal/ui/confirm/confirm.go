@@ -6,10 +6,13 @@ import (
 	"text/template"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/muesli/reflow/wordwrap"
 	"github.com/muesli/reflow/wrap"
 	"github.com/muesli/termenv"
 )
+
+var fullScreenMargin = []int{1, 2, 0, 2}
 
 type Key []string
 
@@ -46,6 +49,7 @@ type model struct {
 	value   bool
 	done    bool
 
+	fullscreen bool
 	promptTmpl *template.Template
 
 	colorProfile   termenv.Profile
@@ -141,7 +145,13 @@ func (m model) View() string {
 		s += viewBuffer2.String()
 	}
 
-	return m.wrap(s)
+	content := m.wrap(s)
+
+	if m.fullscreen {
+		content = lipgloss.NewStyle().Margin(fullScreenMargin...).SetString(content).String()
+	}
+
+	return content
 }
 
 func (m *model) wrap(text string) string {
@@ -169,6 +179,9 @@ func Confirm(prompt string, header string, options ...Option) bool {
 	}
 	if m.output != nil {
 		teaOptions = append(teaOptions, tea.WithOutput(*m.output))
+	}
+	if m.fullscreen {
+		teaOptions = append(teaOptions, tea.WithAltScreen())
 	}
 
 	p := tea.NewProgram(m, teaOptions...)
@@ -204,6 +217,12 @@ func WithOut(out io.Writer) Option {
 func WithSelectionColor(color string) Option {
 	return optionFunc(func(c *model) {
 		c.selectionColor = c.colorProfile.Color(color)
+	})
+}
+
+func WithFullscreen() Option {
+	return optionFunc(func(c *model) {
+		c.fullscreen = true
 	})
 }
 

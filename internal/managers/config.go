@@ -7,7 +7,7 @@ import (
 )
 
 type Config struct {
-	SnippetsLab   *snippetslab.Config   `yaml:"snippetsLab" mapstructure:"snippetsLab"`
-	PictarineSnip *pictarinesnip.Config `yaml:"pictarineSnip" mapstructure:"pictarineSnip"`
-	FsLibrary     *fslibrary.Config     `yaml:"fsLibrary" mapstructure:"fsLibrary"`
+	SnippetsLab   *snippetslab.Config   `yaml:"snippetsLab,omitempty" mapstructure:"snippetsLab"`
+	PictarineSnip *pictarinesnip.Config `yaml:"pictarineSnip,omitempty" mapstructure:"pictarineSnip"`
+	FsLibrary     *fslibrary.Config     `yaml:"fsLibrary,omitempty" mapstructure:"fsLibrary"`
 }

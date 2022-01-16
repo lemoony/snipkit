@@ -55,7 +55,7 @@ type Terminal interface {
 	ApplyConfig(cfg Config, system *system.System)
 	PrintMessage(message string)
 	PrintError(message string)
-	Confirmation(confirm uimsg.Confirm) bool
+	Confirmation(confirm uimsg.Confirm, options ...confirm.Option) bool
 	OpenEditor(path string, preferredEditor string)
 	ShowLookup(snippets []model.Snippet) int
 	ShowParameterForm(parameters []model.Parameter, okButton OkButton) ([]string, bool)
@@ -97,13 +97,20 @@ func (c cliTerminal) PrintError(msg string) {
 	fmt.Fprintln(c.stdio.Out, msg)
 }
 
-func (c cliTerminal) Confirmation(confirmation uimsg.Confirm) bool {
+func (c cliTerminal) Confirmation(confirmation uimsg.Confirm, options ...confirm.Option) bool {
+	confirmOptions := append(
+		[]confirm.Option{
+			confirm.WithSelectionColor(currentTheme.PromptSelectionTextColor),
+			confirm.WithOut(c.stdio.Out),
+			confirm.WithIn(c.stdio.In),
+		},
+		options...,
+	)
+
 	return confirm.Confirm(
 		confirmation.Prompt,
 		confirmation.Header(),
-		confirm.WithSelectionColor(currentTheme.PromptSelectionTextColor),
-		confirm.WithOut(c.stdio.Out),
-		confirm.WithIn(c.stdio.In),
+		confirmOptions...,
 	)
 }
 

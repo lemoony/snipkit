@@ -15,7 +15,6 @@ import (
 	"github.com/lemoony/snipkit/internal/managers/pictarinesnip"
 	"github.com/lemoony/snipkit/internal/managers/snippetslab"
 	"github.com/lemoony/snipkit/internal/ui"
-	"github.com/lemoony/snipkit/internal/ui/uimsg"
 	"github.com/lemoony/snipkit/internal/utils/system"
 )
 
@@ -33,7 +32,7 @@ const (
 	yamlDefaultIndent = 2
 )
 
-func createConfigFile(system *system.System, viper *viper.Viper, term ui.Terminal) {
+func createConfigFile(system *system.System, viper *viper.Viper) {
 	config := VersionWrapper{
 		Version: "1.0.0",
 		Config:  Config{},
@@ -51,8 +50,6 @@ func createConfigFile(system *system.System, viper *viper.Viper, term ui.Termina
 	log.Debug().Msgf("Going to use config path %s", configPath)
 	system.CreatePath(configPath)
 	system.WriteFile(configPath, data)
-
-	term.PrintMessage(uimsg.ConfigFileCreated(configPath))
 }
 
 func serializeToYamlWithComment(value interface{}) []byte {
@@ -96,6 +93,8 @@ func traverseYamlTagComments(t reflect.Type, path []string, commentsMap *map[str
 		yamlName := field.Tag.Get("yaml")
 		if yamlName == "" {
 			continue
+		} else if splits := strings.Split(yamlName, ","); len(splits) > 1 {
+			yamlName = splits[0]
 		}
 		nodePath := strings.TrimSpace(fmt.Sprintf("%s%s\n", pathPrefix, yamlName))
 		commentsList := (*commentsMap)[nodePath]

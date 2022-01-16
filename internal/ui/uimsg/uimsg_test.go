@@ -21,11 +21,7 @@ func init() {
 }
 
 func Test_ConfigFileCreated(t *testing.T) {
-	assert.Contains(t, ConfigFileCreated(testCfgPath), testCfgPath)
-}
-
-func Test_ConfigFileDeleted(t *testing.T) {
-	assert.Contains(t, ConfigFileDeleted(testCfgPath), testCfgPath)
+	assert.Contains(t, ConfigFileCreateResult(true, testCfgPath, false), testCfgPath)
 }
 
 func Test_ConfigNotFound(t *testing.T) {
@@ -52,7 +48,7 @@ func Test_ConfigFileCreateDescription(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			c := ConfirmConfigCreation(tt.cfgPath, tt.homeEnv)
+			c := ConfigFileCreateConfirm(tt.cfgPath, tt.homeEnv, true)
 			assert.Contains(t, c.Header(), tt.cfgPath)
 			assert.Contains(t, c.Header(), tt.homeEnv)
 		})
@@ -63,20 +59,25 @@ func Test_HomeDirectoryStillExists(t *testing.T) {
 	assert.Contains(t, HomeDirectoryStillExists(testHomePath), testHomePath)
 }
 
-func Test_ConfigFileRecreateDescription(t *testing.T) {
-	c := ConfirmConfigRecreate(testCfgPath)
-	assert.NotEmpty(t, c.Prompt)
-	assert.Contains(t, c.Header(), testCfgPath)
-}
-
-func Test_ConfigFilDelete(t *testing.T) {
-	c := ConfirmConfigDelete(testCfgPath)
-	assert.NotEmpty(t, c.Prompt)
-	assert.Contains(t, c.Header(), testCfgPath)
+func Test_ConfigFileCreateResult(t *testing.T) {
+	tests := []struct {
+		deleted  bool
+		recreate bool
+	}{
+		{deleted: true, recreate: true},
+		{deleted: false, recreate: true},
+		{deleted: true, recreate: false},
+		{deleted: false, recreate: false},
+	}
+	for _, tt := range tests {
+		c := ConfigFileCreateResult(tt.deleted, testCfgPath, tt.recreate)
+		// TODO: assert more
+		assert.NotEmpty(t, c)
+	}
 }
 
 func Test_ThemesDirDeleteDescription(t *testing.T) {
-	c := ConfirmThemesDelete(testThemesPath)
+	c := ThemesDeleteConfirm(testThemesPath)
 	assert.NotEmpty(t, c.Prompt)
 	assert.Contains(t, c.Header(), testThemesPath)
 }

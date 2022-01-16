@@ -1,9 +1,13 @@
 package app
 
 import (
-	"fmt"
+	"strings"
 
+	"gopkg.in/yaml.v3"
+
+	"github.com/lemoony/snipkit/internal/ui/confirm"
 	"github.com/lemoony/snipkit/internal/ui/picker"
+	"github.com/lemoony/snipkit/internal/ui/uimsg"
 )
 
 func (a *appImpl) AddManager() {
@@ -14,6 +18,14 @@ func (a *appImpl) AddManager() {
 	}
 
 	if index, ok := a.ui.ShowPicker(listItems); ok {
-		fmt.Printf("Selected: %d\n", index)
+		managerDescription := managerDescriptions[index]
+		cfg := a.provider.AutoConfig(managerDescription.Key, a.system)
+		configBytes, _ := yaml.Marshal(cfg)
+		configStr := strings.TrimSpace(string(configBytes))
+		confirmed := a.ui.Confirmation(uimsg.ManagerConfigAddConfirm(configStr), confirm.WithFullscreen())
+		if confirmed {
+			a.configService.UpdateManagerConfig(cfg)
+		}
+		a.ui.PrintMessage(uimsg.ManagerAddConfigResult(confirmed, a.configService.ConfigFilePath()))
 	}
 }
