@@ -1,8 +1,8 @@
-package providers
+package managers
 
 import "github.com/lemoony/snipkit/internal/model"
 
-type Provider interface {
-	Info() model.ProviderInfo
+type Manager interface {
+	Info() model.ManagerInfo
 	GetSnippets() []model.Snippet
 }

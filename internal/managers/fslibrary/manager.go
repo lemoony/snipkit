@@ -25,85 +25,85 @@ var suffixLanguageMap = map[string]model.Language{
 	".toml": model.LanguageTOML,
 }
 
-type Provider struct {
+type Manager struct {
 	system      *system.System
 	config      Config
 	suffixRegex []*regexp.Regexp
 }
 
-// Option configures a Provider.
+// Option configures a Manager.
 type Option interface {
-	apply(p *Provider)
+	apply(p *Manager)
 }
 
 // optionFunc wraps a func so that it satisfies the Option interface.
-type optionFunc func(provider *Provider)
+type optionFunc func(manager *Manager)
 
-func (f optionFunc) apply(provider *Provider) {
-	f(provider)
+func (f optionFunc) apply(manager *Manager) {
+	f(manager)
 }
 
-// WithSystem sets the utils.System instance to be used by Provider.
+// WithSystem sets the utils.System instance to be used by Manager.
 func WithSystem(system *system.System) Option {
-	return optionFunc(func(p *Provider) {
+	return optionFunc(func(p *Manager) {
 		p.system = system
 	})
 }
 
 func WithConfig(config Config) Option {
-	return optionFunc(func(p *Provider) {
+	return optionFunc(func(p *Manager) {
 		p.config = config
 	})
 }
 
-func NewProvider(options ...Option) (*Provider, error) {
-	provider := &Provider{}
+func NewManager(options ...Option) (*Manager, error) {
+	manager := &Manager{}
 
 	for _, o := range options {
-		o.apply(provider)
+		o.apply(manager)
 	}
 
-	if !provider.config.Enabled {
-		log.Debug().Msg("No fslibrary provider because it is disabled")
+	if !manager.config.Enabled {
+		log.Debug().Msg("No fslibrary manager because it is disabled")
 		return nil, nil
 	}
 
-	provider.compileSuffixRegex()
+	manager.compileSuffixRegex()
 
-	return provider, nil
+	return manager, nil
 }
 
-func (p Provider) Info() model.ProviderInfo {
-	var lines []model.ProviderLine
+func (m Manager) Info() model.ManagerInfo {
+	var lines []model.ManagerInfoLine
 
-	lines = append(lines, model.ProviderLine{
+	lines = append(lines, model.ManagerInfoLine{
 		IsError: false,
 		Key:     "Filesystem library paths",
-		Value:   fmt.Sprintf("[%s]", strings.Join(p.config.LibraryPath, ", ")),
+		Value:   fmt.Sprintf("[%s]", strings.Join(m.config.LibraryPath, ", ")),
 	})
 
-	lines = append(lines, model.ProviderLine{
+	lines = append(lines, model.ManagerInfoLine{
 		IsError: false,
 		Key:     "Filesystem library allowed suffixes",
-		Value:   fmt.Sprintf("[%s]", strings.Join(p.config.SuffixRegex, ", ")),
+		Value:   fmt.Sprintf("[%s]", strings.Join(m.config.SuffixRegex, ", ")),
 	})
 
-	lines = append(lines, model.ProviderLine{
+	lines = append(lines, model.ManagerInfoLine{
 		IsError: false,
 		Key:     "Filesystem library total number of snippets",
-		Value:   fmt.Sprintf("%d", len(p.GetSnippets())),
+		Value:   fmt.Sprintf("%d", len(m.GetSnippets())),
 	})
 
-	return model.ProviderInfo{
+	return model.ManagerInfo{
 		Lines: lines,
 	}
 }
 
-func (p *Provider) GetSnippets() []model.Snippet {
+func (m *Manager) GetSnippets() []model.Snippet {
 	var result []model.Snippet
 
-	for _, dir := range p.config.LibraryPath {
-		entries, err := afero.ReadDir(p.system.Fs, dir)
+	for _, dir := range m.config.LibraryPath {
+		entries, err := afero.ReadDir(m.system.Fs, dir)
 		if err != nil {
 			panic(err)
 		}
@@ -112,7 +112,7 @@ func (p *Provider) GetSnippets() []model.Snippet {
 			fileName := filepath.Base(entry.Name())
 			filePath := filepath.Join(dir, fileName)
 
-			if !checkSuffix(fileName, p.suffixRegex) {
+			if !checkSuffix(fileName, m.suffixRegex) {
 				continue
 			}
 
@@ -123,18 +123,18 @@ func (p *Provider) GetSnippets() []model.Snippet {
 					return languageForSuffix(filepath.Ext(fileName))
 				},
 				ContentFunc: func() string {
-					contents := string(p.system.ReadFile(filePath))
-					if p.config.HideTitleInPreview {
+					contents := string(m.system.ReadFile(filePath))
+					if m.config.HideTitleInPreview {
 						contents = pruneTitleHeader(strings.NewReader(contents))
 					}
 					return contents
 				},
 			}
 
-			if p.config.LazyOpen {
+			if m.config.LazyOpen {
 				snippet.SetTitle(fileName)
 			} else {
-				snippet.SetTitle(p.getSnippetName(filePath))
+				snippet.SetTitle(m.getSnippetName(filePath))
 			}
 
 			result = append(result, snippet)
@@ -160,15 +160,15 @@ func checkSuffix(filename string, regexes []*regexp.Regexp) bool {
 	return false
 }
 
-func (p *Provider) compileSuffixRegex() {
-	p.suffixRegex = make([]*regexp.Regexp, len(p.config.SuffixRegex))
-	for i, s := range p.config.SuffixRegex {
-		p.suffixRegex[i] = regexp.MustCompile(s)
+func (m *Manager) compileSuffixRegex() {
+	m.suffixRegex = make([]*regexp.Regexp, len(m.config.SuffixRegex))
+	for i, s := range m.config.SuffixRegex {
+		m.suffixRegex[i] = regexp.MustCompile(s)
 	}
 }
 
-func (p *Provider) getSnippetName(filePath string) string {
-	return getSnippetName(p.system, filePath)
+func (m *Manager) getSnippetName(filePath string) string {
+	return getSnippetName(m.system, filePath)
 }
 
 func languageForSuffix(suffix string) model.Language {

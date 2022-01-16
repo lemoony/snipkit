@@ -29,8 +29,8 @@ mocks: ## go generate
 	$(call print-target)
 	mockery --name='App' --output="./mocks/app" --dir="./internal/app"
 	mockery --name='Service' --output="./mocks/config" --structname="ConfigService"  --dir="./internal/config"
-	mockery --name='Builder' --output="./mocks/provider"  --structname="ProviderBuilder"  --dir="./internal/providers"
-	mockery --name='Provider' --output="./mocks/provider" --dir="./internal/providers"
+	mockery --name='Provider' --output="./mocks/managers"  --dir="./internal/managers"
+	mockery --name='Manager' --output="./mocks/managers" --dir="./internal/managers"
 	mockery --name='^Terminal$$' --output="./mocks/ui" --dir="./internal/ui"
 
 .PHONY: vet

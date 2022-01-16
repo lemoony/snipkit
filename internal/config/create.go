@@ -11,9 +11,9 @@ import (
 	"github.com/spf13/viper"
 	"gopkg.in/yaml.v3"
 
-	"github.com/lemoony/snipkit/internal/providers/fslibrary"
-	"github.com/lemoony/snipkit/internal/providers/pictarinesnip"
-	"github.com/lemoony/snipkit/internal/providers/snippetslab"
+	"github.com/lemoony/snipkit/internal/managers/fslibrary"
+	"github.com/lemoony/snipkit/internal/managers/pictarinesnip"
+	"github.com/lemoony/snipkit/internal/managers/snippetslab"
 	"github.com/lemoony/snipkit/internal/ui"
 	"github.com/lemoony/snipkit/internal/ui/uimsg"
 	"github.com/lemoony/snipkit/internal/utils/system"
@@ -40,9 +40,9 @@ func createConfigFile(system *system.System, viper *viper.Viper, term ui.Termina
 	}
 
 	config.Config.Style = ui.DefaultConfig()
-	config.Config.Providers.SnippetsLab = snippetslab.AutoDiscoveryConfig(system)
-	config.Config.Providers.PictarineSnip = pictarinesnip.AutoDiscoveryConfig(system)
-	config.Config.Providers.FsLibrary = fslibrary.AutoDiscoveryConfig(system)
+	config.Config.Manager.SnippetsLab = snippetslab.AutoDiscoveryConfig(system)
+	config.Config.Manager.PictarineSnip = pictarinesnip.AutoDiscoveryConfig(system)
+	config.Config.Manager.FsLibrary = fslibrary.AutoDiscoveryConfig(system)
 
 	data := serializeToYamlWithComment(config)
 

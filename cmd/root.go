@@ -10,17 +10,17 @@ import (
 
 	"github.com/lemoony/snipkit/internal/app"
 	"github.com/lemoony/snipkit/internal/config"
-	"github.com/lemoony/snipkit/internal/providers"
+	"github.com/lemoony/snipkit/internal/managers"
 	"github.com/lemoony/snipkit/internal/ui"
 	"github.com/lemoony/snipkit/internal/utils/logutil"
 	"github.com/lemoony/snipkit/internal/utils/system"
 )
 
 type setup struct {
-	terminal         ui.Terminal
-	providersBuilder providers.Builder
-	v                *viper.Viper
-	system           *system.System
+	terminal ui.Terminal
+	provider managers.Provider
+	v        *viper.Viper
+	system   *system.System
 }
 
 func (s *setup) configService() config.Service {
@@ -32,10 +32,10 @@ func (s *setup) configService() config.Service {
 }
 
 var _defaultSetup = setup{
-	terminal:         ui.NewTerminal(),
-	providersBuilder: providers.NewBuilder(),
-	v:                viper.GetViper(),
-	system:           system.NewSystem(),
+	terminal: ui.NewTerminal(),
+	provider: managers.NewBuilder(),
+	v:        viper.GetViper(),
+	system:   system.NewSystem(),
 }
 
 type ctxKey string
@@ -55,7 +55,7 @@ func getAppFromContext(ctx context.Context) app.App {
 	return app.NewApp(
 		app.WithTerminal(s.terminal),
 		app.WithConfigService(s.configService()),
-		app.WithProvidersBuilder(s.providersBuilder),
+		app.WithProvider(s.provider),
 	)
 }
 

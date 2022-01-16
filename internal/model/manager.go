@@ -1,16 +1,16 @@
 package model
 
-type ProviderInfo struct {
-	Lines []ProviderLine
+type ManagerInfo struct {
+	Lines []ManagerInfoLine
 }
 
-type ProviderLine struct {
+type ManagerInfoLine struct {
 	Key     string
 	Value   string
 	IsError bool
 }
 
-type ProviderDescription struct {
+type ManagerDescription struct {
 	Name        string
 	Description string
 	Enabled     bool

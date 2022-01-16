@@ -1,9 +1,9 @@
-package providers
+package managers
 
 import (
-	"github.com/lemoony/snipkit/internal/providers/fslibrary"
-	"github.com/lemoony/snipkit/internal/providers/pictarinesnip"
-	"github.com/lemoony/snipkit/internal/providers/snippetslab"
+	"github.com/lemoony/snipkit/internal/managers/fslibrary"
+	"github.com/lemoony/snipkit/internal/managers/pictarinesnip"
+	"github.com/lemoony/snipkit/internal/managers/snippetslab"
 )
 
 type Config struct {

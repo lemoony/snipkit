@@ -9,16 +9,16 @@ import (
 	"github.com/lemoony/snipkit/internal/config/configtest"
 	"github.com/lemoony/snipkit/internal/model"
 	"github.com/lemoony/snipkit/internal/utils/testutil"
-	mocks "github.com/lemoony/snipkit/mocks/provider"
+	mocks "github.com/lemoony/snipkit/mocks/managers"
 )
 
 func Test_Info(t *testing.T) {
 	system := testutil.NewTestSystem()
 	cfgFilePath := configtest.NewTestConfigFilePath(t, system.Fs)
 
-	provider := mocks.Provider{}
-	provider.On("Info").Return(model.ProviderInfo{
-		Lines: []model.ProviderLine{
+	manager := mocks.Manager{}
+	manager.On("Info").Return(model.ManagerInfo{
+		Lines: []model.ManagerInfoLine{
 			{Key: "Some-Key", Value: "Some-Value", IsError: false},
 		},
 	})
@@ -28,5 +28,5 @@ func Test_Info(t *testing.T) {
 		assert.NoError(t, err)
 		_, err = c.ExpectString("Some-Key: Some-Value")
 		assert.NoError(t, err)
-	}, withSystem(system), withConfigFilePath(cfgFilePath), withProviders(&provider))
+	}, withSystem(system), withConfigFilePath(cfgFilePath), withManager(&manager))
 }

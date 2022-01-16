@@ -33,9 +33,9 @@ func Test_LoadConfig(t *testing.T) {
 
 	assert.Equal(t, "foo-editor", config.Editor)
 	assert.Equal(t, "dracula", config.Style.Theme)
-	assert.True(t, config.Providers.SnippetsLab.Enabled)
-	assert.Equal(t, "/path/to/lib", config.Providers.SnippetsLab.LibraryPath)
-	assert.Len(t, config.Providers.SnippetsLab.IncludeTags, 2)
+	assert.True(t, config.Manager.SnippetsLab.Enabled)
+	assert.Equal(t, "/path/to/lib", config.Manager.SnippetsLab.LibraryPath)
+	assert.Len(t, config.Manager.SnippetsLab.IncludeTags, 2)
 }
 
 func Test_Create(t *testing.T) {

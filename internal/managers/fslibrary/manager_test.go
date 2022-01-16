@@ -22,7 +22,7 @@ func Test_GetInfo(t *testing.T) {
 		SuffixRegex: []string{".sh", ".yaml"},
 	}
 
-	provider, err := NewProvider(WithSystem(system), WithConfig(config))
+	provider, err := NewManager(WithSystem(system), WithConfig(config))
 	assert.NoError(t, err)
 
 	info := provider.Info()
@@ -78,7 +78,7 @@ func Test_GetSnippets(t *testing.T) {
 		filePerm,
 	))
 
-	provider, err := NewProvider(WithSystem(system), WithConfig(config))
+	provider, err := NewManager(WithSystem(system), WithConfig(config))
 	assert.NoError(t, err)
 
 	snippets := provider.GetSnippets()
@@ -110,7 +110,7 @@ func Test_GetSnippets_LazyOpen_HideTitleHeader(t *testing.T) {
 		filePerm,
 	))
 
-	provider, err := NewProvider(WithSystem(system), WithConfig(config))
+	provider, err := NewManager(WithSystem(system), WithConfig(config))
 	assert.NoError(t, err)
 
 	snippets := provider.GetSnippets()

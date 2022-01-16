@@ -45,11 +45,11 @@ func Test_GetSnippets(t *testing.T) {
 			config := Config{}
 			tt.configFunc(&config)
 
-			provider, err := NewProvider(WithSystem(system), WithConfig(config))
+			manager, err := NewManager(WithSystem(system), WithConfig(config))
 			assert.NoError(t, err)
-			assert.NotNil(t, provider)
+			assert.NotNil(t, manager)
 
-			assert.Len(t, provider.GetSnippets(), tt.expectedCount)
+			assert.Len(t, manager.GetSnippets(), tt.expectedCount)
 		})
 	}
 }
@@ -63,11 +63,11 @@ func Test_Info(t *testing.T) {
 	config.Enabled = true
 	config.LibraryPath = testDataDefaultLibraryPath
 
-	provider, err := NewProvider(WithSystem(system), WithConfig(config))
+	manager, err := NewManager(WithSystem(system), WithConfig(config))
 	assert.NoError(t, err)
-	assert.NotNil(t, provider)
+	assert.NotNil(t, manager)
 
-	info := provider.Info()
+	info := manager.Info()
 	assert.Len(t, info.Lines, 3)
 
 	assert.Equal(t, "Pictarine Snip library path", info.Lines[0].Key)
