@@ -7,7 +7,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AlecAivazis/survey/v2/terminal"
 	"github.com/Netflix/go-expect"
 	"github.com/hinshun/vt10x"
 	"github.com/spf13/viper"
@@ -20,6 +19,7 @@ import (
 	"github.com/lemoony/snipkit/internal/managers"
 	"github.com/lemoony/snipkit/internal/ui"
 	"github.com/lemoony/snipkit/internal/utils/system"
+	"github.com/lemoony/snipkit/internal/utils/termutil"
 	"github.com/lemoony/snipkit/internal/utils/testutil"
 	mocks "github.com/lemoony/snipkit/mocks/managers"
 )
@@ -146,7 +146,7 @@ func runVT10XCommandTest(
 		system:   testSetup.system,
 		v:        testSetup.v,
 		provider: testSetup.provider,
-		terminal: ui.NewTerminal(ui.WithStdio(terminal.Stdio{In: c.Tty(), Out: c.Tty(), Err: c.Tty()})),
+		terminal: ui.NewTerminal(ui.WithStdio(termutil.Stdio{In: c.Tty(), Out: c.Tty(), Err: c.Tty()})),
 	}
 
 	defer rootCmd.ResetFlags()

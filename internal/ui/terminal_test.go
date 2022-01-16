@@ -8,7 +8,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AlecAivazis/survey/v2/terminal"
 	expect "github.com/Netflix/go-expect"
 	"github.com/gdamore/tcell/v2"
 	"github.com/stretchr/testify/assert"
@@ -16,6 +15,7 @@ import (
 	"github.com/lemoony/snipkit/internal/model"
 	"github.com/lemoony/snipkit/internal/ui/picker"
 	"github.com/lemoony/snipkit/internal/ui/uimsg"
+	"github.com/lemoony/snipkit/internal/utils/termutil"
 	"github.com/lemoony/snipkit/internal/utils/testutil"
 )
 
@@ -25,7 +25,7 @@ func Test_PrintMessage(t *testing.T) {
 		assert.NoError(t, err)
 		_, err = c.ExpectEOF()
 		assert.NoError(t, err)
-	}, func(stdio terminal.Stdio) {
+	}, func(stdio termutil.Stdio) {
 		term := NewTerminal(WithStdio(stdio))
 		term.PrintMessage("Hello world")
 		time.Sleep(time.Millisecond * 100)
@@ -38,7 +38,7 @@ func Test_PrintError(t *testing.T) {
 		assert.NoError(t, err)
 		_, err = c.ExpectEOF()
 		assert.NoError(t, err)
-	}, func(stdio terminal.Stdio) {
+	}, func(stdio termutil.Stdio) {
 		term := NewTerminal(WithStdio(stdio))
 		term.PrintError("Some error message")
 		time.Sleep(time.Millisecond * 100)
@@ -125,7 +125,7 @@ func Test_OpenEditor(t *testing.T) {
 		_, _ = c.Send("iHello world\x1b")
 		time.Sleep(time.Second)
 		_, _ = c.SendLine(":wq!")
-	}, func(stdio terminal.Stdio) {
+	}, func(stdio termutil.Stdio) {
 		term := NewTerminal(WithStdio(stdio))
 
 		testFile := path.Join(t.TempDir(), "testfile")
@@ -142,7 +142,7 @@ func Test_OpenEditor(t *testing.T) {
 func Test_OpenEditor_InvalidCommand(t *testing.T) {
 	runExpectTest(t, func(c *expect.Console) {
 		// nothing to expect since panic will be handled at application root level
-	}, func(stdio terminal.Stdio) {
+	}, func(stdio termutil.Stdio) {
 		term := NewTerminal(WithStdio(stdio))
 
 		testFile := path.Join(t.TempDir(), "testfile")
@@ -161,7 +161,7 @@ func Test_Confirmation(t *testing.T) {
 		assert.NoError(t, err)
 		_, err = c.Send("y")
 		assert.NoError(t, err)
-	}, func(stdio terminal.Stdio) {
+	}, func(stdio termutil.Stdio) {
 		term := NewTerminal(WithStdio(stdio))
 		confirmed := term.Confirmation(uimsg.ConfigFileDeleteConfirm("/some/path"))
 		assert.True(t, confirmed)
@@ -189,7 +189,7 @@ func Test_ShowPicker(t *testing.T) {
 		_, err = c.Send("\r")
 		assert.NoError(t, err)
 		time.Sleep(time.Millisecond * 10)
-	}, func(stdio terminal.Stdio) {
+	}, func(stdio termutil.Stdio) {
 		term := NewTerminal(WithStdio(stdio))
 		index, ok := term.ShowPicker([]picker.Item{
 			picker.NewItem("title1", "desc1"),

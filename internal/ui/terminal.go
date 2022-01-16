@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"emperror.dev/errors"
-	"github.com/AlecAivazis/survey/v2/terminal"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/gdamore/tcell/v2"
 	"github.com/kballard/go-shellquote"
@@ -18,6 +17,7 @@ import (
 	"github.com/lemoony/snipkit/internal/ui/picker"
 	"github.com/lemoony/snipkit/internal/ui/uimsg"
 	"github.com/lemoony/snipkit/internal/utils/system"
+	"github.com/lemoony/snipkit/internal/utils/termutil"
 )
 
 const (
@@ -39,7 +39,7 @@ func (f terminalOptionFunc) apply(terminal *cliTerminal) {
 }
 
 // WithStdio sets the stdio for the terminal.
-func WithStdio(stdio terminal.Stdio) TerminalOption {
+func WithStdio(stdio termutil.Stdio) TerminalOption {
 	return terminalOptionFunc(func(t *cliTerminal) {
 		t.stdio = stdio
 	})
@@ -64,13 +64,13 @@ type Terminal interface {
 }
 
 type cliTerminal struct {
-	stdio  terminal.Stdio
+	stdio  termutil.Stdio
 	screen tcell.Screen
 }
 
 func NewTerminal(options ...TerminalOption) Terminal {
 	term := cliTerminal{
-		stdio: terminal.Stdio{
+		stdio: termutil.Stdio{
 			In:  os.Stdin,
 			Out: os.Stdout,
 			Err: os.Stderr,

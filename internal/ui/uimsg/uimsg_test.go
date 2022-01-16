@@ -3,7 +3,6 @@ package uimsg
 import (
 	"testing"
 
-	"github.com/AlecAivazis/survey/v2/core"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -14,9 +13,6 @@ const (
 )
 
 func init() {
-	// disable color output for all prompts to simplify testing
-	core.DisableColor = true
-
 	SetHighlightColor("#ffffff")
 }
 
