@@ -11,9 +11,6 @@ import (
 	"github.com/spf13/viper"
 	"gopkg.in/yaml.v3"
 
-	"github.com/lemoony/snipkit/internal/managers/fslibrary"
-	"github.com/lemoony/snipkit/internal/managers/pictarinesnip"
-	"github.com/lemoony/snipkit/internal/managers/snippetslab"
 	"github.com/lemoony/snipkit/internal/ui"
 	"github.com/lemoony/snipkit/internal/utils/system"
 )
@@ -39,11 +36,7 @@ func createConfigFile(system *system.System, viper *viper.Viper) {
 	}
 
 	config.Config.Style = ui.DefaultConfig()
-	config.Config.Manager.SnippetsLab = snippetslab.AutoDiscoveryConfig(system)
-	config.Config.Manager.PictarineSnip = pictarinesnip.AutoDiscoveryConfig(system)
-	config.Config.Manager.FsLibrary = fslibrary.AutoDiscoveryConfig(system)
-
-	data := serializeToYamlWithComment(config)
+	data := SerializeToYamlWithComment(config)
 
 	configPath := viper.ConfigFileUsed()
 
@@ -52,7 +45,7 @@ func createConfigFile(system *system.System, viper *viper.Viper) {
 	system.WriteFile(configPath, data)
 }
 
-func serializeToYamlWithComment(value interface{}) []byte {
+func SerializeToYamlWithComment(value interface{}) []byte {
 	// get all tag comments
 	commentMap := map[string][]yamlComment{}
 	traverseYamlTagComments(reflect.TypeOf(value), []string{}, &commentMap)
@@ -69,6 +62,10 @@ func serializeToYamlWithComment(value interface{}) []byte {
 
 	// set the comments
 	for key, comments := range commentMap {
+		if _, ok := treeMap[key]; !ok {
+			continue
+		}
+
 		for _, comment := range comments {
 			switch comment.kind {
 			case yamlCommentLine:

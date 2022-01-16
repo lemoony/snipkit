@@ -36,6 +36,6 @@ func Test_serializeToYamlWithComment(t *testing.T) {
 	expectedConfigBytes, err := ioutil.ReadFile(testDataExampleConfig)
 	assert.NoError(t, err)
 
-	actualCfgBytes := serializeToYamlWithComment(testConfig)
+	actualCfgBytes := SerializeToYamlWithComment(testConfig)
 	assert.Equal(t, string(expectedConfigBytes), string(actualCfgBytes))
 }

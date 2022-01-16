@@ -18,6 +18,8 @@ type Key string
 const (
 	KeyEnter = Key("\r")
 	KeyTab   = Key("\t")
+	KeyEsc   = Key(string(rune(27)))
+	KeyStrC  = Key(string(rune(3)))
 	KeyUp    = Key("\u001B[A")
 	KeyDown  = Key("\u001B[B")
 	KeyLeft  = Key("\x1b[D")

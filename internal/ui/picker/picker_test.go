@@ -27,3 +27,32 @@ func Test_ShowPicker(t *testing.T) {
 		assert.True(t, ok)
 	})
 }
+
+func Test_ShowPicker_Cancel(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name string
+		key  termtest.Key
+	}{
+		{name: "esc", key: termtest.KeyEsc},
+		{name: "str+c", key: termtest.KeyStrC},
+	}
+
+	for i := range tests {
+		tt := tests[i]
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			termtest.RunTerminalTest(t, func(c *termtest.Console) {
+				c.ExpectString("Which snippet manager should be added to your configuration")
+				c.SendKey(tt.key)
+			}, func(stdio termutil.Stdio) {
+				index, ok := ShowPicker([]Item{
+					NewItem("title1", "desc1"),
+				}, tea.WithInput(stdio.In), tea.WithOutput(stdio.Out))
+				assert.Equal(t, -1, index)
+				assert.False(t, ok)
+			})
+		})
+	}
+}
