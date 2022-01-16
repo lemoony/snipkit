@@ -10,7 +10,9 @@ require (
 	github.com/Netflix/go-expect v0.0.0-20211003183012-e1a7c020ce25
 	github.com/adrg/xdg v0.4.0
 	github.com/alecthomas/chroma v0.9.4
+	github.com/charmbracelet/bubbles v0.10.0
 	github.com/charmbracelet/bubbletea v0.19.3
+	github.com/charmbracelet/lipgloss v0.4.0
 	github.com/corbym/gocrest v1.0.5
 	github.com/gdamore/tcell/v2 v2.4.1-0.20210905002822-f057f0a857a1
 	github.com/hinshun/vt10x v0.0.0-20180809195222-d55458df857c

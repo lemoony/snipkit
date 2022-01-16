@@ -18,6 +18,7 @@ type App interface {
 	LookupAndCreatePrintableSnippet() (string, bool)
 	LookupAndExecuteSnippet()
 	Info()
+	AddProvider()
 }
 
 // Option configures an App.

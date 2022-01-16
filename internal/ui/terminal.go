@@ -14,6 +14,7 @@ import (
 
 	"github.com/lemoony/snipkit/internal/model"
 	"github.com/lemoony/snipkit/internal/ui/confirm"
+	"github.com/lemoony/snipkit/internal/ui/picker"
 	"github.com/lemoony/snipkit/internal/ui/uimsg"
 	"github.com/lemoony/snipkit/internal/utils/system"
 )
@@ -58,6 +59,7 @@ type Terminal interface {
 	OpenEditor(path string, preferredEditor string)
 	ShowLookup(snippets []model.Snippet) int
 	ShowParameterForm(parameters []model.Parameter, okButton OkButton) ([]string, bool)
+	ShowPicker(items []picker.Item) (int, bool)
 }
 
 type cliTerminal struct {
@@ -127,6 +129,10 @@ func (c cliTerminal) OpenEditor(path string, preferredEditor string) {
 	if err := cmd.Wait(); err != nil {
 		panic(err)
 	}
+}
+
+func (c cliTerminal) ShowPicker(items []picker.Item) (int, bool) {
+	return picker.ShowPicker(items)
 }
 
 func getEditor(preferred string) string {

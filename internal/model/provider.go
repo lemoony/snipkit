@@ -9,3 +9,9 @@ type ProviderLine struct {
 	Value   string
 	IsError bool
 }
+
+type ProviderDescription struct {
+	Name        string
+	Description string
+	Enabled     bool
+}
