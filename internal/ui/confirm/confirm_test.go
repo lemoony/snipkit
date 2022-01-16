@@ -47,7 +47,7 @@ func Test_Confirm(t *testing.T) {
 					time.Sleep(time.Millisecond * 10)
 				}
 			}, func(stdio terminal.Stdio) {
-				result := Confirm("Are you sure?", "Hello", WithIn(stdio.In), WithOut(stdio.Out))
+				result := Confirm("Are you sure?", "Hello", WithIn(stdio.In), WithOut(stdio.Out), WithFullscreen())
 				assert.Equal(t, tt.expected, result)
 			})
 		})

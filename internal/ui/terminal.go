@@ -8,6 +8,7 @@ import (
 
 	"emperror.dev/errors"
 	"github.com/AlecAivazis/survey/v2/terminal"
+	tea "github.com/charmbracelet/bubbletea"
 	"github.com/gdamore/tcell/v2"
 	"github.com/kballard/go-shellquote"
 	"github.com/rivo/tview"
@@ -59,7 +60,7 @@ type Terminal interface {
 	OpenEditor(path string, preferredEditor string)
 	ShowLookup(snippets []model.Snippet) int
 	ShowParameterForm(parameters []model.Parameter, okButton OkButton) ([]string, bool)
-	ShowPicker(items []picker.Item) (int, bool)
+	ShowPicker(items []picker.Item, options ...tea.ProgramOption) (int, bool)
 }
 
 type cliTerminal struct {
@@ -78,6 +79,7 @@ func NewTerminal(options ...TerminalOption) Terminal {
 	for _, option := range options {
 		option.apply(&term)
 	}
+
 	return term
 }
 
@@ -98,19 +100,17 @@ func (c cliTerminal) PrintError(msg string) {
 }
 
 func (c cliTerminal) Confirmation(confirmation uimsg.Confirm, options ...confirm.Option) bool {
-	confirmOptions := append(
-		[]confirm.Option{
-			confirm.WithSelectionColor(currentTheme.PromptSelectionTextColor),
-			confirm.WithOut(c.stdio.Out),
-			confirm.WithIn(c.stdio.In),
-		},
-		options...,
-	)
-
 	return confirm.Confirm(
 		confirmation.Prompt,
 		confirmation.Header(),
-		confirmOptions...,
+		append(
+			[]confirm.Option{
+				confirm.WithSelectionColor(currentTheme.PromptSelectionTextColor),
+				confirm.WithOut(c.stdio.Out),
+				confirm.WithIn(c.stdio.In),
+			},
+			options...,
+		)...,
 	)
 }
 
@@ -138,8 +138,14 @@ func (c cliTerminal) OpenEditor(path string, preferredEditor string) {
 	}
 }
 
-func (c cliTerminal) ShowPicker(items []picker.Item) (int, bool) {
-	return picker.ShowPicker(items)
+func (c cliTerminal) ShowPicker(items []picker.Item, options ...tea.ProgramOption) (int, bool) {
+	return picker.ShowPicker(items, append(
+		[]tea.ProgramOption{
+			tea.WithInput(c.stdio.In),
+			tea.WithOutput(c.stdio.Out),
+		},
+		options...)...,
+	)
 }
 
 func getEditor(preferred string) string {

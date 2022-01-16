@@ -28,7 +28,7 @@ func Test_ConfigNotFound(t *testing.T) {
 	assert.Contains(t, ConfigNotFound(testCfgPath), testCfgPath)
 }
 
-func Test_ConfigFileCreateDescription(t *testing.T) {
+func Test_ConfigFileCreateConfirm(t *testing.T) {
 	tests := []struct {
 		name    string
 		homeEnv string
@@ -55,10 +55,6 @@ func Test_ConfigFileCreateDescription(t *testing.T) {
 	}
 }
 
-func Test_HomeDirectoryStillExists(t *testing.T) {
-	assert.Contains(t, HomeDirectoryStillExists(testHomePath), testHomePath)
-}
-
 func Test_ConfigFileCreateResult(t *testing.T) {
 	tests := []struct {
 		deleted  bool
@@ -76,10 +72,37 @@ func Test_ConfigFileCreateResult(t *testing.T) {
 	}
 }
 
-func Test_ThemesDirDeleteDescription(t *testing.T) {
+func Test_ConfigFileDeleteConfirm(t *testing.T) {
+	c := ConfigFileDeleteConfirm(testCfgPath)
+	assert.Contains(t, c.Header(), testCfgPath)
+}
+
+func Test_ConfigFileDeleteResult(t *testing.T) {
+	assert.Contains(t, ConfigFileDeleteResult(true, testCfgPath), "Configuration file deleted")
+}
+
+func Test_HomeDirectoryStillExists(t *testing.T) {
+	assert.Contains(t, HomeDirectoryStillExists(testHomePath), testHomePath)
+}
+
+func Test_ThemesDeleteConfirm(t *testing.T) {
 	c := ThemesDeleteConfirm(testThemesPath)
 	assert.NotEmpty(t, c.Prompt)
 	assert.Contains(t, c.Header(), testThemesPath)
+}
+
+func Test_ThemesDeleteResult(t *testing.T) {
+	assert.Contains(t, ThemesDeleteResult(true, testThemesPath), testThemesPath)
+}
+
+func Test_ManagerConfigAddConfirm(t *testing.T) {
+	c := ManagerConfigAddConfirm("yaml")
+	assert.NotEmpty(t, c.Prompt)
+	assert.Contains(t, c.Header(), "yaml")
+}
+
+func Test_ManagerAddConfigResult(t *testing.T) {
+	assert.Contains(t, ManagerAddConfigResult(true, testCfgPath), testCfgPath)
 }
 
 func Test_renderInvalidTemplate(t *testing.T) {

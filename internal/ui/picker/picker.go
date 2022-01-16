@@ -59,7 +59,7 @@ func (m *model) View() string {
 	return docStyle.Render(m.list.View())
 }
 
-func ShowPicker(items []Item) (int, bool) {
+func ShowPicker(items []Item, options ...tea.ProgramOption) (int, bool) {
 	listItems := make([]list.Item, len(items))
 	for i := range items {
 		listItems[i] = list.Item(items[i])
@@ -72,7 +72,7 @@ func ShowPicker(items []Item) (int, bool) {
 	m.list.SetDelegate(delegate)
 	m.list.SetShowStatusBar(false)
 
-	p := tea.NewProgram(&m, tea.WithAltScreen())
+	p := tea.NewProgram(&m, append(options, tea.WithAltScreen())...)
 
 	if err := p.Start(); err != nil {
 		panic(err)

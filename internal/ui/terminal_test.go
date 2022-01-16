@@ -14,6 +14,8 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/lemoony/snipkit/internal/model"
+	"github.com/lemoony/snipkit/internal/ui/picker"
+	"github.com/lemoony/snipkit/internal/ui/uimsg"
 	"github.com/lemoony/snipkit/internal/utils/testutil"
 )
 
@@ -150,6 +152,52 @@ func Test_OpenEditor_InvalidCommand(t *testing.T) {
 		assert.Panics(t, func() {
 			term.OpenEditor(testFile, "foo-editor")
 		})
+	})
+}
+
+func Test_Confirmation(t *testing.T) {
+	runExpectTest(t, func(c *expect.Console) {
+		_, err := c.ExpectString("Delete the configuration")
+		assert.NoError(t, err)
+		_, err = c.Send("y")
+		assert.NoError(t, err)
+	}, func(stdio terminal.Stdio) {
+		term := NewTerminal(WithStdio(stdio))
+		confirmed := term.Confirmation(uimsg.ConfigFileDeleteConfirm("/some/path"))
+		assert.True(t, confirmed)
+	})
+}
+
+func Test_ShowPicker(t *testing.T) {
+	runExpectTest(t, func(c *expect.Console) {
+		_, err := c.ExpectString("Which snippet manager should be added to your configuration")
+		assert.NoError(t, err)
+		time.Sleep(time.Millisecond * 10)
+
+		_, err = c.Send("\x1b[B")
+		assert.NoError(t, err)
+		time.Sleep(time.Millisecond * 10)
+
+		_, err = c.Send("\x1b[B")
+		assert.NoError(t, err)
+		time.Sleep(time.Millisecond * 10)
+
+		_, err = c.Send("\x1b[A")
+		assert.NoError(t, err)
+		time.Sleep(time.Millisecond * 10)
+
+		_, err = c.Send("\r")
+		assert.NoError(t, err)
+		time.Sleep(time.Millisecond * 10)
+	}, func(stdio terminal.Stdio) {
+		term := NewTerminal(WithStdio(stdio))
+		index, ok := term.ShowPicker([]picker.Item{
+			picker.NewItem("title1", "desc1"),
+			picker.NewItem("title2", "desc2"),
+			picker.NewItem("title3", "desc3"),
+		})
+		assert.Equal(t, 1, index)
+		assert.True(t, ok)
 	})
 }
 
