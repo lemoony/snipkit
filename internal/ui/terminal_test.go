@@ -8,23 +8,21 @@ import (
 	"testing"
 	"time"
 
-	expect "github.com/Netflix/go-expect"
 	"github.com/gdamore/tcell/v2"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/lemoony/snipkit/internal/model"
 	"github.com/lemoony/snipkit/internal/ui/picker"
 	"github.com/lemoony/snipkit/internal/ui/uimsg"
+	"github.com/lemoony/snipkit/internal/utils/termtest"
 	"github.com/lemoony/snipkit/internal/utils/termutil"
 	"github.com/lemoony/snipkit/internal/utils/testutil"
 )
 
 func Test_PrintMessage(t *testing.T) {
-	runExpectTest(t, func(c *expect.Console) {
-		_, err := c.ExpectString("Hello world")
-		assert.NoError(t, err)
-		_, err = c.ExpectEOF()
-		assert.NoError(t, err)
+	termtest.RunTerminalTest(t, func(c *termtest.Console) {
+		c.ExpectString("Hello world")
+		c.ExpectEOF()
 	}, func(stdio termutil.Stdio) {
 		term := NewTerminal(WithStdio(stdio))
 		term.PrintMessage("Hello world")
@@ -33,11 +31,9 @@ func Test_PrintMessage(t *testing.T) {
 }
 
 func Test_PrintError(t *testing.T) {
-	runExpectTest(t, func(c *expect.Console) {
-		_, err := c.ExpectString("Some error message")
-		assert.NoError(t, err)
-		_, err = c.ExpectEOF()
-		assert.NoError(t, err)
+	termtest.RunTerminalTest(t, func(c *termtest.Console) {
+		c.ExpectString("Some error message")
+		c.ExpectEOF()
 	}, func(stdio termutil.Stdio) {
 		term := NewTerminal(WithStdio(stdio))
 		term.PrintError("Some error message")
@@ -46,6 +42,8 @@ func Test_PrintError(t *testing.T) {
 }
 
 func Test_getEditor(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name      string
 		envVisual string
@@ -68,6 +66,8 @@ func Test_getEditor(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			if tt.envEditor == "" {
 				_ = os.Unsetenv(envEditor)
 			} else {
@@ -121,10 +121,9 @@ func Test_ShowLookup(t *testing.T) {
 }
 
 func Test_OpenEditor(t *testing.T) {
-	runExpectTest(t, func(c *expect.Console) {
-		_, _ = c.Send("iHello world\x1b")
-		time.Sleep(time.Second)
-		_, _ = c.SendLine(":wq!")
+	termtest.RunTerminalTest(t, func(c *termtest.Console) {
+		c.Send("iHello world\x1b")
+		c.Send(":wq!\n")
 	}, func(stdio termutil.Stdio) {
 		term := NewTerminal(WithStdio(stdio))
 
@@ -140,7 +139,7 @@ func Test_OpenEditor(t *testing.T) {
 }
 
 func Test_OpenEditor_InvalidCommand(t *testing.T) {
-	runExpectTest(t, func(c *expect.Console) {
+	termtest.RunTerminalTest(t, func(c *termtest.Console) {
 		// nothing to expect since panic will be handled at application root level
 	}, func(stdio termutil.Stdio) {
 		term := NewTerminal(WithStdio(stdio))
@@ -156,11 +155,9 @@ func Test_OpenEditor_InvalidCommand(t *testing.T) {
 }
 
 func Test_Confirmation(t *testing.T) {
-	runExpectTest(t, func(c *expect.Console) {
-		_, err := c.ExpectString("Delete the configuration")
-		assert.NoError(t, err)
-		_, err = c.Send("y")
-		assert.NoError(t, err)
+	termtest.RunTerminalTest(t, func(c *termtest.Console) {
+		c.ExpectString("Delete the configuration")
+		c.Send("y")
 	}, func(stdio termutil.Stdio) {
 		term := NewTerminal(WithStdio(stdio))
 		confirmed := term.Confirmation(uimsg.ConfigFileDeleteConfirm("/some/path"))
@@ -169,26 +166,12 @@ func Test_Confirmation(t *testing.T) {
 }
 
 func Test_ShowPicker(t *testing.T) {
-	runExpectTest(t, func(c *expect.Console) {
-		_, err := c.ExpectString("Which snippet manager should be added to your configuration")
-		assert.NoError(t, err)
-		time.Sleep(time.Millisecond * 10)
-
-		_, err = c.Send("\x1b[B")
-		assert.NoError(t, err)
-		time.Sleep(time.Millisecond * 10)
-
-		_, err = c.Send("\x1b[B")
-		assert.NoError(t, err)
-		time.Sleep(time.Millisecond * 10)
-
-		_, err = c.Send("\x1b[A")
-		assert.NoError(t, err)
-		time.Sleep(time.Millisecond * 10)
-
-		_, err = c.Send("\r")
-		assert.NoError(t, err)
-		time.Sleep(time.Millisecond * 10)
+	termtest.RunTerminalTest(t, func(c *termtest.Console) {
+		c.ExpectString("Which snippet manager should be added to your configuration")
+		c.SendKey(termtest.KeyDown)
+		c.SendKey(termtest.KeyDown)
+		c.SendKey(termtest.KeyUp)
+		c.SendKey(termtest.KeyEnter)
 	}, func(stdio termutil.Stdio) {
 		term := NewTerminal(WithStdio(stdio))
 		index, ok := term.ShowPicker([]picker.Item{

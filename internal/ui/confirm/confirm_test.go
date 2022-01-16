@@ -33,7 +33,7 @@ func Test_Confirm(t *testing.T) {
 
 			termtest.RunTerminalTest(t, func(c *termtest.Console) {
 				for _, r := range tt.send {
-					c.SendString(r)
+					c.Send(r)
 				}
 			}, func(stdio termutil.Stdio) {
 				result := Confirm("Are you sure?", "Hello", WithIn(stdio.In), WithOut(stdio.Out), WithFullscreen())
@@ -47,7 +47,7 @@ func Test_ConfirmFormatting(t *testing.T) {
 	termtest.RunTerminalTest(t, func(c *termtest.Console) {
 		c.ExpectString("Hello world")
 		c.ExpectString("Are you sure?")
-		c.SendString("y")
+		c.Send("y")
 		c.ExpectString("Yes")
 	}, func(stdio termutil.Stdio) {
 		header := `Hello world`

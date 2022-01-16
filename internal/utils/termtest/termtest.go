@@ -41,13 +41,18 @@ func (c *Console) ExpectString(val string) {
 }
 
 func (c *Console) SendKey(val Key) {
-	c.SendString(string(val))
+	c.Send(string(val))
 }
 
-func (c *Console) SendString(val string) {
+func (c *Console) Send(val string) {
 	_, err := c.c.Send(val)
 	assert.NoError(c.t, err)
 	time.Sleep(defaultSendSleepTime)
+}
+
+func (c *Console) ExpectEOF() {
+	_, err := c.c.ExpectEOF()
+	assert.NoError(c.t, err)
 }
 
 func Keys(keys ...Key) []string {
