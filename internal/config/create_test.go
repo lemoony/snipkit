@@ -5,6 +5,10 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"github.com/lemoony/snipkit/internal/managers/fslibrary"
+	"github.com/lemoony/snipkit/internal/managers/pictarinesnip"
+	"github.com/lemoony/snipkit/internal/managers/snippetslab"
 )
 
 func Test_serializeToYamlWithComment(t *testing.T) {
@@ -12,10 +16,17 @@ func Test_serializeToYamlWithComment(t *testing.T) {
 	testConfig.Version = "1.0.0"
 	testConfig.Config.Editor = "foo-editor"
 	testConfig.Config.Style.Theme = "dracula"
+	testConfig.Config.Manager.SnippetsLab = &snippetslab.Config{}
 	testConfig.Config.Manager.SnippetsLab.Enabled = true
 	testConfig.Config.Manager.SnippetsLab.LibraryPath = "/path/to/lib"
 	testConfig.Config.Manager.SnippetsLab.IncludeTags = []string{"snipkit", "othertag"}
 
+	testConfig.Config.Manager.PictarineSnip = &pictarinesnip.Config{}
+	testConfig.Config.Manager.PictarineSnip.Enabled = false
+	testConfig.Config.Manager.PictarineSnip.LibraryPath = ""
+	testConfig.Config.Manager.PictarineSnip.IncludeTags = []string{}
+
+	testConfig.Config.Manager.FsLibrary = &fslibrary.Config{}
 	testConfig.Config.Manager.FsLibrary.Enabled = true
 	testConfig.Config.Manager.FsLibrary.LibraryPath = []string{"/path/to/file/system/library"}
 	testConfig.Config.Manager.FsLibrary.SuffixRegex = []string{".sh"}

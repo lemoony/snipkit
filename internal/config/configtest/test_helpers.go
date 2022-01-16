@@ -67,10 +67,10 @@ func NewTestConfig() config.VersionWrapper {
 			Editor: "test-editor",
 			Style:  ui.DefaultConfig(),
 			Manager: managers.Config{
-				SnippetsLab: snippetslab.Config{
+				SnippetsLab: &snippetslab.Config{
 					Enabled: false,
 				},
-				FsLibrary: fslibrary.Config{
+				FsLibrary: &fslibrary.Config{
 					Enabled: false,
 				},
 			},

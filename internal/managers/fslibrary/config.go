@@ -12,8 +12,8 @@ type Config struct {
 	HideTitleInPreview bool     `yaml:"hideTitleInPreview" head_comment:"If set to true, the title comment will not be shown in the preview window."`
 }
 
-func AutoDiscoveryConfig(system *system.System) Config {
-	return Config{
+func AutoDiscoveryConfig(system *system.System) *Config {
+	return &Config{
 		Enabled:            false,
 		LibraryPath:        []string{"/path/to/file/system/library"},
 		SuffixRegex:        []string{".sh"},

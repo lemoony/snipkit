@@ -14,7 +14,7 @@ type Config struct {
 	IncludeTags []string `yaml:"includeTags" head_comment:"If this list is not empty, only those snippets that match the listed tags will be provided to you."`
 }
 
-func AutoDiscoveryConfig(system *system.System) Config {
+func AutoDiscoveryConfig(system *system.System) *Config {
 	libPath := findDefaultSnippetsLibrary(system)
 	found := libPath != ""
 
@@ -22,7 +22,7 @@ func AutoDiscoveryConfig(system *system.System) Config {
 		libPath = "/path/to/snippets-file"
 	}
 
-	return Config{
+	return &Config{
 		Enabled:     found,
 		LibraryPath: libPath,
 	}

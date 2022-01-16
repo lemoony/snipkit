@@ -106,8 +106,11 @@ func traverseYamlTagComments(t reflect.Type, path []string, commentsMap *map[str
 		if c := field.Tag.Get("head_comment"); c != "" {
 			(*commentsMap)[nodePath] = append(commentsList, yamlComment{value: c, kind: yamlCommentHead})
 		}
+
 		if field.Type.Kind() == reflect.Struct {
 			traverseYamlTagComments(field.Type, append(path, yamlName), commentsMap)
+		} else if field.Type.Kind() == reflect.Ptr {
+			traverseYamlTagComments(field.Type.Elem(), append(path, yamlName), commentsMap)
 		}
 	}
 }

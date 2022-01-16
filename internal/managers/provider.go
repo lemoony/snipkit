@@ -34,7 +34,7 @@ func (b providerImpl) CreateManager(system system.System, config Config) ([]Mana
 
 	if manager, err := snippetslab.NewManager(
 		snippetslab.WithSystem(&system),
-		snippetslab.WithConfig(config.SnippetsLab),
+		snippetslab.WithConfig(*config.SnippetsLab),
 	); err != nil {
 		return nil, err
 	} else if manager != nil {
@@ -43,7 +43,7 @@ func (b providerImpl) CreateManager(system system.System, config Config) ([]Mana
 
 	if manager, err := fslibrary.NewManager(
 		fslibrary.WithSystem(&system),
-		fslibrary.WithConfig(config.FsLibrary),
+		fslibrary.WithConfig(*config.FsLibrary),
 	); err != nil {
 		return nil, err
 	} else if manager != nil {
@@ -52,7 +52,7 @@ func (b providerImpl) CreateManager(system system.System, config Config) ([]Mana
 
 	if manager, err := pictarinesnip.NewManager(
 		pictarinesnip.WithSystem(&system),
-		pictarinesnip.WithConfig(config.PictarineSnip),
+		pictarinesnip.WithConfig(*config.PictarineSnip),
 	); err != nil {
 		return nil, err
 	} else if manager != nil {

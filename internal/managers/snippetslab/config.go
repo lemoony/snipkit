@@ -10,7 +10,7 @@ type Config struct {
 	IncludeTags []string `yaml:"includeTags" head_comment:"If this list is not empty, only those snippets that match the listed tags will be provided to you."`
 }
 
-func AutoDiscoveryConfig(system *system.System) Config {
+func AutoDiscoveryConfig(system *system.System) *Config {
 	result := Config{
 		Enabled:     false,
 		LibraryPath: "/path/to/main.snippetslablibrary",
@@ -21,11 +21,11 @@ func AutoDiscoveryConfig(system *system.System) Config {
 	libraryURL = findLibraryURL(system, preferencesFilePath)
 
 	if ok, err := libraryURL.validate(); err != nil || !ok {
-		return result
+		return &result
 	} else if basePath, err := libraryURL.basePath(); err == nil {
 		result.Enabled = true
 		result.LibraryPath = basePath
 	}
 
-	return result
+	return &result
 }
