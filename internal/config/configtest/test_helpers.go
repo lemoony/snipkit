@@ -10,9 +10,9 @@ import (
 	"gopkg.in/yaml.v3"
 
 	"github.com/lemoony/snipkit/internal/config"
-	"github.com/lemoony/snipkit/internal/providers"
-	"github.com/lemoony/snipkit/internal/providers/fslibrary"
-	"github.com/lemoony/snipkit/internal/providers/snippetslab"
+	"github.com/lemoony/snipkit/internal/managers"
+	"github.com/lemoony/snipkit/internal/managers/fslibrary"
+	"github.com/lemoony/snipkit/internal/managers/snippetslab"
 	"github.com/lemoony/snipkit/internal/ui"
 )
 
@@ -66,11 +66,11 @@ func NewTestConfig() config.VersionWrapper {
 		Config: config.Config{
 			Editor: "test-editor",
 			Style:  ui.DefaultConfig(),
-			Providers: providers.Config{
-				SnippetsLab: snippetslab.Config{
+			Manager: managers.Config{
+				SnippetsLab: &snippetslab.Config{
 					Enabled: false,
 				},
-				FsLibrary: fslibrary.Config{
+				FsLibrary: &fslibrary.Config{
 					Enabled: false,
 				},
 			},

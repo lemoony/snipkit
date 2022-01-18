@@ -7,7 +7,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AlecAivazis/survey/v2/terminal"
 	"github.com/Netflix/go-expect"
 	"github.com/hinshun/vt10x"
 	"github.com/spf13/viper"
@@ -17,19 +16,20 @@ import (
 
 	"github.com/lemoony/snipkit/internal/app"
 	"github.com/lemoony/snipkit/internal/config"
-	"github.com/lemoony/snipkit/internal/providers"
+	"github.com/lemoony/snipkit/internal/managers"
 	"github.com/lemoony/snipkit/internal/ui"
 	"github.com/lemoony/snipkit/internal/utils/system"
+	"github.com/lemoony/snipkit/internal/utils/termutil"
 	"github.com/lemoony/snipkit/internal/utils/testutil"
-	mocks "github.com/lemoony/snipkit/mocks/provider"
+	mocks "github.com/lemoony/snipkit/mocks/managers"
 )
 
 type testSetup struct {
-	system           *system.System
-	v                *viper.Viper
-	providersBuilder providers.Builder
-	app              app.App
-	configService    config.Service
+	system        *system.System
+	v             *viper.Viper
+	provider      managers.Provider
+	app           app.App
+	configService config.Service
 }
 
 func newTestSetup() *testSetup {
@@ -38,9 +38,9 @@ func newTestSetup() *testSetup {
 	v.SetFs(system.Fs)
 
 	return &testSetup{
-		system:           system,
-		v:                v,
-		providersBuilder: providers.NewBuilder(),
+		system:   system,
+		v:        v,
+		provider: managers.NewBuilder(),
 	}
 }
 
@@ -67,11 +67,11 @@ func withSystem(s *system.System) option {
 	})
 }
 
-func withProviders(p ...providers.Provider) option {
+func withManager(m ...managers.Manager) option {
 	return optionFunc(func(t *testSetup) {
-		builder := mocks.ProviderBuilder{}
-		builder.On("BuildProvider", mock.Anything, mock.Anything).Return(p, nil)
-		t.providersBuilder = &builder
+		provider := mocks.Provider{}
+		provider.On("CreateManager", mock.Anything, mock.Anything).Return(m, nil)
+		t.provider = &provider
 	})
 }
 
@@ -143,10 +143,10 @@ func runVT10XCommandTest(
 	}
 
 	_setup := &setup{
-		system:           testSetup.system,
-		v:                testSetup.v,
-		providersBuilder: testSetup.providersBuilder,
-		terminal:         ui.NewTerminal(ui.WithStdio(terminal.Stdio{In: c.Tty(), Out: c.Tty(), Err: c.Tty()})),
+		system:   testSetup.system,
+		v:        testSetup.v,
+		provider: testSetup.provider,
+		terminal: ui.NewTerminal(ui.WithStdio(termutil.Stdio{In: c.Tty(), Out: c.Tty(), Err: c.Tty()})),
 	}
 
 	defer rootCmd.ResetFlags()

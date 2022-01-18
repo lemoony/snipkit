@@ -8,7 +8,7 @@ config:
   editor: foo-editor # Defaults to a reasonable value for your operation system when empty.
   # The command which should run if you don't provide any subcommand.
   defaultRootCommand: "" # If not set, the help text will be shown.
-  provider:
+  manager:
     snippetsLab:
       # Set to true if you want to use SnippetsLab.
       enabled: true
@@ -19,6 +19,13 @@ config:
       includeTags:
         - snipkit
         - othertag
+    pictarineSnip:
+      # Set to true if you want to use Snip.
+      enabled: false
+      # Path to the snippets file.
+      libraryPath: ""
+      # If this list is not empty, only those snippets that match the listed tags will be provided to you.
+      includeTags: []
     fsLibrary:
       # If set to false, the files specified via libraryPath will not be provided to you.
       enabled: true

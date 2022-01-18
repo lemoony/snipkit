@@ -28,7 +28,7 @@ echo "${VAR1}`
 	terminal.On("ShowParameterForm", mock.Anything, mock.Anything).Return([]string{"foo-value"}, true)
 
 	app := NewApp(
-		WithTerminal(&terminal), WithConfig(configtest.NewTestConfig().Config), withProviderSnippets(snippets),
+		WithTerminal(&terminal), WithConfig(configtest.NewTestConfig().Config), withManagerSnippets(snippets),
 	)
 
 	s, ok := app.LookupAndCreatePrintableSnippet()

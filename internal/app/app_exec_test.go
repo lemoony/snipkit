@@ -38,7 +38,7 @@ echo "${VAR1}"`
 	terminal.On(mockutil.PrintMessage, inputVar1Value+"\n").Return()
 
 	app := NewApp(
-		WithTerminal(&terminal), WithConfig(configtest.NewTestConfig().Config), withProviderSnippets(snippets),
+		WithTerminal(&terminal), WithConfig(configtest.NewTestConfig().Config), withManagerSnippets(snippets),
 	)
 
 	app.LookupAndExecuteSnippet()

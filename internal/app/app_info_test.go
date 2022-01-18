@@ -9,7 +9,7 @@ import (
 	"github.com/lemoony/snipkit/internal/model"
 	"github.com/lemoony/snipkit/internal/utils/testutil/mockutil"
 	configMocks "github.com/lemoony/snipkit/mocks/config"
-	providerMocks "github.com/lemoony/snipkit/mocks/provider"
+	managerMocks "github.com/lemoony/snipkit/mocks/managers"
 	uiMocks "github.com/lemoony/snipkit/mocks/ui"
 )
 
@@ -26,16 +26,16 @@ func Test_App_Info(t *testing.T) {
 	terminal.On(mockutil.PrintMessage, mock.Anything)
 	terminal.On(mockutil.PrintError, mock.Anything)
 
-	provider := providerMocks.Provider{}
-	provider.On("Info").Return(model.ProviderInfo{
-		Lines: []model.ProviderLine{
+	manager := managerMocks.Manager{}
+	manager.On("Info").Return(model.ManagerInfo{
+		Lines: []model.ManagerInfoLine{
 			{Key: "Some-Key", Value: "Some-Value", IsError: false},
 			{Key: "Some-Error", Value: "Some-Error", IsError: true},
 		},
 	})
 
 	app := NewApp(
-		WithTerminal(&terminal), WithConfigService(&cfgService), withProviders(&provider),
+		WithTerminal(&terminal), WithConfigService(&cfgService), withManager(&manager),
 	)
 
 	app.Info()

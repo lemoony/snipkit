@@ -1,22 +1,14 @@
 package confirm
 
 import (
-	"bytes"
 	"testing"
-	"time"
 
-	"github.com/AlecAivazis/survey/v2/core"
-	"github.com/AlecAivazis/survey/v2/terminal"
-	"github.com/Netflix/go-expect"
-	"github.com/hinshun/vt10x"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
-)
 
-func init() {
-	// disable color output for all prompts to simplify testing
-	core.DisableColor = true
-}
+	"github.com/lemoony/snipkit/internal/ui/uimsg"
+	"github.com/lemoony/snipkit/internal/utils/termtest"
+	"github.com/lemoony/snipkit/internal/utils/termutil"
+)
 
 func Test_Confirm(t *testing.T) {
 	t.Parallel()
@@ -26,93 +18,34 @@ func Test_Confirm(t *testing.T) {
 		expected bool
 		send     []string
 	}{
-		{name: "abort", expected: false, send: []string{"\n"}},
-		{name: "tab / toggle", expected: true, send: []string{"\t", "\n"}},
-		{name: "toggle twice", expected: false, send: []string{"\t", "\t", "\n"}},
-		{name: "y", expected: true, send: []string{"y"}},
-		{name: "n", expected: false, send: []string{"n"}},
+		{name: "apply at once", expected: false, send: termtest.Keys(termtest.KeyEnter)},
+		{name: "tab / toggle", expected: true, send: termtest.Keys(termtest.KeyTab, termtest.KeyEnter)},
+		{name: "toggle twice", expected: false, send: termtest.Keys(termtest.KeyTab, termtest.KeyTab, termtest.KeyEnter)},
+		{name: "y", expected: true, send: []string{"y", termtest.KeyEnter.Str()}},
+		{name: "n", expected: false, send: []string{"n", termtest.KeyEnter.Str()}},
 		{name: "esc", expected: false, send: []string{string(rune(27))}},
-		{name: "left", expected: true, send: []string{"\x1b[D", "\n"}},
-		{name: "right", expected: false, send: []string{"\x1b[C", "\n"}},
+		{name: "left", expected: true, send: termtest.Keys(termtest.KeyLeft, termtest.KeyEnter)},
+		{name: "right", expected: false, send: termtest.Keys(termtest.KeyRight, termtest.KeyEnter)},
 	}
-
 	for i := range tests {
 		tt := tests[i]
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			runExpectTest(t, func(c *expect.Console) {
+
+			termtest.RunTerminalTest(t, func(c *termtest.Console) {
 				for _, r := range tt.send {
-					_, err := c.Send(r)
-					assert.NoError(t, err)
-					time.Sleep(time.Millisecond * 10)
+					c.Send(r)
 				}
-			}, func(stdio terminal.Stdio) {
-				result := Confirm("Are you sure?", "Hello", WithIn(stdio.In), WithOut(stdio.Out))
+			}, func(stdio termutil.Stdio) {
+				result := Confirm(
+					uimsg.NewConfirm("Are you sure?", "Hello world"),
+					WithIn(stdio.In),
+					WithOut(stdio.Out),
+				)
 				assert.Equal(t, tt.expected, result)
 			})
 		})
 	}
-}
-
-func Test_ConfirmFormatting(t *testing.T) {
-	runExpectTest(t, func(c *expect.Console) {
-		_, err := c.ExpectString("Hello world")
-		assert.NoError(t, err)
-
-		_, err = c.ExpectString("Are you sure?")
-		assert.NoError(t, err)
-
-		time.Sleep(time.Millisecond * 10)
-
-		_, err = c.Send("y")
-		assert.NoError(t, err)
-
-		_, err = c.ExpectString("Yes")
-		assert.NoError(t, err)
-	}, func(stdio terminal.Stdio) {
-		header := `Hello world`
-
-		result := Confirm("Are you sure?", header,
-			WithIn(stdio.In),
-			WithOut(stdio.Out),
-			WithSelectionColor("#ff0000"),
-		)
-
-		assert.True(t, result)
-	})
-}
-
-// Source: https://github.com/AlecAivazis/survey/blob/master/survey_posix_test.go
-func runExpectTest(t *testing.T, procedure func(*expect.Console), test func(terminal.Stdio)) {
-	t.Helper()
-
-	// Multiplex output to a buffer as well for the raw bytes.
-	buf := new(bytes.Buffer)
-	c, state, err := vt10x.NewVT10XConsole(
-		expect.WithStdout(buf),
-		expect.WithDefaultTimeout(time.Second),
-	)
-	require.Nil(t, err)
-	defer func() {
-		_ = c.Close()
-	}()
-
-	donec := make(chan struct{})
-	go func() {
-		defer close(donec)
-		procedure(c)
-	}()
-
-	test(terminal.Stdio{In: c.Tty(), Out: c.Tty(), Err: c.Tty()})
-
-	// Close the slave end of the pty, and read the remaining bytes from the master end.
-	assert.NoError(t, c.Tty().Close())
-	<-donec
-
-	t.Logf("Raw output: %q", buf.String())
-
-	// Dump the terminal's screen.
-	t.Logf("\n%s", expect.StripTrailingEmptyLines(state.String()))
 }
 
 func Test_zeroAwareMin(t *testing.T) {

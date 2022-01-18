@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
 
+	"github.com/lemoony/snipkit/internal/managers"
 	"github.com/lemoony/snipkit/internal/ui"
 	"github.com/lemoony/snipkit/internal/ui/uimsg"
 	"github.com/lemoony/snipkit/internal/utils/system"
@@ -65,6 +66,7 @@ type Service interface {
 	LoadConfig() (Config, error)
 	Edit()
 	Clean()
+	UpdateManagerConfig(config managers.Config)
 	ConfigFilePath() string
 }
 
@@ -77,24 +79,16 @@ type serviceImpl struct {
 func (s serviceImpl) Create() {
 	s.applyConfigTheme()
 
-	_, err := s.LoadConfig()
-	create := false
-	switch {
-	case err == nil:
-		create = s.terminal.Confirmation(uimsg.ConfirmConfigRecreate(s.v.ConfigFileUsed()))
-		if !create {
-			log.Info().Msg("User declined to recreate config file")
-		}
-	case errors.Is(err, ErrConfigNotFound{}) &&
-		!s.terminal.Confirmation(uimsg.ConfirmConfigCreation(s.v.ConfigFileUsed(), s.system.HomeEnvValue())):
-		log.Info().Msg("User declined to create config file")
-	default:
-		create = true
+	recreate := s.hasConfig()
+	confirmed := s.terminal.Confirmation(
+		uimsg.ConfigFileCreateConfirm(s.v.ConfigFileUsed(), s.system.HomeEnvValue(), recreate),
+	)
+
+	if confirmed {
+		createConfigFile(s.system, s.v)
 	}
 
-	if create {
-		createConfigFile(s.system, s.v, s.terminal)
-	}
+	s.terminal.PrintMessage(uimsg.ConfigFileCreateResult(confirmed, s.v.ConfigFileUsed(), recreate))
 }
 
 func (s serviceImpl) LoadConfig() (Config, error) {
@@ -135,17 +129,21 @@ func (s serviceImpl) Clean() {
 	s.applyConfigTheme()
 
 	if s.hasConfig() {
-		if s.terminal.Confirmation(uimsg.ConfirmConfigDelete(configPath)) {
+		confirmed := s.terminal.Confirmation(uimsg.ConfigFileDeleteConfirm(configPath))
+		if confirmed {
 			s.system.Remove(s.v.ConfigFileUsed())
 		}
+		s.terminal.PrintMessage(uimsg.ConfigFileDeleteResult(confirmed, s.v.ConfigFileUsed()))
 	} else {
 		s.terminal.PrintMessage(uimsg.ConfigNotFound(configPath))
 	}
 
 	if s.hasThemes() {
-		if s.terminal.Confirmation(uimsg.ConfirmThemesDelete(s.system.ThemesDir())) {
+		confirmed := s.terminal.Confirmation(uimsg.ThemesDeleteConfirm(s.system.ThemesDir()))
+		if confirmed {
 			s.system.RemoveAll(s.system.ThemesDir())
 		}
+		s.terminal.PrintMessage(uimsg.ThemesDeleteResult(confirmed, s.system.ThemesDir()))
 	}
 
 	s.deleteDirectoryIfEmpty(s.system.ThemesDir())
@@ -158,6 +156,26 @@ func (s serviceImpl) Clean() {
 
 func (s serviceImpl) ConfigFilePath() string {
 	return s.v.ConfigFileUsed()
+}
+
+func (s serviceImpl) UpdateManagerConfig(managerConfig managers.Config) {
+	config, err := s.LoadConfig()
+	if err != nil {
+		panic(errors.Wrapf(ErrInvalidConfig, "failed to load config: %s", err.Error()))
+	}
+
+	if cfg := managerConfig.FsLibrary; cfg != nil {
+		config.Manager.FsLibrary = cfg
+	}
+	if cfg := managerConfig.SnippetsLab; cfg != nil {
+		config.Manager.SnippetsLab = cfg
+	}
+	if cfg := managerConfig.PictarineSnip; cfg != nil {
+		config.Manager.PictarineSnip = cfg
+	}
+
+	bytes := SerializeToYamlWithComment(wrap(config))
+	s.system.WriteFile(s.ConfigFilePath(), bytes)
 }
 
 func (s serviceImpl) hasConfig() bool {

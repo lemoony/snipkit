@@ -8,22 +8,22 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AlecAivazis/survey/v2/terminal"
-	expect "github.com/Netflix/go-expect"
 	"github.com/gdamore/tcell/v2"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/lemoony/snipkit/internal/model"
+	"github.com/lemoony/snipkit/internal/ui/picker"
+	"github.com/lemoony/snipkit/internal/ui/uimsg"
+	"github.com/lemoony/snipkit/internal/utils/termtest"
+	"github.com/lemoony/snipkit/internal/utils/termutil"
 	"github.com/lemoony/snipkit/internal/utils/testutil"
 )
 
 func Test_PrintMessage(t *testing.T) {
-	runExpectTest(t, func(c *expect.Console) {
-		_, err := c.ExpectString("Hello world")
-		assert.NoError(t, err)
-		_, err = c.ExpectEOF()
-		assert.NoError(t, err)
-	}, func(stdio terminal.Stdio) {
+	termtest.RunTerminalTest(t, func(c *termtest.Console) {
+		c.ExpectString("Hello world")
+		c.ExpectEOF()
+	}, func(stdio termutil.Stdio) {
 		term := NewTerminal(WithStdio(stdio))
 		term.PrintMessage("Hello world")
 		time.Sleep(time.Millisecond * 100)
@@ -31,12 +31,10 @@ func Test_PrintMessage(t *testing.T) {
 }
 
 func Test_PrintError(t *testing.T) {
-	runExpectTest(t, func(c *expect.Console) {
-		_, err := c.ExpectString("Some error message")
-		assert.NoError(t, err)
-		_, err = c.ExpectEOF()
-		assert.NoError(t, err)
-	}, func(stdio terminal.Stdio) {
+	termtest.RunTerminalTest(t, func(c *termtest.Console) {
+		c.ExpectString("Some error message")
+		c.ExpectEOF()
+	}, func(stdio termutil.Stdio) {
 		term := NewTerminal(WithStdio(stdio))
 		term.PrintError("Some error message")
 		time.Sleep(time.Millisecond * 100)
@@ -44,6 +42,8 @@ func Test_PrintError(t *testing.T) {
 }
 
 func Test_getEditor(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name      string
 		envVisual string
@@ -66,6 +66,8 @@ func Test_getEditor(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			if tt.envEditor == "" {
 				_ = os.Unsetenv(envEditor)
 			} else {
@@ -119,11 +121,10 @@ func Test_ShowLookup(t *testing.T) {
 }
 
 func Test_OpenEditor(t *testing.T) {
-	runExpectTest(t, func(c *expect.Console) {
-		_, _ = c.Send("iHello world\x1b")
-		time.Sleep(time.Second)
-		_, _ = c.SendLine(":wq!")
-	}, func(stdio terminal.Stdio) {
+	termtest.RunTerminalTest(t, func(c *termtest.Console) {
+		c.Send("iHello world\x1b")
+		c.Send(":wq!\n")
+	}, func(stdio termutil.Stdio) {
 		term := NewTerminal(WithStdio(stdio))
 
 		testFile := path.Join(t.TempDir(), "testfile")
@@ -138,9 +139,9 @@ func Test_OpenEditor(t *testing.T) {
 }
 
 func Test_OpenEditor_InvalidCommand(t *testing.T) {
-	runExpectTest(t, func(c *expect.Console) {
+	termtest.RunTerminalTest(t, func(c *termtest.Console) {
 		// nothing to expect since panic will be handled at application root level
-	}, func(stdio terminal.Stdio) {
+	}, func(stdio termutil.Stdio) {
 		term := NewTerminal(WithStdio(stdio))
 
 		testFile := path.Join(t.TempDir(), "testfile")
@@ -150,6 +151,36 @@ func Test_OpenEditor_InvalidCommand(t *testing.T) {
 		assert.Panics(t, func() {
 			term.OpenEditor(testFile, "foo-editor")
 		})
+	})
+}
+
+func Test_Confirmation(t *testing.T) {
+	termtest.RunTerminalTest(t, func(c *termtest.Console) {
+		c.Send("y")
+		c.SendKey(termtest.KeyEnter)
+	}, func(stdio termutil.Stdio) {
+		term := NewTerminal(WithStdio(stdio))
+		confirmed := term.Confirmation(uimsg.ConfigFileDeleteConfirm("/some/path"))
+		assert.True(t, confirmed)
+	})
+}
+
+func Test_ShowPicker(t *testing.T) {
+	termtest.RunTerminalTest(t, func(c *termtest.Console) {
+		c.ExpectString("Which snippet manager should be added to your configuration")
+		c.SendKey(termtest.KeyDown)
+		c.SendKey(termtest.KeyDown)
+		c.SendKey(termtest.KeyUp)
+		c.SendKey(termtest.KeyEnter)
+	}, func(stdio termutil.Stdio) {
+		term := NewTerminal(WithStdio(stdio))
+		index, ok := term.ShowPicker([]picker.Item{
+			picker.NewItem("title1", "desc1"),
+			picker.NewItem("title2", "desc2"),
+			picker.NewItem("title3", "desc3"),
+		})
+		assert.Equal(t, 1, index)
+		assert.True(t, ok)
 	})
 }
 

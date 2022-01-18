@@ -12,8 +12,8 @@ func (a *appImpl) Info() {
 		stringutil.StringOrDefault(a.system.HomeEnvValue(), "Not set")),
 	)
 
-	for _, provider := range a.Providers {
-		for _, line := range provider.Info().Lines {
+	for _, manager := range a.managers {
+		for _, line := range manager.Info().Lines {
 			if line.IsError {
 				a.ui.PrintError(fmt.Sprintf("%s: %s", line.Key, line.Value))
 			} else {

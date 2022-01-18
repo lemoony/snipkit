@@ -7,15 +7,17 @@ import (
 	"strings"
 
 	"emperror.dev/errors"
-	"github.com/AlecAivazis/survey/v2/terminal"
+	tea "github.com/charmbracelet/bubbletea"
 	"github.com/gdamore/tcell/v2"
 	"github.com/kballard/go-shellquote"
 	"github.com/rivo/tview"
 
 	"github.com/lemoony/snipkit/internal/model"
 	"github.com/lemoony/snipkit/internal/ui/confirm"
+	"github.com/lemoony/snipkit/internal/ui/picker"
 	"github.com/lemoony/snipkit/internal/ui/uimsg"
 	"github.com/lemoony/snipkit/internal/utils/system"
+	"github.com/lemoony/snipkit/internal/utils/termutil"
 )
 
 const (
@@ -37,7 +39,7 @@ func (f terminalOptionFunc) apply(terminal *cliTerminal) {
 }
 
 // WithStdio sets the stdio for the terminal.
-func WithStdio(stdio terminal.Stdio) TerminalOption {
+func WithStdio(stdio termutil.Stdio) TerminalOption {
 	return terminalOptionFunc(func(t *cliTerminal) {
 		t.stdio = stdio
 	})
@@ -54,20 +56,21 @@ type Terminal interface {
 	ApplyConfig(cfg Config, system *system.System)
 	PrintMessage(message string)
 	PrintError(message string)
-	Confirmation(confirm uimsg.Confirm) bool
+	Confirmation(confirm uimsg.Confirm, options ...confirm.Option) bool
 	OpenEditor(path string, preferredEditor string)
 	ShowLookup(snippets []model.Snippet) int
 	ShowParameterForm(parameters []model.Parameter, okButton OkButton) ([]string, bool)
+	ShowPicker(items []picker.Item, options ...tea.ProgramOption) (int, bool)
 }
 
 type cliTerminal struct {
-	stdio  terminal.Stdio
+	stdio  termutil.Stdio
 	screen tcell.Screen
 }
 
 func NewTerminal(options ...TerminalOption) Terminal {
 	term := cliTerminal{
-		stdio: terminal.Stdio{
+		stdio: termutil.Stdio{
 			In:  os.Stdin,
 			Out: os.Stdout,
 			Err: os.Stderr,
@@ -76,6 +79,7 @@ func NewTerminal(options ...TerminalOption) Terminal {
 	for _, option := range options {
 		option.apply(&term)
 	}
+
 	return term
 }
 
@@ -95,13 +99,17 @@ func (c cliTerminal) PrintError(msg string) {
 	fmt.Fprintln(c.stdio.Out, msg)
 }
 
-func (c cliTerminal) Confirmation(confirmation uimsg.Confirm) bool {
+func (c cliTerminal) Confirmation(confirmation uimsg.Confirm, options ...confirm.Option) bool {
 	return confirm.Confirm(
-		confirmation.Prompt,
-		confirmation.Header(),
-		confirm.WithSelectionColor(currentTheme.PromptSelectionTextColor),
-		confirm.WithOut(c.stdio.Out),
-		confirm.WithIn(c.stdio.In),
+		confirmation,
+		append(
+			[]confirm.Option{
+				confirm.WithSelectionColor(currentTheme.PromptSelectionTextColor),
+				confirm.WithIn(c.stdio.In),
+				confirm.WithOut(c.stdio.Out),
+			},
+			options...,
+		)...,
 	)
 }
 
@@ -127,6 +135,16 @@ func (c cliTerminal) OpenEditor(path string, preferredEditor string) {
 	if err := cmd.Wait(); err != nil {
 		panic(err)
 	}
+}
+
+func (c cliTerminal) ShowPicker(items []picker.Item, options ...tea.ProgramOption) (int, bool) {
+	return picker.ShowPicker(items, append(
+		[]tea.ProgramOption{
+			tea.WithInput(c.stdio.In),
+			tea.WithOutput(c.stdio.Out),
+		},
+		options...)...,
+	)
 }
 
 func getEditor(preferred string) string {

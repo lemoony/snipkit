@@ -11,10 +11,7 @@ import (
 	"github.com/spf13/viper"
 	"gopkg.in/yaml.v3"
 
-	"github.com/lemoony/snipkit/internal/providers/fslibrary"
-	"github.com/lemoony/snipkit/internal/providers/snippetslab"
 	"github.com/lemoony/snipkit/internal/ui"
-	"github.com/lemoony/snipkit/internal/ui/uimsg"
 	"github.com/lemoony/snipkit/internal/utils/system"
 )
 
@@ -32,28 +29,27 @@ const (
 	yamlDefaultIndent = 2
 )
 
-func createConfigFile(system *system.System, viper *viper.Viper, term ui.Terminal) {
-	config := VersionWrapper{
+func wrap(config Config) VersionWrapper {
+	return VersionWrapper{
 		Version: "1.0.0",
-		Config:  Config{},
+		Config:  config,
 	}
+}
+
+func createConfigFile(system *system.System, viper *viper.Viper) {
+	config := wrap(Config{})
 
 	config.Config.Style = ui.DefaultConfig()
-	config.Config.Providers.SnippetsLab = snippetslab.AutoDiscoveryConfig(system)
-	config.Config.Providers.FsLibrary = fslibrary.AutoDiscoveryConfig(system)
-
-	data := serializeToYamlWithComment(config)
+	data := SerializeToYamlWithComment(config)
 
 	configPath := viper.ConfigFileUsed()
 
 	log.Debug().Msgf("Going to use config path %s", configPath)
 	system.CreatePath(configPath)
 	system.WriteFile(configPath, data)
-
-	term.PrintMessage(uimsg.ConfigFileCreated(configPath))
 }
 
-func serializeToYamlWithComment(value interface{}) []byte {
+func SerializeToYamlWithComment(value interface{}) []byte {
 	// get all tag comments
 	commentMap := map[string][]yamlComment{}
 	traverseYamlTagComments(reflect.TypeOf(value), []string{}, &commentMap)
@@ -70,6 +66,10 @@ func serializeToYamlWithComment(value interface{}) []byte {
 
 	// set the comments
 	for key, comments := range commentMap {
+		if _, ok := treeMap[key]; !ok {
+			continue
+		}
+
 		for _, comment := range comments {
 			switch comment.kind {
 			case yamlCommentLine:
@@ -94,6 +94,8 @@ func traverseYamlTagComments(t reflect.Type, path []string, commentsMap *map[str
 		yamlName := field.Tag.Get("yaml")
 		if yamlName == "" {
 			continue
+		} else if splits := strings.Split(yamlName, ","); len(splits) > 1 {
+			yamlName = splits[0]
 		}
 		nodePath := strings.TrimSpace(fmt.Sprintf("%s%s\n", pathPrefix, yamlName))
 		commentsList := (*commentsMap)[nodePath]
@@ -104,8 +106,11 @@ func traverseYamlTagComments(t reflect.Type, path []string, commentsMap *map[str
 		if c := field.Tag.Get("head_comment"); c != "" {
 			(*commentsMap)[nodePath] = append(commentsList, yamlComment{value: c, kind: yamlCommentHead})
 		}
+
 		if field.Type.Kind() == reflect.Struct {
 			traverseYamlTagComments(field.Type, append(path, yamlName), commentsMap)
+		} else if field.Type.Kind() == reflect.Ptr {
+			traverseYamlTagComments(field.Type.Elem(), append(path, yamlName), commentsMap)
 		}
 	}
 }

@@ -1,3 +1,3 @@
-# Snippet Provider
+# Snippet Managers
 
-> TODO: All about the different providers
+> TODO: All about the different snippet managers

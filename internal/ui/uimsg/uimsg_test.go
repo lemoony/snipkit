@@ -3,7 +3,6 @@ package uimsg
 import (
 	"testing"
 
-	"github.com/AlecAivazis/survey/v2/core"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -14,25 +13,18 @@ const (
 )
 
 func init() {
-	// disable color output for all prompts to simplify testing
-	core.DisableColor = true
-
 	SetHighlightColor("#ffffff")
 }
 
 func Test_ConfigFileCreated(t *testing.T) {
-	assert.Contains(t, ConfigFileCreated(testCfgPath), testCfgPath)
-}
-
-func Test_ConfigFileDeleted(t *testing.T) {
-	assert.Contains(t, ConfigFileDeleted(testCfgPath), testCfgPath)
+	assert.Contains(t, ConfigFileCreateResult(true, testCfgPath, false), testCfgPath)
 }
 
 func Test_ConfigNotFound(t *testing.T) {
 	assert.Contains(t, ConfigNotFound(testCfgPath), testCfgPath)
 }
 
-func Test_ConfigFileCreateDescription(t *testing.T) {
+func Test_ConfigFileCreateConfirm(t *testing.T) {
 	tests := []struct {
 		name    string
 		homeEnv string
@@ -52,33 +44,61 @@ func Test_ConfigFileCreateDescription(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			c := ConfirmConfigCreation(tt.cfgPath, tt.homeEnv)
+			c := ConfigFileCreateConfirm(tt.cfgPath, tt.homeEnv, true)
 			assert.Contains(t, c.Header(), tt.cfgPath)
 			assert.Contains(t, c.Header(), tt.homeEnv)
 		})
 	}
 }
 
+func Test_ConfigFileCreateResult(t *testing.T) {
+	tests := []struct {
+		deleted  bool
+		recreate bool
+	}{
+		{deleted: true, recreate: true},
+		{deleted: false, recreate: true},
+		{deleted: true, recreate: false},
+		{deleted: false, recreate: false},
+	}
+	for _, tt := range tests {
+		c := ConfigFileCreateResult(tt.deleted, testCfgPath, tt.recreate)
+		// TODO: assert more
+		assert.NotEmpty(t, c)
+	}
+}
+
+func Test_ConfigFileDeleteConfirm(t *testing.T) {
+	c := ConfigFileDeleteConfirm(testCfgPath)
+	assert.Contains(t, c.Header(), testCfgPath)
+}
+
+func Test_ConfigFileDeleteResult(t *testing.T) {
+	assert.Contains(t, ConfigFileDeleteResult(true, testCfgPath), "Configuration file deleted")
+}
+
 func Test_HomeDirectoryStillExists(t *testing.T) {
 	assert.Contains(t, HomeDirectoryStillExists(testHomePath), testHomePath)
 }
 
-func Test_ConfigFileRecreateDescription(t *testing.T) {
-	c := ConfirmConfigRecreate(testCfgPath)
-	assert.NotEmpty(t, c.Prompt)
-	assert.Contains(t, c.Header(), testCfgPath)
-}
-
-func Test_ConfigFilDelete(t *testing.T) {
-	c := ConfirmConfigDelete(testCfgPath)
-	assert.NotEmpty(t, c.Prompt)
-	assert.Contains(t, c.Header(), testCfgPath)
-}
-
-func Test_ThemesDirDeleteDescription(t *testing.T) {
-	c := ConfirmThemesDelete(testThemesPath)
+func Test_ThemesDeleteConfirm(t *testing.T) {
+	c := ThemesDeleteConfirm(testThemesPath)
 	assert.NotEmpty(t, c.Prompt)
 	assert.Contains(t, c.Header(), testThemesPath)
+}
+
+func Test_ThemesDeleteResult(t *testing.T) {
+	assert.Contains(t, ThemesDeleteResult(true, testThemesPath), testThemesPath)
+}
+
+func Test_ManagerConfigAddConfirm(t *testing.T) {
+	c := ManagerConfigAddConfirm("yaml")
+	assert.NotEmpty(t, c.Prompt)
+	assert.Contains(t, c.Header(), "yaml")
+}
+
+func Test_ManagerAddConfigResult(t *testing.T) {
+	assert.Contains(t, ManagerAddConfigResult(true, testCfgPath), testCfgPath)
 }
 
 func Test_renderInvalidTemplate(t *testing.T) {
