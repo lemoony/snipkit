@@ -5,6 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	"github.com/lemoony/snipkit/internal/ui/uimsg"
 	"github.com/lemoony/snipkit/internal/utils/termtest"
 	"github.com/lemoony/snipkit/internal/utils/termutil"
 )
@@ -17,11 +18,11 @@ func Test_Confirm(t *testing.T) {
 		expected bool
 		send     []string
 	}{
-		{name: "abort", expected: false, send: termtest.Keys(termtest.KeyEnter)},
+		{name: "apply at once", expected: false, send: termtest.Keys(termtest.KeyEnter)},
 		{name: "tab / toggle", expected: true, send: termtest.Keys(termtest.KeyTab, termtest.KeyEnter)},
 		{name: "toggle twice", expected: false, send: termtest.Keys(termtest.KeyTab, termtest.KeyTab, termtest.KeyEnter)},
-		{name: "y", expected: true, send: []string{"y"}},
-		{name: "n", expected: false, send: []string{"n"}},
+		{name: "y", expected: true, send: []string{"y", termtest.KeyEnter.Str()}},
+		{name: "n", expected: false, send: []string{"n", termtest.KeyEnter.Str()}},
 		{name: "esc", expected: false, send: []string{string(rune(27))}},
 		{name: "left", expected: true, send: termtest.Keys(termtest.KeyLeft, termtest.KeyEnter)},
 		{name: "right", expected: false, send: termtest.Keys(termtest.KeyRight, termtest.KeyEnter)},
@@ -36,30 +37,15 @@ func Test_Confirm(t *testing.T) {
 					c.Send(r)
 				}
 			}, func(stdio termutil.Stdio) {
-				result := Confirm("Are you sure?", "Hello", WithIn(stdio.In), WithOut(stdio.Out), WithFullscreen())
+				result := Confirm(
+					uimsg.NewConfirm("Are you sure?", "Hello world"),
+					WithIn(stdio.In),
+					WithOut(stdio.Out),
+				)
 				assert.Equal(t, tt.expected, result)
 			})
 		})
 	}
-}
-
-func Test_ConfirmFormatting(t *testing.T) {
-	termtest.RunTerminalTest(t, func(c *termtest.Console) {
-		c.ExpectString("Hello world")
-		c.ExpectString("Are you sure?")
-		c.Send("y")
-		c.ExpectString("Yes")
-	}, func(stdio termutil.Stdio) {
-		header := `Hello world`
-
-		result := Confirm("Are you sure?", header,
-			WithIn(stdio.In),
-			WithOut(stdio.Out),
-			WithSelectionColor("#ff0000"),
-		)
-
-		assert.True(t, result)
-	})
 }
 
 func Test_zeroAwareMin(t *testing.T) {

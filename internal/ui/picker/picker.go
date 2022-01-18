@@ -71,6 +71,11 @@ func ShowPicker(items []Item, options ...tea.ProgramOption) (int, bool) {
 	m.list.Title = "Which snippet manager should be added to your configuration"
 	m.list.SetDelegate(delegate)
 	m.list.SetShowStatusBar(false)
+	m.list.SetFilteringEnabled(false)
+
+	m.list.KeyMap.AcceptWhileFiltering.SetEnabled(true)
+	m.list.KeyMap.AcceptWhileFiltering.SetHelp("↵", "apply")
+	m.list.KeyMap.ShowFullHelp.SetEnabled(false)
 
 	p := tea.NewProgram(&m, append(options, tea.WithAltScreen())...)
 

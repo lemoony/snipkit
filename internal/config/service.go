@@ -10,7 +10,6 @@ import (
 
 	"github.com/lemoony/snipkit/internal/managers"
 	"github.com/lemoony/snipkit/internal/ui"
-	"github.com/lemoony/snipkit/internal/ui/confirm"
 	"github.com/lemoony/snipkit/internal/ui/uimsg"
 	"github.com/lemoony/snipkit/internal/utils/system"
 )
@@ -83,7 +82,6 @@ func (s serviceImpl) Create() {
 	recreate := s.hasConfig()
 	confirmed := s.terminal.Confirmation(
 		uimsg.ConfigFileCreateConfirm(s.v.ConfigFileUsed(), s.system.HomeEnvValue(), recreate),
-		confirm.WithFullscreen(),
 	)
 
 	if confirmed {
@@ -131,7 +129,7 @@ func (s serviceImpl) Clean() {
 	s.applyConfigTheme()
 
 	if s.hasConfig() {
-		confirmed := s.terminal.Confirmation(uimsg.ConfigFileDeleteConfirm(configPath), confirm.WithFullscreen())
+		confirmed := s.terminal.Confirmation(uimsg.ConfigFileDeleteConfirm(configPath))
 		if confirmed {
 			s.system.Remove(s.v.ConfigFileUsed())
 		}
@@ -141,7 +139,7 @@ func (s serviceImpl) Clean() {
 	}
 
 	if s.hasThemes() {
-		confirmed := s.terminal.Confirmation(uimsg.ThemesDeleteConfirm(s.system.ThemesDir()), confirm.WithFullscreen())
+		confirmed := s.terminal.Confirmation(uimsg.ThemesDeleteConfirm(s.system.ThemesDir()))
 		if confirmed {
 			s.system.RemoveAll(s.system.ThemesDir())
 		}

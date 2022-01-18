@@ -4,7 +4,6 @@ import (
 	"strings"
 
 	"github.com/lemoony/snipkit/internal/config"
-	"github.com/lemoony/snipkit/internal/ui/confirm"
 	"github.com/lemoony/snipkit/internal/ui/picker"
 	"github.com/lemoony/snipkit/internal/ui/uimsg"
 )
@@ -21,7 +20,7 @@ func (a *appImpl) AddManager() {
 		cfg := a.provider.AutoConfig(managerDescription.Key, a.system)
 		configBytes := config.SerializeToYamlWithComment(cfg)
 		configStr := strings.TrimSpace(string(configBytes))
-		confirmed := a.ui.Confirmation(uimsg.ManagerConfigAddConfirm(configStr), confirm.WithFullscreen())
+		confirmed := a.ui.Confirmation(uimsg.ManagerConfigAddConfirm(configStr))
 		if confirmed {
 			a.configService.UpdateManagerConfig(cfg)
 		}

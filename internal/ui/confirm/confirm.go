@@ -5,26 +5,19 @@ import (
 	"io"
 	"text/template"
 
+	"github.com/charmbracelet/bubbles/help"
+	"github.com/charmbracelet/bubbles/key"
+	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/muesli/reflow/wordwrap"
 	"github.com/muesli/reflow/wrap"
 	"github.com/muesli/termenv"
+
+	"github.com/lemoony/snipkit/internal/ui/uimsg"
 )
 
-var fullScreenMargin = []int{1, 2, 0, 2}
-
-type Key []string
-
-var (
-	keyYes    = Key{"y", "Y"}
-	keyNo     = Key{"n", "N"}
-	keyLeft   = Key{"left"}
-	keyRight  = Key{"right"}
-	keyToggle = Key{"tab"}
-	keySubmit = Key{"enter", "ctrl+j"}
-	keyAbort  = Key{"ctrl+c", "esc"}
-)
+var docStyle = lipgloss.NewStyle().Margin(1, 2, 0, 4) //nolint:gomnd // magic number is okay for styling purposes
 
 const TemplateYN = `{{- Bold .Prompt -}} 
 {{ if .Done }}
@@ -44,12 +37,10 @@ const TemplateYN = `{{- Bold .Prompt -}}
 `
 
 type model struct {
-	header  string
-	confirm string
+	confirm uimsg.Confirm
 	value   bool
 	done    bool
 
-	fullscreen bool
 	promptTmpl *template.Template
 
 	colorProfile   termenv.Profile
@@ -58,15 +49,22 @@ type model struct {
 	input  *io.Reader
 	output *io.Writer
 
-	width int
+	width  int
+	height int
+	ready  bool
+
+	help     help.Model
+	keyMap   KeyMap
+	viewport viewport.Model
 }
 
-func initialModel(prompt, header string) *model {
+func initialModel(c uimsg.Confirm) *model {
 	return &model{
-		header:  header,
-		confirm: prompt,
+		confirm: c,
 		value:   false,
 		done:    false,
+		help:    help.New(),
+		keyMap:  defaultKeyMap(),
 	}
 }
 
@@ -94,48 +92,67 @@ func (m *model) initTemplate() {
 }
 
 func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	// cmd  tea.Cmd
+	var cmds []tea.Cmd
+
+	preValue := m.value
+
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch {
-		case keyMatches(msg, keyAbort):
+		case key.Matches(msg, m.keyMap.Quit):
 			m.value = false
 			m.done = true
 			return m, tea.Quit
-		case keyMatches(msg, keySubmit):
+		case key.Matches(msg, m.keyMap.Apply):
 			m.done = true
 			return m, tea.Quit
-		case keyMatches(msg, keyLeft):
+		case key.Matches(msg, m.keyMap.Yes):
 			m.value = true
-		case keyMatches(msg, keyRight):
+		case key.Matches(msg, m.keyMap.No):
 			m.value = false
-		case keyMatches(msg, keyToggle):
+		case key.Matches(msg, m.keyMap.Toggle):
 			m.value = !m.value
-		case keyMatches(msg, keyYes):
-			m.value = true
-			m.done = true
-			return m, tea.Quit
-		case keyMatches(msg, keyNo):
-			m.value = false
-			m.done = true
-			return m, tea.Quit
 		}
+
+		if preValue != m.value {
+			m.viewport.SetContent(m.content())
+		}
+
 	case tea.WindowSizeMsg:
 		m.width = zeroAwareMin(msg.Width, 0)
+		m.height = msg.Height
+		m.ready = true
+
+		height := msg.Height - lipgloss.Height(m.help.View(m)) - docStyle.GetMarginBottom() - docStyle.GetMarginTop()
+
+		if !m.ready {
+			m.viewport = viewport.Model{Width: msg.Width, Height: height}
+			m.viewport.YPosition = 0
+		} else {
+			m.viewport.Width = msg.Width
+			m.viewport.Height = height
+		}
+
+		m.help.Width = msg.Width
+		m.viewport.SetContent(m.content())
 	}
 
-	return m, nil
+	m.viewport, _ = m.viewport.Update(msg)
+
+	return m, tea.Batch(cmds...)
 }
 
-func (m model) View() string {
+func (m model) content() string {
 	var s string
 
 	if !m.done {
-		s += m.header + "\n"
+		s += m.confirm.Header(m.width)
 	}
 
 	viewBuffer2 := &bytes.Buffer{}
 	if err := m.promptTmpl.Execute(viewBuffer2, map[string]interface{}{
-		"Prompt":      m.confirm,
+		"Prompt":      m.confirm.Prompt,
 		"Done":        m.done,
 		"YesSelected": m.value,
 		"NoSelected":  !m.value,
@@ -145,30 +162,27 @@ func (m model) View() string {
 		s += viewBuffer2.String()
 	}
 
-	content := m.wrap(s)
+	return m.wrap(s)
+}
 
-	if m.fullscreen {
-		content = lipgloss.NewStyle().Margin(fullScreenMargin...).SetString(content).String()
-	}
+func (m *model) isScrollable() bool {
+	return m.viewport.YOffset > 0 || m.viewport.ScrollPercent() < 1
+}
 
-	return content
+func (m *model) View() string {
+	var sections []string
+	sections = append(sections, m.viewport.View())
+	sections = append(sections, m.help.View(m))
+	x := docStyle.Render(lipgloss.JoinVertical(lipgloss.Left, sections...))
+	return x
 }
 
 func (m *model) wrap(text string) string {
 	return wrap.String(wordwrap.String(text, m.width), m.width)
 }
 
-func keyMatches(key tea.KeyMsg, expected Key) bool {
-	for _, m := range expected {
-		if m == key.String() {
-			return true
-		}
-	}
-	return false
-}
-
-func Confirm(prompt string, header string, options ...Option) bool {
-	m := initialModel(prompt, header)
+func Confirm(confirm uimsg.Confirm, options ...Option) bool {
+	m := initialModel(confirm)
 	for _, o := range options {
 		o.apply(m)
 	}
@@ -180,9 +194,8 @@ func Confirm(prompt string, header string, options ...Option) bool {
 	if m.output != nil {
 		teaOptions = append(teaOptions, tea.WithOutput(*m.output))
 	}
-	if m.fullscreen {
-		teaOptions = append(teaOptions, tea.WithAltScreen())
-	}
+
+	// teaOptions = append(teaOptions, tea.WithAltScreen())
 
 	p := tea.NewProgram(m, teaOptions...)
 
@@ -217,12 +230,6 @@ func WithOut(out io.Writer) Option {
 func WithSelectionColor(color string) Option {
 	return optionFunc(func(c *model) {
 		c.selectionColor = c.colorProfile.Color(color)
-	})
-}
-
-func WithFullscreen() Option {
-	return optionFunc(func(c *model) {
-		c.fullscreen = true
 	})
 }
 

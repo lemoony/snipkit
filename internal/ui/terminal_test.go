@@ -156,8 +156,8 @@ func Test_OpenEditor_InvalidCommand(t *testing.T) {
 
 func Test_Confirmation(t *testing.T) {
 	termtest.RunTerminalTest(t, func(c *termtest.Console) {
-		c.ExpectString("Delete the configuration")
 		c.Send("y")
+		c.SendKey(termtest.KeyEnter)
 	}, func(stdio termutil.Stdio) {
 		term := NewTerminal(WithStdio(stdio))
 		confirmed := term.Confirmation(uimsg.ConfigFileDeleteConfirm("/some/path"))

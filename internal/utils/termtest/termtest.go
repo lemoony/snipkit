@@ -2,6 +2,7 @@ package termtest
 
 import (
 	"bytes"
+	"fmt"
 	"testing"
 	"time"
 
@@ -26,6 +27,7 @@ const (
 	KeyRight = Key("\x1b[C")
 
 	defaultSendSleepTime = time.Millisecond * 10
+	defaultTestTimeout   = time.Second * 2
 )
 
 func (k Key) Str() string {
@@ -74,28 +76,47 @@ func RunTerminalTest(t *testing.T, procedure func(test *Console), test func(term
 	buf := new(bytes.Buffer)
 	c, state, err := vt10x.NewVT10XConsole(
 		expect.WithStdout(buf),
-		expect.WithDefaultTimeout(time.Second),
+		expect.WithDefaultTimeout(defaultTestTimeout),
 	)
 	require.Nil(t, err)
 	defer func() {
 		_ = c.Close()
 	}()
 
-	donec := make(chan struct{})
+	procedureDone := make(chan struct{})
 	go func() {
-		defer close(donec)
+		defer close(procedureDone)
 		time.Sleep(time.Second)
 		procedure(&Console{t: t, c: c})
 	}()
 
-	test(termutil.Stdio{In: c.Tty(), Out: c.Tty(), Err: c.Tty()})
+	runWithTimeout(t, func() {
+		test(termutil.Stdio{In: c.Tty(), Out: c.Tty(), Err: c.Tty()})
+	}, defaultTestTimeout)
 
 	// Close the slave end of the pty, and read the remaining bytes from the master end.
 	assert.NoError(t, c.Tty().Close())
-	<-donec
+	<-procedureDone
 
 	t.Logf("Raw output: %q", buf.String())
 
 	// Dump the terminal's screen.
 	t.Logf("\n%s", expect.StripTrailingEmptyLines(state.String()))
+}
+
+func runWithTimeout(t *testing.T, procedure func(), timeout time.Duration) {
+	t.Helper()
+
+	done := make(chan struct{}, 1)
+	go func() {
+		defer close(done)
+		procedure()
+	}()
+
+	select {
+	case <-done:
+		break
+	case <-time.After(timeout):
+		assert.Fail(t, fmt.Sprintf("function did not finish in %f seconds", timeout.Seconds()))
+	}
 }

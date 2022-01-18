@@ -101,13 +101,12 @@ func (c cliTerminal) PrintError(msg string) {
 
 func (c cliTerminal) Confirmation(confirmation uimsg.Confirm, options ...confirm.Option) bool {
 	return confirm.Confirm(
-		confirmation.Prompt,
-		confirmation.Header(),
+		confirmation,
 		append(
 			[]confirm.Option{
 				confirm.WithSelectionColor(currentTheme.PromptSelectionTextColor),
-				confirm.WithOut(c.stdio.Out),
 				confirm.WithIn(c.stdio.In),
+				confirm.WithOut(c.stdio.Out),
 			},
 			options...,
 		)...,
