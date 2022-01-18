@@ -129,7 +129,7 @@ go install github.com/lemoony/snipkit@latest
 ### Build
 
 ```bash 
-https://github.com/lemoony/snipkit.git
+git clone https://github.com/lemoony/snipkit.git
 cd snipkit 
 make build
 ```

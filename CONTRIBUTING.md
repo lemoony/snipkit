@@ -23,7 +23,7 @@ Setting up a test environment involves the following steps:
     * Install [mkdcos](https://www.mkdocs.org/)
     * Install [mkdocs-material](https://github.com/squidfunk/mkdocs-material)
 
-After this, you'll be able to test any chnage
+After this, you'll be able to test any change
 
 ### Commands
 
