@@ -158,8 +158,24 @@ func (s serviceImpl) ConfigFilePath() string {
 	return s.v.ConfigFileUsed()
 }
 
-func (s serviceImpl) UpdateManagerConfig(config managers.Config) {
-	// TODO
+func (s serviceImpl) UpdateManagerConfig(managerConfig managers.Config) {
+	config, err := s.LoadConfig()
+	if err != nil {
+		panic(errors.Wrapf(ErrInvalidConfig, "failed to load config: %s", err.Error()))
+	}
+
+	if cfg := managerConfig.FsLibrary; cfg != nil {
+		config.Manager.FsLibrary = cfg
+	}
+	if cfg := managerConfig.SnippetsLab; cfg != nil {
+		config.Manager.SnippetsLab = cfg
+	}
+	if cfg := managerConfig.PictarineSnip; cfg != nil {
+		config.Manager.PictarineSnip = cfg
+	}
+
+	bytes := SerializeToYamlWithComment(wrap(config))
+	s.system.WriteFile(s.ConfigFilePath(), bytes)
 }
 
 func (s serviceImpl) hasConfig() bool {

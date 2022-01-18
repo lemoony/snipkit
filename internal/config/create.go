@@ -29,11 +29,15 @@ const (
 	yamlDefaultIndent = 2
 )
 
-func createConfigFile(system *system.System, viper *viper.Viper) {
-	config := VersionWrapper{
+func wrap(config Config) VersionWrapper {
+	return VersionWrapper{
 		Version: "1.0.0",
-		Config:  Config{},
+		Config:  config,
 	}
+}
+
+func createConfigFile(system *system.System, viper *viper.Viper) {
+	config := wrap(Config{})
 
 	config.Config.Style = ui.DefaultConfig()
 	data := SerializeToYamlWithComment(config)

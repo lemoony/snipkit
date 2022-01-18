@@ -10,6 +10,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
+	"github.com/lemoony/snipkit/internal/managers"
+	"github.com/lemoony/snipkit/internal/managers/fslibrary"
+	"github.com/lemoony/snipkit/internal/managers/pictarinesnip"
+	"github.com/lemoony/snipkit/internal/managers/snippetslab"
 	"github.com/lemoony/snipkit/internal/ui/uimsg"
 	"github.com/lemoony/snipkit/internal/utils/assertutil"
 	"github.com/lemoony/snipkit/internal/utils/system"
@@ -261,5 +265,60 @@ func Test_ConfigFilePath(t *testing.T) {
 	assert.Equal(t, cfgFilePath, s.ConfigFilePath())
 }
 
-func Test_initConfigHelpText(t *testing.T) {
+func Test_UpdateManagerConfig(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name   string
+		update managers.Config
+		assert func(cfg Config)
+	}{
+		{
+			name: "snippetslab", update: managers.Config{SnippetsLab: &snippetslab.Config{Enabled: true}},
+			assert: func(cfg Config) {
+				assert.True(t, cfg.Manager.SnippetsLab.Enabled)
+			},
+		},
+		{
+			name: "pictarinesnip", update: managers.Config{PictarineSnip: &pictarinesnip.Config{Enabled: true}},
+			assert: func(cfg Config) {
+				assert.True(t, cfg.Manager.PictarineSnip.Enabled)
+			},
+		},
+		{
+			name: "fslibrary", update: managers.Config{FsLibrary: &fslibrary.Config{Enabled: true}}, assert: func(cfg Config) {
+				assert.True(t, cfg.Manager.FsLibrary.Enabled)
+			},
+		},
+	}
+
+	for i := range tests {
+		tt := tests[i]
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			cfgPath := filepath.Join(t.TempDir(), "cfg.yaml")
+			s := testutil.NewTestSystem()
+
+			v := viper.New()
+			v.SetConfigFile(cfgPath)
+			v.SetFs(s.Fs)
+
+			createConfigFile(s, v)
+			service := NewService(WithSystem(s), WithViper(v))
+			if cfg, err := service.LoadConfig(); err != nil {
+				assert.NoError(t, err)
+			} else {
+				assert.Nil(t, cfg.Manager.SnippetsLab)
+				assert.Nil(t, cfg.Manager.PictarineSnip)
+				assert.Nil(t, cfg.Manager.FsLibrary)
+			}
+
+			service.UpdateManagerConfig(tt.update)
+
+			cfg, err := service.LoadConfig()
+			assert.NoError(t, err)
+			tt.assert(cfg)
+		})
+	}
 }
