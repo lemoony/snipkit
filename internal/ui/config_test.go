@@ -30,7 +30,6 @@ func Test_Config_apply(t *testing.T) {
 		config        Config
 		previewSchema string
 	}{
-
 		{name: "default theme", config: DefaultConfig(), previewSchema: "friendly"},
 		{name: "example theme", config: configWithTheme("example"), previewSchema: "solarized-light"},
 		{name: "test-custom", config: configWithTheme("test-custom"), previewSchema: "monokai"},
