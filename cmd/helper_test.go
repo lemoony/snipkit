@@ -91,17 +91,17 @@ func withApp(app app.App) option {
 func runMockedTest(t *testing.T, args []string, options ...option) error {
 	t.Helper()
 
-	testSetup := newTestSetup()
+	ts := newTestSetup()
 	for _, o := range options {
-		o.apply(testSetup)
+		o.apply(ts)
 	}
 
 	ctx := context.Background()
-	if testSetup.app != nil {
-		ctx = context.WithValue(ctx, _appKey, testSetup.app)
+	if ts.app != nil {
+		ctx = context.WithValue(ctx, _appKey, ts.app)
 	}
-	if testSetup.configService != nil {
-		ctx = context.WithValue(ctx, _configServiceKey, testSetup.configService)
+	if ts.configService != nil {
+		ctx = context.WithValue(ctx, _configServiceKey, ts.configService)
 	}
 
 	defer rootCmd.ResetFlags()
@@ -138,15 +138,15 @@ func runVT10XCommandTest(
 	rootCmd.SetOut(c.Tty())
 	rootCmd.SetErr(c.Tty())
 
-	testSetup := newTestSetup()
+	ts := newTestSetup()
 	for _, o := range options {
-		o.apply(testSetup)
+		o.apply(ts)
 	}
 
 	_setup := &setup{
-		system:   testSetup.system,
-		v:        testSetup.v,
-		provider: testSetup.provider,
+		system:   ts.system,
+		v:        ts.v,
+		provider: ts.provider,
 		terminal: ui.NewTerminal(ui.WithStdio(termutil.Stdio{In: c.Tty(), Out: c.Tty(), Err: c.Tty()})),
 	}
 
