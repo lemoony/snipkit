@@ -32,13 +32,14 @@ type testSetup struct {
 	configService config.Service
 }
 
+//nolint:unused //false positive
 func newTestSetup() *testSetup {
-	system := testutil.NewTestSystem()
+	s := testutil.NewTestSystem()
 	v := viper.New()
-	v.SetFs(system.Fs)
+	v.SetFs(s.Fs)
 
 	return &testSetup{
-		system:   system,
+		system:   s,
 		v:        v,
 		provider: managers.NewBuilder(),
 	}

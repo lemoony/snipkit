@@ -110,11 +110,11 @@ func (c cliTerminal) ShowParameterForm(parameters []model.Parameter, okButton Ok
 		return []string{}, true
 	}
 
-	return form.ShowForm(parameters, string(okButton), form.WithIn(c.stdio.In), form.WithOut(c.stdio.Out))
+	return form.Show(parameters, string(okButton), form.WithIn(c.stdio.In), form.WithOut(c.stdio.Out))
 }
 
 func (c cliTerminal) Confirmation(confirmation uimsg.Confirm, options ...confirm.Option) bool {
-	return confirm.Confirm(
+	return confirm.Show(
 		confirmation,
 		append(
 			[]confirm.Option{

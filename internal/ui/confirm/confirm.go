@@ -58,6 +58,30 @@ type model struct {
 	viewport viewport.Model
 }
 
+func Show(confirm uimsg.Confirm, options ...Option) bool {
+	m := initialModel(confirm)
+	for _, o := range options {
+		o.apply(m)
+	}
+
+	var teaOptions []tea.ProgramOption
+	if m.input != nil {
+		teaOptions = append(teaOptions, tea.WithInput(*m.input))
+	}
+	if m.output != nil {
+		teaOptions = append(teaOptions, tea.WithOutput(*m.output))
+	}
+
+	teaOptions = append(teaOptions, tea.WithAltScreen())
+
+	p := tea.NewProgram(m, teaOptions...)
+
+	if err := p.Start(); err != nil {
+		panic(err)
+	}
+	return m.value
+}
+
 func initialModel(c uimsg.Confirm) *model {
 	return &model{
 		confirm: c,
@@ -179,30 +203,6 @@ func (m *model) View() string {
 
 func (m *model) wrap(text string) string {
 	return wrap.String(wordwrap.String(text, m.width), m.width)
-}
-
-func Confirm(confirm uimsg.Confirm, options ...Option) bool {
-	m := initialModel(confirm)
-	for _, o := range options {
-		o.apply(m)
-	}
-
-	var teaOptions []tea.ProgramOption
-	if m.input != nil {
-		teaOptions = append(teaOptions, tea.WithInput(*m.input))
-	}
-	if m.output != nil {
-		teaOptions = append(teaOptions, tea.WithOutput(*m.output))
-	}
-
-	// teaOptions = append(teaOptions, tea.WithAltScreen())
-
-	p := tea.NewProgram(m, teaOptions...)
-
-	if err := p.Start(); err != nil {
-		panic(err)
-	}
-	return m.value
 }
 
 type Option interface {

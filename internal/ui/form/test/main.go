@@ -32,7 +32,7 @@ func main() {
 		},
 	}
 
-	if values, ok := form.ShowForm(fields, "OK"); ok {
+	if values, ok := form.Show(fields, "OK"); ok {
 		fmt.Printf("Apply: %s\n", strings.Join(values, ","))
 	} else {
 		fmt.Println("Dont apply")

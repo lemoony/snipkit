@@ -37,7 +37,7 @@ func Test_Confirm(t *testing.T) {
 					c.Send(r)
 				}
 			}, func(stdio termutil.Stdio) {
-				result := Confirm(
+				result := Show(
 					uimsg.NewConfirm("Are you sure?", "Hello world"),
 					WithIn(stdio.In),
 					WithOut(stdio.Out),

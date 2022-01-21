@@ -44,7 +44,7 @@ type model struct {
 	apply  bool
 }
 
-func ShowForm(parameters []internalModel.Parameter, okButton string, options ...Option) ([]string, bool) {
+func Show(parameters []internalModel.Parameter, okButton string, options ...Option) ([]string, bool) {
 	m := initialModel(parameters, okButton)
 	for _, o := range options {
 		o.apply(m)
@@ -193,11 +193,13 @@ func (m *model) content() string {
 
 	sections = append(sections, lipgloss.JoinVertical(lipgloss.Left, fields...))
 
-	sections = append(sections, lipgloss.JoinHorizontal(
-		lipgloss.Left,
-		m.renderButton(m.okButtonText, m.elementFocus == len(m.fields)),
-		m.renderButton("Cancel", m.elementFocus == len(m.fields)+1),
-	))
+	if m.showFields >= len(m.fields) {
+		sections = append(sections, lipgloss.JoinHorizontal(
+			lipgloss.Left,
+			m.renderButton(m.okButtonText, m.elementFocus == len(m.fields)),
+			m.renderButton("Cancel", m.elementFocus == len(m.fields)+1),
+		))
+	}
 
 	result := lipgloss.JoinVertical(lipgloss.Left, sections...)
 	return result
