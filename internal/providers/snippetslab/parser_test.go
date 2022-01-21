@@ -30,7 +30,7 @@ func Test_parseSnippets(t *testing.T) {
 	)
 	then.AssertThat(t,
 		snippets[0].GetContent(),
-		is.MatchForPattern("^# some comment.*"),
+		is.AnyOf(is.EqualTo("echo \"Foo!\""), is.MatchForPattern("^# some comment.*")),
 	)
 	assert.Equal(t, model.LanguageBash, snippets[0].GetLanguage())
 }
