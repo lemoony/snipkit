@@ -125,13 +125,11 @@ func Test_OpenEditor(t *testing.T) {
 		c.Send("iHello world\x1b")
 		c.Send(":wq!\n")
 	}, func(stdio termutil.Stdio) {
-		term := NewTerminal(WithStdio(stdio))
-
 		testFile := path.Join(t.TempDir(), "testfile")
 		_, err := os.Create(testFile)
 		assert.NoError(t, err)
 
-		term.OpenEditor(testFile, "")
+		NewTerminal(WithStdio(stdio)).OpenEditor(testFile, "")
 		bytes, err := ioutil.ReadFile(testFile) //nolint:gosec // potential file inclusion via variable
 		assert.NoError(t, err)
 		assert.Equal(t, "Hello world\n", string(bytes))
@@ -142,14 +140,12 @@ func Test_OpenEditor_InvalidCommand(t *testing.T) {
 	termtest.RunTerminalTest(t, func(c *termtest.Console) {
 		// nothing to expect since panic will be handled at application root level
 	}, func(stdio termutil.Stdio) {
-		term := NewTerminal(WithStdio(stdio))
-
 		testFile := path.Join(t.TempDir(), "testfile")
 		_, err := os.Create(testFile)
 		assert.NoError(t, err)
 
 		assert.Panics(t, func() {
-			term.OpenEditor(testFile, "foo-editor")
+			NewTerminal(WithStdio(stdio)).OpenEditor(testFile, "foo-editor")
 		})
 	})
 }

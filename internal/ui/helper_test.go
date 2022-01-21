@@ -5,11 +5,13 @@ import (
 	"time"
 
 	"github.com/gdamore/tcell/v2"
+	"github.com/stretchr/testify/assert"
 )
 
 func runScreenTest(t *testing.T, procedure func(s tcell.Screen), test func(s tcell.SimulationScreen)) {
 	t.Helper()
-	screen := mkTestScreen(t)
+	screen := tcell.NewSimulationScreen("")
+	assert.NoError(t, screen.Init())
 
 	donec := make(chan struct{})
 	go func() {
@@ -20,17 +22,4 @@ func runScreenTest(t *testing.T, procedure func(s tcell.Screen), test func(s tce
 
 	procedure(screen)
 	<-donec
-}
-
-func mkTestScreen(t *testing.T) tcell.SimulationScreen {
-	t.Helper()
-	s := tcell.NewSimulationScreen("")
-
-	if s == nil {
-		t.Fatalf("Failed to get simulation screen")
-	}
-	if e := s.Init(); e != nil {
-		t.Fatalf("Failed to initialize screen: %v", e)
-	}
-	return s
 }
