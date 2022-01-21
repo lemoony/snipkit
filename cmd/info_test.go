@@ -3,11 +3,11 @@ package cmd
 import (
 	"testing"
 
-	"github.com/Netflix/go-expect"
-	"github.com/stretchr/testify/assert"
+	"github.com/spf13/viper"
 
 	"github.com/lemoony/snipkit/internal/config/configtest"
 	"github.com/lemoony/snipkit/internal/model"
+	"github.com/lemoony/snipkit/internal/utils/termtest"
 	"github.com/lemoony/snipkit/internal/utils/testutil"
 	mocks "github.com/lemoony/snipkit/mocks/managers"
 )
@@ -23,10 +23,18 @@ func Test_Info(t *testing.T) {
 		},
 	})
 
-	runVT10XCommandTest(t, []string{"info"}, false, func(c *expect.Console, s *setup) {
-		_, err := c.Expectf("Config file: %s", cfgFilePath)
-		assert.NoError(t, err)
-		_, err = c.ExpectString("Some-Key: Some-Value")
-		assert.NoError(t, err)
-	}, withSystem(system), withConfigFilePath(cfgFilePath), withManager(&manager))
+	v := viper.New()
+	v.SetFs(system.Fs)
+	v.SetConfigFile(cfgFilePath)
+
+	ts := setup{
+		system:   system,
+		v:        v,
+		provider: testProviderForManager(&manager),
+	}
+
+	runTerminalText(t, []string{"info"}, ts, false, func(c *termtest.Console) {
+		c.ExpectString("Config file: " + cfgFilePath)
+		c.ExpectString("Some-Key: Some-Value")
+	})
 }

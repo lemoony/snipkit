@@ -5,19 +5,32 @@ import (
 	"testing"
 
 	"emperror.dev/errors"
-	"github.com/Netflix/go-expect"
 	"github.com/phuslu/log"
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/lemoony/snipkit/internal/config"
+	"github.com/lemoony/snipkit/internal/config/configtest"
+	"github.com/lemoony/snipkit/internal/utils/termtest"
+	"github.com/lemoony/snipkit/internal/utils/testutil"
 	appMocks "github.com/lemoony/snipkit/mocks/app"
 	configMocks "github.com/lemoony/snipkit/mocks/config"
 )
 
 func Test_Root(t *testing.T) {
-	runVT10XCommandTest(t, []string{}, false, func(c *expect.Console, s *setup) {
-		_, err := c.ExpectString(rootCmd.Long)
-		assert.NoError(t, err)
+	system := testutil.NewTestSystem()
+	cfgFilePath := configtest.NewTestConfigFilePath(t, system.Fs)
+
+	v := viper.New()
+	v.SetFs(system.Fs)
+	v.SetConfigFile(cfgFilePath)
+
+	ts := _defaultSetup
+	ts.system = system
+	ts.v = v
+
+	runTerminalText(t, []string{}, ts, false, func(c *termtest.Console) {
+		c.ExpectString(rootCmd.Long)
 	})
 }
 
@@ -39,25 +52,23 @@ func Test_Root_default_info(t *testing.T) {
 }
 
 func Test_Help(t *testing.T) {
-	runVT10XCommandTest(t, []string{"--help"}, false, func(c *expect.Console, s *setup) {
-		_, err := c.ExpectString(rootCmd.Long)
-		assert.NoError(t, err)
+	runTerminalText(t, []string{"--help"}, _defaultSetup, false, func(c *termtest.Console) {
+		c.ExpectString(rootCmd.Long)
 	})
 }
 
 func Test_Version(t *testing.T) {
 	version := "0.0.0-SNAPSHOT-cd1c032"
 	SetVersion(version)
-	runVT10XCommandTest(t, []string{"--version"}, false, func(c *expect.Console, s *setup) {
-		_, err := c.ExpectString("snipkit version " + version)
-		assert.NoError(t, err)
+
+	runTerminalText(t, []string{"--version"}, _defaultSetup, false, func(c *termtest.Console) {
+		c.ExpectString("snipkit version " + version)
 	})
 }
 
 func Test_UnknownCommand(t *testing.T) {
-	runVT10XCommandTest(t, []string{"foo"}, true, func(c *expect.Console, s *setup) {
-		_, err := c.ExpectString("Error: unknown command \"foo\" for \"snipkit\"")
-		assert.NoError(t, err)
+	runTerminalText(t, []string{"foo"}, _defaultSetup, true, func(c *termtest.Console) {
+		c.ExpectString("Error: unknown command \"foo\" for \"snipkit\"")
 	})
 }
 
