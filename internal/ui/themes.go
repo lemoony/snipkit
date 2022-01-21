@@ -188,38 +188,6 @@ func (r *ThemeValues) lookupInputPlaceholderStyle() tcell.Style {
 	return tcell.StyleDefault.Background(tcell.ColorDefault).Foreground(tcell.GetColor(r.LookupInputPlaceholderColor))
 }
 
-func (r *ThemeValues) parametersLabelColor() tcell.Color {
-	return tcell.GetColor(r.ParametersLabelTextColor)
-}
-
-func (r *ThemeValues) parametersFieldBackgroundColor() tcell.Color {
-	return tcell.GetColor(r.ParametersFieldBackgroundColor)
-}
-
-func (r *ThemeValues) parametersFieldTextColor() tcell.Color {
-	return tcell.GetColor(r.ParametersFieldTextColor)
-}
-
-func (r *ThemeValues) parametersAutocompleteTextColor() tcell.Color {
-	return tcell.GetColor(r.ParameterAutocompleteTextColor)
-}
-
-func (r *ThemeValues) parametersAutocompleteSelectedTextColor() tcell.Color {
-	return tcell.GetColor(r.ParameterAutocompleteSelectedTextColor)
-}
-
-func (r *ThemeValues) parametersAutocompleteBackgroundColor() tcell.Color {
-	return tcell.GetColor(r.ParameterAutocompleteBackgroundColor)
-}
-
-func (r *ThemeValues) parametersAutocompleteSelectedBackgroundColor() tcell.Color {
-	return tcell.GetColor(r.ParameterAutocompleteSelectedBackgroundColor)
-}
-
-func (r *ThemeValues) selectedButtonBackgroundColor() tcell.Color {
-	return tcell.GetColor(r.SelectedItemBackgroundColor)
-}
-
 func (r *ThemeValues) previewDefaultTextColor() tcell.Color {
 	return tcell.GetColor(r.PreviewDefaultTextColor)
 }

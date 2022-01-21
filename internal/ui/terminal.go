@@ -14,16 +14,22 @@ import (
 
 	"github.com/lemoony/snipkit/internal/model"
 	"github.com/lemoony/snipkit/internal/ui/confirm"
+	"github.com/lemoony/snipkit/internal/ui/form"
 	"github.com/lemoony/snipkit/internal/ui/picker"
 	"github.com/lemoony/snipkit/internal/ui/uimsg"
 	"github.com/lemoony/snipkit/internal/utils/system"
 	"github.com/lemoony/snipkit/internal/utils/termutil"
 )
 
+type OkButton string
+
 const (
 	envEditor     = "EDITOR"
 	envVisual     = "VISUAL"
 	defaultEditor = "vim"
+
+	OkButtonExecute = OkButton("Execute")
+	OkButtonPrint   = OkButton("Print")
 )
 
 // TerminalOption configures a Terminal.
@@ -97,6 +103,14 @@ func (c cliTerminal) PrintMessage(msg string) {
 
 func (c cliTerminal) PrintError(msg string) {
 	fmt.Fprintln(c.stdio.Out, msg)
+}
+
+func (c cliTerminal) ShowParameterForm(parameters []model.Parameter, okButton OkButton) ([]string, bool) {
+	if len(parameters) == 0 {
+		return []string{}, true
+	}
+
+	return form.ShowForm(parameters, string(okButton), form.WithIn(c.stdio.In), form.WithOut(c.stdio.Out))
 }
 
 func (c cliTerminal) Confirmation(confirmation uimsg.Confirm, options ...confirm.Option) bool {
