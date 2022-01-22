@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"context"
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -67,14 +66,19 @@ func runMockedTest(t *testing.T, args []string, options ...option) error {
 	rootCmd.ResetFlags()
 	res := rootCmd.ExecuteContext(ctx)
 
-	fmt.Println(res)
-
 	return res
 }
 
 func runTerminalText(t *testing.T, args []string, setup setup, hasError bool, test func(*termtest.Console)) {
 	t.Helper()
 	termtest.RunTerminalTest(t, test, func(stdio termutil.Stdio) {
+		prevIn, prevOut, prevErr := rootCmd.InOrStdin(), rootCmd.OutOrStdout(), rootCmd.ErrOrStderr()
+		defer func() {
+			rootCmd.SetIn(prevIn)
+			rootCmd.SetOut(prevOut)
+			rootCmd.SetErr(prevErr)
+		}()
+
 		rootCmd.SetIn(stdio.In)
 		rootCmd.SetOut(stdio.Out)
 		rootCmd.SetErr(stdio.Err)

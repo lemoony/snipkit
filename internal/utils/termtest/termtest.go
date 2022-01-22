@@ -26,6 +26,7 @@ const (
 	KeyLeft  = Key("\x1b[D")
 	KeyRight = Key("\x1b[C")
 
+	defaultTestSleepTime = time.Millisecond * 100
 	defaultSendSleepTime = time.Millisecond * 10
 	defaultTestTimeout   = time.Second * 2
 )
@@ -69,7 +70,7 @@ func Keys(keys ...Key) []string {
 
 // RunTerminalTest runs a fake terminal test which catpures all in & output
 // Source: https://github.com/AlecAivazis/survey/blob/master/survey_posix_test.go
-func RunTerminalTest(t *testing.T, procedure func(c *Console), test func(termutil.Stdio)) {
+func RunTerminalTest(t *testing.T, test func(c *Console), setupFunc func(termutil.Stdio)) {
 	t.Helper()
 
 	// Multiplex output to a buffer as well for the raw bytes.
@@ -86,12 +87,12 @@ func RunTerminalTest(t *testing.T, procedure func(c *Console), test func(termuti
 	procedureDone := make(chan struct{})
 	go func() {
 		defer close(procedureDone)
-		time.Sleep(time.Second)
-		procedure(&Console{t: t, c: c})
+		time.Sleep(defaultTestSleepTime)
+		test(&Console{t: t, c: c})
 	}()
 
 	runWithTimeout(t, func() {
-		test(termutil.Stdio{In: c.Tty(), Out: c.Tty(), Err: c.Tty()})
+		setupFunc(termutil.Stdio{In: c.Tty(), Out: c.Tty(), Err: c.Tty()})
 	}, defaultTestTimeout)
 
 	// Close the slave end of the pty, and read the remaining bytes from the master end.
