@@ -7,12 +7,14 @@ import (
 	"regexp"
 
 	"emperror.dev/errors"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/gdamore/tcell/v2"
 	"github.com/phuslu/log"
 	"github.com/rivo/tview"
 	"github.com/spf13/afero"
 	"gopkg.in/yaml.v3"
 
+	"github.com/lemoony/snipkit/internal/ui/style"
 	"github.com/lemoony/snipkit/internal/ui/uimsg"
 	"github.com/lemoony/snipkit/internal/utils/system"
 	themedata "github.com/lemoony/snipkit/themes"
@@ -30,6 +32,8 @@ var (
 	ErrInvalidTheme = errors.New("invalid theme")
 
 	currentTheme ThemeValues
+
+	styler = style.DefaultStyle()
 )
 
 type themeWrapper struct {
@@ -40,7 +44,8 @@ type themeWrapper struct {
 
 func applyTheme(theme ThemeValues) {
 	currentTheme = theme
-	tview.Styles.PrimitiveBackgroundColor = currentTheme.backgroundColor()
+	tview.Styles.PrimitiveBackgroundColor = tcell.ColorReset
+
 	tview.Styles.BorderColor = currentTheme.borderColor()
 	tview.Styles.TitleColor = currentTheme.borderTitleColor()
 	uimsg.SetHighlightColor(currentTheme.PromptHighlightTextColor)
@@ -156,24 +161,9 @@ func (r *ThemeValues) itemStyle() tcell.Style {
 	return tcell.StyleDefault.Background(r.backgroundColor()).Foreground(tcell.GetColor(r.ItemTextColor))
 }
 
-func (r *ThemeValues) itemLabelStyle() tcell.Style {
-	return tcell.StyleDefault.Background(tcell.GetColor(r.SelectedItemBackgroundColor)).Foreground(tcell.GetColor(r.ItemTextColor))
-}
-
-func (r *ThemeValues) selectedItemLabelStyle() tcell.Style {
-	return tcell.StyleDefault.Background(tcell.GetColor(r.SelectedItemBackgroundColor)).Foreground(tcell.GetColor(r.SelectedItemTextColor))
-}
-
-func (r *ThemeValues) selectedItemStyle() tcell.Style {
-	return tcell.StyleDefault.Background(tcell.GetColor(r.SelectedItemBackgroundColor)).Foreground(tcell.GetColor(r.SelectedItemTextColor))
-}
-
-func (r *ThemeValues) highlightItemMatchStyle() tcell.Style {
-	return tcell.StyleDefault.Background(tcell.GetColor(r.ItemHighlightMatchBackgroundColor)).Foreground(tcell.GetColor(r.ItemHighlightMatchTextColor))
-}
-
-func (r *ThemeValues) counterStyle() tcell.Style {
-	return tcell.StyleDefault.Foreground(tcell.GetColor(r.CounterTextColor))
+func tcellColor(color lipgloss.TerminalColor) tcell.Color {
+	r, g, b, _ := color.RGBA()
+	return tcell.NewRGBColor(int32(r), int32(g), int32(b))
 }
 
 func (r *ThemeValues) lookupInputStyle() tcell.Style {

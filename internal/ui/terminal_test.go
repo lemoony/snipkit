@@ -22,7 +22,6 @@ import (
 func Test_PrintMessage(t *testing.T) {
 	termtest.RunTerminalTest(t, func(c *termtest.Console) {
 		c.ExpectString("Hello world")
-		c.ExpectEOF()
 	}, func(stdio termutil.Stdio) {
 		term := NewTerminal(WithStdio(stdio))
 		term.PrintMessage("Hello world")
@@ -33,7 +32,6 @@ func Test_PrintMessage(t *testing.T) {
 func Test_PrintError(t *testing.T) {
 	termtest.RunTerminalTest(t, func(c *termtest.Console) {
 		c.ExpectString("Some error message")
-		c.ExpectEOF()
 	}, func(stdio termutil.Stdio) {
 		term := NewTerminal(WithStdio(stdio))
 		term.PrintError("Some error message")
