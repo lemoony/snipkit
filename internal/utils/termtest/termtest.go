@@ -28,7 +28,7 @@ const (
 
 	defaultTestSleepTime = time.Millisecond * 100
 	defaultSendSleepTime = time.Millisecond * 10
-	defaultTestTimeout   = time.Second * 2
+	defaultTestTimeout   = time.Second * 5
 )
 
 func (k Key) Str() string {
@@ -53,11 +53,6 @@ func (c *Console) Send(val string) {
 	_, err := c.c.Send(val)
 	assert.NoError(c.t, err)
 	time.Sleep(defaultSendSleepTime)
-}
-
-func (c *Console) ExpectEOF() {
-	_, err := c.c.ExpectEOF()
-	assert.NoError(c.t, err)
 }
 
 func Keys(keys ...Key) []string {
@@ -91,13 +86,16 @@ func RunTerminalTest(t *testing.T, test func(c *Console), setupFunc func(termuti
 		test(&Console{t: t, c: c})
 	}()
 
-	runWithTimeout(t, func() {
-		setupFunc(termutil.Stdio{In: c.Tty(), Out: c.Tty(), Err: c.Tty()})
-	}, defaultTestTimeout)
+	runWithTimeout(
+		t,
+		func() { setupFunc(termutil.Stdio{In: c.Tty(), Out: c.Tty(), Err: c.Tty()}) },
+		defaultTestTimeout,
+	)
+
+	<-procedureDone
 
 	// Close the slave end of the pty, and read the remaining bytes from the master end.
 	assert.NoError(t, c.Tty().Close())
-	<-procedureDone
 
 	t.Logf("Raw output: %q", buf.String())
 

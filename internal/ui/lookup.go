@@ -102,14 +102,16 @@ func applyStyle(finder *tview.Finder, preview *tview.TextView, chromaStyle *chro
 
 	finder.SetItemLabelPadding(1)
 
-	finder.SetItemLabelStyle(currentTheme.itemLabelStyle())
+	finder.SetItemLabelStyle(tcell.StyleDefault.Background(tcellColor(styler.SelectionColor())))
 	finder.SetItemStyle(currentTheme.itemStyle())
 
-	finder.SetSelectedItemLabelStyle(currentTheme.selectedItemLabelStyle())
-	finder.SetSelectedItemStyle(currentTheme.selectedItemStyle())
-	finder.SetCounterStyle(currentTheme.counterStyle())
-	finder.SetHighlightMatchStyle(currentTheme.highlightItemMatchStyle())
-	finder.SetHighlightMatchMaintainBackgroundColor(false)
+	finder.SetSelectedItemLabelStyle(tcell.StyleDefault.Background(tcellColor(styler.SelectionColor())).Foreground(tcellColor(styler.SelectionColorReverse())))
+	finder.SetSelectedItemStyle(tcell.StyleDefault.Background(tcellColor(styler.SelectionColor())).Foreground(tcellColor(styler.SelectionColorReverse())))
+
+	finder.SetCounterStyle(tcell.StyleDefault.Foreground(tcellColor(styler.InfoColor())))
+	finder.SetHighlightMatchStyle(tcell.StyleDefault.Foreground(tcellColor(styler.HighlightColor())))
+	finder.SetHighlightMatchMaintainBackgroundColor(true)
+
 	finder.SetFieldStyle(currentTheme.lookupInputStyle())
 	finder.SetPlaceholderStyle(currentTheme.lookupInputPlaceholderStyle())
 

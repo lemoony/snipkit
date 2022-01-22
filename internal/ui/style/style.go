@@ -9,8 +9,12 @@ import (
 var (
 	activeColor = lipgloss.Color("#F25D94")
 
-	selectionColor   = lipgloss.AdaptiveColor{Light: "#F793FF", Dark: "#AD58B4"}
-	verySubduedColor = lipgloss.AdaptiveColor{Light: "#DDDADA", Dark: "#3C3C3C"}
+	selectionColor        = lipgloss.AdaptiveColor{Light: "#F793FF", Dark: "#AD58B4"}
+	selectionReverseColor = lipgloss.AdaptiveColor{Light: "#ffffff", Dark: "#ffffff"}
+	verySubduedColor      = lipgloss.AdaptiveColor{Light: "#DDDADA", Dark: "#3C3C3C"}
+
+	infoColor      = lipgloss.Color("#F8BE71")
+	highlightColor = lipgloss.Color("#1ED670")
 )
 
 type Style struct {
@@ -107,12 +111,24 @@ func (s *Style) SelectionColor() lipgloss.TerminalColor {
 	return selectionColor
 }
 
+func (s *Style) SelectionColorReverse() lipgloss.TerminalColor {
+	return selectionReverseColor
+}
+
 func (s *Style) SubduedColor() lipgloss.TerminalColor {
 	return verySubduedColor
 }
 
 func (s *Style) ActiveColor() lipgloss.TerminalColor {
 	return activeColor
+}
+
+func (s *Style) InfoColor() lipgloss.TerminalColor {
+	return infoColor
+}
+
+func (s *Style) HighlightColor() lipgloss.TerminalColor {
+	return highlightColor
 }
 
 func (s *Style) ButtonTextColor(selected bool) lipgloss.TerminalColor {
