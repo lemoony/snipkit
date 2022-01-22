@@ -75,3 +75,7 @@ linters:
 issues:
   # enable issues excluded by default
   exclude-use-default: false
+  exclude-rules:
+    - linters:
+        - unused
+      text: "runWithTimeout" # false positive that somehow only occurs lacally on macos

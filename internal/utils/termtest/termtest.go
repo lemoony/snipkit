@@ -69,7 +69,7 @@ func Keys(keys ...Key) []string {
 
 // RunTerminalTest runs a fake terminal test which catpures all in & output
 // Source: https://github.com/AlecAivazis/survey/blob/master/survey_posix_test.go
-func RunTerminalTest(t *testing.T, procedure func(test *Console), test func(termutil.Stdio)) {
+func RunTerminalTest(t *testing.T, procedure func(c *Console), test func(termutil.Stdio)) {
 	t.Helper()
 
 	// Multiplex output to a buffer as well for the raw bytes.
