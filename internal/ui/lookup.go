@@ -20,11 +20,11 @@ var lexerMapping = map[model.Language]string{
 	model.LanguageTOML:     "toml",
 }
 
-func (c *cliTerminal) ShowLookup(snippets []model.Snippet) int {
+func (t *tuiImpl) ShowLookup(snippets []model.Snippet) int {
 	app := tview.NewApplication()
 
-	if c.screen != nil {
-		app.SetScreen(c.screen)
+	if t.screen != nil {
+		app.SetScreen(t.screen)
 	}
 
 	preview := tview.NewTextView()
@@ -35,7 +35,7 @@ func (c *cliTerminal) ShowLookup(snippets []model.Snippet) int {
 
 	selectedSnippet := -1
 	previewWriter := tview.ANSIWriter(preview)
-	f, s := c.getPreviewFormatterAndStyle()
+	f, s := t.getPreviewFormatterAndStyle()
 
 	finder := tview.NewFinder().
 		SetWrapAround(true).
@@ -73,7 +73,7 @@ func (c *cliTerminal) ShowLookup(snippets []model.Snippet) int {
 		AddItem(finder, 0, 1, true).
 		AddItem(preview, 0, 1, false)
 
-	c.applyStyle(finder, preview)
+	t.applyStyle(finder, preview)
 
 	if err := app.SetRoot(flex, true).Run(); err != nil {
 		panic(err)
@@ -82,13 +82,13 @@ func (c *cliTerminal) ShowLookup(snippets []model.Snippet) int {
 	return selectedSnippet
 }
 
-func (c *cliTerminal) getPreviewFormatterAndStyle() (chroma.Formatter, *chroma.Style) {
+func (t *tuiImpl) getPreviewFormatterAndStyle() (chroma.Formatter, *chroma.Style) {
 	f := formatters.Get("terminal")
 	if f == nil {
 		f = formatters.Fallback
 	}
 
-	s := styles.Get(c.styler.PreviewColorSchemeName())
+	s := styles.Get(t.styler.PreviewColorSchemeName())
 	if s == nil {
 		s = styles.Fallback
 	}
@@ -96,31 +96,31 @@ func (c *cliTerminal) getPreviewFormatterAndStyle() (chroma.Formatter, *chroma.S
 	return f, s
 }
 
-func (c *cliTerminal) applyStyle(finder *tview.Finder, preview *tview.TextView) {
+func (t *tuiImpl) applyStyle(finder *tview.Finder, preview *tview.TextView) {
 	finder.SetSelectedItemLabel(">")
 	finder.SetInputLabel(">")
-	finder.SetInputLabelStyle(tcell.StyleDefault.Foreground(toColor(c.styler.ActiveColor())))
+	finder.SetInputLabelStyle(tcell.StyleDefault.Foreground(toColor(t.styler.ActiveColor())))
 
 	finder.SetItemLabelPadding(1)
 
-	finder.SetItemLabelStyle(tcell.StyleDefault.Background(toColor(c.styler.SelectionColor())))
-	finder.SetItemStyle(tcell.StyleDefault.Background(tcell.ColorReset).Foreground(toColor(c.styler.TextColor())))
+	finder.SetItemLabelStyle(tcell.StyleDefault.Background(toColor(t.styler.SelectionColor())))
+	finder.SetItemStyle(tcell.StyleDefault.Background(tcell.ColorReset).Foreground(toColor(t.styler.TextColor())))
 
 	finder.SetSelectedItemLabelStyle(tcell.StyleDefault.
-		Background(toColor(c.styler.SelectionColor())).
-		Foreground(toColor(c.styler.SelectionColorReverse())),
+		Background(toColor(t.styler.SelectionColor())).
+		Foreground(toColor(t.styler.SelectionColorReverse())),
 	)
 	finder.SetSelectedItemStyle(tcell.StyleDefault.
-		Background(toColor(c.styler.SelectionColor())).
-		Foreground(toColor(c.styler.SelectionColorReverse())),
+		Background(toColor(t.styler.SelectionColor())).
+		Foreground(toColor(t.styler.SelectionColorReverse())),
 	)
 
-	finder.SetCounterStyle(tcell.StyleDefault.Foreground(toColor(c.styler.InfoColor())))
-	finder.SetHighlightMatchStyle(tcell.StyleDefault.Foreground(toColor(c.styler.HighlightColor())))
+	finder.SetCounterStyle(tcell.StyleDefault.Foreground(toColor(t.styler.InfoColor())))
+	finder.SetHighlightMatchStyle(tcell.StyleDefault.Foreground(toColor(t.styler.HighlightColor())))
 	finder.SetHighlightMatchMaintainBackgroundColor(true)
 
-	finder.SetFieldStyle(tcell.StyleDefault.Foreground(toColor(c.styler.TextColor())))
-	finder.SetPlaceholderStyle(tcell.StyleDefault.Foreground(toColor(c.styler.PlaceholderColor())))
+	finder.SetFieldStyle(tcell.StyleDefault.Foreground(toColor(t.styler.TextColor())))
+	finder.SetPlaceholderStyle(tcell.StyleDefault.Foreground(toColor(t.styler.PlaceholderColor())))
 
-	preview.SetTextColor(toColor(c.styler.TextColor()))
+	preview.SetTextColor(toColor(t.styler.TextColor()))
 }

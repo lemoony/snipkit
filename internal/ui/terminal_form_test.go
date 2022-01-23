@@ -11,7 +11,7 @@ import (
 func Test_Form_NoParameters(t *testing.T) {
 	var parameters []model.Parameter
 
-	term := NewTerminal()
+	term := NewTUI()
 	values, ok := term.ShowParameterForm(parameters, OkButtonPrint)
 	assert.Len(t, values, 0)
 	assert.True(t, ok)

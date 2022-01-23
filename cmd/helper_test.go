@@ -69,7 +69,7 @@ func runMockedTest(t *testing.T, args []string, options ...option) error {
 	return res
 }
 
-func runTerminalText(t *testing.T, args []string, setup setup, hasError bool, test func(*termtest.Console)) {
+func runTerminalTest(t *testing.T, args []string, setup setup, hasError bool, test func(*termtest.Console)) {
 	t.Helper()
 	termtest.RunTerminalTest(t, test, func(stdio termutil.Stdio) {
 		prevIn, prevOut, prevErr := rootCmd.InOrStdin(), rootCmd.OutOrStdout(), rootCmd.ErrOrStderr()
@@ -84,7 +84,7 @@ func runTerminalText(t *testing.T, args []string, setup setup, hasError bool, te
 		rootCmd.SetErr(stdio.Err)
 
 		s := setup
-		s.terminal = ui.NewTerminal(ui.WithStdio(termutil.Stdio{In: stdio.In, Out: stdio.Out, Err: stdio.Err}))
+		s.terminal = ui.NewTUI(ui.WithStdio(termutil.Stdio{In: stdio.In, Out: stdio.Out, Err: stdio.Err}))
 
 		defer rootCmd.ResetFlags()
 		rootCmd.SetArgs(args)

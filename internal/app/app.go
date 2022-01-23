@@ -33,10 +33,10 @@ func (f optionFunc) apply(a *appImpl) {
 	f(a)
 }
 
-// WithTerminal sets the terminal for the App.
-func WithTerminal(t ui.Terminal) Option {
+// WithTUI sets the terminal for the App.
+func WithTUI(t ui.TUI) Option {
 	return optionFunc(func(a *appImpl) {
-		a.ui = t
+		a.tui = t
 	})
 }
 
@@ -66,7 +66,7 @@ func NewApp(options ...Option) App {
 
 	app := &appImpl{
 		system:   system,
-		ui:       ui.NewTerminal(),
+		tui:      ui.NewTUI(),
 		provider: managers.NewBuilder(),
 	}
 
@@ -86,7 +86,7 @@ func NewApp(options ...Option) App {
 		panic("no config provided")
 	}
 
-	app.ui.ApplyConfig(app.config.Style, system)
+	app.tui.ApplyConfig(app.config.Style, system)
 	if p, err := app.provider.CreateManager(*app.system, app.config.Manager); err != nil {
 		panic(err)
 	} else {
@@ -100,7 +100,7 @@ type appImpl struct {
 	managers []managers.Manager
 	system   *system.System
 	config   *config.Config
-	ui       ui.Terminal
+	tui      ui.TUI
 
 	configService config.Service
 	provider      managers.Provider

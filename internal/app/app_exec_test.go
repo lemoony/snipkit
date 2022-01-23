@@ -15,7 +15,7 @@ import (
 func Test_App_Exec(t *testing.T) {
 	snippetContent := `# some comment
 # ${VAR1} Name: First Output
-# ${VAR1} Description: What to print on the terminal first
+# ${VAR1} Description: What to print on the tui first
 echo "${VAR1}"`
 
 	snippets := []model.Snippet{
@@ -30,15 +30,15 @@ echo "${VAR1}"`
 
 	inputVar1Value := "foo-value"
 
-	terminal := uiMocks.Terminal{}
-	terminal.On("ApplyConfig", mock.Anything, mock.Anything).Return()
-	terminal.On("ShowLookup", mock.Anything).Return(0)
-	terminal.On("ShowParameterForm", mock.Anything, mock.Anything).Return([]string{inputVar1Value, ""}, true)
+	tui := uiMocks.TUI{}
+	tui.On("ApplyConfig", mock.Anything, mock.Anything).Return()
+	tui.On("ShowLookup", mock.Anything).Return(0)
+	tui.On("ShowParameterForm", mock.Anything, mock.Anything).Return([]string{inputVar1Value, ""}, true)
 
-	terminal.On(mockutil.PrintMessage, inputVar1Value+"\n").Return()
+	tui.On(mockutil.PrintMessage, inputVar1Value+"\n").Return()
 
 	app := NewApp(
-		WithTerminal(&terminal), WithConfig(configtest.NewTestConfig().Config), withManagerSnippets(snippets),
+		WithTUI(&tui), WithConfig(configtest.NewTestConfig().Config), withManagerSnippets(snippets),
 	)
 
 	app.LookupAndExecuteSnippet()

@@ -29,7 +29,7 @@ func Test_Root(t *testing.T) {
 	ts.system = system
 	ts.v = v
 
-	runTerminalText(t, []string{}, ts, false, func(c *termtest.Console) {
+	runTerminalTest(t, []string{}, ts, false, func(c *termtest.Console) {
 		c.ExpectString(rootCmd.Long)
 	})
 }
@@ -52,7 +52,7 @@ func Test_Root_default_info(t *testing.T) {
 }
 
 func Test_Help(t *testing.T) {
-	runTerminalText(t, []string{"--help"}, _defaultSetup, false, func(c *termtest.Console) {
+	runTerminalTest(t, []string{"--help"}, _defaultSetup, false, func(c *termtest.Console) {
 		c.ExpectString(rootCmd.Long)
 	})
 }
@@ -61,13 +61,13 @@ func Test_Version(t *testing.T) {
 	version := "0.0.0-SNAPSHOT-cd1c032"
 	SetVersion(version)
 
-	runTerminalText(t, []string{"--version"}, _defaultSetup, false, func(c *termtest.Console) {
+	runTerminalTest(t, []string{"--version"}, _defaultSetup, false, func(c *termtest.Console) {
 		c.ExpectString("snipkit version " + version)
 	})
 }
 
 func Test_UnknownCommand(t *testing.T) {
-	runTerminalText(t, []string{"foo"}, _defaultSetup, true, func(c *termtest.Console) {
+	runTerminalTest(t, []string{"foo"}, _defaultSetup, true, func(c *termtest.Console) {
 		c.ExpectString("Error: unknown command \"foo\" for \"snipkit\"")
 	})
 }

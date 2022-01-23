@@ -33,7 +33,7 @@ func Test_Info(t *testing.T) {
 		provider: testProviderForManager(&manager),
 	}
 
-	runTerminalText(t, []string{"info"}, ts, false, func(c *termtest.Console) {
+	runTerminalTest(t, []string{"info"}, ts, false, func(c *termtest.Console) {
 		c.ExpectString("Config file: " + cfgFilePath)
 		c.ExpectString("Some-Key: Some-Value")
 	})

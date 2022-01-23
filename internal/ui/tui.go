@@ -33,33 +33,33 @@ const (
 	OkButtonPrint   = OkButton("Print")
 )
 
-// TerminalOption configures a Terminal.
-type TerminalOption interface {
-	apply(p *cliTerminal)
+// TUIOption configures a TUI.
+type TUIOption interface {
+	apply(p *tuiImpl)
 }
 
-// terminalOptionFunc wraps a func so that it satisfies the Option interface.
-type terminalOptionFunc func(terminal *cliTerminal)
+// tuiOptionFunc wraps a func so that it satisfies the Option interface.
+type tuiOptionFunc func(terminal *tuiImpl)
 
-func (f terminalOptionFunc) apply(terminal *cliTerminal) {
+func (f tuiOptionFunc) apply(terminal *tuiImpl) {
 	f(terminal)
 }
 
 // WithStdio sets the stdio for the terminal.
-func WithStdio(stdio termutil.Stdio) TerminalOption {
-	return terminalOptionFunc(func(t *cliTerminal) {
+func WithStdio(stdio termutil.Stdio) TUIOption {
+	return tuiOptionFunc(func(t *tuiImpl) {
 		t.stdio = stdio
 	})
 }
 
 // WithScreen sets the screen for tview.
-func WithScreen(screen tcell.Screen) TerminalOption {
-	return terminalOptionFunc(func(t *cliTerminal) {
+func WithScreen(screen tcell.Screen) TUIOption {
+	return tuiOptionFunc(func(t *tuiImpl) {
 		t.screen = screen
 	})
 }
 
-type Terminal interface {
+type TUI interface {
 	ApplyConfig(cfg Config, system *system.System)
 	Print(m uimsg.Printable)
 	PrintMessage(message string)
@@ -71,14 +71,14 @@ type Terminal interface {
 	ShowPicker(items []picker.Item, options ...tea.ProgramOption) (int, bool)
 }
 
-type cliTerminal struct {
+type tuiImpl struct {
 	stdio  termutil.Stdio
 	screen tcell.Screen
 	styler style.Style
 }
 
-func NewTerminal(options ...TerminalOption) Terminal {
-	term := cliTerminal{
+func NewTUI(options ...TUIOption) TUI {
+	term := tuiImpl{
 		stdio: termutil.Stdio{
 			In:  os.Stdin,
 			Out: os.Stdout,
@@ -92,55 +92,55 @@ func NewTerminal(options ...TerminalOption) Terminal {
 	return &term
 }
 
-func (c *cliTerminal) ApplyConfig(cfg Config, system *system.System) {
+func (t *tuiImpl) ApplyConfig(cfg Config, system *system.System) {
 	themeValues := cfg.GetSelectedTheme(system)
-	c.styler = style.NewStyle(&themeValues)
+	t.styler = style.NewStyle(&themeValues)
 
 	tview.Styles.PrimitiveBackgroundColor = tcell.ColorReset
-	tview.Styles.BorderColor = toColor(c.styler.BorderColor())
-	tview.Styles.TitleColor = toColor(c.styler.BorderTitleColor())
+	tview.Styles.BorderColor = toColor(t.styler.BorderColor())
+	tview.Styles.TitleColor = toColor(t.styler.BorderTitleColor())
 }
 
-func (c cliTerminal) Print(p uimsg.Printable) {
-	fmt.Fprintln(c.stdio.Out, p.RenderWith(&c.styler))
+func (t tuiImpl) Print(p uimsg.Printable) {
+	fmt.Fprintln(t.stdio.Out, p.RenderWith(&t.styler))
 }
 
-func (c cliTerminal) PrintMessage(msg string) {
-	fmt.Fprintln(c.stdio.Out, msg)
+func (t tuiImpl) PrintMessage(msg string) {
+	fmt.Fprintln(t.stdio.Out, msg)
 }
 
-func (c cliTerminal) PrintError(msg string) {
-	fmt.Fprintln(c.stdio.Out, msg)
+func (t tuiImpl) PrintError(msg string) {
+	fmt.Fprintln(t.stdio.Out, msg)
 }
 
-func (c cliTerminal) ShowParameterForm(parameters []model.Parameter, okButton OkButton) ([]string, bool) {
+func (t tuiImpl) ShowParameterForm(parameters []model.Parameter, okButton OkButton) ([]string, bool) {
 	if len(parameters) == 0 {
 		return []string{}, true
 	}
 
 	return form.Show(parameters,
 		string(okButton),
-		form.WithStyler(c.styler),
-		form.WithIn(c.stdio.In),
-		form.WithOut(c.stdio.Out),
+		form.WithStyler(t.styler),
+		form.WithIn(t.stdio.In),
+		form.WithOut(t.stdio.Out),
 	)
 }
 
-func (c cliTerminal) Confirmation(confirmation uimsg.Confirm, options ...confirm.Option) bool {
+func (t tuiImpl) Confirmation(confirmation uimsg.Confirm, options ...confirm.Option) bool {
 	return confirm.Show(
 		confirmation,
 		append(
 			[]confirm.Option{
-				confirm.WithStyler(c.styler),
-				confirm.WithIn(c.stdio.In),
-				confirm.WithOut(c.stdio.Out),
+				confirm.WithStyler(t.styler),
+				confirm.WithIn(t.stdio.In),
+				confirm.WithOut(t.stdio.Out),
 			},
 			options...,
 		)...,
 	)
 }
 
-func (c cliTerminal) OpenEditor(path string, preferredEditor string) {
+func (t tuiImpl) OpenEditor(path string, preferredEditor string) {
 	editor := getEditor(preferredEditor)
 
 	args, err := shellquote.Split(editor)
@@ -149,10 +149,10 @@ func (c cliTerminal) OpenEditor(path string, preferredEditor string) {
 	}
 	args = append(args, path)
 
-	cmd := exec.Command(args[0], args[1:]...) //nolint:gosec // subprocess launched with c potential tainted input
-	cmd.Stdin = c.stdio.In
-	cmd.Stdout = c.stdio.Out
-	cmd.Stderr = c.stdio.Err
+	cmd := exec.Command(args[0], args[1:]...) //nolint:gosec // subprocess launched with t potential tainted input
+	cmd.Stdin = t.stdio.In
+	cmd.Stdout = t.stdio.Out
+	cmd.Stderr = t.stdio.Err
 
 	err = cmd.Start()
 	if err != nil {
@@ -164,11 +164,11 @@ func (c cliTerminal) OpenEditor(path string, preferredEditor string) {
 	}
 }
 
-func (c cliTerminal) ShowPicker(items []picker.Item, options ...tea.ProgramOption) (int, bool) {
+func (t tuiImpl) ShowPicker(items []picker.Item, options ...tea.ProgramOption) (int, bool) {
 	return picker.ShowPicker(items, append(
 		[]tea.ProgramOption{
-			tea.WithInput(c.stdio.In),
-			tea.WithOutput(c.stdio.Out),
+			tea.WithInput(t.stdio.In),
+			tea.WithOutput(t.stdio.Out),
 		},
 		options...)...,
 	)
