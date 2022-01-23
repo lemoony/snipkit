@@ -103,6 +103,6 @@ func Test_ManagerAddConfigResult(t *testing.T) {
 
 func Test_renderInvalidTemplate(t *testing.T) {
 	assert.Panics(t, func() {
-		_ = render("{{ if .var }} bla", map[string]interface{}{})
+		_ = renderWithStyle("{{ if .var }} bla", testStyle, map[string]interface{}{})
 	})
 }

@@ -165,7 +165,7 @@ func (t tuiImpl) OpenEditor(path string, preferredEditor string) {
 }
 
 func (t tuiImpl) ShowPicker(items []picker.Item, options ...tea.ProgramOption) (int, bool) {
-	return picker.ShowPicker(items, append(
+	return picker.ShowPicker(items, &t.styler, append(
 		[]tea.ProgramOption{
 			tea.WithInput(t.stdio.In),
 			tea.WithOutput(t.stdio.Out),

@@ -39,8 +39,8 @@ func (s *Style) NeedsResize() bool {
 
 func (s *Style) Title(text string) string {
 	return lipgloss.NewStyle().
-		Background(lipgloss.Color("62")).
-		Foreground(lipgloss.Color("230")).
+		Background(s.colors.titleColor).
+		Foreground(s.colors.titleContrastColor).
 		Padding(0, 1).
 		MarginBottom(1).
 		Render(text)
@@ -116,7 +116,15 @@ func (s *Style) BorderColor() lipgloss.TerminalColor {
 }
 
 func (s *Style) BorderTitleColor() lipgloss.TerminalColor {
+	return s.colors.borderColor
+}
+
+func (s *Style) TitleColor() lipgloss.TerminalColor {
 	return s.colors.titleColor
+}
+
+func (s *Style) TitleContrastColor() lipgloss.TerminalColor {
+	return s.colors.titleContrastColor
 }
 
 func (s *Style) TextColor() lipgloss.TerminalColor {
@@ -137,6 +145,10 @@ func (s *Style) SelectionColorReverse() lipgloss.TerminalColor {
 
 func (s *Style) SubduedColor() lipgloss.TerminalColor {
 	return s.colors.subduedColor
+}
+
+func (s *Style) VerySubduedColor() lipgloss.TerminalColor {
+	return s.colors.verySubduedColor
 }
 
 func (s *Style) ActiveColor() lipgloss.TerminalColor {

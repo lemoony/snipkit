@@ -164,10 +164,6 @@ func HomeDirectoryStillExists(configPath string) Printable {
 	}
 }
 
-func render(templateFile string, data interface{}) string {
-	return renderWithStyle(templateFile, nil, data)
-}
-
 func renderWithStyle(templateFile string, styler *style.Style, data interface{}) string {
 	t := newTemplate(templateFile, styler)
 	writer := bytes.NewBufferString("")
@@ -180,7 +176,7 @@ func renderWithStyle(templateFile string, styler *style.Style, data interface{})
 func newTemplate(fileName string, styler *style.Style) *template.Template {
 	t, err := template.
 		New(fileName).
-		Funcs(termenv.TemplateFuncs(lipgloss.ColorProfile())).
+		Funcs(termenv.TemplateFuncs(styler.ColorProfile())).
 		Funcs(templateFuncs(styler)).
 		ParseFS(templateFilesFS, filepath.Join("templates", fileName))
 	if err != nil {
@@ -219,13 +215,7 @@ func templateFuncs(styler *style.Style) template.FuncMap {
 			return blockStyle.Render(raw)
 		},
 		"Title": func(values ...interface{}) string {
-			titleStyle := lipgloss.NewStyle().
-				Background(lipgloss.Color("62")).
-				Foreground(lipgloss.Color("230")).
-				Padding(0, 1).
-				SetString(values[0].(string))
-
-			return titleStyle.String()
+			return styler.Title(values[0].(string))
 		},
 	}
 }
