@@ -145,10 +145,6 @@ func (t *themeWrapper) theme() ThemeValues {
 	return result
 }
 
-func (r *ThemeValues) backgroundColor() tcell.Color {
-	return tcell.GetColor(r.BackgroundColor).TrueColor()
-}
-
 func (r *ThemeValues) borderColor() tcell.Color {
 	return tcell.GetColor(r.BorderColor)
 }
@@ -157,35 +153,7 @@ func (r *ThemeValues) borderTitleColor() tcell.Color {
 	return tcell.GetColor(r.BorderTitleColor)
 }
 
-func (r *ThemeValues) itemStyle() tcell.Style {
-	return tcell.StyleDefault.Background(r.backgroundColor()).Foreground(tcell.GetColor(r.ItemTextColor))
-}
-
-func tcellColor(color lipgloss.TerminalColor) tcell.Color {
+func toColor(color lipgloss.TerminalColor) tcell.Color {
 	r, g, b, _ := color.RGBA()
 	return tcell.NewRGBColor(int32(r), int32(g), int32(b))
-}
-
-func (r *ThemeValues) lookupInputStyle() tcell.Style {
-	return tcell.StyleDefault.Background(tcell.GetColor(r.LookupInputBackgroundColor)).Foreground(tcell.GetColor(r.LookupInputTextColor))
-}
-
-func (r *ThemeValues) lookupLabelStyle() tcell.Style {
-	return tcell.StyleDefault.Background(tcell.GetColor(r.BackgroundColor))
-}
-
-func (r *ThemeValues) lookupInputPlaceholderStyle() tcell.Style {
-	return tcell.StyleDefault.Background(tcell.ColorDefault).Foreground(tcell.GetColor(r.LookupInputPlaceholderColor))
-}
-
-func (r *ThemeValues) previewDefaultTextColor() tcell.Color {
-	return tcell.GetColor(r.PreviewDefaultTextColor)
-}
-
-func (r *ThemeValues) previewOverwriteBackgroundColor() (tcell.Color, bool) {
-	if r.PreviewOverwriteBackgroundColor != "" {
-		return tcell.GetColor(r.PreviewOverwriteBackgroundColor), true
-	} else {
-		return tcell.ColorDefault, false
-	}
 }

@@ -92,7 +92,7 @@ func NewTerminal(options ...TerminalOption) Terminal {
 func (c cliTerminal) ApplyConfig(cfg Config, system *system.System) {
 	theme := cfg.GetSelectedTheme(system)
 
-	tview.Styles.PrimitiveBackgroundColor = theme.backgroundColor()
+	tview.Styles.PrimitiveBackgroundColor = tcell.ColorReset
 	tview.Styles.BorderColor = theme.borderColor()
 	tview.Styles.TitleColor = theme.borderTitleColor()
 }

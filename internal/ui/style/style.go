@@ -7,6 +7,9 @@ import (
 )
 
 var (
+	textColor        = lipgloss.Color("#303030")
+	placeholderColor = lipgloss.Color("#8a8a8a")
+
 	activeColor = lipgloss.Color("#F25D94")
 
 	selectionColor        = lipgloss.AdaptiveColor{Light: "#F793FF", Dark: "#AD58B4"}
@@ -105,6 +108,14 @@ func (s *Style) MainView(view string, help string, resize bool) string {
 	sections = append(sections, help)
 
 	return lipgloss.NewStyle().Margin(margins...).Render(lipgloss.JoinVertical(lipgloss.Left, sections...))
+}
+
+func (s *Style) TextColor() lipgloss.TerminalColor {
+	return textColor
+}
+
+func (s *Style) PlaceholderColor() lipgloss.TerminalColor {
+	return placeholderColor
 }
 
 func (s *Style) SelectionColor() lipgloss.TerminalColor {
