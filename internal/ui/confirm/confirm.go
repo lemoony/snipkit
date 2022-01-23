@@ -14,6 +14,7 @@ import (
 	"github.com/muesli/reflow/wrap"
 	"github.com/muesli/termenv"
 
+	"github.com/lemoony/snipkit/internal/ui/style"
 	"github.com/lemoony/snipkit/internal/ui/uimsg"
 )
 
@@ -43,8 +44,7 @@ type model struct {
 
 	promptTmpl *template.Template
 
-	colorProfile   termenv.Profile
-	selectionColor termenv.Color
+	styler style.Style
 
 	input  *io.Reader
 	output *io.Writer
@@ -98,15 +98,10 @@ func (m *model) Init() tea.Cmd {
 }
 
 func (m *model) initTemplate() {
-	p := termenv.ColorProfile()
-
 	if tmpl, err := template.New("view").
-		Funcs(termenv.TemplateFuncs(p)).
+		Funcs(termenv.TemplateFuncs(m.styler.ColorProfile())).
 		Funcs(template.FuncMap{"Selected": func(values ...interface{}) string {
-			s := termenv.String(values[0].(string))
-			s = s.Foreground(m.selectionColor)
-			s = s.Bold()
-			return s.String()
+			return lipgloss.NewStyle().Bold(true).Foreground(m.styler.ActiveColor()).Render(values[0].(string))
 		}}).
 		Parse(TemplateYN); err != nil {
 		panic(err)
@@ -171,7 +166,7 @@ func (m model) content() string {
 	var s string
 
 	if !m.done {
-		s += m.confirm.Header(m.width)
+		s += m.confirm.Header(&m.styler, m.width)
 	}
 
 	viewBuffer2 := &bytes.Buffer{}
@@ -227,9 +222,9 @@ func WithOut(out io.Writer) Option {
 	})
 }
 
-func WithSelectionColor(color string) Option {
+func WithStyler(styler style.Style) Option {
 	return optionFunc(func(c *model) {
-		c.selectionColor = c.colorProfile.Color(color)
+		c.styler = styler
 	})
 }
 

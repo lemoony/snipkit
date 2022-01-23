@@ -19,6 +19,16 @@ import (
 	"github.com/lemoony/snipkit/internal/utils/testutil"
 )
 
+func Test_Print(t *testing.T) {
+	termtest.RunTerminalTest(t, func(c *termtest.Console) {
+		c.ExpectString("No config found at: /path/to/config")
+	}, func(stdio termutil.Stdio) {
+		term := NewTerminal(WithStdio(stdio))
+		term.Print(uimsg.ConfigNotFound("/path/to/config"))
+		time.Sleep(time.Millisecond * 100)
+	})
+}
+
 func Test_PrintMessage(t *testing.T) {
 	termtest.RunTerminalTest(t, func(c *termtest.Console) {
 		c.ExpectString("Hello world")

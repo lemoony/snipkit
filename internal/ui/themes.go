@@ -15,7 +15,6 @@ import (
 	"gopkg.in/yaml.v3"
 
 	"github.com/lemoony/snipkit/internal/ui/style"
-	"github.com/lemoony/snipkit/internal/ui/uimsg"
 	"github.com/lemoony/snipkit/internal/utils/system"
 	themedata "github.com/lemoony/snipkit/themes"
 )
@@ -30,28 +29,23 @@ var (
 	variablePattern = regexp.MustCompile(`^\${(?P<varName>.*)}$`)
 	filenamePattern = regexp.MustCompile(`^(?P<filename>.*)\.ya?ml$`)
 	ErrInvalidTheme = errors.New("invalid theme")
-
-	currentTheme ThemeValues
-
-	styler = style.DefaultStyle()
 )
 
 type themeWrapper struct {
 	Version   string `yaml:"version"`
 	Variables map[string]string
-	Theme     ThemeValues `yaml:"theme"`
+	Theme     style.ThemeValues `yaml:"theme"`
 }
 
-func applyTheme(theme ThemeValues) {
-	currentTheme = theme
+func applyTheme(theme style.ThemeValues) {
+	styler := style.NewStyle(&theme)
+
 	tview.Styles.PrimitiveBackgroundColor = tcell.ColorReset
-
-	tview.Styles.BorderColor = currentTheme.borderColor()
-	tview.Styles.TitleColor = currentTheme.borderTitleColor()
-	uimsg.SetHighlightColor(currentTheme.PromptHighlightTextColor)
+	tview.Styles.BorderColor = toColor(styler.BorderColor())
+	tview.Styles.TitleColor = toColor(styler.BorderTitleColor())
 }
 
-func embeddedTheme(name string) (*ThemeValues, bool) {
+func embeddedTheme(name string) (*style.ThemeValues, bool) {
 	entries, err := themedata.Files.ReadDir(".")
 	if err != nil {
 		panic(err)
@@ -71,7 +65,7 @@ func embeddedTheme(name string) (*ThemeValues, bool) {
 	return nil, false
 }
 
-func customTheme(name string, system *system.System) (*ThemeValues, bool) {
+func customTheme(name string, system *system.System) (*style.ThemeValues, bool) {
 	if ok, _ := afero.DirExists(system.Fs, system.ThemesDir()); !ok {
 		log.Trace().Msgf("Dir does not exist: %s", system.ThemesDir())
 		return nil, false
@@ -97,7 +91,7 @@ func customTheme(name string, system *system.System) (*ThemeValues, bool) {
 	return nil, false
 }
 
-func readEmbeddedTheme(path string) ThemeValues {
+func readEmbeddedTheme(path string) style.ThemeValues {
 	bytes, err := themedata.Files.ReadFile(path)
 	if err != nil {
 		panic(errors.Wrapf(err, "failed to read theme %s", path))
@@ -112,7 +106,7 @@ func readEmbeddedTheme(path string) ThemeValues {
 	return wrapper.theme()
 }
 
-func readCustomTheme(path string, system *system.System) ThemeValues {
+func readCustomTheme(path string, system *system.System) style.ThemeValues {
 	bytes := system.ReadFile(path)
 
 	var wrapper themeWrapper
@@ -124,7 +118,7 @@ func readCustomTheme(path string, system *system.System) ThemeValues {
 	return wrapper.theme()
 }
 
-func (t *themeWrapper) theme() ThemeValues {
+func (t *themeWrapper) theme() style.ThemeValues {
 	result := t.Theme
 	v := reflect.Indirect(reflect.ValueOf(&result))
 
@@ -145,15 +139,11 @@ func (t *themeWrapper) theme() ThemeValues {
 	return result
 }
 
-func (r *ThemeValues) borderColor() tcell.Color {
-	return tcell.GetColor(r.BorderColor)
-}
-
-func (r *ThemeValues) borderTitleColor() tcell.Color {
-	return tcell.GetColor(r.BorderTitleColor)
-}
-
 func toColor(color lipgloss.TerminalColor) tcell.Color {
+	if color == nil {
+		return tcell.ColorReset
+	}
+
 	r, g, b, _ := color.RGBA()
 	return tcell.NewRGBColor(int32(r), int32(g), int32(b))
 }

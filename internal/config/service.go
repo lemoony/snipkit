@@ -88,7 +88,7 @@ func (s serviceImpl) Create() {
 		createConfigFile(s.system, s.v)
 	}
 
-	s.terminal.PrintMessage(uimsg.ConfigFileCreateResult(confirmed, s.v.ConfigFileUsed(), recreate))
+	s.terminal.Print(uimsg.ConfigFileCreateResult(confirmed, s.v.ConfigFileUsed(), recreate))
 }
 
 func (s serviceImpl) LoadConfig() (Config, error) {
@@ -133,9 +133,9 @@ func (s serviceImpl) Clean() {
 		if confirmed {
 			s.system.Remove(s.v.ConfigFileUsed())
 		}
-		s.terminal.PrintMessage(uimsg.ConfigFileDeleteResult(confirmed, s.v.ConfigFileUsed()))
+		s.terminal.Print(uimsg.ConfigFileDeleteResult(confirmed, s.v.ConfigFileUsed()))
 	} else {
-		s.terminal.PrintMessage(uimsg.ConfigNotFound(configPath))
+		s.terminal.Print(uimsg.ConfigNotFound(configPath))
 	}
 
 	if s.hasThemes() {
@@ -143,14 +143,14 @@ func (s serviceImpl) Clean() {
 		if confirmed {
 			s.system.RemoveAll(s.system.ThemesDir())
 		}
-		s.terminal.PrintMessage(uimsg.ThemesDeleteResult(confirmed, s.system.ThemesDir()))
+		s.terminal.Print(uimsg.ThemesDeleteResult(confirmed, s.system.ThemesDir()))
 	}
 
 	s.deleteDirectoryIfEmpty(s.system.ThemesDir())
 	s.deleteDirectoryIfEmpty(filepath.Dir(s.system.ConfigPath()))
 
 	if exists, _ := afero.DirExists(s.system.Fs, s.system.HomeDir()); exists {
-		s.terminal.PrintMessage(uimsg.HomeDirectoryStillExists(s.system.HomeDir()))
+		s.terminal.Print(uimsg.HomeDirectoryStillExists(s.system.HomeDir()))
 	}
 }
 

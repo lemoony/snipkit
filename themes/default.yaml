@@ -7,30 +7,21 @@ variables:
   secondaryFieldBackgroundColor: "lightgray"
   secondaryFieldTextColor: "gray"
 theme:
-  backgroundColor: ""
-  borderColor: ""
-  borderTitleColor:
-  previewColorSchemeName: friendly
-  previewApplyMainBackground: true
-  previewOverwriteBackgroundColor: ""
-  previewDefaultTextColor: ""
-  itemTextColor: ${textDefaultColor}
-  selectedItemTextColor: ${textSelectionColor}
-  selectedItemBackgroundColor: ${selectionBackgroundColor}
-  itemHighlightMatchBackgroundColor: "#50fa7b"
-  itemHighlightMatchTextColor: "gray"
-  counterTextColor: "#B79103"
-  lookupInputTextColor: ${textDefaultColor}
-  lookupInputPlaceholderColor: "#6272a4"
-  lookupInputBackgroundColor: ""
-  parametersLabelTextColor: ${textDefaultColor}
-  parametersFieldBackgroundColor: ${fieldBackgroundColor}
-  parametersFieldTextColor: ${textDefaultColor}
-  selectedButtonBackgroundColor: ${selectionBackgroundColor}
-  selectedButtonTextColor: ${textSelectionColor}
-  parameterAutocompleteBackgroundColor: ${secondaryFieldBackgroundColor}
-  parameterAutocompleteTextColor: ${secondaryFieldTextColor}
-  parameterAutocompleteSelectedBackgroundColor: ${selectionBackgroundColor}
-  parameterAutocompleteSelectedTextColor: ${textSelectionColor}
-  promptSelectionTextColor: ${selectionBackgroundColor}
-  promptHighlightTextColor: "#139601"
+  borderColor: "#8A8A8A"
+  borderTitleColor: "#8A8A8A"
+  previewColorSchemeName: "friendly"
+  textColor: "#303030"
+  subduedColor: "#8A8A8A"
+  subduedContrastColor: "#000000"
+  verySubduedColor: "#DDDADA"
+  verySubduedContrastColor: "#000000"
+  activeColor: "#F25D94"
+  activeContrastColor: "#FFFFFF"
+  selectionColor: "#F793FF"
+  selectionContrastColor: "#FFFFFF"
+  titleColor: "62"
+  titleContrastColor: "230"
+  highlightColor: "#1ED670"
+  highlightContrastColor: "#FFFFFF"
+  infoColor: "#F8BE71"
+  infoContrastColor: "#FFFFFF"

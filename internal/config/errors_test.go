@@ -6,11 +6,12 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	"github.com/lemoony/snipkit/internal/ui/style"
 	"github.com/lemoony/snipkit/internal/ui/uimsg"
 )
 
 func Test_ErrConfigNotFound_string(t *testing.T) {
-	assert.Equal(t, uimsg.ConfigNotFound("path"), ErrConfigNotFound{"path"}.Error())
+	assert.Equal(t, uimsg.ConfigNotFound("path").RenderWith(style.NoopStyle), ErrConfigNotFound{"path"}.Error())
 }
 
 func Test_ErrConfigNotFound_Is(t *testing.T) {

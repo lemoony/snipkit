@@ -12,7 +12,6 @@ import (
 func Test_defaultThemeAvailable(t *testing.T) {
 	themeNames := []string{
 		defaultThemeName,
-		"example",
 	}
 	for _, themeName := range themeNames {
 		t.Run(themeName, func(t *testing.T) {

@@ -24,6 +24,6 @@ func (a *appImpl) AddManager() {
 		if confirmed {
 			a.configService.UpdateManagerConfig(cfg)
 		}
-		a.ui.PrintMessage(uimsg.ManagerAddConfigResult(confirmed, a.configService.ConfigFilePath()))
+		a.ui.Print(uimsg.ManagerAddConfigResult(confirmed, a.configService.ConfigFilePath()))
 	}
 }

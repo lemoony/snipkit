@@ -3,6 +3,7 @@ package ui
 import (
 	"emperror.dev/errors"
 
+	"github.com/lemoony/snipkit/internal/ui/style"
 	"github.com/lemoony/snipkit/internal/utils/system"
 )
 
@@ -11,41 +12,11 @@ type Config struct {
 }
 
 type NamedTheme struct {
-	Name   string      `yaml:"name"`
-	Values ThemeValues `yaml:"values" head_comment:"A color can be created from a color name (W3C name) or by a hex value in the format #ffffff."`
+	Name   string            `yaml:"name"`
+	Values style.ThemeValues `yaml:"values" head_comment:"A color can be created from a color name (W3C name) or by a hex value in the format #ffffff."`
 }
 
-type ThemeValues struct {
-	BackgroundColor                              string `yaml:"backgroundColor"`
-	BorderColor                                  string `yaml:"borderColor"`
-	BorderTitleColor                             string `yaml:"borderTitleColor"`
-	PreviewColorSchemeName                       string `yaml:"previewColorSchemeName"`
-	PreviewApplyMainBackground                   bool   `yaml:"previewApplyMainBackground"`
-	PreviewOverwriteBackgroundColor              string `yaml:"previewOverwriteBackgroundColor"`
-	PreviewDefaultTextColor                      string `yaml:"previewDefaultTextColor"`
-	ItemTextColor                                string `yaml:"itemTextColor"`
-	SelectedItemTextColor                        string `yaml:"selectedItemTextColor"`
-	SelectedItemBackgroundColor                  string `yaml:"selectedItemBackgroundColor"`
-	ItemHighlightMatchBackgroundColor            string `yaml:"itemHighlightMatchBackgroundColor"`
-	ItemHighlightMatchTextColor                  string `yaml:"itemHighlightMatchTextColor"`
-	CounterTextColor                             string `yaml:"counterTextColor"`
-	LookupInputTextColor                         string `yaml:"lookupInputTextColor"`
-	LookupInputPlaceholderColor                  string `yaml:"lookupInputPlaceholderColor"`
-	LookupInputBackgroundColor                   string `yaml:"lookupInputBackgroundColor"`
-	ParametersLabelTextColor                     string `yaml:"parametersLabelTextColor"`
-	ParametersFieldBackgroundColor               string `yaml:"parametersFieldBackgroundColor"`
-	ParametersFieldTextColor                     string `yaml:"parametersFieldTextColor"`
-	ParameterAutocompleteBackgroundColor         string `yaml:"parameterAutocompleteBackgroundColor"`
-	ParameterAutocompleteTextColor               string `yaml:"parameterAutocompleteTextColor"`
-	ParameterAutocompleteSelectedBackgroundColor string `yaml:"parameterAutocompleteSelectedBackgroundColor"`
-	ParameterAutocompleteSelectedTextColor       string `yaml:"parameterAutocompleteSelectedTextColor"`
-	SelectedButtonBackgroundColor                string `yaml:"selectedButtonBackgroundColor"`
-	SelectedButtonTextColor                      string `yaml:"selectedButtonTextColor"`
-	PromptSelectionTextColor                     string `yaml:"promptSelectionTextColor"`
-	PromptHighlightTextColor                     string `yaml:"promptHighlightTextColor"`
-}
-
-func (c *Config) GetSelectedTheme(system *system.System) ThemeValues {
+func (c *Config) GetSelectedTheme(system *system.System) style.ThemeValues {
 	themeName := defaultThemeName
 	if c.Theme != "" {
 		themeName = c.Theme

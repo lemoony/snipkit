@@ -11,6 +11,8 @@ import (
 	"github.com/muesli/reflow/wrap"
 	"github.com/muesli/termenv"
 	"golang.org/x/term"
+
+	"github.com/lemoony/snipkit/internal/ui/style"
 )
 
 const (
@@ -33,16 +35,8 @@ const (
 	snippetWidthMargin = 10
 )
 
-var (
-	highlightColor string
-	colorProfile   = termenv.ColorProfile()
-
-	snippetTextColor       = lipgloss.Color("#FFF7DB")
-	snippetBackgroundColor = lipgloss.Color("#FB3082")
-
-	//go:embed templates/*.gotmpl
-	templateFilesFS embed.FS
-)
+//go:embed templates/*.gotmpl
+var templateFilesFS embed.FS
 
 type Confirm struct {
 	Prompt string
@@ -52,6 +46,15 @@ type Confirm struct {
 	data     map[string]interface{}
 }
 
+type Printable struct {
+	template string
+	data     map[string]interface{}
+}
+
+func (p Printable) RenderWith(styler *style.Style) string {
+	return renderWithStyle(p.template, styler, p.data)
+}
+
 func NewConfirm(prompt, header string) Confirm {
 	return Confirm{
 		Prompt: prompt,
@@ -59,24 +62,18 @@ func NewConfirm(prompt, header string) Confirm {
 	}
 }
 
-func (c *Confirm) Header(width ...int) string {
+func (c *Confirm) Header(styler *style.Style, width int) string {
 	if c.header != "" {
 		return c.header
 	}
 
-	if len(width) > 0 {
-		c.data["screenWidth"] = width[0]
-	}
+	c.data["screenWidth"] = width
 
-	return render(c.template, c.data)
+	return renderWithStyle(c.template, styler, c.data)
 }
 
 func (c *Confirm) HasTemplateHeader() bool {
 	return c.template != ""
-}
-
-func SetHighlightColor(color string) {
-	highlightColor = color
 }
 
 func ConfigFileCreateConfirm(path string, homeEnv string, recreate bool) Confirm {
@@ -97,14 +94,15 @@ func ConfigFileCreateConfirm(path string, homeEnv string, recreate bool) Confirm
 	}
 }
 
-func ConfigFileCreateResult(created bool, configPath string, recreate bool) string {
-	return render(
-		configFileCreateResult,
-		map[string]interface{}{
+func ConfigFileCreateResult(created bool, configPath string, recreate bool) Printable {
+	return Printable{
+		template: configFileCreateResult,
+		data: map[string]interface{}{
 			"cfgPath":  configPath,
 			"created":  created,
 			"recreate": recreate,
-		})
+		},
+	}
 }
 
 func ConfigFileDeleteConfirm(path string) Confirm {
@@ -115,8 +113,11 @@ func ConfigFileDeleteConfirm(path string) Confirm {
 	}
 }
 
-func ConfigFileDeleteResult(deleted bool, configPath string) string {
-	return render(configFileDeleteResult, map[string]interface{}{"deleted": deleted, "cfgPath": configPath})
+func ConfigFileDeleteResult(deleted bool, configPath string) Printable {
+	return Printable{
+		template: configFileDeleteResult,
+		data:     map[string]interface{}{"deleted": deleted, "cfgPath": configPath},
+	}
 }
 
 func ThemesDeleteConfirm(path string) Confirm {
@@ -127,8 +128,11 @@ func ThemesDeleteConfirm(path string) Confirm {
 	}
 }
 
-func ThemesDeleteResult(deleted bool, themesPath string) string {
-	return render(themesDeleteResult, map[string]interface{}{"deleted": deleted, "themesPath": themesPath})
+func ThemesDeleteResult(deleted bool, themesPath string) Printable {
+	return Printable{
+		template: themesDeleteResult,
+		data:     map[string]interface{}{"deleted": deleted, "themesPath": themesPath},
+	}
 }
 
 func ManagerConfigAddConfirm(cfg string) Confirm {
@@ -139,20 +143,33 @@ func ManagerConfigAddConfirm(cfg string) Confirm {
 	}
 }
 
-func ManagerAddConfigResult(confirmed bool, cfgPath string) string {
-	return render(managerAddConfigResult, map[string]interface{}{"confirmed": confirmed, "cfgPath": cfgPath})
+func ManagerAddConfigResult(confirmed bool, cfgPath string) Printable {
+	return Printable{
+		template: managerAddConfigResult,
+		data:     map[string]interface{}{"confirmed": confirmed, "cfgPath": cfgPath},
+	}
 }
 
-func ConfigNotFound(configPath string) string {
-	return render(configNotFound, map[string]interface{}{"cfgPath": configPath})
+func ConfigNotFound(configPath string) Printable {
+	return Printable{
+		template: configNotFound,
+		data:     map[string]interface{}{"cfgPath": configPath},
+	}
 }
 
-func HomeDirectoryStillExists(configPath string) string {
-	return render(homeDirStillExists, map[string]interface{}{"cfgPath": configPath})
+func HomeDirectoryStillExists(configPath string) Printable {
+	return Printable{
+		template: homeDirStillExists,
+		data:     map[string]interface{}{"cfgPath": configPath},
+	}
 }
 
 func render(templateFile string, data interface{}) string {
-	t := newTemplate(templateFile)
+	return renderWithStyle(templateFile, nil, data)
+}
+
+func renderWithStyle(templateFile string, styler *style.Style, data interface{}) string {
+	t := newTemplate(templateFile, styler)
 	writer := bytes.NewBufferString("")
 	if err := t.Execute(writer, data); err != nil {
 		panic(err)
@@ -160,11 +177,11 @@ func render(templateFile string, data interface{}) string {
 	return writer.String()
 }
 
-func newTemplate(fileName string) *template.Template {
+func newTemplate(fileName string, styler *style.Style) *template.Template {
 	t, err := template.
 		New(fileName).
-		Funcs(termenv.TemplateFuncs(colorProfile)).
-		Funcs(templateFuncs()).
+		Funcs(termenv.TemplateFuncs(lipgloss.ColorProfile())).
+		Funcs(templateFuncs(styler)).
 		ParseFS(templateFilesFS, filepath.Join("templates", fileName))
 	if err != nil {
 		panic(err)
@@ -172,13 +189,14 @@ func newTemplate(fileName string) *template.Template {
 	return t
 }
 
-func templateFuncs() template.FuncMap {
+func templateFuncs(styler *style.Style) template.FuncMap {
 	return template.FuncMap{
 		"Highlighted": func(values ...interface{}) string {
-			s := termenv.String(values[0].(string))
-			s = s.Foreground(colorProfile.Color(highlightColor))
-			s = s.Italic()
-			return s.String()
+			return lipgloss.
+				NewStyle().
+				Italic(true).
+				Foreground(styler.HighlightColor()).
+				Render(values[0].(string))
 		},
 		"Snippet": func(values ...interface{}) string {
 			width, _, _ := term.GetSize(0)
@@ -186,11 +204,11 @@ func templateFuncs() template.FuncMap {
 
 			blockStyle := lipgloss.NewStyle().
 				Align(lipgloss.Left).
-				Foreground(snippetTextColor).
-				Background(snippetBackgroundColor).
+				Foreground(styler.ActiveContrastColor()).
+				Background(styler.ActiveColor()).
 				BorderStyle(lipgloss.NormalBorder()).
 				BorderTop(true).BorderRight(true).BorderBottom(true).BorderLeft(true).
-				BorderForeground(lipgloss.Color("#ff00ff")).
+				BorderForeground(styler.ActiveColor()).
 				Padding(0).
 				Margin(0).
 				Width(width)

@@ -76,7 +76,6 @@ func initialModel(parameters []internalModel.Parameter, okButtonText string) *mo
 		colorProfile: termenv.ColorProfile(),
 		elementFocus: -1,
 		showFields:   0,
-		styler:       style.DefaultStyle(),
 		okButtonText: okButtonText,
 	}
 

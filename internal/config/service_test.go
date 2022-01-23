@@ -54,7 +54,7 @@ func Test_Create(t *testing.T) {
 	confirm := uimsg.ConfigFileCreateConfirm(cfgFilePath, "", false)
 	terminal := &mocks.Terminal{}
 	terminal.On(mockutil.Confirmation, confirm, mock.Anything).Return(true, nil)
-	terminal.On(mockutil.PrintMessage, mock.Anything).Return()
+	terminal.On(mockutil.Print, mock.Anything).Return()
 
 	s := NewService(WithSystem(system), WithViper(v), WithTerminal(terminal))
 
@@ -79,7 +79,7 @@ func Test_Create_Decline(t *testing.T) {
 		On(mockutil.Confirmation, uimsg.ConfigFileCreateConfirm(cfgFilePath, "", false), mock.Anything).
 		Return(false, nil)
 
-	terminal.On(mockutil.PrintMessage, mock.Anything).Return()
+	terminal.On(mockutil.Print, mock.Anything).Return()
 
 	s := NewService(WithSystem(system), WithViper(v), WithTerminal(terminal))
 
@@ -117,7 +117,7 @@ func Test_Create_Recreate_Decline(t *testing.T) {
 		On(mockutil.Confirmation, uimsg.ConfigFileCreateConfirm(cfgFilePath, "", true), mock.Anything).
 		Return(false, nil)
 	terminal.
-		On(mockutil.PrintMessage, mock.Anything).
+		On(mockutil.Print, mock.Anything).
 		Return()
 
 	s := NewService(WithSystem(system), WithViper(v), WithTerminal(terminal))
@@ -175,7 +175,7 @@ func Test_Clean(t *testing.T) {
 
 	terminal := &mocks.Terminal{}
 	terminal.On(mockutil.Confirmation, mock.Anything, mock.Anything).Return(true, nil)
-	terminal.On(mockutil.PrintMessage, mock.Anything).Return()
+	terminal.On(mockutil.Print, mock.Anything).Return()
 
 	s := NewService(WithSystem(system), WithViper(v), WithTerminal(terminal))
 
@@ -214,7 +214,7 @@ func Test_Clean_Decline(t *testing.T) {
 	s := NewService(WithSystem(system), WithViper(v), WithTerminal(terminal))
 	assert.True(t, s.(serviceImpl).hasConfig())
 
-	terminal.On(mockutil.PrintMessage, mock.Anything).Return()
+	terminal.On(mockutil.Print, mock.Anything).Return()
 	terminal.
 		On(mockutil.Confirmation, uimsg.ConfigFileDeleteConfirm(system.ConfigPath()), mock.Anything).
 		Return(false, nil)
@@ -239,7 +239,7 @@ func Test_Clean_NoConfig(t *testing.T) {
 	system := testutil.NewTestSystem(system.WithConfigCome(cfgFilePath))
 
 	term := mocks.Terminal{}
-	term.On(mockutil.PrintMessage, mock.Anything).Return()
+	term.On(mockutil.Print, mock.Anything).Return()
 
 	v := viper.New()
 	v.SetConfigFile(cfgFilePath)
@@ -248,7 +248,7 @@ func Test_Clean_NoConfig(t *testing.T) {
 	s := NewService(WithSystem(system), WithTerminal(&term), WithViper(v))
 	s.Clean()
 
-	term.AssertCalled(t, mockutil.PrintMessage, uimsg.ConfigNotFound(cfgFilePath))
+	term.AssertCalled(t, mockutil.Print, uimsg.ConfigNotFound(cfgFilePath))
 }
 
 func Test_ConfigFilePath(t *testing.T) {

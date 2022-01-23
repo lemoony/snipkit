@@ -16,6 +16,7 @@ import (
 	"github.com/lemoony/snipkit/internal/ui/confirm"
 	"github.com/lemoony/snipkit/internal/ui/form"
 	"github.com/lemoony/snipkit/internal/ui/picker"
+	"github.com/lemoony/snipkit/internal/ui/style"
 	"github.com/lemoony/snipkit/internal/ui/uimsg"
 	"github.com/lemoony/snipkit/internal/utils/system"
 	"github.com/lemoony/snipkit/internal/utils/termutil"
@@ -60,6 +61,7 @@ func WithScreen(screen tcell.Screen) TerminalOption {
 
 type Terminal interface {
 	ApplyConfig(cfg Config, system *system.System)
+	Print(m uimsg.Printable)
 	PrintMessage(message string)
 	PrintError(message string)
 	Confirmation(confirm uimsg.Confirm, options ...confirm.Option) bool
@@ -72,6 +74,7 @@ type Terminal interface {
 type cliTerminal struct {
 	stdio  termutil.Stdio
 	screen tcell.Screen
+	styler style.Style
 }
 
 func NewTerminal(options ...TerminalOption) Terminal {
@@ -86,15 +89,20 @@ func NewTerminal(options ...TerminalOption) Terminal {
 		option.apply(&term)
 	}
 
-	return term
+	return &term
 }
 
-func (c cliTerminal) ApplyConfig(cfg Config, system *system.System) {
-	theme := cfg.GetSelectedTheme(system)
+func (c *cliTerminal) ApplyConfig(cfg Config, system *system.System) {
+	themeValues := cfg.GetSelectedTheme(system)
+	c.styler = style.NewStyle(&themeValues)
 
 	tview.Styles.PrimitiveBackgroundColor = tcell.ColorReset
-	tview.Styles.BorderColor = theme.borderColor()
-	tview.Styles.TitleColor = theme.borderTitleColor()
+	tview.Styles.BorderColor = toColor(c.styler.BorderColor())
+	tview.Styles.TitleColor = toColor(c.styler.BorderTitleColor())
+}
+
+func (c cliTerminal) Print(p uimsg.Printable) {
+	fmt.Fprintln(c.stdio.Out, p.RenderWith(&c.styler))
 }
 
 func (c cliTerminal) PrintMessage(msg string) {
@@ -110,7 +118,12 @@ func (c cliTerminal) ShowParameterForm(parameters []model.Parameter, okButton Ok
 		return []string{}, true
 	}
 
-	return form.Show(parameters, string(okButton), form.WithIn(c.stdio.In), form.WithOut(c.stdio.Out))
+	return form.Show(parameters,
+		string(okButton),
+		form.WithStyler(c.styler),
+		form.WithIn(c.stdio.In),
+		form.WithOut(c.stdio.Out),
+	)
 }
 
 func (c cliTerminal) Confirmation(confirmation uimsg.Confirm, options ...confirm.Option) bool {
@@ -118,7 +131,7 @@ func (c cliTerminal) Confirmation(confirmation uimsg.Confirm, options ...confirm
 		confirmation,
 		append(
 			[]confirm.Option{
-				confirm.WithSelectionColor(currentTheme.PromptSelectionTextColor),
+				confirm.WithStyler(c.styler),
 				confirm.WithIn(c.stdio.In),
 				confirm.WithOut(c.stdio.Out),
 			},

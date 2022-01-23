@@ -4,6 +4,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"github.com/lemoony/snipkit/internal/ui/style"
 )
 
 const (
@@ -12,16 +14,14 @@ const (
 	testThemesPath = "path/to/themes"
 )
 
-func init() {
-	SetHighlightColor("#ffffff")
-}
+var testStyle = style.NoopStyle
 
 func Test_ConfigFileCreated(t *testing.T) {
-	assert.Contains(t, ConfigFileCreateResult(true, testCfgPath, false), testCfgPath)
+	assert.Contains(t, ConfigFileCreateResult(true, testCfgPath, false).RenderWith(testStyle), testCfgPath)
 }
 
 func Test_ConfigNotFound(t *testing.T) {
-	assert.Contains(t, ConfigNotFound(testCfgPath), testCfgPath)
+	assert.Contains(t, ConfigNotFound(testCfgPath).RenderWith(testStyle), testCfgPath)
 }
 
 func Test_ConfigFileCreateConfirm(t *testing.T) {
@@ -45,8 +45,8 @@ func Test_ConfigFileCreateConfirm(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			c := ConfigFileCreateConfirm(tt.cfgPath, tt.homeEnv, true)
-			assert.Contains(t, c.Header(), tt.cfgPath)
-			assert.Contains(t, c.Header(), tt.homeEnv)
+			assert.Contains(t, c.Header(testStyle, 0), tt.cfgPath)
+			assert.Contains(t, c.Header(testStyle, 0), tt.homeEnv)
 		})
 	}
 }
@@ -70,35 +70,35 @@ func Test_ConfigFileCreateResult(t *testing.T) {
 
 func Test_ConfigFileDeleteConfirm(t *testing.T) {
 	c := ConfigFileDeleteConfirm(testCfgPath)
-	assert.Contains(t, c.Header(), testCfgPath)
+	assert.Contains(t, c.Header(testStyle, 0), testCfgPath)
 }
 
 func Test_ConfigFileDeleteResult(t *testing.T) {
-	assert.Contains(t, ConfigFileDeleteResult(true, testCfgPath), "Configuration file deleted")
+	assert.Contains(t, ConfigFileDeleteResult(true, testCfgPath).RenderWith(testStyle), "Configuration file deleted")
 }
 
 func Test_HomeDirectoryStillExists(t *testing.T) {
-	assert.Contains(t, HomeDirectoryStillExists(testHomePath), testHomePath)
+	assert.Contains(t, HomeDirectoryStillExists(testHomePath).RenderWith(testStyle), testHomePath)
 }
 
 func Test_ThemesDeleteConfirm(t *testing.T) {
 	c := ThemesDeleteConfirm(testThemesPath)
 	assert.NotEmpty(t, c.Prompt)
-	assert.Contains(t, c.Header(), testThemesPath)
+	assert.Contains(t, c.Header(testStyle, 0), testThemesPath)
 }
 
 func Test_ThemesDeleteResult(t *testing.T) {
-	assert.Contains(t, ThemesDeleteResult(true, testThemesPath), testThemesPath)
+	assert.Contains(t, ThemesDeleteResult(true, testThemesPath).RenderWith(testStyle), testThemesPath)
 }
 
 func Test_ManagerConfigAddConfirm(t *testing.T) {
 	c := ManagerConfigAddConfirm("yaml")
 	assert.NotEmpty(t, c.Prompt)
-	assert.Contains(t, c.Header(), "yaml")
+	assert.Contains(t, c.Header(testStyle, 0), "yaml")
 }
 
 func Test_ManagerAddConfigResult(t *testing.T) {
-	assert.Contains(t, ManagerAddConfigResult(true, testCfgPath), testCfgPath)
+	assert.Contains(t, ManagerAddConfigResult(true, testCfgPath).RenderWith(testStyle), testCfgPath)
 }
 
 func Test_renderInvalidTemplate(t *testing.T) {
