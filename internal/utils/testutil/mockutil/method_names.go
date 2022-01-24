@@ -5,5 +5,7 @@ const (
 	PrintMessage = "PrintMessage"
 	PrintError   = "PrintError"
 
+	ApplyConfig = "ApplyConfig"
+
 	Confirmation = "Confirmation"
 )

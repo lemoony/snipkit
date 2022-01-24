@@ -107,7 +107,7 @@ func ConfigFileCreateResult(created bool, configPath string, recreate bool) Prin
 
 func ConfigFileDeleteConfirm(path string) Confirm {
 	return Confirm{
-		Prompt:   "Do you want to the config file?",
+		Prompt:   "Do you want to delete the config file?",
 		template: configFileDeleteConfirm,
 		data:     map[string]interface{}{"cfgPath": path},
 	}
@@ -191,6 +191,7 @@ func templateFuncs(styler *style.Style) template.FuncMap {
 			return lipgloss.
 				NewStyle().
 				Italic(true).
+				Underline(true).
 				Foreground(styler.HighlightColor()).
 				Render(values[0].(string))
 		},
@@ -200,11 +201,11 @@ func templateFuncs(styler *style.Style) template.FuncMap {
 
 			blockStyle := lipgloss.NewStyle().
 				Align(lipgloss.Left).
-				Foreground(styler.ActiveContrastColor()).
-				Background(styler.ActiveColor()).
+				Foreground(styler.SnippetContrastColor()).
+				Background(styler.SnippetColor()).
 				BorderStyle(lipgloss.NormalBorder()).
 				BorderTop(true).BorderRight(true).BorderBottom(true).BorderLeft(true).
-				BorderForeground(styler.ActiveColor()).
+				BorderForeground(styler.SnippetColor()).
 				Padding(0).
 				Margin(0).
 				Width(width)

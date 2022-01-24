@@ -2,8 +2,8 @@ version: 1.0.0
 config:
   style:
     # The theme defines the terminal colors used by Snipkit.
-    # Available themes:default,dracula.
-    theme: dracula
+    # Available themes:default(.light|.dark),simple.
+    theme: simple
   # Your preferred editor to open the config file when typing 'snipkit config edit'.
   editor: foo-editor # Defaults to a reasonable value for your operation system when empty.
   # The command which should run if you don't provide any subcommand.

@@ -15,7 +15,7 @@ import (
 
 func Test_App_Info(t *testing.T) {
 	tui := uiMocks.TUI{}
-	tui.On("ApplyConfig", mock.Anything, mock.Anything).Return()
+	tui.On(mockutil.ApplyConfig, mock.Anything, mock.Anything).Return()
 
 	cfg := configtest.NewTestConfig().Config
 

@@ -11,7 +11,7 @@ variables:
 theme:
   borderColor: ${gray}
   borderTitleColor: ${gray}
-  previewColorSchemeName: "rainbow_dash"
+  previewColorSchemeName: "pastie"
   textColor: "" # if empty the default terminal foreground color will be used
   subduedColor: ${gray}
   subduedContrastColor: ${black}

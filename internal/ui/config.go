@@ -8,7 +8,7 @@ import (
 )
 
 type Config struct {
-	Theme string `yaml:"theme" head_comment:"The theme defines the terminal colors used by Snipkit.\nAvailable themes:default,dracula."`
+	Theme string `yaml:"theme" head_comment:"The theme defines the terminal colors used by Snipkit.\nAvailable themes:default(.light|.dark),simple."`
 }
 
 type NamedTheme struct {

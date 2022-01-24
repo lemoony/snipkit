@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"regexp"
+	"strings"
 
 	"emperror.dev/errors"
 	"github.com/charmbracelet/lipgloss"
@@ -23,6 +24,9 @@ const (
 	defaultThemeName       = "default"
 	variablePatternMatches = 2
 	filenamePatternMatches = 2
+
+	lightSuffix = ".light"
+	darkSuffix  = ".dark"
 )
 
 var (
@@ -55,7 +59,8 @@ func embeddedTheme(name string) (*style.ThemeValues, bool) {
 		m := filenamePattern.FindStringSubmatch(filepath.Base(entry.Name()))
 		if len(m) == filenamePatternMatches {
 			themeName := m[1]
-			if name == themeName {
+			if themeNameMatches(name, themeName) {
+				log.Trace().Msgf("Chosen theme: %s", themeName)
 				theme := readEmbeddedTheme(entry.Name())
 				return &theme, true
 			}
@@ -80,7 +85,7 @@ func customTheme(name string, system *system.System) (*style.ThemeValues, bool) 
 		m := filenamePattern.FindStringSubmatch(filepath.Base(entry.Name()))
 		if len(m) == filenamePatternMatches {
 			themeName := m[1]
-			if name == themeName {
+			if themeNameMatches(name, themeName) {
 				themePath := filepath.Join(system.ThemesDir(), entry.Name())
 				theme := readCustomTheme(themePath, system)
 				return &theme, true
@@ -116,6 +121,12 @@ func readCustomTheme(path string, system *system.System) style.ThemeValues {
 	}
 
 	return wrapper.theme()
+}
+
+func themeNameMatches(configTheme, themeName string) bool {
+	matchesDarkTheme := style.HasDarkBackground() && strings.TrimSuffix(themeName, darkSuffix) == configTheme
+	matchesLightTheme := !style.HasDarkBackground() && strings.TrimSuffix(themeName, lightSuffix) == configTheme
+	return configTheme == themeName || matchesLightTheme || matchesDarkTheme
 }
 
 func (t *themeWrapper) theme() style.ThemeValues {

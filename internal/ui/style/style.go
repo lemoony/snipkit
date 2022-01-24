@@ -37,13 +37,18 @@ func (s *Style) NeedsResize() bool {
 	return s.needsToResize
 }
 
-func (s *Style) Title(text string) string {
+func (s *Style) TitleStyle() lipgloss.Style {
 	return lipgloss.NewStyle().
 		Background(s.colors.titleColor).
 		Foreground(s.colors.titleContrastColor).
+		Bold(true).
+		Italic(true).
 		Padding(0, 1).
-		MarginBottom(1).
-		Render(text)
+		MarginBottom(1)
+}
+
+func (s *Style) Title(text string) string {
+	return s.TitleStyle().Render(text)
 }
 
 func (s *Style) FormFieldWrapper(field string) string {
@@ -104,7 +109,7 @@ func (s *Style) MainView(view string, help string, resize bool) string {
 }
 
 func (s *Style) ColorProfile() termenv.Profile {
-	return lipgloss.ColorProfile()
+	return colorProfile
 }
 
 func (s *Style) PreviewColorSchemeName() string {
@@ -135,14 +140,6 @@ func (s *Style) PlaceholderColor() lipgloss.TerminalColor {
 	return s.colors.subduedColor
 }
 
-func (s *Style) SelectionColor() lipgloss.TerminalColor {
-	return s.colors.selectionColor
-}
-
-func (s *Style) SelectionColorReverse() lipgloss.TerminalColor {
-	return s.colors.selectionContrastColor
-}
-
 func (s *Style) SubduedColor() lipgloss.TerminalColor {
 	return s.colors.subduedColor
 }
@@ -169,6 +166,14 @@ func (s *Style) HighlightColor() lipgloss.TerminalColor {
 
 func (s *Style) HighlightContrastColor() lipgloss.TerminalColor {
 	return s.colors.highlightContrastColor
+}
+
+func (s *Style) SnippetColor() lipgloss.TerminalColor {
+	return s.colors.snippetColor
+}
+
+func (s *Style) SnippetContrastColor() lipgloss.TerminalColor {
+	return s.colors.snippetContrastColor
 }
 
 func (s *Style) ButtonTextColor(selected bool) lipgloss.TerminalColor {

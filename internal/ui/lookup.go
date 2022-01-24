@@ -103,16 +103,16 @@ func (t *tuiImpl) applyStyle(finder *tview.Finder, preview *tview.TextView) {
 
 	finder.SetItemLabelPadding(1)
 
-	finder.SetItemLabelStyle(tcell.StyleDefault.Background(toColor(t.styler.SelectionColor())))
+	finder.SetItemLabelStyle(tcell.StyleDefault.Background(toColor(t.styler.ActiveColor())))
 	finder.SetItemStyle(tcell.StyleDefault.Background(tcell.ColorReset).Foreground(toColor(t.styler.TextColor())))
 
 	finder.SetSelectedItemLabelStyle(tcell.StyleDefault.
-		Background(toColor(t.styler.SelectionColor())).
-		Foreground(toColor(t.styler.SelectionColorReverse())),
+		Background(toColor(t.styler.ActiveColor())).
+		Foreground(toColor(t.styler.ActiveContrastColor())),
 	)
 	finder.SetSelectedItemStyle(tcell.StyleDefault.
-		Background(toColor(t.styler.SelectionColor())).
-		Foreground(toColor(t.styler.SelectionColorReverse())),
+		Background(toColor(t.styler.ActiveColor())).
+		Foreground(toColor(t.styler.ActiveContrastColor())),
 	)
 
 	finder.SetCounterStyle(tcell.StyleDefault.Foreground(toColor(t.styler.InfoColor())))

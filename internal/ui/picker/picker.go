@@ -77,15 +77,17 @@ func ShowPicker(items []Item, styler *style.Style, options ...tea.ProgramOption)
 	m.list.KeyMap.AcceptWhileFiltering.SetHelp("↵", "apply")
 	m.list.KeyMap.ShowFullHelp.SetEnabled(false)
 
-	m.list.Styles.Title.Background(styler.TitleColor()).Foreground(styler.TitleContrastColor())
+	m.list.Styles.Title.Background(styler.TitleColor()).Foreground(styler.TitleContrastColor()).Italic(true).Bold(true)
 
 	delegate.SetSpacing(1)
 
 	delegate.Styles.NormalTitle.Foreground(styler.TextColor())
-	delegate.Styles.SelectedTitle.Foreground(styler.SelectionColor())
+	delegate.Styles.SelectedTitle.Foreground(styler.ActiveColor())
+	delegate.Styles.SelectedTitle.BorderForeground(styler.ActiveColor())
 
 	delegate.Styles.NormalDesc.Foreground(styler.SubduedColor())
-	delegate.Styles.SelectedDesc.Foreground(styler.SelectionColor())
+	delegate.Styles.SelectedDesc.Foreground(styler.ActiveColor())
+	delegate.Styles.SelectedDesc.BorderForeground(styler.ActiveColor())
 
 	p := tea.NewProgram(&m, append(options, tea.WithAltScreen())...)
 

@@ -163,7 +163,7 @@ func (m *Model) View() string {
 	color := m.styler.TextColor()
 	borderStyle := lipgloss.HiddenBorder()
 	if m.field.Focused() {
-		color = m.styler.SelectionColor()
+		color = m.styler.ActiveColor()
 		borderStyle = lipgloss.NormalBorder()
 	}
 

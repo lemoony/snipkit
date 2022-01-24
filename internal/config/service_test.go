@@ -36,7 +36,7 @@ func Test_LoadConfig(t *testing.T) {
 	assert.NotNil(t, config)
 
 	assert.Equal(t, "foo-editor", config.Editor)
-	assert.Equal(t, "dracula", config.Style.Theme)
+	assert.Equal(t, "simple", config.Style.Theme)
 	assert.True(t, config.Manager.SnippetsLab.Enabled)
 	assert.Equal(t, "/path/to/lib", config.Manager.SnippetsLab.LibraryPath)
 	assert.Len(t, config.Manager.SnippetsLab.IncludeTags, 2)
@@ -151,6 +151,7 @@ func Test_Edit(t *testing.T) {
 
 	tui := &mocks.TUI{}
 	tui.On("OpenEditor", testDataExampleConfig, "foo-editor").Return(nil)
+	tui.On(mockutil.ApplyConfig, mock.Anything, mock.Anything).Return()
 
 	s := NewService(WithViper(v), WithTerminal(tui))
 
@@ -176,6 +177,7 @@ func Test_Clean(t *testing.T) {
 	tui := &mocks.TUI{}
 	tui.On(mockutil.Confirmation, mock.Anything, mock.Anything).Return(true, nil)
 	tui.On(mockutil.Print, mock.Anything).Return()
+	tui.On(mockutil.ApplyConfig, mock.Anything, mock.Anything).Return()
 
 	s := NewService(WithSystem(system), WithViper(v), WithTerminal(tui))
 
@@ -211,16 +213,17 @@ func Test_Clean_Decline(t *testing.T) {
 
 	tui := &mocks.TUI{}
 
-	s := NewService(WithSystem(system), WithViper(v), WithTerminal(tui))
-	assert.True(t, s.(serviceImpl).hasConfig())
-
 	tui.On(mockutil.Print, mock.Anything).Return()
+	tui.On(mockutil.ApplyConfig, mock.Anything, mock.Anything).Return()
 	tui.
 		On(mockutil.Confirmation, uimsg.ConfigFileDeleteConfirm(system.ConfigPath()), mock.Anything).
 		Return(false, nil)
 	tui.
 		On(mockutil.Confirmation, uimsg.ThemesDeleteConfirm(system.ThemesDir()), mock.Anything).
 		Return(false, nil)
+
+	s := NewService(WithSystem(system), WithViper(v), WithTerminal(tui))
+	assert.True(t, s.(serviceImpl).hasConfig())
 
 	s.Clean()
 

@@ -6,6 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/lemoony/snipkit/internal/ui/style"
+	"github.com/lemoony/snipkit/internal/utils/testutil"
 )
 
 const (
@@ -17,11 +18,11 @@ const (
 var testStyle = style.NoopStyle
 
 func Test_ConfigFileCreated(t *testing.T) {
-	assert.Contains(t, ConfigFileCreateResult(true, testCfgPath, false).RenderWith(testStyle), testCfgPath)
+	assert.Contains(t, render(ConfigFileCreateResult(true, testCfgPath, false)), testCfgPath)
 }
 
 func Test_ConfigNotFound(t *testing.T) {
-	assert.Contains(t, ConfigNotFound(testCfgPath).RenderWith(testStyle), testCfgPath)
+	assert.Contains(t, render(ConfigNotFound(testCfgPath)), testCfgPath)
 }
 
 func Test_ConfigFileCreateConfirm(t *testing.T) {
@@ -45,8 +46,8 @@ func Test_ConfigFileCreateConfirm(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			c := ConfigFileCreateConfirm(tt.cfgPath, tt.homeEnv, true)
-			assert.Contains(t, c.Header(testStyle, 0), tt.cfgPath)
-			assert.Contains(t, c.Header(testStyle, 0), tt.homeEnv)
+			assert.Contains(t, testutil.StripANSI(c.Header(testStyle, 0)), tt.cfgPath)
+			assert.Contains(t, testutil.StripANSI(c.Header(testStyle, 0)), tt.homeEnv)
 		})
 	}
 }
@@ -70,25 +71,25 @@ func Test_ConfigFileCreateResult(t *testing.T) {
 
 func Test_ConfigFileDeleteConfirm(t *testing.T) {
 	c := ConfigFileDeleteConfirm(testCfgPath)
-	assert.Contains(t, c.Header(testStyle, 0), testCfgPath)
+	assert.Contains(t, testutil.StripANSI(c.Header(testStyle, 0)), testCfgPath)
 }
 
 func Test_ConfigFileDeleteResult(t *testing.T) {
-	assert.Contains(t, ConfigFileDeleteResult(true, testCfgPath).RenderWith(testStyle), "Configuration file deleted")
+	assert.Contains(t, render(ConfigFileDeleteResult(true, testCfgPath)), "Configuration file deleted")
 }
 
 func Test_HomeDirectoryStillExists(t *testing.T) {
-	assert.Contains(t, HomeDirectoryStillExists(testHomePath).RenderWith(testStyle), testHomePath)
+	assert.Contains(t, render(HomeDirectoryStillExists(testHomePath)), testHomePath)
 }
 
 func Test_ThemesDeleteConfirm(t *testing.T) {
 	c := ThemesDeleteConfirm(testThemesPath)
 	assert.NotEmpty(t, c.Prompt)
-	assert.Contains(t, c.Header(testStyle, 0), testThemesPath)
+	assert.Contains(t, testutil.StripANSI(c.Header(testStyle, 0)), testThemesPath)
 }
 
 func Test_ThemesDeleteResult(t *testing.T) {
-	assert.Contains(t, ThemesDeleteResult(true, testThemesPath).RenderWith(testStyle), testThemesPath)
+	assert.Contains(t, render(ThemesDeleteResult(true, testThemesPath)), testThemesPath)
 }
 
 func Test_ManagerConfigAddConfirm(t *testing.T) {
@@ -98,11 +99,15 @@ func Test_ManagerConfigAddConfirm(t *testing.T) {
 }
 
 func Test_ManagerAddConfigResult(t *testing.T) {
-	assert.Contains(t, ManagerAddConfigResult(true, testCfgPath).RenderWith(testStyle), testCfgPath)
+	assert.Contains(t, render(ManagerAddConfigResult(true, testCfgPath)), testCfgPath)
 }
 
 func Test_renderInvalidTemplate(t *testing.T) {
 	assert.Panics(t, func() {
 		_ = renderWithStyle("{{ if .var }} bla", testStyle, map[string]interface{}{})
 	})
+}
+
+func render(p Printable) string {
+	return testutil.StripANSI(p.RenderWith(testStyle))
 }

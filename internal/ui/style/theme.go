@@ -17,9 +17,6 @@ type ThemeValues struct {
 	ActiveColor         string `yaml:"activeColor"`
 	ActiveContrastColor string `yaml:"activeContrastColor"`
 
-	SelectionColor         string `yaml:"selectionColor"`
-	SelectionContrastColor string `yaml:"selectionContrastColor"`
-
 	TitleColor         string `yaml:"titleColor"`
 	TitleContrastColor string `yaml:"titleContrastColor"`
 
@@ -28,4 +25,7 @@ type ThemeValues struct {
 
 	InfoColor         string `yaml:"infoColor"`
 	InfoContrastColor string `yaml:"infoContrastColor"`
+
+	SnippetColor         string `yaml:"snippetColor"`
+	SnippetContrastColor string `yaml:"snippetContrastColor"`
 }
