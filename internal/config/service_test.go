@@ -53,6 +53,7 @@ func Test_Create(t *testing.T) {
 
 	confirm := uimsg.ConfigFileCreateConfirm(cfgFilePath, "", false)
 	tui := &mocks.TUI{}
+	tui.On(mockutil.ApplyConfig, mock.Anything, mock.Anything).Return()
 	tui.On(mockutil.Confirmation, confirm, mock.Anything).Return(true, nil)
 	tui.On(mockutil.Print, mock.Anything).Return()
 
@@ -75,6 +76,7 @@ func Test_Create_Decline(t *testing.T) {
 	v.SetConfigFile(cfgFilePath)
 
 	tui := &mocks.TUI{}
+	tui.On(mockutil.ApplyConfig, mock.Anything, mock.Anything).Return()
 	tui.
 		On(mockutil.Confirmation, uimsg.ConfigFileCreateConfirm(cfgFilePath, "", false), mock.Anything).
 		Return(false, nil)
@@ -110,6 +112,7 @@ func Test_Create_Recreate_Decline(t *testing.T) {
 	v.SetConfigFile(cfgFilePath)
 
 	tui := &mocks.TUI{}
+	tui.On(mockutil.ApplyConfig, mock.Anything, mock.Anything).Return()
 	tui.
 		On(mockutil.Confirmation, uimsg.ConfigFileCreateConfirm(cfgFilePath, "", false), mock.Anything).
 		Return(true, nil)
@@ -242,6 +245,7 @@ func Test_Clean_NoConfig(t *testing.T) {
 	system := testutil.NewTestSystem(system.WithConfigCome(cfgFilePath))
 
 	tui := mocks.TUI{}
+	tui.On(mockutil.ApplyConfig, mock.Anything, mock.Anything).Return()
 	tui.On(mockutil.Print, mock.Anything).Return()
 
 	v := viper.New()

@@ -1,36 +1,41 @@
 # SnipKit - Snippet CLI manager
 
-[![Language](https://img.shields.io/badge/language-Go-blue.svg)](https://dart.dev)
-[![build](https://github.com/lemoony/snipkit/actions/workflows/build.yml/badge.svg)](https://github.com/lemoony/snipkit/actions/workflows/build.yml)
-[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Go Report Card](https://goreportcard.com/badge/github.com/lemoony/snipkit)](https://goreportcard.com/report/github.com/lemoony/snipkit)
-[![codecov](https://codecov.io/gh/lemoony/snipkit/branch/main/graph/badge.svg?token=UOG4O1yscP)](https://codecov.io/gh/lemoony/snipkit)
-
 SnipKit aims to paste code snippets from your favorite snippet manager into your terminal without even leaving it.
 
-![Demo](docs/images/demo.gif)
+<p align="center">
+  <a href="https://go.dev/"><img alt="Language" src="https://img.shields.io/badge/language-Go-blue.svg"></a>
+  <a href="https://github.com/lemoony/snipkit/actions/workflows/build.yml"><img alt="Build" src="https://github.com/lemoony/snipkit/actions/workflows/build.yml/badge.svg"></a>
+  <a href="https://opensource.org/licenses/Apache-2.0"><img alt="License" src="https://img.shields.io/badge/License-Apache_2.0-blue.svg"></a>
+  <a href="https://goreportcard.com/report/github.com/lemoony/snipkit"><img alt="Go Report Card" src="https://goreportcard.com/badge/github.com/lemoony/snipkit"></a>
+  <a href="https://codecov.io/gh/lemoony/snipkit"><img alt="codecov" src="https://codecov.io/gh/lemoony/snipkit/branch/main/graph/badge.svg?token=UOG4O1yscP"></a>
+</p>
 
-> This repository is still in the early stages of development! *Use at your own risk.*
+<p align="center">
+  <img alt="Demo" src="./docs/images/demo.gif" />
+</p>
 
-As of now, only SnippetsLab is supported. Other CLI managers may be added in the future. 
-
-[Documentation](https://lemoony.github.io/snipkit/)
+<p align="center">
+  <a href="https://lemoony.github.io/snipkit/">Documentation</a> | <a href="https://github.com/lemoony/snipkit/blob/master/CHANGELOG.md">Changelog</a>
+</p>
 
 ## Features
 
 `snipkit` supports the following features:
 
 - Load snippets form an external snippet manager (filtered by tags)
-  - SnippetsLab
+  - [SnippetsLab](https://www.renfei.org/snippets-lab/)
+  - [Snip](https://github.com/Pictarine/macos-snippets)
   - File system directory
+- Search for snippets by typing
 - Parameter substitution
 - Enum parameters
-- Search for snippets by typing
-- Root command can be adjusted (e.g. set to `print` or `exec`)
 - Themes
-  - Built-in themes (`default`, `dracula`, `solarized-light`, `example`)
+  - Built-in themes (`default`, `simple`)
   - Define custom themes
-  
+- Root command can be adjusted (e.g. set to `print` or `exec`)
+
+Inspired by [Pet](https://github.com/knqyf263/pet).
+
 ## Quick Start
 
 #### Overview of all commands
