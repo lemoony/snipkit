@@ -23,15 +23,16 @@ SnipKit aims to paste code snippets from your favorite snippet manager into your
 `snipkit` supports the following features:
 
 - Load snippets form an external snippet manager (filtered by tags)
-  - SnippetsLab
+  - [SnippetsLab](https://www.renfei.org/snippets-lab/)
+  - [Snip](https://github.com/Pictarine/macos-snippets)
   - File system directory
+- Search for snippets by typing
 - Parameter substitution
 - Enum parameters
-- Search for snippets by typing
-- Root command can be adjusted (e.g. set to `print` or `exec`)
 - Themes
-  - Built-in themes (`default`, `dracula`, `solarized-light`, `example`)
+  - Built-in themes (`default`, `simple`)
   - Define custom themes
+- Root command can be adjusted (e.g. set to `print` or `exec`)
 
 Inspired by [Pet](https://github.com/knqyf263/pet).
 
