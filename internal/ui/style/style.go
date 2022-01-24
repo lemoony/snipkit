@@ -4,22 +4,14 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
-)
-
-var (
-	activeColor = lipgloss.Color("#F25D94")
-
-	selectionColor        = lipgloss.AdaptiveColor{Light: "#F793FF", Dark: "#AD58B4"}
-	selectionReverseColor = lipgloss.AdaptiveColor{Light: "#ffffff", Dark: "#ffffff"}
-	verySubduedColor      = lipgloss.AdaptiveColor{Light: "#DDDADA", Dark: "#3C3C3C"}
-
-	infoColor      = lipgloss.Color("#F8BE71")
-	highlightColor = lipgloss.Color("#1ED670")
+	"github.com/muesli/termenv"
 )
 
 type Style struct {
 	width  int
 	height int
+
+	colors colors
 
 	minimize bool
 
@@ -28,8 +20,12 @@ type Style struct {
 	Reload func()
 }
 
-func DefaultStyle() Style {
-	return Style{}
+var NoopStyle = &Style{}
+
+func NewStyle(t *ThemeValues) Style {
+	return Style{
+		colors: newColors(t),
+	}
 }
 
 func (s *Style) SetSize(width, height int) {
@@ -41,13 +37,18 @@ func (s *Style) NeedsResize() bool {
 	return s.needsToResize
 }
 
-func (s *Style) Title(text string) string {
+func (s *Style) TitleStyle() lipgloss.Style {
 	return lipgloss.NewStyle().
-		Background(lipgloss.Color("62")).
-		Foreground(lipgloss.Color("230")).
+		Background(s.colors.titleColor).
+		Foreground(s.colors.titleContrastColor).
+		Bold(true).
+		Italic(true).
 		Padding(0, 1).
-		MarginBottom(1).
-		Render(text)
+		MarginBottom(1)
+}
+
+func (s *Style) Title(text string) string {
+	return s.TitleStyle().Render(text)
 }
 
 func (s *Style) FormFieldWrapper(field string) string {
@@ -107,42 +108,86 @@ func (s *Style) MainView(view string, help string, resize bool) string {
 	return lipgloss.NewStyle().Margin(margins...).Render(lipgloss.JoinVertical(lipgloss.Left, sections...))
 }
 
-func (s *Style) SelectionColor() lipgloss.TerminalColor {
-	return selectionColor
+func (s *Style) ColorProfile() termenv.Profile {
+	return colorProfile
 }
 
-func (s *Style) SelectionColorReverse() lipgloss.TerminalColor {
-	return selectionReverseColor
+func (s *Style) PreviewColorSchemeName() string {
+	return s.colors.previewColorSchemeName
+}
+
+func (s *Style) BorderColor() lipgloss.TerminalColor {
+	return s.colors.borderColor
+}
+
+func (s *Style) BorderTitleColor() lipgloss.TerminalColor {
+	return s.colors.borderColor
+}
+
+func (s *Style) TitleColor() lipgloss.TerminalColor {
+	return s.colors.titleColor
+}
+
+func (s *Style) TitleContrastColor() lipgloss.TerminalColor {
+	return s.colors.titleContrastColor
+}
+
+func (s *Style) TextColor() lipgloss.TerminalColor {
+	return s.colors.textColor
+}
+
+func (s *Style) PlaceholderColor() lipgloss.TerminalColor {
+	return s.colors.subduedColor
 }
 
 func (s *Style) SubduedColor() lipgloss.TerminalColor {
-	return verySubduedColor
+	return s.colors.subduedColor
+}
+
+func (s *Style) VerySubduedColor() lipgloss.TerminalColor {
+	return s.colors.verySubduedColor
 }
 
 func (s *Style) ActiveColor() lipgloss.TerminalColor {
-	return activeColor
+	return s.colors.activeColor
+}
+
+func (s *Style) ActiveContrastColor() lipgloss.TerminalColor {
+	return s.colors.activeContrastColor
 }
 
 func (s *Style) InfoColor() lipgloss.TerminalColor {
-	return infoColor
+	return s.colors.infoColor
 }
 
 func (s *Style) HighlightColor() lipgloss.TerminalColor {
-	return highlightColor
+	return s.colors.highlightColor
+}
+
+func (s *Style) HighlightContrastColor() lipgloss.TerminalColor {
+	return s.colors.highlightContrastColor
+}
+
+func (s *Style) SnippetColor() lipgloss.TerminalColor {
+	return s.colors.snippetColor
+}
+
+func (s *Style) SnippetContrastColor() lipgloss.TerminalColor {
+	return s.colors.snippetContrastColor
 }
 
 func (s *Style) ButtonTextColor(selected bool) lipgloss.TerminalColor {
 	if selected {
-		return lipgloss.Color("#FFF7DB")
+		return s.colors.activeContrastColor
 	}
-	return lipgloss.Color("#FFF7DB")
+	return s.colors.subduedContrastColor
 }
 
 func (s *Style) ButtonColor(selected bool) lipgloss.TerminalColor {
 	if selected {
-		return lipgloss.Color("#F25D94")
+		return s.colors.activeColor
 	}
-	return lipgloss.Color("#888B7E")
+	return s.colors.subduedColor
 }
 
 func max(a, b int) int {

@@ -19,11 +19,21 @@ import (
 	"github.com/lemoony/snipkit/internal/utils/testutil"
 )
 
+func Test_Print(t *testing.T) {
+	termtest.RunTerminalTest(t, func(c *termtest.Console) {
+		c.ExpectString("No config found at: /path/to/config")
+	}, func(stdio termutil.Stdio) {
+		term := NewTUI(WithStdio(stdio))
+		term.Print(uimsg.ConfigNotFound("/path/to/config"))
+		time.Sleep(time.Millisecond * 100)
+	})
+}
+
 func Test_PrintMessage(t *testing.T) {
 	termtest.RunTerminalTest(t, func(c *termtest.Console) {
 		c.ExpectString("Hello world")
 	}, func(stdio termutil.Stdio) {
-		term := NewTerminal(WithStdio(stdio))
+		term := NewTUI(WithStdio(stdio))
 		term.PrintMessage("Hello world")
 		time.Sleep(time.Millisecond * 100)
 	})
@@ -33,7 +43,7 @@ func Test_PrintError(t *testing.T) {
 	termtest.RunTerminalTest(t, func(c *termtest.Console) {
 		c.ExpectString("Some error message")
 	}, func(stdio termutil.Stdio) {
-		term := NewTerminal(WithStdio(stdio))
+		term := NewTUI(WithStdio(stdio))
 		term.PrintError("Some error message")
 		time.Sleep(time.Millisecond * 100)
 	})
@@ -103,7 +113,7 @@ func Test_ShowLookup(t *testing.T) {
 	}
 
 	runScreenTest(t, func(s tcell.Screen) {
-		term := NewTerminal(WithScreen(s))
+		term := NewTUI(WithScreen(s))
 		selected := term.ShowLookup(snippets)
 		assert.Equal(t, 1, selected)
 	}, func(screen tcell.SimulationScreen) {
@@ -127,7 +137,7 @@ func Test_OpenEditor(t *testing.T) {
 		_, err := os.Create(testFile)
 		assert.NoError(t, err)
 
-		NewTerminal(WithStdio(stdio)).OpenEditor(testFile, "")
+		NewTUI(WithStdio(stdio)).OpenEditor(testFile, "")
 		bytes, err := ioutil.ReadFile(testFile) //nolint:gosec // potential file inclusion via variable
 		assert.NoError(t, err)
 		assert.Equal(t, "Hello world\n", string(bytes))
@@ -143,7 +153,7 @@ func Test_OpenEditor_InvalidCommand(t *testing.T) {
 		assert.NoError(t, err)
 
 		assert.Panics(t, func() {
-			NewTerminal(WithStdio(stdio)).OpenEditor(testFile, "foo-editor")
+			NewTUI(WithStdio(stdio)).OpenEditor(testFile, "foo-editor")
 		})
 	})
 }
@@ -153,7 +163,7 @@ func Test_Confirmation(t *testing.T) {
 		c.Send("y")
 		c.SendKey(termtest.KeyEnter)
 	}, func(stdio termutil.Stdio) {
-		term := NewTerminal(WithStdio(stdio))
+		term := NewTUI(WithStdio(stdio))
 		confirmed := term.Confirmation(uimsg.ConfigFileDeleteConfirm("/some/path"))
 		assert.True(t, confirmed)
 	})
@@ -167,7 +177,7 @@ func Test_ShowPicker(t *testing.T) {
 		c.SendKey(termtest.KeyUp)
 		c.SendKey(termtest.KeyEnter)
 	}, func(stdio termutil.Stdio) {
-		term := NewTerminal(WithStdio(stdio))
+		term := NewTUI(WithStdio(stdio))
 		index, ok := term.ShowPicker([]picker.Item{
 			picker.NewItem("title1", "desc1"),
 			picker.NewItem("title2", "desc2"),

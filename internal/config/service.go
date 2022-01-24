@@ -16,48 +16,21 @@ import (
 
 var invalidConfig = Config{}
 
-// Option configures an App.
-type Option interface {
-	apply(s *serviceImpl)
-}
-
-// terminalOptionFunc wraps a func so that it satisfies the Option interface.
-type optionFunc func(s *serviceImpl)
-
-func (f optionFunc) apply(s *serviceImpl) {
-	f(s)
-}
-
-// WithTerminal sets the terminal for the Service.
-func WithTerminal(t ui.Terminal) Option {
-	return optionFunc(func(s *serviceImpl) {
-		s.terminal = t
-	})
-}
-
-// WithViper sets the viper instance for the Service.
-func WithViper(v *viper.Viper) Option {
-	return optionFunc(func(s *serviceImpl) {
-		s.v = v
-	})
-}
-
-// WithSystem sets the system instance for the Service.
-func WithSystem(system *system.System) Option {
-	return optionFunc(func(s *serviceImpl) {
-		s.system = system
-	})
-}
-
 // NewService creates a new Service.
 func NewService(options ...Option) Service {
 	service := serviceImpl{
 		v:      viper.GetViper(),
 		system: system.NewSystem(),
+		tui:    ui.NewTUI(),
 	}
 	for _, o := range options {
 		o.apply(&service)
 	}
+
+	if cfg, err := service.LoadConfig(); err == nil {
+		service.tui.ApplyConfig(cfg.Style, service.system)
+	}
+
 	return service
 }
 
@@ -71,16 +44,16 @@ type Service interface {
 }
 
 type serviceImpl struct {
-	v        *viper.Viper
-	system   *system.System
-	terminal ui.Terminal
+	v      *viper.Viper
+	system *system.System
+	tui    ui.TUI
 }
 
 func (s serviceImpl) Create() {
 	s.applyConfigTheme()
 
 	recreate := s.hasConfig()
-	confirmed := s.terminal.Confirmation(
+	confirmed := s.tui.Confirmation(
 		uimsg.ConfigFileCreateConfirm(s.v.ConfigFileUsed(), s.system.HomeEnvValue(), recreate),
 	)
 
@@ -88,7 +61,7 @@ func (s serviceImpl) Create() {
 		createConfigFile(s.system, s.v)
 	}
 
-	s.terminal.PrintMessage(uimsg.ConfigFileCreateResult(confirmed, s.v.ConfigFileUsed(), recreate))
+	s.tui.Print(uimsg.ConfigFileCreateResult(confirmed, s.v.ConfigFileUsed(), recreate))
 }
 
 func (s serviceImpl) LoadConfig() (Config, error) {
@@ -121,7 +94,7 @@ func (s serviceImpl) Edit() {
 		cfgEditor = cfg.Editor
 	}
 
-	s.terminal.OpenEditor(s.v.ConfigFileUsed(), cfgEditor)
+	s.tui.OpenEditor(s.v.ConfigFileUsed(), cfgEditor)
 }
 
 func (s serviceImpl) Clean() {
@@ -129,28 +102,28 @@ func (s serviceImpl) Clean() {
 	s.applyConfigTheme()
 
 	if s.hasConfig() {
-		confirmed := s.terminal.Confirmation(uimsg.ConfigFileDeleteConfirm(configPath))
+		confirmed := s.tui.Confirmation(uimsg.ConfigFileDeleteConfirm(configPath))
 		if confirmed {
 			s.system.Remove(s.v.ConfigFileUsed())
 		}
-		s.terminal.PrintMessage(uimsg.ConfigFileDeleteResult(confirmed, s.v.ConfigFileUsed()))
+		s.tui.Print(uimsg.ConfigFileDeleteResult(confirmed, s.v.ConfigFileUsed()))
 	} else {
-		s.terminal.PrintMessage(uimsg.ConfigNotFound(configPath))
+		s.tui.Print(uimsg.ConfigNotFound(configPath))
 	}
 
 	if s.hasThemes() {
-		confirmed := s.terminal.Confirmation(uimsg.ThemesDeleteConfirm(s.system.ThemesDir()))
+		confirmed := s.tui.Confirmation(uimsg.ThemesDeleteConfirm(s.system.ThemesDir()))
 		if confirmed {
 			s.system.RemoveAll(s.system.ThemesDir())
 		}
-		s.terminal.PrintMessage(uimsg.ThemesDeleteResult(confirmed, s.system.ThemesDir()))
+		s.tui.Print(uimsg.ThemesDeleteResult(confirmed, s.system.ThemesDir()))
 	}
 
 	s.deleteDirectoryIfEmpty(s.system.ThemesDir())
 	s.deleteDirectoryIfEmpty(filepath.Dir(s.system.ConfigPath()))
 
 	if exists, _ := afero.DirExists(s.system.Fs, s.system.HomeDir()); exists {
-		s.terminal.PrintMessage(uimsg.HomeDirectoryStillExists(s.system.HomeDir()))
+		s.tui.Print(uimsg.HomeDirectoryStillExists(s.system.HomeDir()))
 	}
 }
 

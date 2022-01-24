@@ -17,7 +17,7 @@ import (
 )
 
 type setup struct {
-	terminal ui.Terminal
+	terminal ui.TUI
 	provider managers.Provider
 	v        *viper.Viper
 	system   *system.System
@@ -32,7 +32,7 @@ func (s *setup) configService() config.Service {
 }
 
 var _defaultSetup = setup{
-	terminal: ui.NewTerminal(),
+	terminal: ui.NewTUI(),
 	provider: managers.NewBuilder(),
 	v:        viper.GetViper(),
 	system:   system.NewSystem(),
@@ -53,7 +53,7 @@ func getAppFromContext(ctx context.Context) app.App {
 
 	s := getSetupFromContext(ctx)
 	return app.NewApp(
-		app.WithTerminal(s.terminal),
+		app.WithTUI(s.terminal),
 		app.WithConfigService(s.configService()),
 		app.WithProvider(s.provider),
 	)

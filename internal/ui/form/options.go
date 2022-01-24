@@ -1,6 +1,10 @@
 package form
 
-import "io"
+import (
+	"io"
+
+	"github.com/lemoony/snipkit/internal/ui/style"
+)
 
 type Option interface {
 	apply(c *model)
@@ -21,5 +25,11 @@ func WithIn(input io.Reader) Option {
 func WithOut(out io.Writer) Option {
 	return optionFunc(func(c *model) {
 		c.output = &out
+	})
+}
+
+func WithStyler(styler style.Style) Option {
+	return optionFunc(func(c *model) {
+		c.styler = styler
 	})
 }

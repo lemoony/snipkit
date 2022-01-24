@@ -31,7 +31,7 @@ mocks: ## go generate
 	mockery --name='Service' --output="./mocks/config" --structname="ConfigService"  --dir="./internal/config"
 	mockery --name='Provider' --output="./mocks/managers"  --dir="./internal/managers"
 	mockery --name='Manager' --output="./mocks/managers" --dir="./internal/managers"
-	mockery --name='^Terminal$$' --output="./mocks/ui" --dir="./internal/ui"
+	mockery --name='^TUI$$' --output="./mocks/ui" --dir="./internal/ui"
 
 .PHONY: vet
 vet: ## go vet

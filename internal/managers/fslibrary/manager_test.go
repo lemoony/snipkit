@@ -14,7 +14,6 @@ import (
 )
 
 func Test_GetInfo(t *testing.T) {
-	system := testutil.NewTestSystem()
 	libraryPath := t.TempDir()
 	config := Config{
 		Enabled:     true,
@@ -22,7 +21,7 @@ func Test_GetInfo(t *testing.T) {
 		SuffixRegex: []string{".sh", ".yaml"},
 	}
 
-	provider, err := NewManager(WithSystem(system), WithConfig(config))
+	provider, err := NewManager(WithSystem(testutil.NewTestSystem()), WithConfig(config))
 	assert.NoError(t, err)
 
 	info := provider.Info()
@@ -43,14 +42,11 @@ func Test_GetInfo(t *testing.T) {
 }
 
 func Test_GetSnippets(t *testing.T) {
-	system := testutil.NewTestSystem()
 	config := Config{
 		Enabled:     true,
 		LibraryPath: []string{t.TempDir()},
 		SuffixRegex: []string{".sh", ".yaml"},
 	}
-
-	const filePerm = 0o600
 
 	files := []struct {
 		file     string
@@ -61,9 +57,12 @@ func Test_GetSnippets(t *testing.T) {
 		{file: "snippet-2.yaml", language: model.LanguageYAML},
 	}
 
+	const filePerm = 0o600
+	s := testutil.NewTestSystem()
+
 	for i := 0; i < len(files); i++ {
 		assert.NoError(t, afero.WriteFile(
-			system.Fs,
+			s.Fs,
 			filepath.Join(config.LibraryPath[0], files[i].file),
 			[]byte(fmt.Sprintf("content-%d", i)),
 			filePerm,
@@ -72,13 +71,13 @@ func Test_GetSnippets(t *testing.T) {
 
 	// write one file into library dir which does not match the suffix regex
 	assert.NoError(t, afero.WriteFile(
-		system.Fs,
+		s.Fs,
 		filepath.Join(config.LibraryPath[0], "foo.toml"),
 		[]byte("foo"),
 		filePerm,
 	))
 
-	provider, err := NewManager(WithSystem(system), WithConfig(config))
+	provider, err := NewManager(WithSystem(s), WithConfig(config))
 	assert.NoError(t, err)
 
 	snippets := provider.GetSnippets()
@@ -92,7 +91,6 @@ func Test_GetSnippets(t *testing.T) {
 }
 
 func Test_GetSnippets_LazyOpen_HideTitleHeader(t *testing.T) {
-	system := testutil.NewTestSystem()
 	config := Config{
 		Enabled:            true,
 		LazyOpen:           true,
@@ -102,6 +100,7 @@ func Test_GetSnippets_LazyOpen_HideTitleHeader(t *testing.T) {
 	}
 
 	const filePerm = 0o600
+	system := testutil.NewTestSystem()
 
 	assert.NoError(t, afero.WriteFile(
 		system.Fs,

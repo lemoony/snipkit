@@ -15,6 +15,7 @@ import (
 	"github.com/lemoony/snipkit/internal/model"
 	"github.com/lemoony/snipkit/internal/utils/assertutil"
 	"github.com/lemoony/snipkit/internal/utils/testutil"
+	"github.com/lemoony/snipkit/internal/utils/testutil/mockutil"
 	managerMocks "github.com/lemoony/snipkit/mocks/managers"
 	uiMocks "github.com/lemoony/snipkit/mocks/ui"
 )
@@ -52,19 +53,19 @@ func Test_NewAppNoManagers(t *testing.T) {
 	v := viper.NewWithOptions()
 	v.SetConfigFile(cfgFile)
 
-	term := uiMocks.Terminal{}
-	term.On("ApplyConfig", mock.AnythingOfType("ui.Config"), mock.Anything).Return()
+	tui := uiMocks.TUI{}
+	tui.On(mockutil.ApplyConfig, mock.AnythingOfType("ui.Config"), mock.Anything).Return()
 
 	provider := managerMocks.Provider{}
 	provider.On("CreateManager", mock.Anything, mock.Anything).Return([]managers.Manager{}, nil)
 
 	app := NewApp(
 		WithConfigService(config.NewService(config.WithViper(v))),
-		WithTerminal(&term),
+		WithTUI(&tui),
 		WithProvider(&provider),
 	)
 
-	term.AssertNumberOfCalls(t, "ApplyConfig", 1)
+	tui.AssertNumberOfCalls(t, mockutil.ApplyConfig, 1)
 	provider.AssertNumberOfCalls(t, "CreateManager", 1)
 
 	assert.Len(t, app.(*appImpl).managers, 0)

@@ -19,7 +19,7 @@ func (a *appImpl) LookupAndExecuteSnippet() {
 	}
 
 	parameters := parser.ParseParameters(snippet.GetContent())
-	if parameterValues, ok := a.ui.ShowParameterForm(parameters, ui.OkButtonExecute); ok {
+	if parameterValues, ok := a.tui.ShowParameterForm(parameters, ui.OkButtonExecute); ok {
 		script := parser.CreateSnippet(snippet.GetContent(), parameters, parameterValues)
 		executeScript(script)
 	}

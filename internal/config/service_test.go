@@ -36,7 +36,7 @@ func Test_LoadConfig(t *testing.T) {
 	assert.NotNil(t, config)
 
 	assert.Equal(t, "foo-editor", config.Editor)
-	assert.Equal(t, "dracula", config.Style.Theme)
+	assert.Equal(t, "simple", config.Style.Theme)
 	assert.True(t, config.Manager.SnippetsLab.Enabled)
 	assert.Equal(t, "/path/to/lib", config.Manager.SnippetsLab.LibraryPath)
 	assert.Len(t, config.Manager.SnippetsLab.IncludeTags, 2)
@@ -52,15 +52,15 @@ func Test_Create(t *testing.T) {
 	v.SetConfigFile(cfgFilePath)
 
 	confirm := uimsg.ConfigFileCreateConfirm(cfgFilePath, "", false)
-	terminal := &mocks.Terminal{}
-	terminal.On(mockutil.Confirmation, confirm, mock.Anything).Return(true, nil)
-	terminal.On(mockutil.PrintMessage, mock.Anything).Return()
+	tui := &mocks.TUI{}
+	tui.On(mockutil.Confirmation, confirm, mock.Anything).Return(true, nil)
+	tui.On(mockutil.Print, mock.Anything).Return()
 
-	s := NewService(WithSystem(system), WithViper(v), WithTerminal(terminal))
+	s := NewService(WithSystem(system), WithViper(v), WithTerminal(tui))
 
 	s.Create()
-	terminal.AssertCalled(t, mockutil.Confirmation, confirm, mock.Anything)
-	terminal.AssertNumberOfCalls(t, mockutil.Confirmation, 1)
+	tui.AssertCalled(t, mockutil.Confirmation, confirm, mock.Anything)
+	tui.AssertNumberOfCalls(t, mockutil.Confirmation, 1)
 
 	assert.True(t, s.(serviceImpl).hasConfig())
 }
@@ -74,24 +74,24 @@ func Test_Create_Decline(t *testing.T) {
 	v.SetFs(system.Fs)
 	v.SetConfigFile(cfgFilePath)
 
-	terminal := &mocks.Terminal{}
-	terminal.
+	tui := &mocks.TUI{}
+	tui.
 		On(mockutil.Confirmation, uimsg.ConfigFileCreateConfirm(cfgFilePath, "", false), mock.Anything).
 		Return(false, nil)
 
-	terminal.On(mockutil.PrintMessage, mock.Anything).Return()
+	tui.On(mockutil.Print, mock.Anything).Return()
 
-	s := NewService(WithSystem(system), WithViper(v), WithTerminal(terminal))
+	s := NewService(WithSystem(system), WithViper(v), WithTerminal(tui))
 
 	s.Create()
 	assert.False(t, s.(serviceImpl).hasConfig())
-	terminal.AssertCalled(
+	tui.AssertCalled(
 		t,
 		mockutil.Confirmation,
 		uimsg.ConfigFileCreateConfirm(cfgFilePath, "", false),
 		mock.Anything,
 	)
-	terminal.AssertNumberOfCalls(t, mockutil.Confirmation, 1)
+	tui.AssertNumberOfCalls(t, mockutil.Confirmation, 1)
 
 	if exists, err := afero.Exists(system.Fs, cfgFilePath); err != nil {
 		assert.NoError(t, err)
@@ -109,25 +109,25 @@ func Test_Create_Recreate_Decline(t *testing.T) {
 	v.SetFs(system.Fs)
 	v.SetConfigFile(cfgFilePath)
 
-	terminal := &mocks.Terminal{}
-	terminal.
+	tui := &mocks.TUI{}
+	tui.
 		On(mockutil.Confirmation, uimsg.ConfigFileCreateConfirm(cfgFilePath, "", false), mock.Anything).
 		Return(true, nil)
-	terminal.
+	tui.
 		On(mockutil.Confirmation, uimsg.ConfigFileCreateConfirm(cfgFilePath, "", true), mock.Anything).
 		Return(false, nil)
-	terminal.
-		On(mockutil.PrintMessage, mock.Anything).
+	tui.
+		On(mockutil.Print, mock.Anything).
 		Return()
 
-	s := NewService(WithSystem(system), WithViper(v), WithTerminal(terminal))
+	s := NewService(WithSystem(system), WithViper(v), WithTerminal(tui))
 
 	s.Create()
 	assert.True(t, s.(serviceImpl).hasConfig())
-	terminal.AssertCalled(
+	tui.AssertCalled(
 		t, mockutil.Confirmation, uimsg.ConfigFileCreateConfirm(cfgFilePath, "", false), mock.Anything,
 	)
-	terminal.AssertNumberOfCalls(t, mockutil.Confirmation, 1)
+	tui.AssertNumberOfCalls(t, mockutil.Confirmation, 1)
 
 	stat, _ := system.Fs.Stat(cfgFilePath)
 	modTime := stat.ModTime()
@@ -135,10 +135,10 @@ func Test_Create_Recreate_Decline(t *testing.T) {
 	s.Create()
 
 	assert.True(t, s.(serviceImpl).hasConfig())
-	terminal.AssertCalled(
+	tui.AssertCalled(
 		t, mockutil.Confirmation, uimsg.ConfigFileCreateConfirm(cfgFilePath, "", true), mock.Anything,
 	)
-	terminal.AssertNumberOfCalls(t, mockutil.Confirmation, 2)
+	tui.AssertNumberOfCalls(t, mockutil.Confirmation, 2)
 
 	// assert file was not changed by comparing the last modification time
 	stat, _ = system.Fs.Stat(cfgFilePath)
@@ -149,10 +149,11 @@ func Test_Edit(t *testing.T) {
 	v := viper.New()
 	v.SetConfigFile(testDataExampleConfig)
 
-	terminal := &mocks.Terminal{}
-	terminal.On("OpenEditor", testDataExampleConfig, "foo-editor").Return(nil)
+	tui := &mocks.TUI{}
+	tui.On("OpenEditor", testDataExampleConfig, "foo-editor").Return(nil)
+	tui.On(mockutil.ApplyConfig, mock.Anything, mock.Anything).Return()
 
-	s := NewService(WithViper(v), WithTerminal(terminal))
+	s := NewService(WithViper(v), WithTerminal(tui))
 
 	s.Edit()
 }
@@ -173,20 +174,21 @@ func Test_Clean(t *testing.T) {
 	v.SetConfigFile(system.ConfigPath())
 	v.SetFs(system.Fs)
 
-	terminal := &mocks.Terminal{}
-	terminal.On(mockutil.Confirmation, mock.Anything, mock.Anything).Return(true, nil)
-	terminal.On(mockutil.PrintMessage, mock.Anything).Return()
+	tui := &mocks.TUI{}
+	tui.On(mockutil.Confirmation, mock.Anything, mock.Anything).Return(true, nil)
+	tui.On(mockutil.Print, mock.Anything).Return()
+	tui.On(mockutil.ApplyConfig, mock.Anything, mock.Anything).Return()
 
-	s := NewService(WithSystem(system), WithViper(v), WithTerminal(terminal))
+	s := NewService(WithSystem(system), WithViper(v), WithTerminal(tui))
 
 	assert.True(t, s.(serviceImpl).hasConfig())
 
 	s.Clean()
 
-	terminal.AssertCalled(
+	tui.AssertCalled(
 		t, mockutil.Confirmation, uimsg.ConfigFileDeleteConfirm(v.ConfigFileUsed()), mock.Anything,
 	)
-	terminal.AssertCalled(t, mockutil.Confirmation, uimsg.ThemesDeleteConfirm(system.ThemesDir()), mock.Anything)
+	tui.AssertCalled(t, mockutil.Confirmation, uimsg.ThemesDeleteConfirm(system.ThemesDir()), mock.Anything)
 
 	assert.False(t, s.(serviceImpl).hasConfig())
 	assertutil.AssertExists(t, system.Fs, system.ConfigPath(), false)
@@ -209,25 +211,26 @@ func Test_Clean_Decline(t *testing.T) {
 	v.SetConfigFile(system.ConfigPath())
 	v.SetFs(system.Fs)
 
-	terminal := &mocks.Terminal{}
+	tui := &mocks.TUI{}
 
-	s := NewService(WithSystem(system), WithViper(v), WithTerminal(terminal))
-	assert.True(t, s.(serviceImpl).hasConfig())
-
-	terminal.On(mockutil.PrintMessage, mock.Anything).Return()
-	terminal.
+	tui.On(mockutil.Print, mock.Anything).Return()
+	tui.On(mockutil.ApplyConfig, mock.Anything, mock.Anything).Return()
+	tui.
 		On(mockutil.Confirmation, uimsg.ConfigFileDeleteConfirm(system.ConfigPath()), mock.Anything).
 		Return(false, nil)
-	terminal.
+	tui.
 		On(mockutil.Confirmation, uimsg.ThemesDeleteConfirm(system.ThemesDir()), mock.Anything).
 		Return(false, nil)
 
+	s := NewService(WithSystem(system), WithViper(v), WithTerminal(tui))
+	assert.True(t, s.(serviceImpl).hasConfig())
+
 	s.Clean()
 
-	terminal.AssertCalled(
+	tui.AssertCalled(
 		t, mockutil.Confirmation, uimsg.ConfigFileDeleteConfirm(system.ConfigPath()), mock.Anything,
 	)
-	terminal.AssertCalled(t, mockutil.Confirmation, uimsg.ThemesDeleteConfirm(system.ThemesDir()), mock.Anything)
+	tui.AssertCalled(t, mockutil.Confirmation, uimsg.ThemesDeleteConfirm(system.ThemesDir()), mock.Anything)
 
 	assert.True(t, s.(serviceImpl).hasConfig())
 	assertutil.AssertExists(t, system.Fs, system.ConfigPath(), true)
@@ -238,17 +241,17 @@ func Test_Clean_NoConfig(t *testing.T) {
 
 	system := testutil.NewTestSystem(system.WithConfigCome(cfgFilePath))
 
-	term := mocks.Terminal{}
-	term.On(mockutil.PrintMessage, mock.Anything).Return()
+	tui := mocks.TUI{}
+	tui.On(mockutil.Print, mock.Anything).Return()
 
 	v := viper.New()
 	v.SetConfigFile(cfgFilePath)
 	v.SetFs(system.Fs)
 
-	s := NewService(WithSystem(system), WithTerminal(&term), WithViper(v))
+	s := NewService(WithSystem(system), WithTerminal(&tui), WithViper(v))
 	s.Clean()
 
-	term.AssertCalled(t, mockutil.PrintMessage, uimsg.ConfigNotFound(cfgFilePath))
+	tui.AssertCalled(t, mockutil.Print, uimsg.ConfigNotFound(cfgFilePath))
 }
 
 func Test_ConfigFilePath(t *testing.T) {

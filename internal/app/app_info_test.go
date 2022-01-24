@@ -14,8 +14,8 @@ import (
 )
 
 func Test_App_Info(t *testing.T) {
-	terminal := uiMocks.Terminal{}
-	terminal.On("ApplyConfig", mock.Anything, mock.Anything).Return()
+	tui := uiMocks.TUI{}
+	tui.On(mockutil.ApplyConfig, mock.Anything, mock.Anything).Return()
 
 	cfg := configtest.NewTestConfig().Config
 
@@ -23,8 +23,8 @@ func Test_App_Info(t *testing.T) {
 	cfgService.On("LoadConfig").Return(cfg, nil)
 	cfgService.On("ConfigFilePath").Return("/path/to/cfg-file")
 
-	terminal.On(mockutil.PrintMessage, mock.Anything)
-	terminal.On(mockutil.PrintError, mock.Anything)
+	tui.On(mockutil.PrintMessage, mock.Anything)
+	tui.On(mockutil.PrintError, mock.Anything)
 
 	manager := managerMocks.Manager{}
 	manager.On("Info").Return(model.ManagerInfo{
@@ -35,12 +35,12 @@ func Test_App_Info(t *testing.T) {
 	})
 
 	app := NewApp(
-		WithTerminal(&terminal), WithConfigService(&cfgService), withManager(&manager),
+		WithTUI(&tui), WithConfigService(&cfgService), withManager(&manager),
 	)
 
 	app.Info()
 
-	terminal.AssertCalled(t, mockutil.PrintMessage, "Config file: /path/to/cfg-file")
-	terminal.AssertCalled(t, mockutil.PrintMessage, "Some-Key: Some-Value")
-	terminal.AssertCalled(t, mockutil.PrintError, "Some-Error: Some-Error")
+	tui.AssertCalled(t, mockutil.PrintMessage, "Config file: /path/to/cfg-file")
+	tui.AssertCalled(t, mockutil.PrintMessage, "Some-Key: Some-Value")
+	tui.AssertCalled(t, mockutil.PrintError, "Some-Error: Some-Error")
 }

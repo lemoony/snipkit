@@ -4,7 +4,6 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/rivo/tview"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/lemoony/snipkit/internal/utils/assertutil"
@@ -30,17 +29,17 @@ func Test_Config_apply(t *testing.T) {
 		config        Config
 		previewSchema string
 	}{
-		{name: "default theme", config: DefaultConfig(), previewSchema: "friendly"},
-		{name: "example theme", config: configWithTheme("example"), previewSchema: "solarized-light"},
-		{name: "test-custom", config: configWithTheme("test-custom"), previewSchema: "monokai"},
+		{name: "default", config: DefaultConfig(), previewSchema: "friendly"},
+		{name: "default light", config: configWithTheme("default.light"), previewSchema: "friendly"},
+		{name: "default dark", config: configWithTheme("default.dark"), previewSchema: "friendly"},
+		{name: "simple", config: configWithTheme("simple"), previewSchema: "pastie"},
+		{name: "test-custom", config: configWithTheme("test-custom"), previewSchema: "rainbow_dash"},
 	}
 
 	for _, tt := range testdata {
 		t.Run(tt.name, func(t *testing.T) {
 			theme := tt.config.GetSelectedTheme(system)
-			assert.NotEqual(t, theme.borderColor(), tview.Styles.BorderColor)
 			ApplyConfig(tt.config, system)
-			assert.Equal(t, theme.borderColor(), tview.Styles.BorderColor)
 			assert.Equal(t, tt.previewSchema, theme.PreviewColorSchemeName)
 		})
 	}

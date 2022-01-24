@@ -160,13 +160,16 @@ func (m *Model) filterOptions() {
 }
 
 func (m *Model) View() string {
+	color := m.styler.TextColor()
 	borderStyle := lipgloss.HiddenBorder()
 	if m.field.Focused() {
+		color = m.styler.ActiveColor()
 		borderStyle = lipgloss.NormalBorder()
 	}
 
 	labelStyle := lipgloss.NewStyle().
-		Foreground(m.styler.SelectionColor()).
+		Foreground(color).
+		Bold(true).
 		Border(borderStyle, false, false, false, true).
 		Padding(0, labelPaddingLeft, 0, 1)
 

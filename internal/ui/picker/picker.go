@@ -4,6 +4,8 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+
+	"github.com/lemoony/snipkit/internal/ui/style"
 )
 
 var (
@@ -59,13 +61,11 @@ func (m *model) View() string {
 	return docStyle.Render(m.list.View())
 }
 
-func ShowPicker(items []Item, options ...tea.ProgramOption) (int, bool) {
+func ShowPicker(items []Item, styler *style.Style, options ...tea.ProgramOption) (int, bool) {
 	listItems := make([]list.Item, len(items))
 	for i := range items {
 		listItems[i] = list.Item(items[i])
 	}
-
-	delegate.SetSpacing(1)
 
 	m := model{list: list.New(listItems, list.NewDefaultDelegate(), 0, 0)}
 	m.list.Title = "Which snippet manager should be added to your configuration"
@@ -76,6 +76,18 @@ func ShowPicker(items []Item, options ...tea.ProgramOption) (int, bool) {
 	m.list.KeyMap.AcceptWhileFiltering.SetEnabled(true)
 	m.list.KeyMap.AcceptWhileFiltering.SetHelp("↵", "apply")
 	m.list.KeyMap.ShowFullHelp.SetEnabled(false)
+
+	m.list.Styles.Title.Background(styler.TitleColor()).Foreground(styler.TitleContrastColor()).Italic(true).Bold(true)
+
+	delegate.SetSpacing(1)
+
+	delegate.Styles.NormalTitle.Foreground(styler.TextColor())
+	delegate.Styles.SelectedTitle.Foreground(styler.ActiveColor())
+	delegate.Styles.SelectedTitle.BorderForeground(styler.ActiveColor())
+
+	delegate.Styles.NormalDesc.Foreground(styler.SubduedColor())
+	delegate.Styles.SelectedDesc.Foreground(styler.ActiveColor())
+	delegate.Styles.SelectedDesc.BorderForeground(styler.ActiveColor())
 
 	p := tea.NewProgram(&m, append(options, tea.WithAltScreen())...)
 

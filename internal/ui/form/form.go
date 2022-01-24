@@ -45,10 +45,7 @@ type model struct {
 }
 
 func Show(parameters []internalModel.Parameter, okButton string, options ...Option) ([]string, bool) {
-	m := initialModel(parameters, okButton)
-	for _, o := range options {
-		o.apply(m)
-	}
+	m := initialModel(parameters, okButton, options...)
 
 	var teaOptions []tea.ProgramOption
 	if m.input != nil {
@@ -69,15 +66,18 @@ func Show(parameters []internalModel.Parameter, okButton string, options ...Opti
 	return m.values, m.apply
 }
 
-func initialModel(parameters []internalModel.Parameter, okButtonText string) *model {
+func initialModel(parameters []internalModel.Parameter, okButtonText string, options ...Option) *model {
 	m := model{
 		keyMap:       defaultKeyMap(),
 		help:         help.New(),
 		colorProfile: termenv.ColorProfile(),
 		elementFocus: -1,
 		showFields:   0,
-		styler:       style.DefaultStyle(),
 		okButtonText: okButtonText,
+	}
+
+	for _, o := range options {
+		o.apply(&m)
 	}
 
 	m.fields = make([]*field.Model, len(parameters))
