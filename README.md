@@ -15,7 +15,7 @@ SnipKit aims to paste code snippets from your favorite snippet manager into your
 </p>
 
 <p align="center">
-  <a href="https://lemoony.github.io/snipkit/">Documentation</a> 
+  <a href="https://lemoony.github.io/snipkit/">Documentation</a> | <a href="https://github.com/lemoony/snipkit/blob/master/CHANGELOG.md">Changelog</a>
 </p>
 
 ## Features
