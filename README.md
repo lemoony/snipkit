@@ -1,20 +1,22 @@
 # SnipKit - Snippet CLI manager
 
-[![Language](https://img.shields.io/badge/language-Go-blue.svg)](https://dart.dev)
-[![build](https://github.com/lemoony/snipkit/actions/workflows/build.yml/badge.svg)](https://github.com/lemoony/snipkit/actions/workflows/build.yml)
-[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Go Report Card](https://goreportcard.com/badge/github.com/lemoony/snipkit)](https://goreportcard.com/report/github.com/lemoony/snipkit)
-[![codecov](https://codecov.io/gh/lemoony/snipkit/branch/main/graph/badge.svg?token=UOG4O1yscP)](https://codecov.io/gh/lemoony/snipkit)
-
 SnipKit aims to paste code snippets from your favorite snippet manager into your terminal without even leaving it.
+
+<p align="center"> 
+  
+  [![Language](https://img.shields.io/badge/language-Go-blue.svg)](https://dart.dev)
+  [![build](https://github.com/lemoony/snipkit/actions/workflows/build.yml/badge.svg)](https://github.com/lemoony/snipkit/actions/workflows/build.yml)
+  [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+  [![Go Report Card](https://goreportcard.com/badge/github.com/lemoony/snipkit)](https://goreportcard.com/report/github.com/lemoony/snipkit)
+  [![codecov](https://codecov.io/gh/lemoony/snipkit/branch/main/graph/badge.svg?token=UOG4O1yscP)](https://codecov.io/gh/lemoony/snipkit)
+</p>
+
 
 ![Demo](docs/images/demo.gif)
 
-> This repository is still in the early stages of development! *Use at your own risk.*
-
-As of now, only SnippetsLab is supported. Other CLI managers may be added in the future. 
-
-[Documentation](https://lemoony.github.io/snipkit/)
+<p align="center">
+  [Documentation](https://lemoony.github.io/snipkit/)
+</p>
 
 ## Features
 
@@ -30,7 +32,9 @@ As of now, only SnippetsLab is supported. Other CLI managers may be added in the
 - Themes
   - Built-in themes (`default`, `dracula`, `solarized-light`, `example`)
   - Define custom themes
-  
+
+Inspired by [Pet](https://github.com/knqyf263/pet).
+
 ## Quick Start
 
 #### Overview of all commands

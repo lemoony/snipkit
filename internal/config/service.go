@@ -29,6 +29,8 @@ func NewService(options ...Option) Service {
 
 	if cfg, err := service.LoadConfig(); err == nil {
 		service.tui.ApplyConfig(cfg.Style, service.system)
+	} else {
+		service.tui.ApplyConfig(ui.DefaultConfig(), service.system)
 	}
 
 	return service
