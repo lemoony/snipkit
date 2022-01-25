@@ -11,16 +11,22 @@ set explicitly, a sensible default value for your operating system is assumed:
 - `macOS`: ~/Library/Application Support/snipkit
 - `Linux`: ~/.config/snipkit
 
-You can specifiy another directory to be used by snipkit be setting the environment variable `SNIPKIT_HOME`. E.g., you may
-want to put the following into your `~/.zshr` file:
+You can specify another directory to be used by SnipKit be setting the environment variable `SNIPKIT_HOME`. E.g., you may
+want to put the following into your `~/.zshrc` file:
 
 ```bash 
 export SNIPKIT_HOME=~/.snipkit
 ```
 
-## Config file
+## Initialization
 
-Upon initialization, the configuration file looks similar to this:
+In order to create a config file for SnipKit, execute:
+
+```bash
+snipkit config init
+```
+
+This command creates a config file in the SnipKit home directory. The initial config file looks similar to this:
 
 ```yaml 
 version: 1.0.0
@@ -33,29 +39,15 @@ config:
   editor: "" # Defaults to a reasonable value for your operation system when empty.
   # The command which should run if you don't provide any subcommand.
   defaultRootCommand: "" # If not set, the help text will be shown.
-  provider:
-    snippetsLab:
-      # Set to true if you want to use SnippetsLab.
-      enabled: fales
-      # Path to your *.snippetslablibrary file.
-      # SnipKit will try to detect this file automatically when generating the config.
-      libraryPath: "/path/to/main.snippetslablibrary/"
-      # If this list is not empty, only those snippets that match the listed tags will be provided to you.
-      includeTags: []
-    fsLibrary:
-      # If set to false, the files specified via libraryPath will not be provided to you.
-      enabled: false
-      # Paths directories that hold snippets files. Each file must hold one snippet only.
-      libraryPath:
-        - /path/to/file/system/library
-      # Only files with endings which match one of the listed suffixes will be considered.
-      suffixRegex:
-        - .sh
-      # If set to true, the files will not be parsed in advance. This means, only the filename can be used as the snippet name.
-      lazyOpen: false
-      # If set to true, the title comment will not be shown in the preview window.
-      hideTitleInPreview: false
 ```
+
+No snippet manager has been added at this time. In order to add a one execute:
+
+```bash
+snipkit manager add
+```
+
+For more information on the different managers supported, please see [Managers][managers].
 
 ## Editor
 
@@ -79,18 +71,18 @@ SnipKit supports multiple themes out of the box and also allows you to define yo
 ```yaml
 version: 1.0.0
 config:
-  theme: "dracula"
+  theme: "default"
 ```
 
-If the theme is not shipped with snipkit, it will try to lookup a custom theme. If the theme is named `<xx>`, the theme file
+If the theme is not shipped with snipkit, it will try to look up a custom theme. If the theme is named `<xx>`, the theme file
 must be located at `<SNIPKIT_HOME>/<xxx>.yaml`.
 
-For a list of supported default themes, have a look at the Themes page.
+For a list of supported default themes, have a look at the [Themes][themes] page.
 
 ## Default Root Command
 
 Most of the time, you want to call the same subcommand, e.g. `print` or `exec`. You can configure `snipkit` so that this
-command gets executed by default by editing the config:
+command gets executed by default:
 
 ```yaml 
 version: 1.0.0
@@ -101,6 +93,17 @@ config:
 This way, calling `snipkit` will yield the same result as `snipkit exec`. If you want to call the `print` command instead,
 you can still call `snipkit print`.
 
-## Provider
 
-> TODO: Explain the different providers
+## Clean up
+
+The config file as well as all custom themes can be deleted with:
+
+```bash 
+snipkit config clean
+```
+
+The cleanup method is a way to remove all SnipKit artifacts from your hard drive. It only deletes contents of the SnipKit
+home directory. If this directory is empty at the end of the cleanup process, it will be deleted as well.
+
+[managers]: ../managers/overview.md
+[themes]: themes.md

@@ -1,6 +1,6 @@
 # SnipKit - Snippet CLI manager
 
-SnipKit aims to paste code snippets from your favorite snippet manager into your terminal without even leaving it.
+Execute the scripts saved in your favorite snippet manager without even leaving the terminal.
 
 <p align="center">
   <a href="https://go.dev/"><img alt="Language" src="https://img.shields.io/badge/language-Go-blue.svg"></a>
@@ -20,8 +20,6 @@ SnipKit aims to paste code snippets from your favorite snippet manager into your
 
 ## Features
 
-`snipkit` supports the following features:
-
 - Load snippets form an external snippet manager (filtered by tags)
   - [SnippetsLab](https://www.renfei.org/snippets-lab/)
   - [Snip](https://github.com/Pictarine/macos-snippets)
@@ -38,60 +36,42 @@ Inspired by [Pet](https://github.com/knqyf263/pet).
 
 ## Quick Start
 
-#### Overview of all commands
+Please also have a look at the [Documentation]("https://lemoony.github.io/snipkit/).
 
-```bash
+### Overview of all commands
+
+```sh
 snipkit -h
 ```
-#### Configuration
+### Configuration
 
-```bash 
+```sh 
 # Create a new config
 snipkit config init
 ```
 
-If you have SnippetsLab installed, the config should already point to the corresponding
-library file. 
+As of now, no external snippet manager is configured.
 
-You can open & edit the config file easily:
-
-```bash 
-snipkit config edit
+```sh 
+# Add an external snippet manager
+snipkit manager add
 ```
 
-Have a look at the various configuration options. They should be self-explanatory
-most of the time.
+You will be presented with a list of supported managers. Pick the one you want to use. After that, you should be ready to go.
 
-## Power Setup
+### Working with snippets
 
-### Alias
+Search for and execute a snippet:
 
-Always typing the full name `snipkit` in order to open the manager might be too 
-cumbersome for you. Just define an alias (e.g. in your `.zshrc` file):
-
-```bash 
-# SnipKit alais
-sn () {
-  snipkit $1
-}
+```
+snipkit exec
 ```
 
-Then you can just type `sn` instead of `snipkit` to open the app.
+SnipKit will connect to the external snippet manager configured and provide all corresponding snippets
+to you.
 
-### Default Root Command
-
-Most of the time, you want to call the same subcommand, e.g. `print` or `exec`. You
-can configure `snipkit` so that this command gets executed by default by editing the config:
-
-*Example:*
-
-```yaml
-# snipkit config edit 
-defaultRootCommand: "exec"
-```
-
-With this setup, calling `sn` will yield the same result as `snipkit exec`. If you want to call
-the `print` command instead, just type `sn print`.
+> _Tip_: In order to execute snippets even faster, have a look at the 
+> [power setup](https://lemoony.github.io/snipkit/latest/getting-started/power-setup/) described in the documentation.
 
 ## Installation
 

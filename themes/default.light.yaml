@@ -17,7 +17,7 @@ theme:
   activeContrastColor: "#FFFFFF"
   titleColor: "62"
   titleContrastColor: "230"
-  highlightColor: "#73F59F"
+  highlightColor: "#40916c"
   highlightContrastColor: ${black}
   infoColor: "#F6A935"
   infoContrastColor: ${black}
