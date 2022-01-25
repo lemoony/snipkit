@@ -1,30 +1,22 @@
+---
+hide:
+- navigation
+- toc
+---
+
 # SnipKit
 
-![Demo](images/demo.gif)
+![Demo](./images/demo.gif){ align=left }
 
-## Getting started
+## Execute your scripts saved in your favorite snippet manager without even leaving the terminal.
 
-```bash
-$ snipkit -h
-Snipkit helps you to execute scripts saved in your favorite snippets manager without even leaving the terminal.
+Retrieve snippets from a list of external snippet managers, so you can keep your scripts all at one place and manage 
+them more easily:
 
-Usage:
-  snipkit [flags]
-  snipkit [command]
+* Search for snippets by typing.
 
-Available Commands:
-  browse      Browse all snippets without executing them
-  completion  Generate the autocompletion script for the specified shell
-  config      Manage your snipkit configuration file
-  exec        Execute a snippet directly from the terminal
-  help        Help about any command
-  info        Provides useful information about the snipkit configuration
-  print       Prints the snippet on stdout
+* Execute them with parameters. Define default values or a list of pre-defined values to pick from.
 
-Flags:
-  -c, --config string      config file (default "/Users/pse/Library/Application Support/snipkit/config.yaml")
-  -h, --help               help for snipkit
-  -l, --log-level string   log level used for debugging problems (supported values: trace,debug,info,warn,error,fatal,panic) (default "panic")
+* Customize SnipKit with a theme to match the look of your terminal.
 
-Use "snipkit [command] --help" for more information about a command.
-```
+[Getting started](./getting-started/overview.md){ .md-button .md-button--primary }

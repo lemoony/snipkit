@@ -6,7 +6,7 @@ import (
 
 var managerCmd = &cobra.Command{
 	Use:   "manager",
-	Short: "Manage your snippet managers snipkit connects to",
+	Short: "Manage the snippet managers snipkit connects to",
 }
 
 var managerAddCommand = &cobra.Command{
