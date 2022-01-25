@@ -13,14 +13,14 @@ config:
 
 Themes may have different variants for light & dark backgrounds, depending on your terminal.
 
-!!! warning "Force light or dark theme"
+!!! warning "Enforce light or dark theme"
     Sometimes SnipKit is not able to detect if you're using a light or dark background correctly. You can force a specific
-    theme variant by explicitly defining the `light` or `dark` suffix, e.g., `default.light` or `default.dark` as
-    theme name in your `config.yaml`
+    theme variant by explicitly defining the `.light` or `.dark` suffix, e.g., `default.light` or `default.dark` as
+    theme name in your `config.yaml`.
 
 ## Built-in themes
 
-As of now, the follwoing themes are supported:
+As of now, the following themes are supported:
 
 ### Default Theme
 
@@ -44,7 +44,7 @@ As of now, the follwoing themes are supported:
 Custom themes should be placed in the directory `<snipkit_home>/themes/`,
 `<snikit_home>` referring to the directory where your [configuration][configuration] lives.
 
-A theme called `custom-theme` should be put into a filed name `custom-theme.yaml`. The contents are as follows:
+A theme called `custom-theme` should be put into a file named `custom-theme.yaml`. The contents are as follows:
 
 ```yaml title="custom-theme.yaml"
 version: 1.0.0
@@ -83,13 +83,13 @@ theme:
 
 !!! tip "Dark & Light themes"
     You can define themes differently for light & dark terminal backgrounds. Just add the suffix `.light.yaml` 
-    respectively `dark.yaml` to the filename (e.g., `example-theme.light.yaml`). 
-    SnipKit will pick the right theme automatically. 
+    respectively `.dark.yaml` to the filename (e.g., `example-theme.light.yaml`). 
+    SnipKit will pick the appropriate theme automatically. 
 
 ### Variables
 
-The usage of variables in the theme is optional. Variables help you to reuse the same color multiple times without and, thus,
-make the theme more readable. If you don't want to use a variable, just specify the color directly where it is used, e.g:
+The usage of variables in the theme is optional. Variables help you to reuse the same color and, thus,
+make the theme more readable. If you don't want to use a variable, just specify the color directly, e.g.:
 
 ```yaml
 titleColor: "#FF0000"

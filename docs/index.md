@@ -8,7 +8,7 @@ hide:
 
 ![Demo](./images/demo.gif){ align=left }
 
-## Execute your scripts saved in your favorite snippet manager without even leaving the terminal.
+## Execute the scripts saved in your favorite snippet manager without even leaving the terminal.
 
 Retrieve snippets from a list of external snippet managers, so you can keep your scripts all at one place and manage 
 them more easily:

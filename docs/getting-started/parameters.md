@@ -1,10 +1,10 @@
 # Parameters
 
-In order to allow snippets parameters, SnipKit requires some special parameter syntax in your scripts.
+In order to support snippet parameters, SnipKit requires some special parameter syntax in your scripts.
 
 !!! info 
     The good thing about the parameter syntax used by SnipKit is that your scripts remain fully functional even when not
-    executing them via SnipKit. All parameter information is described by the usage of comments and, thus, can be regarded as
+    executed via SnipKit. All parameter information is described by the usage of comments and, thus, can be regarded as
     a consistent way to document your scripts.
 
 ## Parameter Names & Descriptions
@@ -20,11 +20,10 @@ Each comment which corresponds to a variable starts with `# ${<varName>}` with `
 used in your script (e.g., `VAR1` in the example).
 
 - Line 1 is ignored by SnipKit since it does not adhere to this pattern.
-- Line 2 defines the name of the parameter as displayed by SnipKit when presenting you the required parameters for a snippet.
-- Line 3 describes the usage of the parameter. As of now, the description will be used a placeholder value for an empty
+- Line 2 defines the name of the parameter as displayed by SnipKit when presenting you parameter input form.
+- Line 3 describes the usage of the parameter. As of now, the description will be used as a placeholder value for an empty
   parameter input field.
-- Line 4 uses the parameter. This line is ignored by SnipKit since it does not correspond to the paramter syntax and actually
-  belongs to your script
+- Line 4 uses the parameter. It does not correspond to the parameter syntax and belongs to your script.
 
 !!! note 
     If you don't specify a parameter name, the name of the variable will be used instead, e.g., `VAR1` in the example.
@@ -41,7 +40,7 @@ echo "${VAR1}"
 
 This way, the input field for parameter `VAR1` will be automatically filled with `Hello World`.
 
-## Enum Values
+## Pre-defined values
 
 You can add multiple pre-defined values for a parameter in order to ease filling the input form:
 
@@ -56,7 +55,7 @@ The example defines the values `One + some more`, `"Two"`, `Three`, `Four, and s
 values will be omitted.
 
 You can define multiple lines starting with `${<varname>} Values:` to list pre-defined values. The listed values will be
-joined by SnipKit. Each value must be seperated by the next via comma `,`. 
+joined by SnipKit. Each value must be seperated by the next via the character `,`. 
 
 !!! attention 
     If the value contains a comma itself, it needs to be escaped via `\,`.

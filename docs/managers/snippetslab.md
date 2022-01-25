@@ -22,14 +22,14 @@ manager:
         - othertag
 ```
 
-With this configuration, snipkit gets all snippets from SnippetsLab which are tagged with `snipkit` or `othertag`. All other
-snippets will not be presented to you. If you don't want to filter for tags, set `includeTags: []`.
+With this example configuration, SnipKit gets all snippets from SnippetsLab which are tagged with `snipkit` or `othertag`.
+All other snippets will not be presented to you. If you don't want to filter for tags, set `includeTags: []`.
 
 ## Library path
 
 Snipkit will try to automatically detect the path to the currently configured `*.snippetslablibrary` file.
 
-If you have enabled iCloud sync, this path will be similar to:
+If you have iCloud sync enabled, the path will be similar to:
 
 ```
 /Users/<user>/Library/Containers/com.renfei.SnippetsLab/Data/Library/Application Support/com.renfei.SnippetsLab/main.snippetslablibrary

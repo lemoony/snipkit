@@ -1,6 +1,6 @@
 # SnipKit - Snippet CLI manager
 
-SnipKit aims to paste code snippets from your favorite snippet manager into your terminal without even leaving it.
+Execute the scripts saved in your favorite snippet manager without even leaving the terminal.
 
 <p align="center">
   <a href="https://go.dev/"><img alt="Language" src="https://img.shields.io/badge/language-Go-blue.svg"></a>
@@ -19,8 +19,6 @@ SnipKit aims to paste code snippets from your favorite snippet manager into your
 </p>
 
 ## Features
-
-`snipkit` supports the following features:
 
 - Load snippets form an external snippet manager (filtered by tags)
   - [SnippetsLab](https://www.renfei.org/snippets-lab/)

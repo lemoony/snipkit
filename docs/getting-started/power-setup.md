@@ -3,7 +3,7 @@
 ### Alias
 
 Always typing the full name `snipkit` in order to open the manager might be too
-cumbersome for you. Just define an alias (e.g. in your `.zshrc` file):
+cumbersome for you. Instead, define an alias (e.g. in your `.zshrc` file):
 
 ```bash 
 # SnipKit alais
@@ -12,7 +12,7 @@ sn () {
 }
 ```
 
-Then you can just type `sn` instead of `snipkit` to open the app.
+Then you can just type `sn` instead of `snipkit` to open SnipKit.
 
 ### Default Root Command
 
@@ -27,4 +27,4 @@ defaultRootCommand: "exec"
 ```
 
 With this setup, calling `sn` will yield the same result as `snipkit exec`. If you want to call
-the `print` command instead, just type `sn print`.
+the `print` command instead, type `sn print`.

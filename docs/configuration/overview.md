@@ -11,8 +11,8 @@ set explicitly, a sensible default value for your operating system is assumed:
 - `macOS`: ~/Library/Application Support/snipkit
 - `Linux`: ~/.config/snipkit
 
-You can specifiy another directory to be used by snipkit be setting the environment variable `SNIPKIT_HOME`. E.g., you may
-want to put the following into your `~/.zshr` file:
+You can specify another directory to be used by SnipKit be setting the environment variable `SNIPKIT_HOME`. E.g., you may
+want to put the following into your `~/.zshrc` file:
 
 ```bash 
 export SNIPKIT_HOME=~/.snipkit
@@ -102,7 +102,7 @@ The config file as well as all custom themes can be deleted with:
 snipkit config clean
 ```
 
-The cleanup method is a way to remove all snipkit artifacts from your hard drive. It only deletes contents of the snipkit
+The cleanup method is a way to remove all SnipKit artifacts from your hard drive. It only deletes contents of the SnipKit
 home directory. If this directory is empty at the end of the cleanup process, it will be deleted as well.
 
 [managers]: ../managers/overview.md

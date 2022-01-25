@@ -2,7 +2,7 @@
 
 Available for: macOS, Linux
 
-The file system library manager lets you provide snippets via multiple directories on your computer. Each directory contains
+The file system library manager lets you provide snippets via multiple local directories. Each directory contains
 files which correspond to snippets.
 
 ## Configuration
@@ -41,9 +41,9 @@ However, SnipKit lets you also provide a different snippet name via a special co
 ```
 
 The _start_ of this comment must be within the first 3 lines of the file. If the first of three consecutive lines starting
-with `#` is after the line 3, the snippet name will be ignored.
+with `#` is after line 3, the snippet name will be ignored.
 
-E.g., a valid snippet with the name `Do something` insead of `example.sh` may look like this:
+E.g., a valid snippet named `Do something` instead of `example.sh` may look like this:
 
 ```sh linenums="1" title="example.sh"
 #!/bin/bash
