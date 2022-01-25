@@ -9,6 +9,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 
 	"github.com/lemoony/snipkit/internal/ui/style"
+	"github.com/lemoony/snipkit/internal/utils/stringutil"
 )
 
 const (
@@ -50,7 +51,7 @@ func New(styler style.Style, label, description string, options []string) *Model
 	}
 
 	m.field.Prompt = ""
-	m.field.Placeholder = description
+	m.field.Placeholder = stringutil.StringOrDefault(description, "Type here...")
 	m.field.SetCursorMode(textinput.CursorStatic)
 	return &m
 }
@@ -171,6 +172,7 @@ func (m *Model) View() string {
 		Foreground(color).
 		Bold(true).
 		Border(borderStyle, false, false, false, true).
+		BorderForeground(color).
 		Padding(0, labelPaddingLeft, 0, 1)
 
 	label := labelStyle.Render(lipgloss.PlaceHorizontal(m.labelWidth, lipgloss.Left, m.Label, lipgloss.WithWhitespaceChars(" ")))

@@ -2,10 +2,10 @@
 Config file created at:
   {{ print (Highlighted .cfgPath) }}
 
-To add snippet managers, type in {{- print " " (Italic "snipkit manager add") -}}.
+To add snippet managers, type in {{- print " " (Highlighted "snipkit manager add") -}}.
 
-If you want to edit the config, type in {{- print " " (Italic "snipkit config edit") -}}.
-If you want to delete the config, type in {{- print " " (Italic "snipkit config clean") -}}.
+If you want to edit the config, type in {{- print " " (Highlighted "snipkit config edit") -}}.
+If you want to delete the config, type in {{- print " " (Highlighted "snipkit config clean") -}}.
 {{- else -}}
 Config was not {{- if not .recreate }} created {{- else }} reinitialized {{- end -}}
 {{- end -}}
