@@ -632,7 +632,7 @@
 
 <h1 id="file-system-library">File System Library</h1>
 <p>Available for: macOS, Linux</p>
-<p>The file system library manager lets you provide snippets via multiple directories on your computer. Each directory contains
+<p>The file system library manager lets you provide snippets via multiple local directories. Each directory contains
 files which correspond to snippets.</p>
 <h2 id="configuration">Configuration</h2>
 <p>The configuration for the file system library may look similar to this:</p>
@@ -661,8 +661,8 @@ presented to you as <code>count-character.sh</code> in the lookup window.</p>
 <span class="c1">#</span>
 </code></pre></div>
 <p>The <em>start</em> of this comment must be within the first 3 lines of the file. If the first of three consecutive lines starting
-with <code>#</code> is after the line 3, the snippet name will be ignored.</p>
-<p>E.g., a valid snippet with the name <code>Do something</code> insead of <code>example.sh</code> may look like this:</p>
+with <code>#</code> is after line 3, the snippet name will be ignored.</p>
+<p>E.g., a valid snippet named <code>Do something</code> instead of <code>example.sh</code> may look like this:</p>
 <table class="highlighttable"><tr><th colspan="2" class="filename"><div class="highlight"><span class="filename">example.sh</span></div></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span>
 <span class="normal">3</span>

@@ -633,13 +633,13 @@
 <h1 id="power-setup">Power setup</h1>
 <h3 id="alias">Alias</h3>
 <p>Always typing the full name <code>snipkit</code> in order to open the manager might be too
-cumbersome for you. Just define an alias (e.g. in your <code>.zshrc</code> file):</p>
+cumbersome for you. Instead, define an alias (e.g. in your <code>.zshrc</code> file):</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># SnipKit alais</span>
 sn <span class="o">()</span> <span class="o">{</span>
   snipkit <span class="nv">$1</span>
 <span class="o">}</span>
 </code></pre></div>
-<p>Then you can just type <code>sn</code> instead of <code>snipkit</code> to open the app.</p>
+<p>Then you can just type <code>sn</code> instead of <code>snipkit</code> to open SnipKit.</p>
 <h3 id="default-root-command">Default Root Command</h3>
 <p>Most of the time, you want to call the same subcommand, e.g. <code>print</code> or <code>exec</code>. You
 can configure <code>snipkit</code> so that this command gets executed by default by editing the config:</p>
@@ -648,7 +648,7 @@ can configure <code>snipkit</code> so that this command gets executed by default
 <span class="nt">defaultRootCommand</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;exec&quot;</span><span class="w"></span>
 </code></pre></div>
 <p>With this setup, calling <code>sn</code> will yield the same result as <code>snipkit exec</code>. If you want to call
-the <code>print</code> command instead, just type <code>sn print</code>.</p>
+the <code>print</code> command instead, type <code>sn print</code>.</p>
 
               
             </article>

@@ -645,21 +645,21 @@
 
 
 <h1 id="overview">Overview</h1>
-<p>Managers are the actual provider of snippetss.</p>
+<p>Managers are the actual provider of snippets.</p>
 <h2 id="supported-managers">Supported managers</h2>
 <ul>
 <li><a href="https://www.renfei.org/snippets-lab/">SnippetsLab</a></li>
 <li><a href="https://github.com/Pictarine/macos-snippets">Snip</a></li>
 </ul>
-<p>Moreover, snipkit allows you to provide snippets via a simple <a href="../fslibrary/">file system directory</a>.</p>
+<p>Moreover, SnipKit allows you to provide snippets via a simple <a href="../fslibrary/">file system directory</a>.</p>
 <h2 id="adding-a-manager">Adding a manager</h2>
-<p>Adding a manager means that snipkit will retrieve snippets from it each time it is started. </p>
+<p>Adding a manager means that SnipKit will retrieve snippets from it each time it is started. </p>
 <p>This command lets you add a manager to your <a href="../../configuration/overview/">configuration</a>:</p>
 <div class="highlight"><pre><span></span><code>snipkit manager add
 </code></pre></div>
 <p>It represents a list of all supported managers that have not been added or enabled in your configuration. It will try to
-automatically detect the manager on your system and configure everything automatically. If SnipKit thinks has found the 
-corresponding manager and everythings looks good so far, it will be enabled. Otherwise, all required config options will
+detect the path to the manager and configure everything automatically. If SnipKit thinks it has found the 
+corresponding manager and everything looks good so far, it will be enabled. Otherwise, all required config options will
 be added to your config file, however, the manager will be disabled.</p>
 <h2 id="enabling-disabling">Enabling &amp; Disabling</h2>
 <p>Each manager can be enabled or disabled. By default, all managers are disabled:</p>
@@ -668,7 +668,8 @@ be added to your config file, however, the manager will be disabled.</p>
 <span class="w">      </span><span class="c1"># If set to false, the &lt;managerName&gt; is disabled </span><span class="w"></span>
 <span class="w">      </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
 </code></pre></div>
-<p>If a manager does not work, snipkit refuses to startup. In this case, disable the manager by setting <code>enabled: false</code>.</p>
+<p>If a manager does not work, SnipKit refuses to startup. In this case, disable the manager by setting <code>enabled: false</code> or 
+fix the configuration.</p>
 
               
             </article>

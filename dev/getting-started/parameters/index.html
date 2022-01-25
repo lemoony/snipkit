@@ -393,8 +393,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#enum-values" class="md-nav__link">
-    Enum Values
+  <a href="#pre-defined-values" class="md-nav__link">
+    Pre-defined values
   </a>
   
 </li>
@@ -621,8 +621,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#enum-values" class="md-nav__link">
-    Enum Values
+  <a href="#pre-defined-values" class="md-nav__link">
+    Pre-defined values
   </a>
   
 </li>
@@ -645,11 +645,11 @@
 
 
 <h1 id="parameters">Parameters</h1>
-<p>In order to allow snippets parameters, SnipKit requires some special parameter syntax in your scripts.</p>
+<p>In order to support snippet parameters, SnipKit requires some special parameter syntax in your scripts.</p>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
 <p>The good thing about the parameter syntax used by SnipKit is that your scripts remain fully functional even when not
-executing them via SnipKit. All parameter information is described by the usage of comments and, thus, can be regarded as
+executed via SnipKit. All parameter information is described by the usage of comments and, thus, can be regarded as
 a consistent way to document your scripts.</p>
 </div>
 <h2 id="parameter-names-descriptions">Parameter Names &amp; Descriptions</h2>
@@ -666,11 +666,10 @@ a consistent way to document your scripts.</p>
 used in your script (e.g., <code>VAR1</code> in the example).</p>
 <ul>
 <li>Line 1 is ignored by SnipKit since it does not adhere to this pattern.</li>
-<li>Line 2 defines the name of the parameter as displayed by SnipKit when presenting you the required parameters for a snippet.</li>
-<li>Line 3 describes the usage of the parameter. As of now, the description will be used a placeholder value for an empty
+<li>Line 2 defines the name of the parameter as displayed by SnipKit when presenting you parameter input form.</li>
+<li>Line 3 describes the usage of the parameter. As of now, the description will be used as a placeholder value for an empty
   parameter input field.</li>
-<li>Line 4 uses the parameter. This line is ignored by SnipKit since it does not correspond to the paramter syntax and actually
-  belongs to your script</li>
+<li>Line 4 uses the parameter. It does not correspond to the parameter syntax and belongs to your script.</li>
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -686,7 +685,7 @@ used in your script (e.g., <code>VAR1</code> in the example).</p>
 </code></pre></div>
 </td></tr></table>
 <p>This way, the input field for parameter <code>VAR1</code> will be automatically filled with <code>Hello World</code>.</p>
-<h2 id="enum-values">Enum Values</h2>
+<h2 id="pre-defined-values">Pre-defined values</h2>
 <p>You can add multiple pre-defined values for a parameter in order to ease filling the input form:</p>
 <table class="highlighttable"><tr><th colspan="2" class="filename"><div class="highlight"><span class="filename">Example snippet</span></div></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
 <span class="normal">2</span>
@@ -700,7 +699,7 @@ used in your script (e.g., <code>VAR1</code> in the example).</p>
 <p>The example defines the values <code>One + some more</code>, <code>"Two"</code>, <code>Three</code>, <code>Four, and some more</code>, and <code>Five</code>. Empty pre-defined
 values will be omitted.</p>
 <p>You can define multiple lines starting with <code>${&lt;varname&gt;} Values:</code> to list pre-defined values. The listed values will be
-joined by SnipKit. Each value must be seperated by the next via comma <code>,</code>. </p>
+joined by SnipKit. Each value must be seperated by the next via the character <code>,</code>. </p>
 <div class="admonition attention">
 <p class="admonition-title">Attention</p>
 <p>If the value contains a comma itself, it needs to be escaped via <code>\,</code>.</p>

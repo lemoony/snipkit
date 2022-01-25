@@ -760,13 +760,13 @@
 </code></pre></div>
 <p>Themes may have different variants for light &amp; dark backgrounds, depending on your terminal.</p>
 <div class="admonition warning">
-<p class="admonition-title">Force light or dark theme</p>
+<p class="admonition-title">Enforce light or dark theme</p>
 <p>Sometimes SnipKit is not able to detect if you're using a light or dark background correctly. You can force a specific
-theme variant by explicitly defining the <code>light</code> or <code>dark</code> suffix, e.g., <code>default.light</code> or <code>default.dark</code> as
-theme name in your <code>config.yaml</code></p>
+theme variant by explicitly defining the <code>.light</code> or <code>.dark</code> suffix, e.g., <code>default.light</code> or <code>default.dark</code> as
+theme name in your <code>config.yaml</code>.</p>
 </div>
 <h2 id="built-in-themes">Built-in themes</h2>
-<p>As of now, the follwoing themes are supported:</p>
+<p>As of now, the following themes are supported:</p>
 <h3 id="default-theme">Default Theme</h3>
 <h4 id="dark">Dark</h4>
 <p><img align="left," alt="Default Dark Lookup" src="../../images/themes/default-dark-lookup.png" width="49%" />
@@ -780,7 +780,7 @@ theme name in your <code>config.yaml</code></p>
 <h2 id="custom-themes">Custom themes</h2>
 <p>Custom themes should be placed in the directory <code>&lt;snipkit_home&gt;/themes/</code>,
 <code>&lt;snikit_home&gt;</code> referring to the directory where your <a href="../overview/">configuration</a> lives.</p>
-<p>A theme called <code>custom-theme</code> should be put into a filed name <code>custom-theme.yaml</code>. The contents are as follows:</p>
+<p>A theme called <code>custom-theme</code> should be put into a file named <code>custom-theme.yaml</code>. The contents are as follows:</p>
 <div class="highlight"><span class="filename">custom-theme.yaml</span><pre><span></span><code><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0.0</span><span class="w"></span>
 <span class="nt">variables</span><span class="p">:</span><span class="w"></span>
 <span class="w">  </span><span class="nt">white</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;#FFFFFF&quot;</span><span class="w"></span>
@@ -818,12 +818,12 @@ theme name in your <code>config.yaml</code></p>
 <div class="admonition tip">
 <p class="admonition-title">Dark &amp; Light themes</p>
 <p>You can define themes differently for light &amp; dark terminal backgrounds. Just add the suffix <code>.light.yaml</code> 
-respectively <code>dark.yaml</code> to the filename (e.g., <code>example-theme.light.yaml</code>). 
-SnipKit will pick the right theme automatically. </p>
+respectively <code>.dark.yaml</code> to the filename (e.g., <code>example-theme.light.yaml</code>). 
+SnipKit will pick the appropriate theme automatically. </p>
 </div>
 <h3 id="variables">Variables</h3>
-<p>The usage of variables in the theme is optional. Variables help you to reuse the same color multiple times without and, thus,
-make the theme more readable. If you don't want to use a variable, just specify the color directly where it is used, e.g:</p>
+<p>The usage of variables in the theme is optional. Variables help you to reuse the same color and, thus,
+make the theme more readable. If you don't want to use a variable, just specify the color directly, e.g.:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">titleColor</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;#FF0000&quot;</span><span class="w"></span>
 </code></pre></div>
 <h3 id="supported-colors">Supported colors</h3>
