@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"os"
 	"testing"
 
 	"github.com/spf13/viper"
@@ -13,15 +14,13 @@ import (
 )
 
 func Test_Info(t *testing.T) {
+	_ = os.Unsetenv("SNIPKIT_HOME")
+
 	system := testutil.NewTestSystem()
 	cfgFilePath := configtest.NewTestConfigFilePath(t, system.Fs)
 
 	manager := mocks.Manager{}
-	manager.On("Info").Return(model.ManagerInfo{
-		Lines: []model.ManagerInfoLine{
-			{Key: "Some-Key", Value: "Some-Value", IsError: false},
-		},
-	})
+	manager.On("Info").Return([]model.InfoLine{{Key: "Some-Key", Value: "Some-Value", IsError: false}})
 
 	v := viper.New()
 	v.SetFs(system.Fs)
@@ -34,7 +33,9 @@ func Test_Info(t *testing.T) {
 	}
 
 	runTerminalTest(t, []string{"info"}, ts, false, func(c *termtest.Console) {
-		c.ExpectString("Config file: " + cfgFilePath)
+		c.ExpectString("Config path: " + cfgFilePath)
+		c.ExpectString("SNIPKIT_HOME: Not set")
+		c.ExpectString("Theme: default")
 		c.ExpectString("Some-Key: Some-Value")
 	})
 }

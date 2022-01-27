@@ -68,14 +68,14 @@ func Test_Info(t *testing.T) {
 	assert.NotNil(t, manager)
 
 	info := manager.Info()
-	assert.Len(t, info.Lines, 3)
+	assert.Len(t, info, 3)
 
-	assert.Equal(t, "Pictarine Snip library path", info.Lines[0].Key)
-	assert.Equal(t, testDataDefaultLibraryPath, info.Lines[0].Value)
+	assert.Equal(t, "Pictarine Snip library path", info[0].Key)
+	assert.Equal(t, testDataDefaultLibraryPath, info[0].Value)
 
-	assert.Equal(t, "Pictarine Snip tags", info.Lines[1].Key)
-	assert.Equal(t, "None", info.Lines[1].Value)
+	assert.Equal(t, "Pictarine Snip tags", info[1].Key)
+	assert.Equal(t, "None", info[1].Value)
 
-	assert.Equal(t, "Pictarine Snip total number of snippets", info.Lines[2].Key)
-	assert.Equal(t, "2", info.Lines[2].Value)
+	assert.Equal(t, "Pictarine Snip total number of snippets", info[2].Key)
+	assert.Equal(t, "2", info[2].Value)
 }

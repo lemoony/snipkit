@@ -218,8 +218,8 @@ func (m *model) renderButton(text string, selected bool) string {
 	return lipgloss.NewStyle().
 		Margin(0, 1, 0, 0).
 		Padding(0, buttonPadding).
-		Foreground(m.styler.ButtonTextColor(selected)).
-		Background(m.styler.ButtonColor(selected)).
+		Foreground(m.styler.ButtonTextColor(selected).Value()).
+		Background(m.styler.ButtonColor(selected).Value()).
 		Render(text)
 }
 

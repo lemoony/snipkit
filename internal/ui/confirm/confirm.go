@@ -101,7 +101,7 @@ func (m *model) initTemplate() {
 	if tmpl, err := template.New("view").
 		Funcs(termenv.TemplateFuncs(m.styler.ColorProfile())).
 		Funcs(template.FuncMap{"Selected": func(values ...interface{}) string {
-			return lipgloss.NewStyle().Bold(true).Foreground(m.styler.ActiveColor()).Render(values[0].(string))
+			return lipgloss.NewStyle().Bold(true).Foreground(m.styler.ActiveColor().Value()).Render(values[0].(string))
 		}}).
 		Parse(TemplateYN); err != nil {
 		panic(err)

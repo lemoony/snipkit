@@ -192,7 +192,7 @@ func templateFuncs(styler *style.Style) template.FuncMap {
 				NewStyle().
 				Italic(true).
 				Underline(true).
-				Foreground(styler.HighlightColor()).
+				Foreground(styler.HighlightColor().Value()).
 				Render(values[0].(string))
 		},
 		"Snippet": func(values ...interface{}) string {
@@ -201,11 +201,11 @@ func templateFuncs(styler *style.Style) template.FuncMap {
 
 			blockStyle := lipgloss.NewStyle().
 				Align(lipgloss.Left).
-				Foreground(styler.SnippetContrastColor()).
-				Background(styler.SnippetColor()).
+				Foreground(styler.SnippetContrastColor().Value()).
+				Background(styler.SnippetColor().Value()).
 				BorderStyle(lipgloss.NormalBorder()).
 				BorderTop(true).BorderRight(true).BorderBottom(true).BorderLeft(true).
-				BorderForeground(styler.SnippetColor()).
+				BorderForeground(styler.SnippetColor().Value()).
 				Padding(0).
 				Margin(0).
 				Width(width)

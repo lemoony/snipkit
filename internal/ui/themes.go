@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"emperror.dev/errors"
-	"github.com/charmbracelet/lipgloss"
 	"github.com/gdamore/tcell/v2"
 	"github.com/phuslu/log"
 	"github.com/rivo/tview"
@@ -45,8 +44,8 @@ func applyTheme(theme style.ThemeValues) {
 	styler := style.NewStyle(&theme)
 
 	tview.Styles.PrimitiveBackgroundColor = tcell.ColorReset
-	tview.Styles.BorderColor = toColor(styler.BorderColor())
-	tview.Styles.TitleColor = toColor(styler.BorderTitleColor())
+	tview.Styles.BorderColor = styler.BorderColor().CellValue()
+	tview.Styles.TitleColor = styler.BorderTitleColor().CellValue()
 }
 
 func embeddedTheme(name string) (*style.ThemeValues, bool) {
@@ -148,13 +147,4 @@ func (t *themeWrapper) theme() style.ThemeValues {
 		}
 	}
 	return result
-}
-
-func toColor(color lipgloss.TerminalColor) tcell.Color {
-	if color == nil {
-		return tcell.ColorReset
-	}
-
-	r, g, b, _ := color.RGBA()
-	return tcell.NewRGBColor(int32(r), int32(g), int32(b))
 }

@@ -99,28 +99,28 @@ func (t *tuiImpl) getPreviewFormatterAndStyle() (chroma.Formatter, *chroma.Style
 func (t *tuiImpl) applyStyle(finder *tview.Finder, preview *tview.TextView) {
 	finder.SetSelectedItemLabel(">")
 	finder.SetInputLabel(">")
-	finder.SetInputLabelStyle(tcell.StyleDefault.Foreground(toColor(t.styler.ActiveColor())))
+	finder.SetInputLabelStyle(tcell.StyleDefault.Foreground(t.styler.ActiveColor().CellValue()))
 
 	finder.SetItemLabelPadding(1)
 
-	finder.SetItemLabelStyle(tcell.StyleDefault.Background(toColor(t.styler.ActiveColor())))
-	finder.SetItemStyle(tcell.StyleDefault.Background(tcell.ColorReset).Foreground(toColor(t.styler.TextColor())))
+	finder.SetItemLabelStyle(tcell.StyleDefault.Background(t.styler.ActiveColor().CellValue()))
+	finder.SetItemStyle(tcell.StyleDefault.Background(tcell.ColorReset).Foreground(t.styler.TextColor().CellValue()))
 
 	finder.SetSelectedItemLabelStyle(tcell.StyleDefault.
-		Background(toColor(t.styler.ActiveColor())).
-		Foreground(toColor(t.styler.ActiveContrastColor())),
+		Background(t.styler.ActiveColor().CellValue()).
+		Foreground(t.styler.ActiveContrastColor().CellValue()),
 	)
 	finder.SetSelectedItemStyle(tcell.StyleDefault.
-		Background(toColor(t.styler.ActiveColor())).
-		Foreground(toColor(t.styler.ActiveContrastColor())),
+		Background(t.styler.ActiveColor().CellValue()).
+		Foreground(t.styler.ActiveContrastColor().CellValue()),
 	)
 
-	finder.SetCounterStyle(tcell.StyleDefault.Foreground(toColor(t.styler.InfoColor())))
-	finder.SetHighlightMatchStyle(tcell.StyleDefault.Foreground(toColor(t.styler.HighlightColor())))
+	finder.SetCounterStyle(tcell.StyleDefault.Foreground(t.styler.InfoColor().CellValue()))
+	finder.SetHighlightMatchStyle(tcell.StyleDefault.Foreground(t.styler.HighlightColor().CellValue()))
 	finder.SetHighlightMatchMaintainBackgroundColor(true)
 
-	finder.SetFieldStyle(tcell.StyleDefault.Foreground(toColor(t.styler.TextColor())))
-	finder.SetPlaceholderStyle(tcell.StyleDefault.Foreground(toColor(t.styler.PlaceholderColor())))
+	finder.SetFieldStyle(tcell.StyleDefault.Foreground(t.styler.TextColor().CellValue()))
+	finder.SetPlaceholderStyle(tcell.StyleDefault.Foreground(t.styler.PlaceholderColor().CellValue()))
 
-	preview.SetTextColor(toColor(t.styler.TextColor()))
+	preview.SetTextColor(t.styler.TextColor().CellValue())
 }

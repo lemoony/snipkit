@@ -56,28 +56,26 @@ func NewManager(options ...Option) (*Manager, error) {
 	return manager, nil
 }
 
-func (p Manager) Info() model.ManagerInfo {
-	var lines []model.ManagerInfoLine
+func (p Manager) Info() []model.InfoLine {
+	var lines []model.InfoLine
 
-	lines = append(lines, model.ManagerInfoLine{
+	lines = append(lines, model.InfoLine{
 		IsError: false,
 		Key:     "Pictarine Snip library path",
 		Value:   stringutil.StringOrDefault(p.config.LibraryPath, "not set"),
 	})
 
-	lines = append(lines, model.ManagerInfoLine{
+	lines = append(lines, model.InfoLine{
 		IsError: false,
 		Key:     "Pictarine Snip tags",
 		Value:   stringutil.StringOrDefault(strings.Join(p.config.IncludeTags, ","), "None"),
 	})
 
-	lines = append(lines, model.ManagerInfoLine{
+	lines = append(lines, model.InfoLine{
 		IsError: true, Key: "Pictarine Snip total number of snippets", Value: fmt.Sprintf("%d", len(p.GetSnippets())),
 	})
 
-	return model.ManagerInfo{
-		Lines: lines,
-	}
+	return lines
 }
 
 func (p *Manager) GetSnippets() []model.Snippet {

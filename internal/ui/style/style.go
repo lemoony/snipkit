@@ -37,10 +37,14 @@ func (s *Style) NeedsResize() bool {
 	return s.needsToResize
 }
 
+func (s *Style) Profile() termenv.Profile {
+	return colorProfile
+}
+
 func (s *Style) TitleStyle() lipgloss.Style {
 	return lipgloss.NewStyle().
-		Background(s.colors.titleColor).
-		Foreground(s.colors.titleContrastColor).
+		Background(s.colors.titleColor.Value()).
+		Foreground(s.colors.titleContrastColor.Value()).
 		Bold(true).
 		Italic(true).
 		Padding(0, 1).
@@ -108,82 +112,82 @@ func (s *Style) MainView(view string, help string, resize bool) string {
 	return lipgloss.NewStyle().Margin(margins...).Render(lipgloss.JoinVertical(lipgloss.Left, sections...))
 }
 
-func (s *Style) ColorProfile() termenv.Profile {
+func (s Style) ColorProfile() termenv.Profile {
 	return colorProfile
 }
 
-func (s *Style) PreviewColorSchemeName() string {
+func (s Style) PreviewColorSchemeName() string {
 	return s.colors.previewColorSchemeName
 }
 
-func (s *Style) BorderColor() lipgloss.TerminalColor {
+func (s Style) BorderColor() Color {
 	return s.colors.borderColor
 }
 
-func (s *Style) BorderTitleColor() lipgloss.TerminalColor {
+func (s Style) BorderTitleColor() Color {
 	return s.colors.borderColor
 }
 
-func (s *Style) TitleColor() lipgloss.TerminalColor {
+func (s Style) TitleColor() Color {
 	return s.colors.titleColor
 }
 
-func (s *Style) TitleContrastColor() lipgloss.TerminalColor {
+func (s Style) TitleContrastColor() Color {
 	return s.colors.titleContrastColor
 }
 
-func (s *Style) TextColor() lipgloss.TerminalColor {
+func (s Style) TextColor() Color {
 	return s.colors.textColor
 }
 
-func (s *Style) PlaceholderColor() lipgloss.TerminalColor {
+func (s Style) PlaceholderColor() Color {
 	return s.colors.subduedColor
 }
 
-func (s *Style) SubduedColor() lipgloss.TerminalColor {
+func (s Style) SubduedColor() Color {
 	return s.colors.subduedColor
 }
 
-func (s *Style) VerySubduedColor() lipgloss.TerminalColor {
+func (s Style) VerySubduedColor() Color {
 	return s.colors.verySubduedColor
 }
 
-func (s *Style) ActiveColor() lipgloss.TerminalColor {
+func (s Style) ActiveColor() Color {
 	return s.colors.activeColor
 }
 
-func (s *Style) ActiveContrastColor() lipgloss.TerminalColor {
+func (s Style) ActiveContrastColor() Color {
 	return s.colors.activeContrastColor
 }
 
-func (s *Style) InfoColor() lipgloss.TerminalColor {
+func (s Style) InfoColor() Color {
 	return s.colors.infoColor
 }
 
-func (s *Style) HighlightColor() lipgloss.TerminalColor {
+func (s Style) HighlightColor() Color {
 	return s.colors.highlightColor
 }
 
-func (s *Style) HighlightContrastColor() lipgloss.TerminalColor {
+func (s Style) HighlightContrastColor() Color {
 	return s.colors.highlightContrastColor
 }
 
-func (s *Style) SnippetColor() lipgloss.TerminalColor {
+func (s Style) SnippetColor() Color {
 	return s.colors.snippetColor
 }
 
-func (s *Style) SnippetContrastColor() lipgloss.TerminalColor {
+func (s Style) SnippetContrastColor() Color {
 	return s.colors.snippetContrastColor
 }
 
-func (s *Style) ButtonTextColor(selected bool) lipgloss.TerminalColor {
+func (s Style) ButtonTextColor(selected bool) Color {
 	if selected {
 		return s.colors.activeContrastColor
 	}
 	return s.colors.subduedContrastColor
 }
 
-func (s *Style) ButtonColor(selected bool) lipgloss.TerminalColor {
+func (s Style) ButtonColor(selected bool) Color {
 	if selected {
 		return s.colors.activeColor
 	}

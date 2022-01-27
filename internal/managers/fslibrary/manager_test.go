@@ -26,19 +26,19 @@ func Test_GetInfo(t *testing.T) {
 
 	info := provider.Info()
 
-	assert.Len(t, info.Lines, 3)
+	assert.Len(t, info, 3)
 
-	assert.Equal(t, info.Lines[0].Key, "Filesystem library paths")
-	assert.Equal(t, info.Lines[0].Value, fmt.Sprintf("[%s]", libraryPath))
-	assert.False(t, info.Lines[0].IsError)
+	assert.Equal(t, info[0].Key, "Filesystem library paths")
+	assert.Equal(t, info[0].Value, fmt.Sprintf("[%s]", libraryPath))
+	assert.False(t, info[0].IsError)
 
-	assert.Equal(t, info.Lines[1].Key, "Filesystem library allowed suffixes")
-	assert.Equal(t, info.Lines[1].Value, "[.sh, .yaml]")
-	assert.False(t, info.Lines[1].IsError)
+	assert.Equal(t, info[1].Key, "Filesystem library allowed suffixes")
+	assert.Equal(t, info[1].Value, "[.sh, .yaml]")
+	assert.False(t, info[1].IsError)
 
-	assert.Equal(t, info.Lines[2].Key, "Filesystem library total number of snippets")
-	assert.Equal(t, info.Lines[2].Value, "0")
-	assert.False(t, info.Lines[2].IsError)
+	assert.Equal(t, info[2].Key, "Filesystem library total number of snippets")
+	assert.Equal(t, info[2].Value, "0")
+	assert.False(t, info[2].IsError)
 }
 
 func Test_GetSnippets(t *testing.T) {

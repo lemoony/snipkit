@@ -10,6 +10,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/gdamore/tcell/v2"
 	"github.com/kballard/go-shellquote"
+	"github.com/phuslu/log"
 	"github.com/rivo/tview"
 
 	"github.com/lemoony/snipkit/internal/model"
@@ -97,8 +98,10 @@ func (t *tuiImpl) ApplyConfig(cfg Config, system *system.System) {
 	t.styler = style.NewStyle(&themeValues)
 
 	tview.Styles.PrimitiveBackgroundColor = tcell.ColorReset
-	tview.Styles.BorderColor = toColor(t.styler.BorderColor())
-	tview.Styles.TitleColor = toColor(t.styler.BorderTitleColor())
+	tview.Styles.BorderColor = t.styler.BorderColor().CellValue()
+	tview.Styles.TitleColor = t.styler.BorderTitleColor().CellValue()
+
+	log.Trace().Msgf("Color profile: %d", t.styler.Profile())
 }
 
 func (t tuiImpl) Print(p uimsg.Printable) {

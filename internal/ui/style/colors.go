@@ -2,6 +2,7 @@ package style
 
 import (
 	"github.com/charmbracelet/lipgloss"
+	"github.com/gdamore/tcell/v2"
 	"github.com/muesli/termenv"
 )
 
@@ -11,61 +12,86 @@ var (
 	hasDarkBackground      = termenv.HasDarkBackground()
 )
 
+type Color struct {
+	raw           string
+	terminalColor lipgloss.TerminalColor
+	tcellColor    tcell.Color
+}
+
+func newColor(val string) Color {
+	return Color{
+		raw:           val,
+		terminalColor: lipgloss.Color(val),
+		tcellColor:    tcell.GetColor(val),
+	}
+}
+
+func (c Color) Value() lipgloss.TerminalColor {
+	return c.terminalColor
+}
+
+func (c Color) CellValue() tcell.Color {
+	return c.tcellColor
+}
+
 type colors struct {
-	borderColor      lipgloss.TerminalColor
-	borderTitleColor lipgloss.TerminalColor
+	borderColor      Color
+	borderTitleColor Color
 
 	previewColorSchemeName string
 
-	textColor lipgloss.TerminalColor
+	textColor Color
 
-	subduedColor         lipgloss.TerminalColor
-	subduedContrastColor lipgloss.TerminalColor
+	subduedColor         Color
+	subduedContrastColor Color
 
-	verySubduedColor         lipgloss.TerminalColor
-	verySubduedContrastColor lipgloss.TerminalColor
+	verySubduedColor         Color
+	verySubduedContrastColor Color
 
-	activeColor         lipgloss.TerminalColor
-	activeContrastColor lipgloss.TerminalColor
+	activeColor         Color
+	activeContrastColor Color
 
-	titleColor         lipgloss.TerminalColor
-	titleContrastColor lipgloss.TerminalColor
+	titleColor         Color
+	titleContrastColor Color
 
-	highlightColor         lipgloss.TerminalColor
-	highlightContrastColor lipgloss.TerminalColor
+	highlightColor         Color
+	highlightContrastColor Color
 
-	infoColor         lipgloss.TerminalColor
-	infoContrastColor lipgloss.TerminalColor
+	infoColor         Color
+	infoContrastColor Color
 
-	snippetColor         lipgloss.TerminalColor
-	snippetContrastColor lipgloss.TerminalColor
+	snippetColor         Color
+	snippetContrastColor Color
 }
 
 func newColors(t *ThemeValues) colors {
 	return colors{
-		borderColor:              lipgloss.Color(t.BorderColor),
-		borderTitleColor:         lipgloss.Color(t.BorderTitleColor),
+		borderColor:              newColor(t.BorderColor),
+		borderTitleColor:         newColor(t.BorderTitleColor),
 		previewColorSchemeName:   t.PreviewColorSchemeName,
-		textColor:                color(t.TextColor, defaultForegroundColor),
-		subduedColor:             lipgloss.Color(t.SubduedColor),
-		subduedContrastColor:     lipgloss.Color(t.SubduedContrastColor),
-		verySubduedColor:         lipgloss.Color(t.VerySubduedColor),
-		verySubduedContrastColor: lipgloss.Color(t.VerySubduedContrastColor),
-		activeColor:              lipgloss.Color(t.ActiveColor),
-		activeContrastColor:      lipgloss.Color(t.ActiveContrastColor),
-		titleColor:               lipgloss.Color(t.TitleColor),
-		titleContrastColor:       lipgloss.Color(t.TitleContrastColor),
-		highlightColor:           lipgloss.Color(t.HighlightColor),
-		infoColor:                lipgloss.Color(t.InfoColor),
-		infoContrastColor:        color(t.InfoContrastColor, defaultForegroundColor),
-		snippetColor:             lipgloss.Color(t.SnippetColor),
-		snippetContrastColor:     color(t.SnippetContrastColor, defaultForegroundColor),
+		textColor:                colorWithDefaultForeground(t.TextColor),
+		subduedColor:             newColor(t.SubduedColor),
+		subduedContrastColor:     newColor(t.SubduedContrastColor),
+		verySubduedColor:         newColor(t.VerySubduedColor),
+		verySubduedContrastColor: newColor(t.VerySubduedContrastColor),
+		activeColor:              newColor(t.ActiveColor),
+		activeContrastColor:      newColor(t.ActiveContrastColor),
+		titleColor:               newColor(t.TitleColor),
+		titleContrastColor:       newColor(t.TitleContrastColor),
+		highlightColor:           newColor(t.HighlightColor),
+		infoColor:                newColor(t.InfoColor),
+		infoContrastColor:        colorWithDefaultForeground(t.InfoContrastColor),
+		snippetColor:             newColor(t.SnippetColor),
+		snippetContrastColor:     colorWithDefaultForeground(t.SnippetContrastColor),
 	}
 }
 
-func color(val string, defaultColor lipgloss.Color) lipgloss.Color {
+func colorWithDefaultForeground(val string) Color {
 	if val == "" {
-		return defaultColor
+		return Color{
+			terminalColor: defaultForegroundColor,
+			tcellColor:    tcell.ColorReset,
+		}
 	}
-	return lipgloss.Color(val)
+	return newColor(val)
 }

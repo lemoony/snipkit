@@ -21,17 +21,17 @@ func Test_App_Info(t *testing.T) {
 
 	cfgService := configMocks.ConfigService{}
 	cfgService.On("LoadConfig").Return(cfg, nil)
-	cfgService.On("ConfigFilePath").Return("/path/to/cfg-file")
+	cfgService.On("Info").Return([]model.InfoLine{
+		{Key: "Some-Config-Key", Value: "Some-Value", IsError: false},
+	})
 
 	tui.On(mockutil.PrintMessage, mock.Anything)
 	tui.On(mockutil.PrintError, mock.Anything)
 
 	manager := managerMocks.Manager{}
-	manager.On("Info").Return(model.ManagerInfo{
-		Lines: []model.ManagerInfoLine{
-			{Key: "Some-Key", Value: "Some-Value", IsError: false},
-			{Key: "Some-Error", Value: "Some-Error", IsError: true},
-		},
+	manager.On("Info").Return([]model.InfoLine{
+		{Key: "Some-Key", Value: "Some-Value", IsError: false},
+		{Key: "Some-Error", Value: "Some-Error", IsError: true},
 	})
 
 	app := NewApp(
@@ -40,7 +40,7 @@ func Test_App_Info(t *testing.T) {
 
 	app.Info()
 
-	tui.AssertCalled(t, mockutil.PrintMessage, "Config file: /path/to/cfg-file")
+	tui.AssertCalled(t, mockutil.PrintMessage, "Some-Config-Key: Some-Value")
 	tui.AssertCalled(t, mockutil.PrintMessage, "Some-Key: Some-Value")
 	tui.AssertCalled(t, mockutil.PrintError, "Some-Error: Some-Error")
 }

@@ -60,34 +60,32 @@ func (m Manager) libraryPath() snippetsLabLibrary {
 	return snippetsLabLibrary(m.config.LibraryPath)
 }
 
-func (m Manager) Info() model.ManagerInfo {
-	var lines []model.ManagerInfoLine
+func (m Manager) Info() []model.InfoLine {
+	var lines []model.InfoLine
 
 	if path, err := findPreferencesPath(m.system); err != nil {
-		lines = append(lines, model.ManagerInfoLine{IsError: true, Key: "SnippetsLab preferences path", Value: err.Error()})
+		lines = append(lines, model.InfoLine{IsError: true, Key: "SnippetsLab preferences path", Value: err.Error()})
 	} else {
-		lines = append(lines, model.ManagerInfoLine{
+		lines = append(lines, model.InfoLine{
 			IsError: true, Key: "SnippetsLab preferences path", Value: path,
 		})
 	}
 
-	lines = append(lines, model.ManagerInfoLine{
+	lines = append(lines, model.InfoLine{
 		IsError: false, Key: "SnippetsLab library path", Value: m.config.LibraryPath,
 	})
 
-	lines = append(lines, model.ManagerInfoLine{
+	lines = append(lines, model.InfoLine{
 		IsError: false,
 		Key:     "SnippetsLab tags",
 		Value:   stringutil.StringOrDefault(strings.Join(m.config.IncludeTags, ","), "None"),
 	})
 
-	lines = append(lines, model.ManagerInfoLine{
+	lines = append(lines, model.InfoLine{
 		IsError: true, Key: "SnippetsLab total number of snippets", Value: fmt.Sprintf("%d", len(m.GetSnippets())),
 	})
 
-	return model.ManagerInfo{
-		Lines: lines,
-	}
+	return lines
 }
 
 func (m *Manager) GetSnippets() []model.Snippet {

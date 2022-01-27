@@ -13,11 +13,11 @@ theme:
   subduedContrastColor: ${black}
   verySubduedColor: ${lightGray}
   verySubduedContrastColor: ${black}
-  activeColor: "#EE6FF8" # dark "#EE6FF8"
+  activeColor: "#EE6FF8"
   activeContrastColor: "#FFFFFF"
   titleColor: "62"
   titleContrastColor: "230"
-  highlightColor: "#43BF6D" # "#73F59F"
+  highlightColor: "#43BF6D"
   highlightContrastColor: ${black}
   infoColor: "#F2DB6A"
   infoContrastColor: "#F2DB6A"

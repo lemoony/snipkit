@@ -169,10 +169,10 @@ func (m *Model) View() string {
 	}
 
 	labelStyle := lipgloss.NewStyle().
-		Foreground(color).
+		Foreground(color.Value()).
 		Bold(true).
 		Border(borderStyle, false, false, false, true).
-		BorderForeground(color).
+		BorderForeground(color.Value()).
 		Padding(0, labelPaddingLeft, 0, 1)
 
 	label := labelStyle.Render(lipgloss.PlaceHorizontal(m.labelWidth, lipgloss.Left, m.Label, lipgloss.WithWhitespaceChars(" ")))
@@ -194,7 +194,7 @@ func (m *Model) View() string {
 				middle := o[match : match+len(m.field.Value())]
 				end := o[match+len(m.field.Value()):]
 
-				o = lipgloss.JoinHorizontal(lipgloss.Left, first, lipgloss.NewStyle().Foreground(m.styler.ActiveColor()).Render(middle), end)
+				o = lipgloss.JoinHorizontal(lipgloss.Left, first, lipgloss.NewStyle().Foreground(m.styler.ActiveColor().Value()).Render(middle), end)
 			}
 
 			x := lipgloss.PlaceHorizontal(lipgloss.Width(label)-two, lipgloss.Left, "")

@@ -73,30 +73,28 @@ func NewManager(options ...Option) (*Manager, error) {
 	return manager, nil
 }
 
-func (m Manager) Info() model.ManagerInfo {
-	var lines []model.ManagerInfoLine
+func (m Manager) Info() []model.InfoLine {
+	var lines []model.InfoLine
 
-	lines = append(lines, model.ManagerInfoLine{
+	lines = append(lines, model.InfoLine{
 		IsError: false,
 		Key:     "Filesystem library paths",
 		Value:   fmt.Sprintf("[%s]", strings.Join(m.config.LibraryPath, ", ")),
 	})
 
-	lines = append(lines, model.ManagerInfoLine{
+	lines = append(lines, model.InfoLine{
 		IsError: false,
 		Key:     "Filesystem library allowed suffixes",
 		Value:   fmt.Sprintf("[%s]", strings.Join(m.config.SuffixRegex, ", ")),
 	})
 
-	lines = append(lines, model.ManagerInfoLine{
+	lines = append(lines, model.InfoLine{
 		IsError: false,
 		Key:     "Filesystem library total number of snippets",
 		Value:   fmt.Sprintf("%d", len(m.GetSnippets())),
 	})
 
-	return model.ManagerInfo{
-		Lines: lines,
-	}
+	return lines
 }
 
 func (m *Manager) GetSnippets() []model.Snippet {
