@@ -15,6 +15,9 @@ builds:
     goarch: [ amd64, arm64, 386, arm ]
 checksum:
   name_template: "{{ .ProjectName }}_checksums.txt"
+changelog:
+  skip: false
+  use: github-native
 brews:
   - tap:
       owner: lemoony
