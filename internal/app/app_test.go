@@ -10,13 +10,14 @@ import (
 	"github.com/stretchr/testify/mock"
 	"gopkg.in/yaml.v3"
 
-	"github.com/lemoony/snippet-kit/internal/config"
-	"github.com/lemoony/snippet-kit/internal/model"
-	"github.com/lemoony/snippet-kit/internal/providers"
-	"github.com/lemoony/snippet-kit/internal/utils/assertutil"
-	"github.com/lemoony/snippet-kit/internal/utils/testutil"
-	providerMocks "github.com/lemoony/snippet-kit/mocks/provider"
-	uiMocks "github.com/lemoony/snippet-kit/mocks/ui"
+	"github.com/lemoony/snipkit/internal/config"
+	"github.com/lemoony/snipkit/internal/managers"
+	"github.com/lemoony/snipkit/internal/model"
+	"github.com/lemoony/snipkit/internal/utils/assertutil"
+	"github.com/lemoony/snipkit/internal/utils/testutil"
+	"github.com/lemoony/snipkit/internal/utils/testutil/mockutil"
+	managerMocks "github.com/lemoony/snipkit/mocks/managers"
+	uiMocks "github.com/lemoony/snipkit/mocks/ui"
 )
 
 func Test_NewApp_NoConfigFile(t *testing.T) {
@@ -39,7 +40,7 @@ func Test_NewAppInvalidConfigFile(t *testing.T) {
 	})
 }
 
-func Test_NewAppNoProviders(t *testing.T) {
+func Test_NewAppNoManagers(t *testing.T) {
 	cfg := config.VersionWrapper{Version: "1.0.0", Config: config.Config{}}
 	cfgFile := path.Join(t.TempDir(), "temp-config.yaml")
 
@@ -52,22 +53,22 @@ func Test_NewAppNoProviders(t *testing.T) {
 	v := viper.NewWithOptions()
 	v.SetConfigFile(cfgFile)
 
-	term := uiMocks.Terminal{}
-	term.On("ApplyConfig", mock.AnythingOfType("ui.Config"), mock.Anything).Return()
+	tui := uiMocks.TUI{}
+	tui.On(mockutil.ApplyConfig, mock.AnythingOfType("ui.Config"), mock.Anything).Return()
 
-	builder := providerMocks.ProviderBuilder{}
-	builder.On("BuildProvider", mock.Anything, mock.Anything).Return([]providers.Provider{}, nil)
+	provider := managerMocks.Provider{}
+	provider.On("CreateManager", mock.Anything, mock.Anything).Return([]managers.Manager{}, nil)
 
 	app := NewApp(
 		WithConfigService(config.NewService(config.WithViper(v))),
-		WithTerminal(&term),
-		WithProvidersBuilder(&builder),
+		WithTUI(&tui),
+		WithProvider(&provider),
 	)
 
-	term.AssertNumberOfCalls(t, "ApplyConfig", 1)
-	builder.AssertNumberOfCalls(t, "BuildProvider", 1)
+	tui.AssertNumberOfCalls(t, mockutil.ApplyConfig, 1)
+	provider.AssertNumberOfCalls(t, "CreateManager", 1)
 
-	assert.Len(t, app.(*appImpl).Providers, 0)
+	assert.Len(t, app.(*appImpl).managers, 0)
 }
 
 func Test_appImpl_GetAllSnippets(t *testing.T) {
@@ -76,11 +77,10 @@ func Test_appImpl_GetAllSnippets(t *testing.T) {
 		{UUID: "uuid2", TitleFunc: testutil.FixedString("title-1"), LanguageFunc: testutil.FixedLanguage(model.LanguageBash), TagUUIDs: []string{}, ContentFunc: testutil.FixedString("content-2")},
 	}
 
-	provider := providerMocks.Provider{}
+	manager := managerMocks.Manager{}
+	manager.On("GetSnippets").Return(snippets, nil)
 
-	provider.On("GetSnippets").Return(snippets, nil)
-
-	app := appImpl{Providers: []providers.Provider{&provider}}
+	app := appImpl{managers: []managers.Manager{&manager}}
 
 	s := app.getAllSnippets()
 	assertutil.AssertSnippetsEqual(t, snippets, s)

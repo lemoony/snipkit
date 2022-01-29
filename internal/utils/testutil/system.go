@@ -3,7 +3,7 @@ package testutil
 import (
 	"github.com/spf13/afero"
 
-	"github.com/lemoony/snippet-kit/internal/utils/system"
+	"github.com/lemoony/snipkit/internal/utils/system"
 )
 
 func NewTestSystem(options ...system.Option) *system.System {

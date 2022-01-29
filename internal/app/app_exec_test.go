@@ -5,16 +5,17 @@ import (
 
 	"github.com/stretchr/testify/mock"
 
-	"github.com/lemoony/snippet-kit/internal/config/configtest"
-	"github.com/lemoony/snippet-kit/internal/model"
-	"github.com/lemoony/snippet-kit/internal/utils/testutil"
-	uiMocks "github.com/lemoony/snippet-kit/mocks/ui"
+	"github.com/lemoony/snipkit/internal/config/configtest"
+	"github.com/lemoony/snipkit/internal/model"
+	"github.com/lemoony/snipkit/internal/utils/testutil"
+	"github.com/lemoony/snipkit/internal/utils/testutil/mockutil"
+	uiMocks "github.com/lemoony/snipkit/mocks/ui"
 )
 
 func Test_App_Exec(t *testing.T) {
 	snippetContent := `# some comment
 # ${VAR1} Name: First Output
-# ${VAR1} Description: What to print on the terminal first
+# ${VAR1} Description: What to print on the tui first
 echo "${VAR1}"`
 
 	snippets := []model.Snippet{
@@ -29,18 +30,16 @@ echo "${VAR1}"`
 
 	inputVar1Value := "foo-value"
 
-	terminal := uiMocks.Terminal{}
-	terminal.On("ApplyConfig", mock.Anything, mock.Anything).Return()
-	terminal.On("ShowLookup", mock.Anything).Return(0)
-	terminal.On("ShowParameterForm", mock.Anything, mock.Anything).Return([]string{inputVar1Value, ""}, true)
+	tui := uiMocks.TUI{}
+	tui.On(mockutil.ApplyConfig, mock.Anything, mock.Anything).Return()
+	tui.On("ShowLookup", mock.Anything).Return(0)
+	tui.On("ShowParameterForm", mock.Anything, mock.Anything).Return([]string{inputVar1Value, ""}, true)
 
-	terminal.On("PrintMessage", inputVar1Value+"\n").Return()
+	tui.On(mockutil.PrintMessage, inputVar1Value+"\n").Return()
 
 	app := NewApp(
-		WithTerminal(&terminal), WithConfig(configtest.NewTestConfig().Config), withProviderSnippets(snippets),
+		WithTUI(&tui), WithConfig(configtest.NewTestConfig().Config), withManagerSnippets(snippets),
 	)
 
 	app.LookupAndExecuteSnippet()
-
-	terminal.AssertCalled(t, "PrintMessage", inputVar1Value+"\n")
 }

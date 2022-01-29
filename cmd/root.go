@@ -8,19 +8,19 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/lemoony/snippet-kit/internal/app"
-	"github.com/lemoony/snippet-kit/internal/config"
-	"github.com/lemoony/snippet-kit/internal/providers"
-	"github.com/lemoony/snippet-kit/internal/ui"
-	"github.com/lemoony/snippet-kit/internal/utils/logutil"
-	"github.com/lemoony/snippet-kit/internal/utils/system"
+	"github.com/lemoony/snipkit/internal/app"
+	"github.com/lemoony/snipkit/internal/config"
+	"github.com/lemoony/snipkit/internal/managers"
+	"github.com/lemoony/snipkit/internal/ui"
+	"github.com/lemoony/snipkit/internal/utils/logutil"
+	"github.com/lemoony/snipkit/internal/utils/system"
 )
 
 type setup struct {
-	terminal         ui.Terminal
-	providersBuilder providers.Builder
-	v                *viper.Viper
-	system           *system.System
+	terminal ui.TUI
+	provider managers.Provider
+	v        *viper.Viper
+	system   *system.System
 }
 
 func (s *setup) configService() config.Service {
@@ -32,10 +32,10 @@ func (s *setup) configService() config.Service {
 }
 
 var _defaultSetup = setup{
-	terminal:         ui.NewTerminal(),
-	providersBuilder: providers.NewBuilder(),
-	v:                viper.GetViper(),
-	system:           system.NewSystem(),
+	terminal: ui.NewTUI(),
+	provider: managers.NewBuilder(),
+	v:        viper.GetViper(),
+	system:   system.NewSystem(),
 }
 
 type ctxKey string
@@ -53,9 +53,9 @@ func getAppFromContext(ctx context.Context) app.App {
 
 	s := getSetupFromContext(ctx)
 	return app.NewApp(
-		app.WithTerminal(s.terminal),
+		app.WithTUI(s.terminal),
 		app.WithConfigService(s.configService()),
-		app.WithProvidersBuilder(s.providersBuilder),
+		app.WithProvider(s.provider),
 	)
 }
 
@@ -112,6 +112,10 @@ func getDefaultCommand(cmd *cobra.Command, cmdStr string) *cobra.Command {
 func Execute() {
 	defer handlePanic()
 	cobra.CheckErr(rootCmd.Execute())
+}
+
+func SetVersion(v string) {
+	rootCmd.Version = v
 }
 
 func init() {

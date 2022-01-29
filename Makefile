@@ -29,9 +29,9 @@ mocks: ## go generate
 	$(call print-target)
 	mockery --name='App' --output="./mocks/app" --dir="./internal/app"
 	mockery --name='Service' --output="./mocks/config" --structname="ConfigService"  --dir="./internal/config"
-	mockery --name='Builder' --output="./mocks/provider"  --structname="ProviderBuilder"  --dir="./internal/providers"
-	mockery --name='Provider' --output="./mocks/provider" --dir="./internal/providers"
-	mockery --name='^Terminal$$' --output="./mocks/ui" --dir="./internal/ui"
+	mockery --name='Provider' --output="./mocks/managers"  --dir="./internal/managers"
+	mockery --name='Manager' --output="./mocks/managers" --dir="./internal/managers"
+	mockery --name='^TUI$$' --output="./mocks/ui" --dir="./internal/ui"
 
 .PHONY: vet
 vet: ## go vet
@@ -42,7 +42,7 @@ vet: ## go vet
 fmt: ## go fmt
 	$(call print-target)
 	go fmt ./...
-	gci -w -local github.com/lemoony/snippet-kit .//
+	gci -w -local github.com/lemoony/snipkit .//
 	gofumpt -l -w .
 
 .PHONY: lint

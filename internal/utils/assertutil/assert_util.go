@@ -9,7 +9,7 @@ import (
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/lemoony/snippet-kit/internal/model"
+	"github.com/lemoony/snipkit/internal/model"
 )
 
 func AssertExists(t *testing.T, fs afero.Fs, path string, expected bool) {
@@ -61,13 +61,13 @@ func AssertPanicsWithError(t *testing.T, expected error, f assert.PanicTestFunc,
 
 // didPanic returns true if the function passed to it panics. Otherwise, it returns false.
 func didPanic(f assert.PanicTestFunc) (bool, interface{}, string) {
-	didPanic := false
+	panicOccurred := false
 	var message interface{}
 	var stack string
 	func() {
 		defer func() {
 			if message = recover(); message != nil {
-				didPanic = true
+				panicOccurred = true
 				stack = string(debug.Stack())
 			}
 		}()
@@ -76,5 +76,5 @@ func didPanic(f assert.PanicTestFunc) (bool, interface{}, string) {
 		f()
 	}()
 
-	return didPanic, message, stack
+	return panicOccurred, message, stack
 }

@@ -2,49 +2,21 @@ package ui
 
 import (
 	"emperror.dev/errors"
-	"github.com/rivo/tview"
 
-	"github.com/lemoony/snippet-kit/internal/utils/system"
+	"github.com/lemoony/snipkit/internal/ui/style"
+	"github.com/lemoony/snipkit/internal/utils/system"
 )
 
 type Config struct {
-	Theme string `yaml:"theme" head_comment:"The theme defines the terminal colors used by Snipkit.\nAvailable themes:default,dracula."`
+	Theme string `yaml:"theme" head_comment:"The theme defines the terminal colors used by Snipkit.\nAvailable themes:default(.light|.dark),simple."`
 }
 
 type NamedTheme struct {
-	Name   string      `yaml:"name"`
-	Values ThemeValues `yaml:"values" head_comment:"A color can be created from a color name (W3C name) or by a hex value in the format #ffffff."`
+	Name   string            `yaml:"name"`
+	Values style.ThemeValues `yaml:"values" head_comment:"A color can be created from a color name (W3C name) or by a hex value in the format #ffffff."`
 }
 
-type ThemeValues struct {
-	BackgroundColor                              string `yaml:"backgroundColor"`
-	BorderColor                                  string `yaml:"borderColor"`
-	BorderTitleColor                             string `yaml:"borderTitleColor"`
-	PreviewColorSchemeName                       string `yaml:"previewColorSchemeName"`
-	PreviewApplyMainBackground                   bool   `yaml:"previewApplyMainBackground"`
-	PreviewOverwriteBackgroundColor              string `yaml:"previewOverwriteBackgroundColor"`
-	PreviewDefaultTextColor                      string `yaml:"previewDefaultTextColor"`
-	ItemTextColor                                string `yaml:"itemTextColor"`
-	SelectedItemTextColor                        string `yaml:"selectedItemTextColor"`
-	SelectedItemBackgroundColor                  string `yaml:"selectedItemBackgroundColor"`
-	ItemHighlightMatchBackgroundColor            string `yaml:"itemHighlightMatchBackgroundColor"`
-	ItemHighlightMatchTextColor                  string `yaml:"itemHighlightMatchTextColor"`
-	CounterTextColor                             string `yaml:"counterTextColor"`
-	LookupInputTextColor                         string `yaml:"lookupInputTextColor"`
-	LookupInputPlaceholderColor                  string `yaml:"lookupInputPlaceholderColor"`
-	LookupInputBackgroundColor                   string `yaml:"lookupInputBackgroundColor"`
-	ParametersLabelTextColor                     string `yaml:"parametersLabelTextColor"`
-	ParametersFieldBackgroundColor               string `yaml:"parametersFieldBackgroundColor"`
-	ParametersFieldTextColor                     string `yaml:"parametersFieldTextColor"`
-	ParameterAutocompleteBackgroundColor         string `yaml:"parameterAutocompleteBackgroundColor"`
-	ParameterAutocompleteTextColor               string `yaml:"parameterAutocompleteTextColor"`
-	ParameterAutocompleteSelectedBackgroundColor string `yaml:"parameterAutocompleteSelectedBackgroundColor"`
-	ParameterAutocompleteSelectedTextColor       string `yaml:"parameterAutocompleteSelectedTextColor"`
-	SelectedButtonBackgroundColor                string `yaml:"selectedButtonBackgroundColor"`
-	SelectedButtonTextColor                      string `yaml:"selectedButtonTextColor"`
-}
-
-func (c *Config) GetSelectedTheme(system *system.System) ThemeValues {
+func (c *Config) GetSelectedTheme(system *system.System) style.ThemeValues {
 	themeName := defaultThemeName
 	if c.Theme != "" {
 		themeName = c.Theme
@@ -61,8 +33,6 @@ func (c *Config) GetSelectedTheme(system *system.System) ThemeValues {
 	panic(errors.Wrapf(ErrInvalidTheme, "theme not found: %s", themeName))
 }
 
-var currentTheme ThemeValues
-
 func DefaultConfig() Config {
 	return Config{
 		Theme: "default",
@@ -70,12 +40,5 @@ func DefaultConfig() Config {
 }
 
 func ApplyConfig(cfg Config, system *system.System) {
-	setTheme(cfg.GetSelectedTheme(system))
-}
-
-func setTheme(theme ThemeValues) {
-	currentTheme = theme
-	tview.Styles.PrimitiveBackgroundColor = theme.backgroundColor()
-	tview.Styles.BorderColor = theme.borderColor()
-	tview.Styles.TitleColor = theme.borderTitleColor()
+	applyTheme(cfg.GetSelectedTheme(system))
 }

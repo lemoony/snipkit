@@ -1,0 +1,46 @@
+site_name: SnipKit Documentation
+site_url: https://lyrahgames.github.io/snipkit
+
+site_author: lemoony
+site_description: >-
+  SnipKit helps you to execute scripts saved in your favorite snippets manager without even leaving the terminal.
+
+repo_name: lemoony/snipkit
+repo_url: https://github.com/lemoony/snipkit
+
+copyright: Copyright &copy; 2022 lemoony
+
+theme:
+  name: material
+  language: en
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+
+extra:
+  version:
+    provider: mike
+
+markdown_extensions:
+  - pymdownx.highlight:
+      use_pygments: true
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - attr_list
+  - md_in_html
+nav:
+  - Home: 'index.md'
+  - Getting started:
+    - Overview: 'getting-started/overview.md'
+    - Parameters: 'getting-started/parameters.md'
+    - Power Setup: 'getting-started/power-setup.md'
+  - Configuration:
+      - Overview: 'configuration/overview.md'
+      - Themes: 'configuration/themes.md'
+  - Managers:
+    - Overview: 'managers/overview.md'
+    - SnippetsLab: 'managers/snippetslab.md'
+    - Snip: 'managers/pictarinesnip.md'
+    - File System Library: 'managers/fslibrary.md'

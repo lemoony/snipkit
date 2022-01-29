@@ -82,6 +82,10 @@ func NewSystem(options ...Option) *System {
 	return &result
 }
 
+func (s *System) HomeEnvValue() string {
+	return os.Getenv(envSnipkitHome)
+}
+
 func (s *System) UserDataHome() string {
 	if s.userDataDir != nil {
 		return *s.userDataDir

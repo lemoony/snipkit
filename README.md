@@ -1,16 +1,127 @@
 # SnipKit - Snippet CLI manager
 
-[![Language](https://img.shields.io/badge/language-Go-blue.svg)](https://dart.dev)
-[![build](https://github.com/lemoony/snippet-kit/actions/workflows/build.yml/badge.svg)](https://github.com/lemoony/snippet-kit/actions/workflows/build.yml)
-[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Go Report Card](https://goreportcard.com/badge/github.com/lemoony/snippet-kit)](https://goreportcard.com/report/github.com/lemoony/snippet-kit)
-[![codecov](https://codecov.io/gh/lemoony/snippet-kit/branch/main/graph/badge.svg?token=UOG4O1yscP)](https://codecov.io/gh/lemoony/snippet-kit)
+Execute the scripts saved in your favorite snippet manager without even leaving the terminal.
 
-> This repository is still work in progress!
+<p align="center">
+  <a href="https://go.dev/"><img alt="Language" src="https://img.shields.io/badge/language-Go-blue.svg"></a>
+  <a href="https://github.com/lemoony/snipkit/actions/workflows/build.yml"><img alt="Build" src="https://github.com/lemoony/snipkit/actions/workflows/build.yml/badge.svg"></a>
+  <a href="https://opensource.org/licenses/Apache-2.0"><img alt="License" src="https://img.shields.io/badge/License-Apache_2.0-blue.svg"></a>
+  <a href="https://goreportcard.com/report/github.com/lemoony/snipkit"><img alt="Go Report Card" src="https://goreportcard.com/badge/github.com/lemoony/snipkit"></a>
+  <a href="https://codecov.io/gh/lemoony/snipkit"><img alt="codecov" src="https://codecov.io/gh/lemoony/snipkit/branch/main/graph/badge.svg?token=UOG4O1yscP"></a>
+</p>
 
-SnipKit aims to paste code snippets from your favorite snippet manager into your terminal without even 
-leaving it.
+<p align="center">
+  <img alt="Demo" src="./docs/images/demo.gif" />
+</p>
 
-As of now, only SnippetsLab is supported. Other CLI managers may be added in the future.
+<p align="center">
+  <a href="https://lemoony.github.io/snipkit/">Documentation</a> | <a href="https://github.com/lemoony/snipkit/blob/master/CHANGELOG.md">Changelog</a>
+</p>
+
+## Features
+
+- Load snippets form an external snippet manager (filtered by tags)
+  - [SnippetsLab](https://www.renfei.org/snippets-lab/)
+  - [Snip](https://github.com/Pictarine/macos-snippets)
+  - File system directory
+- Search for snippets by typing
+- Parameter substitution
+- Enum parameters
+- Themes
+  - Built-in themes (`default`, `simple`)
+  - Define custom themes
+- Root command can be adjusted (e.g. set to `print` or `exec`)
+
+Inspired by [Pet](https://github.com/knqyf263/pet).
+
+## Quick Start
+
+Please also have a look at the [Documentation]("https://lemoony.github.io/snipkit/).
+
+### Overview of all commands
+
+```sh
+snipkit -h
+```
+### Configuration
+
+```sh 
+# Create a new config
+snipkit config init
+```
+
+As of now, no external snippet manager is configured.
+
+```sh 
+# Add an external snippet manager
+snipkit manager add
+```
+
+You will be presented with a list of supported managers. Pick the one you want to use. After that, you should be ready to go.
+
+### Working with snippets
+
+Search for and execute a snippet:
+
+```
+snipkit exec
+```
+
+SnipKit will connect to the external snippet manager configured and provide all corresponding snippets
+to you.
+
+> _Tip_: In order to execute snippets even faster, have a look at the 
+> [power setup](https://lemoony.github.io/snipkit/latest/getting-started/power-setup/) described in the documentation.
+
+## Installation
+
+### Homebrew
+
+```bash 
+brew install lemoony/tap/snipkit
+```
+
+### apt 
+
+```bash 
+echo 'deb [trusted=yes] https://apt.fury.io/lemoony/ /' | sudo tee /etc/apt/sources.list.d/snipkit.list
+sudo apt update
+sudo apt install snipkit
+```
+
+### yum
+
+```bash 
+echo '[snipkit]
+name=Snipkit Private Repo
+baseurl=https://yum.fury.io/lemoony/
+enabled=1
+gpgcheck=0' | sudo tee /etc/yum.repos.d/snipkit.repo
+sudo yum install snipkit
+```
+### deb, rpm and apk packages 
+
+Download the .deb, .rpm or .apk packages from [releases page](https://github.com/lemoony/snipkit/releases) and install 
+them with the appropriate tools.
 
 
+### Go
+
+```bash
+go install github.com/lemoony/snipkit@latest
+```
+
+### Build
+
+```bash 
+git clone https://github.com/lemoony/snipkit.git
+cd snipkit 
+make build
+```
+
+After the build succeeds, go to `./dist` to find the binary for your operating system.
+
+
+## Contributing
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md).

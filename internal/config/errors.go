@@ -3,7 +3,8 @@ package config
 import (
 	"emperror.dev/errors"
 
-	"github.com/lemoony/snippet-kit/internal/ui/uimsg"
+	"github.com/lemoony/snipkit/internal/ui/style"
+	"github.com/lemoony/snipkit/internal/ui/uimsg"
 )
 
 var ErrInvalidConfig = errors.New("invalid config file")
@@ -13,7 +14,7 @@ type ErrConfigNotFound struct {
 }
 
 func (e ErrConfigNotFound) Error() string {
-	return uimsg.ConfigNotFound(e.cfgPath)
+	return uimsg.ConfigNotFound(e.cfgPath).RenderWith(style.NoopStyle)
 }
 
 func (e ErrConfigNotFound) Is(target error) bool {

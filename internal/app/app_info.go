@@ -2,18 +2,23 @@ package app
 
 import (
 	"fmt"
+
+	"github.com/lemoony/snipkit/internal/model"
 )
 
 func (a *appImpl) Info() {
-	a.ui.PrintMessage(fmt.Sprintf("%s: %s", "Config file", a.configService.ConfigFilePath()))
+	a.printInfo(a.configService.Info())
+	for _, manager := range a.managers {
+		a.printInfo(manager.Info())
+	}
+}
 
-	for _, provider := range a.Providers {
-		for _, line := range provider.Info().Lines {
-			if line.IsError {
-				a.ui.PrintError(fmt.Sprintf("%s: %s", line.Key, line.Value))
-			} else {
-				a.ui.PrintMessage(fmt.Sprintf("%s: %s", line.Key, line.Value))
-			}
+func (a *appImpl) printInfo(info []model.InfoLine) {
+	for _, line := range info {
+		if line.IsError {
+			a.tui.PrintError(fmt.Sprintf("%s: %s", line.Key, line.Value))
+		} else {
+			a.tui.PrintMessage(fmt.Sprintf("%s: %s", line.Key, line.Value))
 		}
 	}
 }

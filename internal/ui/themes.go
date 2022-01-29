@@ -5,21 +5,27 @@ import (
 	"path/filepath"
 	"reflect"
 	"regexp"
+	"strings"
 
 	"emperror.dev/errors"
 	"github.com/gdamore/tcell/v2"
 	"github.com/phuslu/log"
+	"github.com/rivo/tview"
 	"github.com/spf13/afero"
 	"gopkg.in/yaml.v3"
 
-	"github.com/lemoony/snippet-kit/internal/utils/system"
-	themedata "github.com/lemoony/snippet-kit/themes"
+	"github.com/lemoony/snipkit/internal/ui/style"
+	"github.com/lemoony/snipkit/internal/utils/system"
+	themedata "github.com/lemoony/snipkit/themes"
 )
 
 const (
 	defaultThemeName       = "default"
 	variablePatternMatches = 2
 	filenamePatternMatches = 2
+
+	lightSuffix = ".light"
+	darkSuffix  = ".dark"
 )
 
 var (
@@ -31,10 +37,18 @@ var (
 type themeWrapper struct {
 	Version   string `yaml:"version"`
 	Variables map[string]string
-	Theme     ThemeValues `yaml:"theme"`
+	Theme     style.ThemeValues `yaml:"theme"`
 }
 
-func embeddedTheme(name string) (*ThemeValues, bool) {
+func applyTheme(theme style.ThemeValues) {
+	styler := style.NewStyle(&theme)
+
+	tview.Styles.PrimitiveBackgroundColor = tcell.ColorReset
+	tview.Styles.BorderColor = styler.BorderColor().CellValue()
+	tview.Styles.TitleColor = styler.BorderTitleColor().CellValue()
+}
+
+func embeddedTheme(name string) (*style.ThemeValues, bool) {
 	entries, err := themedata.Files.ReadDir(".")
 	if err != nil {
 		panic(err)
@@ -44,7 +58,8 @@ func embeddedTheme(name string) (*ThemeValues, bool) {
 		m := filenamePattern.FindStringSubmatch(filepath.Base(entry.Name()))
 		if len(m) == filenamePatternMatches {
 			themeName := m[1]
-			if name == themeName {
+			if themeNameMatches(name, themeName) {
+				log.Trace().Msgf("Chosen theme: %s", themeName)
 				theme := readEmbeddedTheme(entry.Name())
 				return &theme, true
 			}
@@ -54,7 +69,7 @@ func embeddedTheme(name string) (*ThemeValues, bool) {
 	return nil, false
 }
 
-func customTheme(name string, system *system.System) (*ThemeValues, bool) {
+func customTheme(name string, system *system.System) (*style.ThemeValues, bool) {
 	if ok, _ := afero.DirExists(system.Fs, system.ThemesDir()); !ok {
 		log.Trace().Msgf("Dir does not exist: %s", system.ThemesDir())
 		return nil, false
@@ -69,7 +84,7 @@ func customTheme(name string, system *system.System) (*ThemeValues, bool) {
 		m := filenamePattern.FindStringSubmatch(filepath.Base(entry.Name()))
 		if len(m) == filenamePatternMatches {
 			themeName := m[1]
-			if name == themeName {
+			if themeNameMatches(name, themeName) {
 				themePath := filepath.Join(system.ThemesDir(), entry.Name())
 				theme := readCustomTheme(themePath, system)
 				return &theme, true
@@ -80,7 +95,7 @@ func customTheme(name string, system *system.System) (*ThemeValues, bool) {
 	return nil, false
 }
 
-func readEmbeddedTheme(path string) ThemeValues {
+func readEmbeddedTheme(path string) style.ThemeValues {
 	bytes, err := themedata.Files.ReadFile(path)
 	if err != nil {
 		panic(errors.Wrapf(err, "failed to read theme %s", path))
@@ -95,7 +110,7 @@ func readEmbeddedTheme(path string) ThemeValues {
 	return wrapper.theme()
 }
 
-func readCustomTheme(path string, system *system.System) ThemeValues {
+func readCustomTheme(path string, system *system.System) style.ThemeValues {
 	bytes := system.ReadFile(path)
 
 	var wrapper themeWrapper
@@ -107,7 +122,13 @@ func readCustomTheme(path string, system *system.System) ThemeValues {
 	return wrapper.theme()
 }
 
-func (t *themeWrapper) theme() ThemeValues {
+func themeNameMatches(configTheme, themeName string) bool {
+	matchesDarkTheme := style.HasDarkBackground() && strings.TrimSuffix(themeName, darkSuffix) == configTheme
+	matchesLightTheme := !style.HasDarkBackground() && strings.TrimSuffix(themeName, lightSuffix) == configTheme
+	return configTheme == themeName || matchesLightTheme || matchesDarkTheme
+}
+
+func (t *themeWrapper) theme() style.ThemeValues {
 	result := t.Theme
 	v := reflect.Indirect(reflect.ValueOf(&result))
 
@@ -126,96 +147,4 @@ func (t *themeWrapper) theme() ThemeValues {
 		}
 	}
 	return result
-}
-
-func (r *ThemeValues) backgroundColor() tcell.Color {
-	return tcell.GetColor(r.BackgroundColor).TrueColor()
-}
-
-func (r *ThemeValues) borderColor() tcell.Color {
-	return tcell.GetColor(r.BorderColor)
-}
-
-func (r *ThemeValues) borderTitleColor() tcell.Color {
-	return tcell.GetColor(r.BorderTitleColor)
-}
-
-func (r *ThemeValues) itemStyle() tcell.Style {
-	return tcell.StyleDefault.Background(r.backgroundColor()).Foreground(tcell.GetColor(r.ItemTextColor))
-}
-
-func (r *ThemeValues) itemLabelStyle() tcell.Style {
-	return tcell.StyleDefault.Background(tcell.GetColor(r.SelectedItemBackgroundColor)).Foreground(tcell.GetColor(r.ItemTextColor))
-}
-
-func (r *ThemeValues) selectedItemLabelStyle() tcell.Style {
-	return tcell.StyleDefault.Background(tcell.GetColor(r.SelectedItemBackgroundColor)).Foreground(tcell.GetColor(r.SelectedItemTextColor))
-}
-
-func (r *ThemeValues) selectedItemStyle() tcell.Style {
-	return tcell.StyleDefault.Background(tcell.GetColor(r.SelectedItemBackgroundColor)).Foreground(tcell.GetColor(r.SelectedItemTextColor))
-}
-
-func (r *ThemeValues) highlightItemMatchStyle() tcell.Style {
-	return tcell.StyleDefault.Background(tcell.GetColor(r.ItemHighlightMatchBackgroundColor)).Foreground(tcell.GetColor(r.ItemHighlightMatchTextColor))
-}
-
-func (r *ThemeValues) counterStyle() tcell.Style {
-	return tcell.StyleDefault.Foreground(tcell.GetColor(r.CounterTextColor))
-}
-
-func (r *ThemeValues) lookupInputStyle() tcell.Style {
-	return tcell.StyleDefault.Background(tcell.GetColor(r.LookupInputBackgroundColor)).Foreground(tcell.GetColor(r.LookupInputTextColor))
-}
-
-func (r *ThemeValues) lookupLabelStyle() tcell.Style {
-	return tcell.StyleDefault.Background(tcell.GetColor(r.BackgroundColor))
-}
-
-func (r *ThemeValues) lookupInputPlaceholderStyle() tcell.Style {
-	return tcell.StyleDefault.Background(tcell.ColorDefault).Foreground(tcell.GetColor(r.LookupInputPlaceholderColor))
-}
-
-func (r *ThemeValues) parametersLabelColor() tcell.Color {
-	return tcell.GetColor(r.ParametersLabelTextColor)
-}
-
-func (r *ThemeValues) parametersFieldBackgroundColor() tcell.Color {
-	return tcell.GetColor(r.ParametersFieldBackgroundColor)
-}
-
-func (r *ThemeValues) parametersFieldTextColor() tcell.Color {
-	return tcell.GetColor(r.ParametersFieldTextColor)
-}
-
-func (r *ThemeValues) parametersAutocompleteTextColor() tcell.Color {
-	return tcell.GetColor(r.ParameterAutocompleteTextColor)
-}
-
-func (r *ThemeValues) parametersAutocompleteSelectedTextColor() tcell.Color {
-	return tcell.GetColor(r.ParameterAutocompleteSelectedTextColor)
-}
-
-func (r *ThemeValues) parametersAutocompleteBackgroundColor() tcell.Color {
-	return tcell.GetColor(r.ParameterAutocompleteBackgroundColor)
-}
-
-func (r *ThemeValues) parametersAutocompleteSelectedBackgroundColor() tcell.Color {
-	return tcell.GetColor(r.ParameterAutocompleteSelectedBackgroundColor)
-}
-
-func (r *ThemeValues) selectedButtonBackgroundColor() tcell.Color {
-	return tcell.GetColor(r.SelectedItemBackgroundColor)
-}
-
-func (r *ThemeValues) previewDefaultTextColor() tcell.Color {
-	return tcell.GetColor(r.PreviewDefaultTextColor)
-}
-
-func (r *ThemeValues) previewOverwriteBackgroundColor() (tcell.Color, bool) {
-	if r.PreviewOverwriteBackgroundColor != "" {
-		return tcell.GetColor(r.PreviewOverwriteBackgroundColor), true
-	} else {
-		return tcell.ColorDefault, false
-	}
 }

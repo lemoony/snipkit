@@ -1,0 +1,25 @@
+version: 1.0.0
+variables:
+  white: "#FFFFFF"
+  black: "#000000"
+  gray: "#8A8A8A"
+  lightGray: "#DDDADA"
+theme:
+  borderColor: ${gray}
+  borderTitleColor: ${gray}
+  previewColorSchemeName: "friendly"
+  textColor: "" # if empty the default terminal foreground color will be used
+  subduedColor: ${gray}
+  subduedContrastColor: ${black}
+  verySubduedColor: ${lightGray}
+  verySubduedContrastColor: ${black}
+  activeColor: "#EE6FF8"
+  activeContrastColor: "#FFFFFF"
+  titleColor: "62"
+  titleContrastColor: "230"
+  highlightColor: "#40916c"
+  highlightContrastColor: ${black}
+  infoColor: "#F6A935"
+  infoContrastColor: ${black}
+  snippetColor: "#EE6FF8"
+  snippetContrastColor: ${white}

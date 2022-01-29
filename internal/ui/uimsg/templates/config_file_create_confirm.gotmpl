@@ -1,0 +1,13 @@
+{{ print (Title "Initialize the configuration") }}
+{{- if .homeEnvSet }}
+SNIPKIT_HOME is set to: {{ .homeEnv }}
+{{- else }}
+SNIPKIT_HOME is not set.
+{{ end }}
+
+Thus, the config file location is specified to be:
+  {{ print (Highlighted .cfgPath) }}
+{{if .recreate }}
+The config file already exists at the specified path. This operation will overwrite the current configuration.
+You may loose any modifications already done to it.
+{{ end }}

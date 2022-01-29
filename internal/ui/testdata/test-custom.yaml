@@ -1,39 +1,29 @@
-version: 1.0.0 #
+version: 1.0.0
 variables:
-  backgroundColor: "#eee8d5"
-  borderColor: "#6272a4"
-  defaultTextColor: "#586e75"
-  selectionColor: "#cb4b16"
-  selectionReverseColor: "#fdf6e3"
-  secondarySelectionColor: "#2aa198"
-  secondaryDefaultTextColor: "#fdf6e3"
-  tertiaryColor: "#2aa198"
-  fieldBackgroundColor: "#93a1a1"
-  fieldPlaceholderColor: "#6272a4"
-  fieldTextColor: "#eee8d5"
+  white: "#FFFFFF"
+  black: "#000000"
+  red: "#ED6A5A"
+  green: "#44AF69"
+  yellow: "#FCAB10"
+  brown: "#3A3335"
+  gray: "#8A8A8A"
+  lightGray: "#DDDADA"
 theme:
-  backgroundColor: ${backgroundColor}
-  borderColor: ${borderColor}
-  borderTitleColor: ${borderColor}
-  previewColorSchemeName: monokai
-  previewApplyMainBackground: true 
-  previewOverwriteBackgroundColor: ""
-  previewDefaultTextColor: ""
-  itemTextColor: ${defaultTextColor}
-  selectedItemTextColor: ${selectionReverseColor}
-  selectedItemBackgroundColor: ${selectionColor}
-  itemHighlightMatchBackgroundColor: ${secondarySelectionColor}
-  itemHighlightMatchTextColor: ${secondaryDefaultTextColor}
-  counterTextColor: ${tertiaryColor}
-  lookupInputTextColor: ${defaultTextColor}
-  lookupInputPlaceholderColor: ${fieldPlaceholderColor}
-  lookupInputBackgroundColor: ""
-  parametersLabelTextColor: ${tertiaryColor}
-  parametersFieldBackgroundColor: ${fieldBackgroundColor}
-  parametersFieldTextColor: ${fieldTextColor}
-  selectedButtonBackgroundColor: ${selectionColor}
-  selectedButtonTextColor: ${defaultTextColor}
-  parameterAutocompleteBackgroundColor: ${secondarySelectionColor}
-  parameterAutocompleteTextColor: ${secondaryDefaultTextColor}
-  parameterAutocompleteSelectedBackgroundColor: ${selectionColor}
-  parameterAutocompleteSelectedTextColor: ${selectionReverseColor}
+  borderColor: ${gray}
+  borderTitleColor: ${gray}
+  previewColorSchemeName: "rainbow_dash"
+  textColor: "" # if empty the default terminal foreground color will be used
+  subduedColor: ${gray}
+  subduedContrastColor: ${black}
+  verySubduedColor: ${lightGray}
+  verySubduedContrastColor: ${black}
+  activeColor: ${red} #
+  activeContrastColor: ${white}
+  titleColor: ${brown}
+  titleContrastColor: ${white}
+  highlightColor: ${green}
+  highlightContrastColor: ${black}
+  infoColor: ${yellow}
+  infoContrastColor: ${white}
+  snippetColor: ${lightGray}
+  snippetContrastColor: ${black}

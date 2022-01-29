@@ -15,7 +15,7 @@ jobs:
 
       - uses: actions/setup-go@v2
         with:
-          go-version: 1.16
+          go-version: 1.17
 
       - name: "Docker login"
         run: docker login docker.pkg.github.com -u docker -p ${{ secrets.GITHUB_TOKEN }}
@@ -24,3 +24,12 @@ jobs:
         run: make release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAP_GITHUB_TOKEN: ${{ secrets.TAP_GITHUB_TOKEN }}
+
+      - name: Publish to apt
+        run: |
+          for i in dist/*.deb; do
+            curl --fail -F package=@${i} "https://${PUSH_TOKEN}@push.fury.io/lemoony/"
+          done
+        env:
+          PUSH_TOKEN: ${{ secrets.GEMFURY_PUSH_TOKEN }}

@@ -1,47 +1,24 @@
 package cmd
 
 import (
-	"bytes"
 	"context"
-	"fmt"
 	"testing"
-	"time"
 
-	"github.com/AlecAivazis/survey/v2/terminal"
-	"github.com/Netflix/go-expect"
-	"github.com/hinshun/vt10x"
-	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"github.com/stretchr/testify/require"
 
-	"github.com/lemoony/snippet-kit/internal/app"
-	"github.com/lemoony/snippet-kit/internal/config"
-	"github.com/lemoony/snippet-kit/internal/providers"
-	"github.com/lemoony/snippet-kit/internal/ui"
-	"github.com/lemoony/snippet-kit/internal/utils/system"
-	"github.com/lemoony/snippet-kit/internal/utils/testutil"
-	mocks "github.com/lemoony/snippet-kit/mocks/provider"
+	"github.com/lemoony/snipkit/internal/app"
+	"github.com/lemoony/snipkit/internal/config"
+	"github.com/lemoony/snipkit/internal/managers"
+	"github.com/lemoony/snipkit/internal/ui"
+	"github.com/lemoony/snipkit/internal/utils/termtest"
+	"github.com/lemoony/snipkit/internal/utils/termutil"
+	mocks "github.com/lemoony/snipkit/mocks/managers"
 )
 
 type testSetup struct {
-	system           *system.System
-	v                *viper.Viper
-	providersBuilder providers.Builder
-	app              app.App
-	configService    config.Service
-}
-
-func newTestSetup() *testSetup {
-	system := testutil.NewTestSystem()
-	v := viper.New()
-	v.SetFs(system.Fs)
-
-	return &testSetup{
-		system:           system,
-		v:                v,
-		providersBuilder: providers.NewBuilder(),
-	}
+	app           app.App
+	configService config.Service
 }
 
 type option interface {
@@ -52,27 +29,6 @@ type optionFunc func(t *testSetup)
 
 func (f optionFunc) apply(t *testSetup) {
 	f(t)
-}
-
-func withConfigFilePath(cfgFilePath string) option {
-	return optionFunc(func(t *testSetup) {
-		t.v.SetConfigFile(cfgFilePath)
-	})
-}
-
-func withSystem(s *system.System) option {
-	return optionFunc(func(t *testSetup) {
-		t.system = s
-		t.v.SetFs(s.Fs)
-	})
-}
-
-func withProviders(p ...providers.Provider) option {
-	return optionFunc(func(t *testSetup) {
-		builder := mocks.ProviderBuilder{}
-		builder.On("BuildProvider", mock.Anything, mock.Anything).Return(p, nil)
-		t.providersBuilder = &builder
-	})
 }
 
 func withConfigService(configService config.Service) option {
@@ -90,17 +46,17 @@ func withApp(app app.App) option {
 func runMockedTest(t *testing.T, args []string, options ...option) error {
 	t.Helper()
 
-	testSetup := newTestSetup()
+	ts := &testSetup{}
 	for _, o := range options {
-		o.apply(testSetup)
+		o.apply(ts)
 	}
 
 	ctx := context.Background()
-	if testSetup.app != nil {
-		ctx = context.WithValue(ctx, _appKey, testSetup.app)
+	if ts.app != nil {
+		ctx = context.WithValue(ctx, _appKey, ts.app)
 	}
-	if testSetup.configService != nil {
-		ctx = context.WithValue(ctx, _configServiceKey, testSetup.configService)
+	if ts.configService != nil {
+		ctx = context.WithValue(ctx, _configServiceKey, ts.configService)
 	}
 
 	defer rootCmd.ResetFlags()
@@ -110,66 +66,40 @@ func runMockedTest(t *testing.T, args []string, options ...option) error {
 	rootCmd.ResetFlags()
 	res := rootCmd.ExecuteContext(ctx)
 
-	fmt.Println(res)
-
 	return res
 }
 
-func runVT10XCommandTest(
-	t *testing.T, args []string, hasError bool, test func(*expect.Console, *setup), options ...option,
-) {
+func runTerminalTest(t *testing.T, args []string, setup setup, hasError bool, test func(*termtest.Console)) {
 	t.Helper()
+	termtest.RunTerminalTest(t, test, func(stdio termutil.Stdio) {
+		prevIn, prevOut, prevErr := rootCmd.InOrStdin(), rootCmd.OutOrStdout(), rootCmd.ErrOrStderr()
+		defer func() {
+			rootCmd.SetIn(prevIn)
+			rootCmd.SetOut(prevOut)
+			rootCmd.SetErr(prevErr)
+		}()
 
-	// Multiplex output to a buffer as well for the raw bytes.
-	buf := new(bytes.Buffer)
-	c, state, err := vt10x.NewVT10XConsole(
-		expect.WithStdout(buf),
-		expect.WithDefaultTimeout(time.Second*2),
-	)
-	require.Nil(t, err)
-	defer func() {
-		_ = c.Close()
-	}()
+		rootCmd.SetIn(stdio.In)
+		rootCmd.SetOut(stdio.Out)
+		rootCmd.SetErr(stdio.Err)
 
-	donec := make(chan struct{})
+		s := setup
+		s.terminal = ui.NewTUI(ui.WithStdio(termutil.Stdio{In: stdio.In, Out: stdio.Out, Err: stdio.Err}))
 
-	rootCmd.SetIn(c.Tty())
-	rootCmd.SetOut(c.Tty())
-	rootCmd.SetErr(c.Tty())
+		defer rootCmd.ResetFlags()
+		rootCmd.SetArgs(args)
+		err := rootCmd.ExecuteContext(context.WithValue(context.Background(), _setupKey, &s))
 
-	testSetup := newTestSetup()
-	for _, o := range options {
-		o.apply(testSetup)
-	}
+		if hasError {
+			assert.Error(t, err)
+		} else {
+			assert.NoError(t, err)
+		}
+	})
+}
 
-	_setup := &setup{
-		system:           testSetup.system,
-		v:                testSetup.v,
-		providersBuilder: testSetup.providersBuilder,
-		terminal:         ui.NewTerminal(ui.WithStdio(terminal.Stdio{In: c.Tty(), Out: c.Tty(), Err: c.Tty()})),
-	}
-
-	defer rootCmd.ResetFlags()
-	rootCmd.SetArgs(args)
-	err = rootCmd.ExecuteContext(context.WithValue(context.Background(), _setupKey, _setup))
-
-	go func() {
-		defer close(donec)
-		test(c, _setup)
-	}()
-
-	<-donec
-	// Close the slave end of the pty, and read the remaining bytes from the master end.
-	assert.NoError(t, c.Tty().Close())
-
-	t.Logf("Raw output: %q", buf.String())
-
-	// Dump the terminal's screen.
-	t.Logf("\n%s", expect.StripTrailingEmptyLines(state.String()))
-
-	if hasError {
-		assert.Error(t, err)
-	} else {
-		assert.NoError(t, err)
-	}
+func testProviderForManager(manager managers.Manager) managers.Provider {
+	provider := mocks.Provider{}
+	provider.On("CreateManager", mock.Anything, mock.Anything).Return([]managers.Manager{manager}, nil)
+	return &provider
 }

@@ -1,0 +1,5 @@
+{{- if .deleted -}}
+Configuration file deleted: {{ .cfgPath }}
+{{- else -}}
+The configuration file was not deleted.
+{{- end -}}
