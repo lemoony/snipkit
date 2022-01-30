@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"reflect"
+	"regexp"
 	"strings"
 
 	"emperror.dev/errors"
@@ -28,6 +29,8 @@ const (
 
 	yamlDefaultIndent = 2
 )
+
+var sliceIndexRegex = regexp.MustCompile(`\[\d]`)
 
 func wrap(config Config) VersionWrapper {
 	return VersionWrapper{
@@ -64,18 +67,23 @@ func SerializeToYamlWithComment(value interface{}) []byte {
 	treeMap := map[string]*yaml.Node{}
 	traverseYamlTree(&tree, []string{}, &treeMap)
 
-	// set the comments
-	for key, comments := range commentMap {
-		if _, ok := treeMap[key]; !ok {
-			continue
+	findComment := func(key string, commentMap map[string][]yamlComment) ([]yamlComment, bool) {
+		if r, ok := commentMap[sliceIndexRegex.ReplaceAllString(key, "[*]")]; ok {
+			return r, ok
 		}
 
-		for _, comment := range comments {
-			switch comment.kind {
-			case yamlCommentLine:
-				treeMap[key].LineComment = comment.value
-			case yamlCommentHead:
-				treeMap[key].HeadComment = comment.value
+		return nil, false
+	}
+
+	for key := range treeMap {
+		if comments, ok := findComment(key, commentMap); ok {
+			for _, comment := range comments {
+				switch comment.kind {
+				case yamlCommentLine:
+					treeMap[key].LineComment = comment.value
+				case yamlCommentHead:
+					treeMap[key].HeadComment = comment.value
+				}
 			}
 		}
 	}
@@ -107,10 +115,15 @@ func traverseYamlTagComments(t reflect.Type, path []string, commentsMap *map[str
 			(*commentsMap)[nodePath] = append(commentsList, yamlComment{value: c, kind: yamlCommentHead})
 		}
 
-		if field.Type.Kind() == reflect.Struct {
+		switch field.Type.Kind() {
+		case reflect.Struct:
 			traverseYamlTagComments(field.Type, append(path, yamlName), commentsMap)
-		} else if field.Type.Kind() == reflect.Ptr {
+		case reflect.Ptr:
 			traverseYamlTagComments(field.Type.Elem(), append(path, yamlName), commentsMap)
+		case reflect.Slice:
+			if field.Type.Elem().Kind() == reflect.Struct {
+				traverseYamlTagComments(field.Type.Elem(), append(path, yamlName+"[*]"), commentsMap)
+			}
 		}
 	}
 }
@@ -143,8 +156,14 @@ func traverseYamlTree(node *yaml.Node, path []string, treeMap *map[string]*yaml.
 						pathPrefix = fmt.Sprintf("%s.", pathPrefix)
 					}
 
-					pathToNode := strings.TrimSpace(fmt.Sprintf("%s%s\n", pathPrefix, node.Content[i-1].Value))
-					(*treeMap)[pathToNode] = node.Content[i-1]
+					currentNode := node.Content[i-1]
+					if node.Content[i].Kind == yaml.SequenceNode {
+						for idx, v := range node.Content[i].Content {
+							traverseYamlTree(v, append(path, fmt.Sprintf("%s[%d]", currentNode.Value, idx)), treeMap)
+						}
+					}
+
+					(*treeMap)[strings.TrimSpace(fmt.Sprintf("%s%s\n", pathPrefix, currentNode.Value))] = currentNode
 				}
 			}
 		}

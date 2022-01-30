@@ -4,6 +4,7 @@ import (
 	"github.com/phuslu/log"
 
 	"github.com/lemoony/snipkit/internal/managers/fslibrary"
+	"github.com/lemoony/snipkit/internal/managers/githubgist"
 	"github.com/lemoony/snipkit/internal/managers/pictarinesnip"
 	"github.com/lemoony/snipkit/internal/managers/snippetslab"
 	"github.com/lemoony/snipkit/internal/model"
@@ -47,6 +48,17 @@ func (p providerImpl) CreateManager(system system.System, config Config) ([]Mana
 		}
 	}
 
+	if config.GithubGist != nil {
+		if manager, err := githubgist.NewManager(
+			githubgist.WithSystem(&system),
+			githubgist.WithConfig(*config.GithubGist),
+		); err != nil {
+			return nil, err
+		} else if manager != nil {
+			managers = append(managers, manager)
+		}
+	}
+
 	if config.FsLibrary != nil {
 		if manager, err := fslibrary.NewManager(
 			fslibrary.WithSystem(&system),
@@ -71,6 +83,9 @@ func (p providerImpl) ManagerDescriptions(config Config) []model.ManagerDescript
 	if config.PictarineSnip == nil || !config.PictarineSnip.Enabled {
 		infos = append(infos, pictarinesnip.Description(config.PictarineSnip))
 	}
+	if config.GithubGist == nil || !config.GithubGist.Enabled {
+		infos = append(infos, githubgist.Description(config.GithubGist))
+	}
 	if config.PictarineSnip == nil || !config.FsLibrary.Enabled {
 		infos = append(infos, fslibrary.Description(config.FsLibrary))
 	}
@@ -83,6 +98,8 @@ func (p providerImpl) AutoConfig(key model.ManagerKey, s *system.System) Config 
 		return Config{SnippetsLab: snippetslab.AutoDiscoveryConfig(s)}
 	case pictarinesnip.Key:
 		return Config{PictarineSnip: pictarinesnip.AutoDiscoveryConfig(s)}
+	case githubgist.Key:
+		return Config{GithubGist: githubgist.AutoDiscoveryConfig(s)}
 	case fslibrary.Key:
 		return Config{FsLibrary: fslibrary.AutoDiscoveryConfig(s)}
 	}

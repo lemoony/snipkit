@@ -26,6 +26,21 @@ config:
       libraryPath: ""
       # If this list is not empty, only those snippets that match the listed tags will be provided to you.
       includeTags: []
+    githubGist:
+      # If set to false, github gist is disabled completely.
+      enabled: true
+      # You can define multiple independent Github Gist sources.
+      gists:
+        - # If set to false, this github gist url is ignored.
+          enabled: true
+          # Endpoint url for the gists. Most likely, you want this to point to an user account.
+          url: https://api.github.com/users/<yourUser>/gists
+          # Supported values: Public, OAuth, Token. Default value: None (which means no authentication). In order to retrieve secret gists, you must be authenticated.
+          authenticationMethod: Token
+          # If this list is not empty, only those gists that match the listed tags will be provided to you.
+          includeTags: []
+          # Only gist files with endings which match one of the listed suffixes will be considered.
+          suffixRegex: []
     fsLibrary:
       # If set to false, the files specified via libraryPath will not be provided to you.
       enabled: true
