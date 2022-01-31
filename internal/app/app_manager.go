@@ -3,8 +3,12 @@ package app
 import (
 	"strings"
 
+	tea "github.com/charmbracelet/bubbletea"
+
 	"github.com/lemoony/snipkit/internal/config"
+	"github.com/lemoony/snipkit/internal/model"
 	"github.com/lemoony/snipkit/internal/ui/picker"
+	"github.com/lemoony/snipkit/internal/ui/sync"
 	"github.com/lemoony/snipkit/internal/ui/uimsg"
 )
 
@@ -29,9 +33,41 @@ func (a *appImpl) AddManager() {
 }
 
 func (a *appImpl) SyncManager() {
-	a.tui.PrintMessage("Syncing all managers...")
+	app := sync.Show()
+	go a.startSyncManagers(app)
+	_ = app.Start()
+}
+
+func (a *appImpl) startSyncManagers(p *tea.Program) {
+	p.Send(sync.UpdateStateMsg{State: sync.State{Done: false}})
+
 	for _, manager := range a.managers {
-		manager.Sync()
+		sf := &model.SyncFeedback{
+			Events: make(chan model.SyncEvent),
+		}
+
+		go func() {
+			if !manager.Sync(sf) {
+				close(sf.Events)
+			}
+		}()
+
+		for v := range sf.Events {
+			if v.State == model.SyncStateStarted {
+				p.Send(sync.ManagerState{
+					Key:        manager.Key(),
+					InProgress: true,
+					Error:      nil,
+				})
+			} else if v.State == model.SyncStateFinished {
+				p.Send(sync.ManagerState{
+					Key:        manager.Key(),
+					InProgress: false,
+					Error:      nil,
+				})
+			}
+		}
 	}
-	a.tui.PrintMessage("Sync finished.")
+
+	p.Send(sync.UpdateStateMsg{State: sync.State{Done: true}})
 }

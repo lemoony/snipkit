@@ -1,13 +1,17 @@
 package model
 
-var SyncNotSupported = SyncResult{NotSupported: true}
+type SyncState int
 
-type SyncResult struct {
-	Added   int
-	Updated int
-	Deleted int
+const (
+	SyncStateStarted  = SyncState(1)
+	SyncStateFinished = SyncState(2)
+)
 
-	NotSupported bool
-
+type SyncEvent struct {
+	State SyncState
 	Error error
+}
+
+type SyncFeedback struct {
+	Events chan SyncEvent
 }

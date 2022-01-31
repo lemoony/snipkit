@@ -56,8 +56,12 @@ func NewManager(options ...Option) (*Manager, error) {
 	return manager, nil
 }
 
-func (m *Manager) Sync() model.SyncResult {
-	return model.SyncNotSupported
+func (m Manager) Key() model.ManagerKey {
+	return Key
+}
+
+func (m *Manager) Sync(*model.SyncFeedback) bool {
+	return false
 }
 
 func (m Manager) Info() []model.InfoLine {

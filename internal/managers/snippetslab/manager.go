@@ -60,6 +60,10 @@ func (m Manager) libraryPath() snippetsLabLibrary {
 	return snippetsLabLibrary(m.config.LibraryPath)
 }
 
+func (m Manager) Key() model.ManagerKey {
+	return Key
+}
+
 func (m Manager) Info() []model.InfoLine {
 	var lines []model.InfoLine
 
@@ -88,8 +92,8 @@ func (m Manager) Info() []model.InfoLine {
 	return lines
 }
 
-func (m *Manager) Sync() model.SyncResult {
-	return model.SyncNotSupported
+func (m *Manager) Sync(*model.SyncFeedback) bool {
+	return false
 }
 
 func (m *Manager) GetSnippets() []model.Snippet {

@@ -57,6 +57,10 @@ func NewManager(options ...Option) (*Manager, error) {
 	return manager, nil
 }
 
+func (m Manager) Key() model.ManagerKey {
+	return Key
+}
+
 func (m Manager) Info() []model.InfoLine {
 	var lines []model.InfoLine
 
@@ -79,13 +83,48 @@ func (m Manager) Info() []model.InfoLine {
 	return lines
 }
 
-func (m *Manager) Sync() model.SyncResult {
-	time.Sleep(time.Second * 3) //nolint:gomnd //ignore for now
-	return model.SyncResult{
-		Added:   0,
-		Updated: 0,
-		Deleted: 0,
+func (m *Manager) Sync(sf *model.SyncFeedback) bool {
+	log.Trace().Msg("github gist sync started")
+	sf.Events <- model.SyncEvent{State: model.SyncStateStarted}
+
+	time.Sleep(time.Second * 1)
+
+	var snippets []model.Snippet
+
+	for _, cfg := range m.config.Gists {
+		resp, err := m.getGists(cfg)
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		for _, gist := range resp {
+			for _, file := range gist.Files {
+				rawResp, err := m.getRawGist(file.RawURL)
+				if err != nil {
+					fmt.Println(err)
+				}
+
+				snippets = append(snippets, model.Snippet{
+					UUID: fmt.Sprintf("%s-%s", gist.ID, file.Filename),
+					TitleFunc: func() string {
+						return file.Filename
+					},
+					ContentFunc: func() string {
+						return string(rawResp)
+					},
+				})
+			}
+		}
 	}
+
+	time.Sleep(time.Second * 2) //nolint:gomnd //ignore for now
+
+	sf.Events <- model.SyncEvent{State: model.SyncStateFinished}
+	close(sf.Events)
+	log.Trace().Msg("github gist sync finished")
+	fmt.Println(snippets)
+
+	return true
 }
 
 func (m *Manager) GetSnippets() []model.Snippet {

@@ -73,6 +73,10 @@ func NewManager(options ...Option) (*Manager, error) {
 	return manager, nil
 }
 
+func (m Manager) Key() model.ManagerKey {
+	return Key
+}
+
 func (m Manager) Info() []model.InfoLine {
 	var lines []model.InfoLine
 
@@ -142,8 +146,8 @@ func (m *Manager) GetSnippets() []model.Snippet {
 	return result
 }
 
-func (m *Manager) Sync() model.SyncResult {
-	return model.SyncNotSupported
+func (m *Manager) Sync(*model.SyncFeedback) bool {
+	return false
 }
 
 func checkSuffix(filename string, regexes []*regexp.Regexp) bool {
