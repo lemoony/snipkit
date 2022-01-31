@@ -19,6 +19,7 @@ type App interface {
 	LookupAndExecuteSnippet()
 	Info()
 	AddManager()
+	SyncManager()
 }
 
 // Option configures an App.

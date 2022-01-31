@@ -3,6 +3,7 @@ package githubgist
 import (
 	"fmt"
 	"regexp"
+	"time"
 
 	"github.com/phuslu/log"
 
@@ -76,6 +77,15 @@ func (m Manager) Info() []model.InfoLine {
 	})
 
 	return lines
+}
+
+func (m *Manager) Sync() model.SyncResult {
+	time.Sleep(time.Second * 3) //nolint:gomnd //ignore for now
+	return model.SyncResult{
+		Added:   0,
+		Updated: 0,
+		Deleted: 0,
+	}
 }
 
 func (m *Manager) GetSnippets() []model.Snippet {

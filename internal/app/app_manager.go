@@ -27,3 +27,11 @@ func (a *appImpl) AddManager() {
 		a.tui.Print(uimsg.ManagerAddConfigResult(confirmed, a.configService.ConfigFilePath()))
 	}
 }
+
+func (a *appImpl) SyncManager() {
+	a.tui.PrintMessage("Syncing all managers...")
+	for _, manager := range a.managers {
+		manager.Sync()
+	}
+	a.tui.PrintMessage("Sync finished.")
+}

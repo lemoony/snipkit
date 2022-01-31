@@ -142,6 +142,10 @@ func (m *Manager) GetSnippets() []model.Snippet {
 	return result
 }
 
+func (m *Manager) Sync() model.SyncResult {
+	return model.SyncNotSupported
+}
+
 func checkSuffix(filename string, regexes []*regexp.Regexp) bool {
 	if len(regexes) == 0 {
 		return true

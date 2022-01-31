@@ -88,6 +88,10 @@ func (m Manager) Info() []model.InfoLine {
 	return lines
 }
 
+func (m *Manager) Sync() model.SyncResult {
+	return model.SyncNotSupported
+}
+
 func (m *Manager) GetSnippets() []model.Snippet {
 	validTagUUIDs := m.getValidTagUUIDs()
 

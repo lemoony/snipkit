@@ -33,9 +33,9 @@ config:
       gists:
         - # If set to false, this github gist url is ignored.
           enabled: true
-          # Endpoint url for the gists. Most likely, you want this to point to an user account.
+          # API endpoint url for the gists. Most likely, you want this to point to an user account.
           url: https://api.github.com/users/<yourUser>/gists
-          # Supported values: Public, OAuth, Token. Default value: None (which means no authentication). In order to retrieve secret gists, you must be authenticated.
+          # Supported values: None, OAuth, Token. Default value: None (which means no authentication). In order to retrieve secret gists, you must be authenticated.
           authenticationMethod: Token
           # If this list is not empty, only those gists that match the listed tags will be provided to you.
           includeTags: []
