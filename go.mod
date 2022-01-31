@@ -18,7 +18,7 @@ require (
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51
 	github.com/muesli/reflow v0.3.0
 	github.com/muesli/termenv v0.9.0
-	github.com/phuslu/log v1.0.76
+	github.com/phuslu/log v1.0.77
 	github.com/rivo/tview v0.0.0-20211202162923-2a6de950f73b
 	github.com/spf13/afero v1.8.0
 	github.com/spf13/cobra v1.3.0
