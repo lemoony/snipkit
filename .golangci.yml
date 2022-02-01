@@ -75,18 +75,6 @@ linters:
 issues:
   # enable issues excluded by default
   exclude-use-default: false
-
-  # false positives that somehow only occur locally on macos - check again once golangci version has a new version available
   exclude-rules:
     - linters: [gosec]
       path: _test\.go
-    - linters: [ unused ]
-      text: "runWithTimeout" # false positive that somehow only occurs lacally on macos
-    - linters: [ unused ]
-      text: "didPanic" # false positive that somehow only occurs lacally on macos
-    - linters: [ unused ]
-      text: "createTestFile" # false positive that somehow only occurs lacally on macos
-    - linters: [ staticcheck ]
-      text: "this value of `fs` is never used" # false positive that somehow only occurs lacally on macos
-    - linters: [ staticcheck ]
-      text: "this value of `system` is never used"
