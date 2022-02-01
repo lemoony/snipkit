@@ -44,7 +44,6 @@ linters:
     - depguard
     - dupl
     - exportloopref
-    - forcetypeassert
     - funlen
     - gci
     - gocognit
@@ -72,12 +71,15 @@ linters:
     # - errorlint
     # - goerr113
     # - wrapcheck
+    # - forcetypeassert
 issues:
   # enable issues excluded by default
   exclude-use-default: false
 
   # false positives that somehow only occur locally on macos - check again once golangci version has a new version available
   exclude-rules:
+    - linters: [gosec]
+      path: _test\.go
     - linters: [ unused ]
       text: "runWithTimeout" # false positive that somehow only occurs lacally on macos
     - linters: [ unused ]
