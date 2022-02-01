@@ -138,7 +138,7 @@ func Test_OpenEditor(t *testing.T) {
 		assert.NoError(t, err)
 
 		NewTUI(WithStdio(stdio)).OpenEditor(testFile, "")
-		bytes, err := ioutil.ReadFile(testFile) //nolint:gosec // potential file inclusion via variable
+		bytes, err := ioutil.ReadFile(testFile)
 		assert.NoError(t, err)
 		assert.Equal(t, "Hello world\n", string(bytes))
 	})
