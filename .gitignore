@@ -41,3 +41,4 @@ dist/
 # env files that usually contain secrets or local config
 .env
 .envrc
+.dev_config/
