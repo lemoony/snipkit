@@ -83,14 +83,68 @@ func (m Manager) Info() []model.InfoLine {
 	return lines
 }
 
-func (m *Manager) Sync(sf *model.SyncFeedback) bool {
+func (m *Manager) Sync(events model.SyncEventChannel) bool {
 	log.Trace().Msg("github gist sync started")
-	sf.Events <- model.SyncEvent{State: model.SyncStateStarted}
+
+	var lines []model.SyncLine
+	events <- model.SyncEvent{State: model.SyncStateStarted, Lines: lines}
 
 	time.Sleep(time.Second * 1)
 
-	var snippets []model.Snippet
+	contChannel := make(chan struct{})
 
+	events <- model.SyncEvent{
+		State: model.SyncStateStarted,
+		Lines: lines,
+		Login: &model.SyncLogin{
+			Title:    "You need to log into GitHub",
+			Content:  "Press [Enter] to continue...",
+			Continue: contChannel,
+		},
+	}
+
+	<-contChannel
+
+	events <- model.SyncEvent{
+		State: model.SyncStateStarted,
+		Lines: lines,
+		Login: &model.SyncLogin{
+			Title:    "You need to log into GitHub",
+			Content:  "Checking...",
+			Continue: nil,
+		},
+	}
+
+	time.Sleep(time.Second * 2) //nolint:gomnd //ignore for now
+
+	lines = append(lines, model.SyncLine{
+		Type:  model.SyncLineTypeSuccess,
+		Value: "Login successful. Stored token in keychain.",
+	})
+
+	events <- model.SyncEvent{
+		State: model.SyncStateStarted,
+		Lines: lines,
+		Login: nil,
+	}
+
+	time.Sleep(time.Second * 2) //nolint:gomnd //ignore for now
+	snippets := m.getSnippetsFromAPI()
+	events <- model.SyncEvent{State: model.SyncStateFinished, Lines: lines}
+	close(events)
+	log.Trace().Msg("github gist sync finished")
+	fmt.Println(snippets)
+
+	return true
+}
+
+func (m *Manager) GetSnippets() []model.Snippet {
+	var result []model.Snippet
+	return result
+}
+
+func (m *Manager) getSnippetsFromAPI() []model.Snippet {
+	var snippets []model.Snippet
 	for _, cfg := range m.config.Gists {
 		resp, err := m.getGists(cfg)
 		if err != nil {
@@ -116,18 +170,5 @@ func (m *Manager) Sync(sf *model.SyncFeedback) bool {
 			}
 		}
 	}
-
-	time.Sleep(time.Second * 2) //nolint:gomnd //ignore for now
-
-	sf.Events <- model.SyncEvent{State: model.SyncStateFinished}
-	close(sf.Events)
-	log.Trace().Msg("github gist sync finished")
-	fmt.Println(snippets)
-
-	return true
-}
-
-func (m *Manager) GetSnippets() []model.Snippet {
-	var result []model.Snippet
-	return result
+	return snippets
 }

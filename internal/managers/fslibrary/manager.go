@@ -146,7 +146,7 @@ func (m *Manager) GetSnippets() []model.Snippet {
 	return result
 }
 
-func (m *Manager) Sync(*model.SyncFeedback) bool {
+func (m *Manager) Sync(events model.SyncEventChannel) bool {
 	return false
 }
 

@@ -42,30 +42,21 @@ func (a *appImpl) startSyncManagers(p *tea.Program) {
 	p.Send(sync.UpdateStateMsg{State: sync.State{Done: false}})
 
 	for _, manager := range a.managers {
-		sf := &model.SyncFeedback{
-			Events: make(chan model.SyncEvent),
-		}
+		events := make(chan model.SyncEvent)
 
 		go func() {
-			if !manager.Sync(sf) {
-				close(sf.Events)
+			if !manager.Sync(events) {
+				close(events)
 			}
 		}()
 
-		for v := range sf.Events {
-			if v.State == model.SyncStateStarted {
-				p.Send(sync.ManagerState{
-					Key:        manager.Key(),
-					InProgress: true,
-					Error:      nil,
-				})
-			} else if v.State == model.SyncStateFinished {
-				p.Send(sync.ManagerState{
-					Key:        manager.Key(),
-					InProgress: false,
-					Error:      nil,
-				})
-			}
+		for v := range events {
+			p.Send(sync.ManagerState{
+				Key:        manager.Key(),
+				InProgress: v.State == model.SyncStateStarted,
+				Lines:      v.Lines,
+				Login:      v.Login,
+			})
 		}
 	}
 

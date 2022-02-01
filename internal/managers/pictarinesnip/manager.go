@@ -60,7 +60,7 @@ func (m Manager) Key() model.ManagerKey {
 	return Key
 }
 
-func (m *Manager) Sync(*model.SyncFeedback) bool {
+func (m *Manager) Sync(events model.SyncEventChannel) bool {
 	return false
 }
 

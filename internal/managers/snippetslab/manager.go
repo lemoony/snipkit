@@ -92,7 +92,7 @@ func (m Manager) Info() []model.InfoLine {
 	return lines
 }
 
-func (m *Manager) Sync(*model.SyncFeedback) bool {
+func (m *Manager) Sync(events model.SyncEventChannel) bool {
 	return false
 }
 
