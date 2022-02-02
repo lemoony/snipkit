@@ -121,7 +121,12 @@ make build
 
 After the build succeeds, go to `./dist` to find the binary for your operating system.
 
+You can also build the project via Gitpod.
+
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/lemoony/snipkit)
+
 
 ## Contributing
 
-See [CONTRIBUTING.md](./CONTRIBUTING.md).
+See [CONTRIBUTING.md](./CONTRIBUTING.md). 
+
