@@ -1,11 +1,7 @@
 tasks:
-  - name: Prec-ommit hooks
-    before: pip install pre-commit
-    init: pre-commit install
-  - name: mkdcos
-    init: pip install mkdocs mkdocs-material
-  - name: Go application setup
-    init: make ci
+  - name: Setup
+    before: pip install pre-commit mkdocs mkdocs-material && pre-commit install
+    init: make install generate
 ports:
   - port: 8000
     onOpen: open-preview
@@ -13,3 +9,4 @@ vscode:
   extensions:
     - golang.Go
     - eamodio.gitlens
+    - shd101wyy.markdown-preview-enhanced
