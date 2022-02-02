@@ -1,0 +1,6 @@
+tasks:
+  - init: make install
+vscode:
+  extensions:
+    - golang.Go
+    - eamodio.gitlens
