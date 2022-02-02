@@ -1,0 +1,12 @@
+tasks:
+  - name: Setup
+    before: pip install pre-commit mkdocs mkdocs-material && pre-commit install
+    init: make install generate
+ports:
+  - port: 8000
+    onOpen: open-preview
+vscode:
+  extensions:
+    - golang.Go
+    - eamodio.gitlens
+    - shd101wyy.markdown-preview-enhanced

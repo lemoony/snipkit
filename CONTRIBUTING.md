@@ -23,7 +23,9 @@ Setting up a test environment involves the following steps:
     * Install [mkdcos](https://www.mkdocs.org/)
     * Install [mkdocs-material](https://github.com/squidfunk/mkdocs-material)
 
-After this, you'll be able to test any change
+After this, you'll be able to test any change. Alternatively, you can open the project via Gitpod: 
+
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/lemoony/snipkit)
 
 ### Commands
 
