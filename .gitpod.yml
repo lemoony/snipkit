@@ -2,7 +2,13 @@ tasks:
   - name: Prec-ommit hooks
     before: pip install pre-commit
     init: pre-commit install
-  - init: make ci
+  - name: mkdcos
+    init: pip install mkdocs mkdocs-material
+  - name: Go application setup
+    init: make ci
+ports:
+  - port: 8000
+    onOpen: open-preview
 vscode:
   extensions:
     - golang.Go
