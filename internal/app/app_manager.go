@@ -3,8 +3,6 @@ package app
 import (
 	"strings"
 
-	tea "github.com/charmbracelet/bubbletea"
-
 	"github.com/lemoony/snipkit/internal/config"
 	"github.com/lemoony/snipkit/internal/model"
 	"github.com/lemoony/snipkit/internal/ui/picker"
@@ -33,13 +31,13 @@ func (a *appImpl) AddManager() {
 }
 
 func (a *appImpl) SyncManager() {
-	app := sync.Show()
-	go a.startSyncManagers(app)
-	_ = app.Start()
+	screen := sync.New()
+	go a.startSyncManagers(screen)
+	screen.Start()
 }
 
-func (a *appImpl) startSyncManagers(p *tea.Program) {
-	p.Send(sync.UpdateStateMsg{State: sync.State{Done: false}})
+func (a *appImpl) startSyncManagers(s *sync.Screen) {
+	s.Send(sync.UpdateStateMsg{Status: model.SyncStatusStarted})
 
 	for _, manager := range a.managers {
 		events := make(chan model.SyncEvent)
@@ -51,14 +49,16 @@ func (a *appImpl) startSyncManagers(p *tea.Program) {
 		}()
 
 		for v := range events {
-			p.Send(sync.ManagerState{
-				Key:        manager.Key(),
-				InProgress: v.State == model.SyncStateStarted,
-				Lines:      v.Lines,
-				Login:      v.Login,
+			s.Send(sync.UpdateStateMsg{
+				ManagerState: &sync.ManagerState{
+					Key:    manager.Key(),
+					Status: v.Status,
+					Lines:  v.Lines,
+					Input:  v.Login,
+				},
 			})
 		}
 	}
 
-	p.Send(sync.UpdateStateMsg{State: sync.State{Done: true}})
+	s.Send(sync.UpdateStateMsg{Status: model.SyncStatusStarted})
 }

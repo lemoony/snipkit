@@ -6,6 +6,7 @@ import (
 
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/spinner"
+	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/muesli/reflow/wordwrap"
@@ -16,7 +17,7 @@ import (
 )
 
 const (
-	managerMarginLeft = 2
+	managerMarginLeft = 3
 )
 
 var (
@@ -29,32 +30,42 @@ var (
 		key.WithKeys("enter"),
 		key.WithHelp("↵", "apply"),
 	)
+
+	quitKeyBinding = key.NewBinding(
+		key.WithKeys("q", "esc", "ctrl+c"),
+		key.WithHelp("q", "quit"),
+	)
 )
 
-type UpdateStateMsg struct {
-	State State
+type Screen struct {
+	program *tea.Program
 }
 
-type State struct {
-	Done         bool
+type UpdateStateMsg struct {
+	Status       appModel.SyncStatus
+	ManagerState *ManagerState
+}
+
+type state struct {
+	Status       appModel.SyncStatus
 	ManagerState map[appModel.ManagerKey]ManagerState
 }
 
-func (s *State) isWaitingForEnterPress() (chan struct{}, bool) {
+func (s *state) isWaitingForInput() (chan appModel.SyncInputResult, bool) {
 	for _, m := range s.ManagerState {
-		if m.Login != nil && m.Login.Continue != nil {
-			return m.Login.Continue, true
+		if m.Input != nil && m.Input.Input != nil {
+			return m.Input.Input, true
 		}
 	}
 	return nil, false
 }
 
 type ManagerState struct {
-	Key        appModel.ManagerKey
-	InProgress bool
-	Lines      []appModel.SyncLine
-	Login      *appModel.SyncLogin
-	Error      error
+	Key    appModel.ManagerKey
+	Status appModel.SyncStatus
+	Lines  []appModel.SyncLine
+	Input  *appModel.SyncInput
+	Error  error
 }
 
 type model struct {
@@ -63,17 +74,18 @@ type model struct {
 	input  *io.Reader
 	output *io.Writer
 
-	state State
+	state state
 
 	width  int
 	height int
 
-	spinner spinner.Model
+	spinner   spinner.Model
+	textinput textinput.Model
 }
 
-func Show(options ...Option) *tea.Program {
-	m := &model{state: State{
-		Done:         false,
+func New(options ...Option) *Screen {
+	m := &model{state: state{
+		Status:       appModel.SyncStatusFinished,
 		ManagerState: map[appModel.ManagerKey]ManagerState{},
 	}}
 
@@ -95,29 +107,72 @@ func Show(options ...Option) *tea.Program {
 		teaOptions = append(teaOptions, tea.WithOutput(*m.output))
 	}
 
-	return tea.NewProgram(m, teaOptions...)
+	return &Screen{
+		program: tea.NewProgram(m, teaOptions...),
+	}
+}
+
+func (s *Screen) Start() {
+	if err := s.program.Start(); err != nil {
+		panic(err)
+	}
+}
+
+func (s *Screen) Send(msg UpdateStateMsg) {
+	s.program.Send(msg)
 }
 
 func (m *model) Init() tea.Cmd {
 	return m.spinner.Tick
 }
 
+//nolint:gocognit,gocyclo //TODO refactor at a later point
 func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
+	var cmds []tea.Cmd
+
 	switch msg := msg.(type) {
 	case UpdateStateMsg:
-		if msg.State.Done {
-			m.state.Done = true
-			cmd = tea.Quit
-		}
-	case ManagerState:
-		m.state.ManagerState[msg.Key] = msg
-	case tea.KeyMsg:
-		if key.Matches(msg, continueKeyBinding) {
-			if c, isWaiting := m.state.isWaitingForEnterPress(); isWaiting {
-				close(c)
+		if status := msg.Status; status != 0 {
+			m.state.Status = status
+			if status == appModel.SyncStatusFinished || status == appModel.SyncStatusAborted {
+				cmd = tea.Quit
 			}
 		}
+		if managerState := msg.ManagerState; managerState != nil {
+			m.state.ManagerState[managerState.Key] = *managerState
+
+			if login := managerState.Input; login != nil && login.Type == appModel.SyncLoginTypeText {
+				m.textinput = textinput.New()
+				m.textinput.Placeholder = login.Placeholder
+				m.textinput.Focus()
+			}
+
+			if managerState.Status == appModel.SyncStatusAborted {
+				return m, tea.Quit
+			}
+		}
+
+	case tea.KeyMsg:
+		switch {
+		case key.Matches(msg, quitKeyBinding):
+			if c, isWaiting := m.state.isWaitingForInput(); isWaiting {
+				c <- appModel.SyncInputResult{Abort: true}
+			}
+		case key.Matches(msg, continueKeyBinding):
+			if c, isWaiting := m.state.isWaitingForInput(); isWaiting {
+				if m.textinput.Focused() {
+					c <- appModel.SyncInputResult{Text: m.textinput.Value()}
+				} else {
+					c <- appModel.SyncInputResult{Continue: true}
+				}
+			}
+		default:
+			if m.textinput, cmd = m.textinput.Update(msg); cmd != nil {
+				cmds = append(cmds, cmd)
+			}
+		}
+
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
 		m.height = msg.Height
@@ -125,32 +180,36 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.spinner, cmd = m.spinner.Update(msg)
 	}
 
-	return m, cmd
+	if cmd != nil {
+		cmds = append(cmds, cmd)
+	}
+
+	return m, tea.Batch(cmds...)
 }
 
 func (m *model) View() string {
 	sections := []string{"Syncing all managers..."}
 
 	for _, v := range m.state.ManagerState {
-		if v.InProgress {
-			sections = append(sections, fmt.Sprintf("%s Syncing %s...", m.spinner.View(), string(v.Key)))
+		sections = append(sections, fmt.Sprintf("%s Syncing %s...", m.spinner.View(), string(v.Key)))
 
-			for _, l := range v.Lines {
-				sections = append(sections, lipgloss.NewStyle().MarginLeft(managerMarginLeft).Render(l.Value))
-			}
+		for _, l := range v.Lines {
+			sections = append(sections, lipgloss.NewStyle().MarginLeft(managerMarginLeft).Render(l.Value))
+		}
 
-			if login := v.Login; login != nil {
-				sections = append(
-					sections,
-					lipgloss.NewStyle().Margin(1, managerMarginLeft).Render(fmt.Sprintf("%s\n\n%sn", login.Title, login.Content)),
-				)
+		if input := v.Input; input != nil {
+			sections = append(
+				sections,
+				lipgloss.NewStyle().MarginLeft(managerMarginLeft).MarginTop(1).Render(input.Content),
+			)
+
+			if input.Type == appModel.SyncLoginTypeText {
+				sections = append(sections, lipgloss.NewStyle().MarginLeft(managerMarginLeft).Render(m.textinput.View()))
 			}
-		} else {
-			sections = append(sections, fmt.Sprintf("%s Syncing %s... done", checkMark, string(v.Key)))
 		}
 	}
 
-	if m.state.Done {
+	if m.state.Status == appModel.SyncStatusFinished {
 		sections = append(sections, fmt.Sprintf("%s All done.\n", checkMark))
 	}
 

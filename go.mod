@@ -16,6 +16,7 @@ require (
 	github.com/gdamore/tcell/v2 v2.4.1-0.20210905002822-f057f0a857a1
 	github.com/hinshun/vt10x v0.0.0-20180809195222-d55458df857c
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51
+	github.com/keybase/go-keychain v0.0.0-20211119201326-e02f34051621
 	github.com/muesli/reflow v0.3.0
 	github.com/muesli/termenv v0.11.0
 	github.com/phuslu/log v1.0.77

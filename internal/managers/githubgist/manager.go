@@ -7,6 +7,7 @@ import (
 
 	"github.com/phuslu/log"
 
+	"github.com/lemoony/snipkit/internal/cache"
 	"github.com/lemoony/snipkit/internal/model"
 	"github.com/lemoony/snipkit/internal/utils/system"
 )
@@ -15,6 +16,7 @@ type Manager struct {
 	system      *system.System
 	config      Config
 	suffixRegex []*regexp.Regexp //nolint:structcheck,unused // ignore for now since not used yet
+	cache       cache.Cache
 }
 
 // Option configures a Manager.
@@ -39,6 +41,12 @@ func WithSystem(system *system.System) Option {
 func WithConfig(config Config) Option {
 	return optionFunc(func(p *Manager) {
 		p.config = config
+	})
+}
+
+func WithCache(cache cache.Cache) Option {
+	return optionFunc(func(p *Manager) {
+		p.cache = cache
 	})
 }
 
@@ -87,50 +95,35 @@ func (m *Manager) Sync(events model.SyncEventChannel) bool {
 	log.Trace().Msg("github gist sync started")
 
 	var lines []model.SyncLine
-	events <- model.SyncEvent{State: model.SyncStateStarted, Lines: lines}
+	events <- model.SyncEvent{Status: model.SyncStatusStarted, Lines: lines}
 
 	time.Sleep(time.Second * 1)
 
-	contChannel := make(chan struct{})
-
-	events <- model.SyncEvent{
-		State: model.SyncStateStarted,
-		Lines: lines,
-		Login: &model.SyncLogin{
-			Title:    "You need to log into GitHub",
-			Content:  "Press [Enter] to continue...",
-			Continue: contChannel,
-		},
-	}
-
-	<-contChannel
-
-	events <- model.SyncEvent{
-		State: model.SyncStateStarted,
-		Lines: lines,
-		Login: &model.SyncLogin{
-			Title:    "You need to log into GitHub",
-			Content:  "Checking...",
-			Continue: nil,
-		},
+	for _, g := range m.config.Gists {
+		lines = append(lines, model.SyncLine{Type: model.SyncLineTypeInfo, Value: fmt.Sprintf("Checking %s", g.URL)})
+		if g.AuthenticationMethod == AuthMethodToken {
+			if _, ok := m.requestAuthToken(lines, events); !ok {
+				return false
+			}
+		}
 	}
 
 	time.Sleep(time.Second * 2) //nolint:gomnd //ignore for now
 
 	lines = append(lines, model.SyncLine{
 		Type:  model.SyncLineTypeSuccess,
-		Value: "Login successful. Stored token in keychain.",
+		Value: "Input successful. Stored token in keychain.",
 	})
 
 	events <- model.SyncEvent{
-		State: model.SyncStateStarted,
-		Lines: lines,
-		Login: nil,
+		Status: model.SyncStatusStarted,
+		Lines:  lines,
+		Login:  nil,
 	}
 
 	time.Sleep(time.Second * 2) //nolint:gomnd //ignore for now
 	snippets := m.getSnippetsFromAPI()
-	events <- model.SyncEvent{State: model.SyncStateFinished, Lines: lines}
+	events <- model.SyncEvent{Status: model.SyncStatusFinished, Lines: lines}
 	close(events)
 	log.Trace().Msg("github gist sync finished")
 	fmt.Println(snippets)
@@ -171,4 +164,37 @@ func (m *Manager) getSnippetsFromAPI() []model.Snippet {
 		}
 	}
 	return snippets
+}
+
+func (m *Manager) requestAuthToken(lines []model.SyncLine, events model.SyncEventChannel) (string, bool) {
+	contChannel := make(chan model.SyncInputResult)
+
+	events <- model.SyncEvent{
+		Status: model.SyncStatusStarted,
+		Lines:  lines,
+		Login: &model.SyncInput{
+			Content:     "You need to login into GitHub.\nYou have not yet provided an Access Token..",
+			Placeholder: "Access token",
+			Type:        model.SyncLoginTypeText,
+			Input:       contChannel,
+		},
+	}
+
+	//nolint:ifshort //TODO: refactor at a later point
+	value := <-contChannel
+
+	events <- model.SyncEvent{Status: model.SyncStatusStarted, Lines: lines}
+
+	if value.Text != "" {
+		return value.Text, true
+	}
+
+	if value.Abort {
+		events <- model.SyncEvent{
+			Status: model.SyncStatusStarted,
+			Lines:  append(lines, model.SyncLine{Type: model.SyncLineTypeInfo, Value: "Aborted"}),
+		}
+	}
+
+	return "", false
 }

@@ -3,6 +3,7 @@ package managers
 import (
 	"github.com/phuslu/log"
 
+	"github.com/lemoony/snipkit/internal/cache"
 	"github.com/lemoony/snipkit/internal/managers/fslibrary"
 	"github.com/lemoony/snipkit/internal/managers/githubgist"
 	"github.com/lemoony/snipkit/internal/managers/pictarinesnip"
@@ -17,10 +18,12 @@ type Provider interface {
 	AutoConfig(key model.ManagerKey, s *system.System) Config
 }
 
-type providerImpl struct{}
+type providerImpl struct {
+	cache cache.Cache
+}
 
-func NewBuilder() Provider {
-	return providerImpl{}
+func NewBuilder(cache cache.Cache) Provider {
+	return providerImpl{cache: cache}
 }
 
 func (p providerImpl) CreateManager(system system.System, config Config) ([]Manager, error) {
@@ -52,6 +55,7 @@ func (p providerImpl) CreateManager(system system.System, config Config) ([]Mana
 		if manager, err := githubgist.NewManager(
 			githubgist.WithSystem(&system),
 			githubgist.WithConfig(*config.GithubGist),
+			githubgist.WithCache(p.cache),
 		); err != nil {
 			return nil, err
 		} else if manager != nil {

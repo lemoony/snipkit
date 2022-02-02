@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/lemoony/snipkit/internal/app"
+	"github.com/lemoony/snipkit/internal/cache"
 	"github.com/lemoony/snipkit/internal/config"
 	"github.com/lemoony/snipkit/internal/managers"
 	"github.com/lemoony/snipkit/internal/ui"
@@ -33,7 +34,7 @@ func (s *setup) configService() config.Service {
 
 var _defaultSetup = setup{
 	terminal: ui.NewTUI(),
-	provider: managers.NewBuilder(),
+	provider: managers.NewBuilder(cache.New()),
 	v:        viper.GetViper(),
 	system:   system.NewSystem(),
 }
