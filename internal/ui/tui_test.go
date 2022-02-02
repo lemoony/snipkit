@@ -129,6 +129,9 @@ func Test_ShowLookup(t *testing.T) {
 }
 
 func Test_OpenEditor(t *testing.T) {
+	_ = os.Unsetenv("EDITOR")
+	_ = os.Unsetenv("VISUAL")
+
 	termtest.RunTerminalTest(t, func(c *termtest.Console) {
 		c.Send("iHello world\x1b")
 		c.Send(":wq!\n")

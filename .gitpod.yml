@@ -1,5 +1,5 @@
 tasks:
-  - init: make install
+  - init: make ci
 vscode:
   extensions:
     - golang.Go
