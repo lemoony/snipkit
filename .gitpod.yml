@@ -1,4 +1,7 @@
 tasks:
+  - name: Prec-ommit hooks
+    before: pip install pre-commit
+    init: pre-commit install
   - init: make ci
 vscode:
   extensions:
