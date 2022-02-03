@@ -180,8 +180,7 @@ func (m *Manager) requestAuthToken(lines []model.SyncLine, events model.SyncEven
 		},
 	}
 
-	//nolint:ifshort //TODO: refactor at a later point
-	value := <-contChannel
+	value := <-contChannel //nolint:ifshort //TODO: refactor at a later point
 
 	events <- model.SyncEvent{Status: model.SyncStatusStarted, Lines: lines}
 
