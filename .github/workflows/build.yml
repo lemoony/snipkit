@@ -15,9 +15,9 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y gnome-keyring build-essential ca-certificates
-          mkdir -p /github/home/.cache/
-          mkdir -p /github/home/.local/share/keyrings/
-          chmod 700 -R /github/home/.local/
+          sudo mkdir -p /github/home/.cache/
+          sudo mkdir -p /github/home/.local/share/keyrings/
+          sudo chmod 700 -R /github/home/.local/
       - uses: actions/checkout@v2
       - uses: actions/setup-go@v2
         with:
