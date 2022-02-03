@@ -10,6 +10,11 @@ on:
 jobs:
   ci-linux:
     runs-on: ubuntu-20.04
+    container:
+      image: ubuntu-20.04
+      options: --privileged
+      env:
+        DEBIAN_FRONTEND: noninteractive
     steps:
       - name: Install Dependencies
         run: |
