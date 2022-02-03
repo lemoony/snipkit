@@ -1,3 +1,6 @@
+image:
+  file: .gitpod.dockerfile
+
 tasks:
   - name: Setup
     init: |
