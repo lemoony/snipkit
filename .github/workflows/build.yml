@@ -27,7 +27,7 @@ jobs:
       - name: Build
         run: |
           echo 'somecredstorepass' | sudo gnome-keyring-daemon --unlock
-          sudo make ci
+          make ci
         shell: dbus-run-session -- bash --noprofile --norc -eo pipefail {0}
       - name: Upload coverage
         uses: actions/upload-artifact@v2
