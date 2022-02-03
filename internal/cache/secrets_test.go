@@ -1,3 +1,6 @@
+//go:build darwin
+// +build darwin
+
 package cache
 
 import (
@@ -9,6 +12,7 @@ import (
 
 const testSecretKey = SecretKey("snipkit test key")
 
+// For now this test is only executed for MacOS since setting up gnome-keyring in a headless environment is not that easy...
 func Test_PutAndGetSecret(t *testing.T) {
 	defer func() {
 		if err := keyring.Delete(string(testSecretKey), defaultSecretUser); err != nil {

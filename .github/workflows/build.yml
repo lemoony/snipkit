@@ -13,13 +13,6 @@ jobs:
     env:
       DEBIAN_FRONTEND: noninteractive
     steps:
-      - name: Install Dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y gnome-keyring dbus-x11 build-essential ca-certificates
-          sudo mkdir -p /github/home/.cache/
-          sudo mkdir -p /github/home/.local/share/keyrings/
-          sudo chmod 700 -R /github/home/.local/
       - uses: actions/checkout@v2
       - uses: actions/setup-go@v2
         with:
@@ -27,8 +20,6 @@ jobs:
       - name: Build
         run: |
           # https://github.com/jaraco/keyring/blob/main/README.rst#using-keyring-on-headless-linux-systems
-          dbus-run-session -- sh
-          echo 'somecredstorepass' | gnome-keyring-daemon --unlock
           make ci
       - name: Upload coverage
         uses: actions/upload-artifact@v2

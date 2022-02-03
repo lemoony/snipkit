@@ -1,19 +1,9 @@
-image:
-  file: .gitpod.dockerfile
-
 tasks:
   - name: Setup
     init: |
       pip install pre-commit mkdocs mkdocs-material && pre-commit install
-      sudo apt-get update
-      sudo apt-get install -y gnome-keyring dbus-x11 build-essential ca-certificates
-      sudo mkdir -p /github/home/.cache/
-      sudo mkdir -p /github/home/.local/share/keyrings/
-      sudo chmod 700 -R /github/home/.local/
-      make install generate
     command: |
-      exec dbus-run-session -- bash
-      echo 'somecredstorepass' | gnome-keyring-daemon --unlock
+      make install generate
 ports:
   - port: 8000
     onOpen: open-preview
