@@ -16,7 +16,6 @@ require (
 	github.com/gdamore/tcell/v2 v2.4.1-0.20210905002822-f057f0a857a1
 	github.com/hinshun/vt10x v0.0.0-20180809195222-d55458df857c
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51
-	github.com/keybase/go-keychain v0.0.0-20211119201326-e02f34051621
 	github.com/muesli/reflow v0.3.0
 	github.com/muesli/termenv v0.11.0
 	github.com/phuslu/log v1.0.77
@@ -25,6 +24,7 @@ require (
 	github.com/spf13/cobra v1.3.0
 	github.com/spf13/viper v1.10.1
 	github.com/stretchr/testify v1.7.0
+	github.com/zalando/go-keyring v0.1.1
 	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
 	howett.net/plist v1.0.0
@@ -33,10 +33,12 @@ require (
 require (
 	github.com/atotto/clipboard v0.1.4 // indirect
 	github.com/containerd/console v1.0.2 // indirect
+	github.com/danieljoos/wincred v1.1.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dlclark/regexp2 v1.4.0 // indirect
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
 	github.com/gdamore/encoding v1.0.0 // indirect
+	github.com/godbus/dbus/v5 v5.0.4 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/kr/pty v1.1.1 // indirect

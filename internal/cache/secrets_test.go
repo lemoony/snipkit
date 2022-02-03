@@ -3,41 +3,32 @@ package cache
 import (
 	"testing"
 
-	"github.com/keybase/go-keychain"
 	"github.com/stretchr/testify/assert"
+	"github.com/zalando/go-keyring"
 )
 
-const testLabel = "snipkit_test"
+const testSecretKey = SecretKey("snipkit test key")
 
 func Test_PutAndGetSecret(t *testing.T) {
 	defer func() {
-		item := keychain.NewItem()
-		item.SetSecClass(keychain.SecClassGenericPassword)
-		item.SetLabel(testLabel)
-		if err := keychain.DeleteItem(item); err != nil {
+		if err := keyring.Delete(string(testSecretKey), defaultSecretUser); err != nil {
 			panic(err)
 		}
 	}()
 
 	cache := New()
 
-	if impl, ok := cache.(*cacheImpl); !ok {
-		assert.Fail(t, "cache is not of type cacheImp")
-	} else {
-		impl.label = testLabel
-	}
-
-	s, ok := cache.GetSecret(ServicePrivateAccessToken)
+	s, ok := cache.GetSecret(testSecretKey)
 	assert.False(t, ok)
-	assert.Nil(t, s)
+	assert.Equal(t, noSecret, s)
 
-	cache.PutSecret(ServicePrivateAccessToken, []byte("password1"))
-	s, ok = cache.GetSecret(ServicePrivateAccessToken)
+	cache.PutSecret(testSecretKey, "password1")
+	s, ok = cache.GetSecret(testSecretKey)
 	assert.True(t, ok)
-	assert.Equal(t, []byte("password1"), s)
+	assert.Equal(t, "password1", s)
 
-	cache.PutSecret(ServicePrivateAccessToken, []byte("password2"))
-	s, ok = cache.GetSecret(ServicePrivateAccessToken)
+	cache.PutSecret(testSecretKey, "password2")
+	s, ok = cache.GetSecret(testSecretKey)
 	assert.True(t, ok)
-	assert.Equal(t, []byte("password2"), s)
+	assert.Equal(t, "password2", s)
 }
