@@ -8,7 +8,7 @@ tasks:
       sudo mkdir -p /github/home/.local/share/keyrings/
       sudo chmod 700 -R /github/home/.local/
       make install generate
-    before: |
+    command: |
       exec dbus-run-session -- bash
       echo 'somecredstorepass' | gnome-keyring-daemon --unlock
 ports:
