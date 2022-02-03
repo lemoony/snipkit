@@ -30,7 +30,6 @@ jobs:
           dbus-run-session -- sh
           echo 'somecredstorepass' | gnome-keyring-daemon --unlock
           make ci
-        shell: dbus-run-session -- bash --noprofile --norc -eo pipefail {0}
       - name: Upload coverage
         uses: actions/upload-artifact@v2
         with:
