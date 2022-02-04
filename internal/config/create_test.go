@@ -32,7 +32,8 @@ func Test_serializeToYamlWithComment(t *testing.T) {
 	testConfig.Config.Manager.GithubGist.Gists = []githubgist.GistConfig{
 		{
 			Enabled:              true,
-			URL:                  "https://api.github.com/users/<yourUser>/gists",
+			Host:                 "github.com",
+			Username:             "<yourUser>",
 			AuthenticationMethod: githubgist.AuthMethodToken,
 			IncludeTags:          []string{},
 			SuffixRegex:          []string{},

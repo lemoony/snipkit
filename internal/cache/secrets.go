@@ -1,14 +1,15 @@
 package cache
 
-import "github.com/zalando/go-keyring"
+import (
+	"fmt"
 
-const (
-	defaultSecretUser = ""
-	noSecret          = ""
+	"github.com/zalando/go-keyring"
 )
 
-func (c *cacheImpl) GetSecret(key SecretKey) (string, bool) {
-	value, err := keyring.Get(string(key), defaultSecretUser)
+const noSecret = ""
+
+func (c *cacheImpl) GetSecret(key SecretKey, account string) (string, bool) {
+	value, err := keyring.Get(key.service(), account)
 	switch {
 	case err == keyring.ErrNotFound:
 		return noSecret, false
@@ -19,8 +20,18 @@ func (c *cacheImpl) GetSecret(key SecretKey) (string, bool) {
 	}
 }
 
-func (c *cacheImpl) PutSecret(key SecretKey, secret string) {
-	if err := keyring.Set(string(key), defaultSecretUser, secret); err != nil {
+func (c *cacheImpl) PutSecret(key SecretKey, account, secret string) {
+	if err := keyring.Set(key.service(), account, secret); err != nil {
 		panic(err)
 	}
+}
+
+func (c *cacheImpl) DeleteSecret(key SecretKey, account string) {
+	if err := keyring.Delete(key.service(), account); err != nil && err != keyring.ErrNotFound {
+		panic(err)
+	}
+}
+
+func (s SecretKey) service() string {
+	return fmt.Sprintf("Snipkit %s", string(s))
 }

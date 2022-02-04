@@ -3,10 +3,18 @@ package githubgist
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 
+	"emperror.dev/errors"
 	"github.com/phuslu/log"
+)
+
+var (
+	errAuth = errors.New("github unauthorized")
+
+	apiURLPattern = "https://api.%s/users/%s/gists"
 )
 
 type githubGistResponse struct {
@@ -19,11 +27,47 @@ type githubGistResponse struct {
 	} `json:"files"`
 }
 
-func (m Manager) getGists(cfg GistConfig) ([]githubGistResponse, error) {
+func (m Manager) checkToken(cfg GistConfig, token string) (bool, error) {
 	client := &http.Client{}
-	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, cfg.URL, nil)
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodHead, cfg.gistURL(), nil)
+	if err != nil {
+		return false, err
+	}
+
+	if token != "" {
+		req.Header.Set("Authorization", fmt.Sprintf("token %s", token))
+	}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return false, err
+	}
+	defer func() {
+		_ = resp.Body.Close()
+	}()
+
+	log.Trace().Msgf("Response status HEAD URL %s: %s", cfg.gistURL(), resp.Status)
+
+	if resp.StatusCode == http.StatusUnauthorized || resp.StatusCode == http.StatusForbidden {
+		return false, nil
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return false, errors.Errorf("unexpected status code from github: %s", resp.Status)
+	}
+
+	return true, nil
+}
+
+func (m Manager) getGists(cfg GistConfig, token string) ([]githubGistResponse, error) {
+	client := &http.Client{}
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, cfg.gistURL(), nil)
 	if err != nil {
 		return nil, err
+	}
+
+	if token != "" {
+		req.Header.Set("Authorization", fmt.Sprintf("token %s", token))
 	}
 
 	resp, err := client.Do(req)
@@ -34,7 +78,15 @@ func (m Manager) getGists(cfg GistConfig) ([]githubGistResponse, error) {
 		_ = resp.Body.Close()
 	}()
 
-	log.Trace().Msgf("Response status URL %s: %s", cfg.URL, resp.Status)
+	log.Trace().Msgf("Response status GET URL %s: %s", cfg.gistURL(), resp.Status)
+
+	if resp.StatusCode == http.StatusUnauthorized || resp.StatusCode == http.StatusForbidden {
+		if payload, err2 := ioutil.ReadAll(resp.Body); err != nil {
+			panic(err2)
+		} else {
+			return nil, errors.Wrap(errAuth, string(payload))
+		}
+	}
 
 	var response []githubGistResponse
 

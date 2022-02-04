@@ -3,13 +3,18 @@ package githubgist
 import (
 	"fmt"
 	"regexp"
-	"time"
 
+	"emperror.dev/errors"
 	"github.com/phuslu/log"
 
 	"github.com/lemoony/snipkit/internal/cache"
 	"github.com/lemoony/snipkit/internal/model"
 	"github.com/lemoony/snipkit/internal/utils/system"
+)
+
+const (
+	SecretKeyPAT        = cache.SecretKey("GitHub Personal Access Token")
+	SecretKeyOauthToken = cache.SecretKey("GitHub OAuth Access Token")
 )
 
 type Manager struct {
@@ -97,37 +102,26 @@ func (m *Manager) Sync(events model.SyncEventChannel) bool {
 	var lines []model.SyncLine
 	events <- model.SyncEvent{Status: model.SyncStatusStarted, Lines: lines}
 
-	time.Sleep(time.Second * 1)
+	var snippets []model.Snippet
+	for _, gistConfig := range m.config.Gists {
+		lines = append(lines, model.SyncLine{Type: model.SyncLineTypeInfo, Value: fmt.Sprintf("Checking %s", gistConfig.gistURL())})
 
-	for _, g := range m.config.Gists {
-		lines = append(lines, model.SyncLine{Type: model.SyncLineTypeInfo, Value: fmt.Sprintf("Checking %s", g.URL)})
-		if g.AuthenticationMethod == AuthMethodToken {
-			if _, ok := m.requestAuthToken(lines, events); !ok {
-				return false
-			}
+		token, err := m.authToken(gistConfig, lines, events)
+		if err != nil {
+			panic(err)
+		}
+
+		if s, err2 := m.getSnippetsFromAPI(gistConfig, token); err2 != nil {
+			panic(err2)
+		} else {
+			snippets = append(snippets, s...)
 		}
 	}
 
-	time.Sleep(time.Second * 2) //nolint:gomnd //ignore for now
-
-	lines = append(lines, model.SyncLine{
-		Type:  model.SyncLineTypeSuccess,
-		Value: "Input successful. Stored token in keychain.",
-	})
-
-	events <- model.SyncEvent{
-		Status: model.SyncStatusStarted,
-		Lines:  lines,
-		Login:  nil,
-	}
-
-	time.Sleep(time.Second * 2) //nolint:gomnd //ignore for now
-	snippets := m.getSnippetsFromAPI()
 	events <- model.SyncEvent{Status: model.SyncStatusFinished, Lines: lines}
 	close(events)
 	log.Trace().Msg("github gist sync finished")
-	fmt.Println(snippets)
-
+	log.Trace().Msgf("number of retrieved snippets: %d", len(snippets))
 	return true
 }
 
@@ -136,38 +130,42 @@ func (m *Manager) GetSnippets() []model.Snippet {
 	return result
 }
 
-func (m *Manager) getSnippetsFromAPI() []model.Snippet {
-	var snippets []model.Snippet
-	for _, cfg := range m.config.Gists {
-		resp, err := m.getGists(cfg)
-		if err != nil {
-			fmt.Println(err)
-		}
+func (m *Manager) authToken(cfg GistConfig, lines []model.SyncLine, events model.SyncEventChannel) (string, error) {
+	if cfg.AuthenticationMethod == AuthMethodNone {
+		return "", nil
+	}
 
-		for _, gist := range resp {
-			for _, file := range gist.Files {
-				rawResp, err := m.getRawGist(file.RawURL)
-				if err != nil {
-					fmt.Println(err)
-				}
-
-				snippets = append(snippets, model.Snippet{
-					UUID: fmt.Sprintf("%s-%s", gist.ID, file.Filename),
-					TitleFunc: func() string {
-						return file.Filename
-					},
-					ContentFunc: func() string {
-						return string(rawResp)
-					},
-				})
-			}
+	switch cfg.AuthenticationMethod {
+	case AuthMethodNone:
+		return "", nil
+	case AuthMethodToken:
+		if token, ok := m.requestAuthToken(cfg, lines, events); !ok {
+			return "", errors.New("no auth token")
+		} else {
+			return token, nil
 		}
 	}
-	return snippets
+
+	panic("TODO: oauth not supported yet")
 }
 
-func (m *Manager) requestAuthToken(lines []model.SyncLine, events model.SyncEventChannel) (string, bool) {
+func (m *Manager) requestAuthToken(cfg GistConfig, lines []model.SyncLine, events model.SyncEventChannel) (string, bool) {
 	contChannel := make(chan model.SyncInputResult)
+
+	account := fmt.Sprintf("%s/%s", cfg.Host, cfg.Username)
+	if token, tokenFound := m.cache.GetSecret(SecretKeyPAT, account); tokenFound {
+		tokenOK, tokenErr := m.checkToken(cfg, token)
+		switch {
+		case tokenErr != nil:
+			panic(tokenErr)
+		case !tokenOK:
+			log.Info().Msgf("Stored token for %s is invalid. Delete it.", account)
+			m.cache.DeleteSecret(SecretKeyPAT, account)
+			lines = append(lines, model.SyncLine{Type: model.SyncLineTypeError, Value: "The current token is invalid"})
+		case tokenOK:
+			return token, true
+		}
+	}
 
 	events <- model.SyncEvent{
 		Status: model.SyncStatusStarted,
@@ -180,12 +178,20 @@ func (m *Manager) requestAuthToken(lines []model.SyncLine, events model.SyncEven
 		},
 	}
 
-	value := <-contChannel //nolint:ifshort //TODO: refactor at a later point
+	value := <-contChannel
 
 	events <- model.SyncEvent{Status: model.SyncStatusStarted, Lines: lines}
 
-	if value.Text != "" {
-		return value.Text, true
+	if token := value.Text; token != "" {
+		if ok, err := m.checkToken(cfg, token); err != nil {
+			panic(err)
+		} else if !ok {
+			panic("invalid token")
+		}
+
+		m.cache.PutSecret(SecretKeyPAT, account, token)
+
+		return token, true
 	}
 
 	if value.Abort {
@@ -196,4 +202,34 @@ func (m *Manager) requestAuthToken(lines []model.SyncLine, events model.SyncEven
 	}
 
 	return "", false
+}
+
+func (m *Manager) getSnippetsFromAPI(cfg GistConfig, token string) ([]model.Snippet, error) {
+	var snippets []model.Snippet
+	resp, err := m.getGists(cfg, token)
+	if err != nil && errors.Is(err, errAuth) {
+		return nil, err
+	} else if err != nil {
+		panic(err)
+	}
+
+	for _, gist := range resp {
+		for _, file := range gist.Files {
+			rawResp, err := m.getRawGist(file.RawURL)
+			if err != nil {
+				panic(err)
+			}
+
+			snippets = append(snippets, model.Snippet{
+				UUID: fmt.Sprintf("%s-%s", gist.ID, file.Filename),
+				TitleFunc: func() string {
+					return file.Filename
+				},
+				ContentFunc: func() string {
+					return string(rawResp)
+				},
+			})
+		}
+	}
+	return snippets, nil
 }

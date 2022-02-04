@@ -3,8 +3,9 @@ package cache
 type SecretKey string
 
 type Cache interface {
-	GetSecret(key SecretKey) (string, bool)
-	PutSecret(key SecretKey, secret string)
+	GetSecret(key SecretKey, account string) (string, bool)
+	PutSecret(key SecretKey, account string, secret string)
+	DeleteSecret(key SecretKey, account string)
 }
 
 type cacheImpl struct{}

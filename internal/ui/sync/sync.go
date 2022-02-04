@@ -136,7 +136,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if status := msg.Status; status != 0 {
 			m.state.Status = status
 			if status == appModel.SyncStatusFinished || status == appModel.SyncStatusAborted {
-				cmd = tea.Quit
+				return m, tea.Quit
 			}
 		}
 		if managerState := msg.ManagerState; managerState != nil {
@@ -217,5 +217,6 @@ func (m *model) View() string {
 }
 
 func (m *model) wrap(text string) string {
-	return wrap.String(wordwrap.String(text, m.width), m.width)
+	y := wordwrap.String(text, m.width)
+	return wrap.String(y, m.width)
 }

@@ -60,5 +60,5 @@ func (a *appImpl) startSyncManagers(s *sync.Screen) {
 		}
 	}
 
-	s.Send(sync.UpdateStateMsg{Status: model.SyncStatusStarted})
+	s.Send(sync.UpdateStateMsg{Status: model.SyncStatusFinished})
 }

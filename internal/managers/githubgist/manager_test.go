@@ -14,7 +14,8 @@ func Test_GetInfo(t *testing.T) {
 		Gists: []GistConfig{
 			{
 				Enabled:              true,
-				URL:                  "https://api.github.com/users/<foo-user>/gists",
+				Host:                 "github.com",
+				Username:             "foo-user",
 				AuthenticationMethod: AuthMethodNone,
 			},
 		},
