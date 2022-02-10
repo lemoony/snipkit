@@ -2,10 +2,15 @@ package logutil
 
 import (
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/phuslu/log"
+
+	"github.com/lemoony/snipkit/internal/utils/system"
 )
+
+const maxBackups = 2
 
 var allLevels = []string{
 	log.TraceLevel.String(),
@@ -17,19 +22,28 @@ var allLevels = []string{
 	log.PanicLevel.String(),
 }
 
-func ConfigureDefaultLogger() {
+func ConfigureDefaultLogger(s *system.System) {
 	if !log.IsTerminal(os.Stderr.Fd()) {
 		return
 	}
+
+	fileWriter := log.FileWriter{
+		Filename:     filepath.Join(s.HomeDir(), ".log", "log"),
+		EnsureFolder: true,
+		MaxBackups:   maxBackups,
+	}
+
 	log.DefaultLogger = log.Logger{
 		TimeFormat: "15:04:05",
 		Caller:     1,
 		Writer: &log.ConsoleWriter{
-			ColorOutput:    true,
 			QuoteString:    true,
 			EndWithMessage: true,
+			Writer:         &fileWriter,
 		},
 	}
+
+	_ = fileWriter.Rotate()
 }
 
 func SetDefaultLogLevel(logLevel string) {
