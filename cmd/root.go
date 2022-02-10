@@ -32,12 +32,15 @@ func (s *setup) configService() config.Service {
 	)
 }
 
-var _defaultSetup = setup{
-	terminal: ui.NewTUI(),
-	provider: managers.NewBuilder(cache.New()),
-	v:        viper.GetViper(),
-	system:   system.NewSystem(),
-}
+var (
+	_defaultSystem = system.NewSystem()
+	_defaultSetup  = setup{
+		terminal: ui.NewTUI(),
+		provider: managers.NewBuilder(cache.New(_defaultSystem)),
+		v:        viper.GetViper(),
+		system:   _defaultSystem,
+	}
+)
 
 type ctxKey string
 
