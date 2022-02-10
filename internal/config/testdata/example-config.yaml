@@ -33,16 +33,20 @@ config:
       gists:
         - # If set to false, this github gist url is ignored.
           enabled: true
-          # Your GitHub user account
-          username: <yourUser>
-          # Hostname of the GitHub instance. Most likely, this should point to github.com.
-          host: github.com
+          # URL to the GitHub gist account.
+          url: gist.github.com/<yourUser>
           # Supported values: None, OAuth, Token. Default value: None (which means no authentication). In order to retrieve secret gists, you must be authenticated.
           authenticationMethod: Token
           # If this list is not empty, only those gists that match the listed tags will be provided to you.
           includeTags: []
           # Only gist files with endings which match one of the listed suffixes will be considered.
           suffixRegex: []
+          # Defines where the snippet name is extracted from (see also titleHeaderEnabled). Allowed values: DESCRIPTION, FILENAME.
+          nameMode: DESCRIPTION
+          # If set to true, any tags will be removed from the description.
+          removeTagsFromDescription: true
+          # If set to true, the snippet title can be overwritten by defining a title header within the gist.
+          titleHeaderEnabled: true
     fsLibrary:
       # If set to false, the files specified via libraryPath will not be provided to you.
       enabled: true

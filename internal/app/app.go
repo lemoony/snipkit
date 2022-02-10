@@ -69,7 +69,7 @@ func NewApp(options ...Option) App {
 	app := &appImpl{
 		system:   system,
 		tui:      ui.NewTUI(),
-		provider: managers.NewBuilder(cache.New()),
+		provider: managers.NewBuilder(cache.New(system)),
 	}
 
 	for _, o := range options {

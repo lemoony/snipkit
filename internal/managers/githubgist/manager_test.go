@@ -5,6 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	"github.com/lemoony/snipkit/internal/cache"
 	"github.com/lemoony/snipkit/internal/utils/testutil"
 )
 
@@ -14,14 +15,14 @@ func Test_GetInfo(t *testing.T) {
 		Gists: []GistConfig{
 			{
 				Enabled:              true,
-				Host:                 "github.com",
-				Username:             "foo-user",
+				URL:                  "github.com/foo-user",
 				AuthenticationMethod: AuthMethodNone,
 			},
 		},
 	}
 
-	provider, err := NewManager(WithSystem(testutil.NewTestSystem()), WithConfig(config))
+	system := testutil.NewTestSystem()
+	provider, err := NewManager(WithSystem(system), WithConfig(config), WithCache(cache.New(system)))
 	assert.NoError(t, err)
 
 	info := provider.Info()

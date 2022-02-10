@@ -31,15 +31,16 @@ func Test_serializeToYamlWithComment(t *testing.T) {
 	testConfig.Config.Manager.GithubGist.Enabled = true
 	testConfig.Config.Manager.GithubGist.Gists = []githubgist.GistConfig{
 		{
-			Enabled:              true,
-			Host:                 "github.com",
-			Username:             "<yourUser>",
-			AuthenticationMethod: githubgist.AuthMethodToken,
-			IncludeTags:          []string{},
-			SuffixRegex:          []string{},
+			Enabled:                   true,
+			URL:                       "gist.github.com/<yourUser>",
+			AuthenticationMethod:      githubgist.AuthMethodToken,
+			IncludeTags:               []string{},
+			SuffixRegex:               []string{},
+			NameMode:                  githubgist.SnippetNameModeDescription,
+			TitleHeaderEnabled:        true,
+			RemoveTagsFromDescription: true,
 		},
 	}
-
 	testConfig.Config.Manager.FsLibrary = &fslibrary.Config{}
 	testConfig.Config.Manager.FsLibrary.Enabled = true
 	testConfig.Config.Manager.FsLibrary.LibraryPath = []string{"/path/to/file/system/library"}

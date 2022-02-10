@@ -7,6 +7,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"github.com/lemoony/snipkit/internal/utils/testutil"
 )
 
 const (
@@ -17,7 +19,7 @@ const (
 
 // For now this test is only executed for MacOS since setting up gnome-keyring in a headless environment is not that easy...
 func Test_PutAndGetSecret(t *testing.T) {
-	cache := New()
+	cache := New(testutil.NewTestSystem())
 
 	defer func() {
 		cache.DeleteSecret(testSecretKey, testAccount1)
