@@ -142,7 +142,7 @@ func initConfig() {
 }
 
 func configureLogging() {
-	logutil.ConfigureDefaultLogger()
+	logutil.ConfigureDefaultLogger(_defaultSetup.system)
 	logutil.SetDefaultLogLevel(logLevel)
 }
 
