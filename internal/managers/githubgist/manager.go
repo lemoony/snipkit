@@ -140,8 +140,9 @@ func (m *Manager) GetSnippets() []model.Snippet {
 
 	if cacheStore, ok := m.loadFromCache(); ok {
 		for _, gstore := range cacheStore {
+			gistConfig := m.config.getGistConfig(gstore.URL)
 			for _, raw := range gstore.RawSnippets {
-				result = append(result, parseSnippet(raw))
+				result = append(result, parseSnippet(raw, *gistConfig))
 			}
 		}
 	}
@@ -272,6 +273,7 @@ func (m *Manager) getSnippetsFromAPI(cfg GistConfig, token string, cache *gistSt
 					Pubic:       gist.Public,
 					Description: gist.Description,
 					ETag:        singleRawGistResp.etag,
+					FilesInGist: len(gist.Files),
 				})
 			}
 		}

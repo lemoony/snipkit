@@ -36,9 +36,10 @@ func Test_serializeToYamlWithComment(t *testing.T) {
 			AuthenticationMethod:      githubgist.AuthMethodToken,
 			IncludeTags:               []string{},
 			SuffixRegex:               []string{},
-			NameMode:                  githubgist.SnippetNameModeDescription,
+			NameMode:                  githubgist.SnippetNameModeCombinePreferDescription,
 			TitleHeaderEnabled:        true,
 			RemoveTagsFromDescription: true,
+			HideTitleInPreview:        true,
 		},
 	}
 	testConfig.Config.Manager.FsLibrary = &fslibrary.Config{}

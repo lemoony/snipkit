@@ -21,8 +21,11 @@ const (
 
 	apiURLPattern = "https://api.%s/users/%s/gists"
 
-	SnippetNameModeDescription = "DESCRIPTION"
-	SnippetNameModeFilename    = "FILENAME"
+	SnippetNameModeDescription              = "DESCRIPTION"
+	SnippetNameModeFilename                 = "FILENAME"
+	SnippetNameModeCombine                  = "COMBINE"
+	SnippetNameModeCombinePreferDescription = "COMBINE_PREFER_DESCRIPTION"
+	SnippetNameModeCombinePreferFilename    = "COMBINE_PREFER_FILENAME"
 )
 
 var urlRegex = regexp.MustCompile("^gist.(.*)/(.*)$")
@@ -38,9 +41,10 @@ type GistConfig struct {
 	AuthenticationMethod      AuthMethod      `yaml:"authenticationMethod" head_comment:"Supported values: None, OAuth, Token. Default value: None (which means no authentication). In order to retrieve secret gists, you must be authenticated."`
 	IncludeTags               []string        `yaml:"includeTags" head_comment:"If this list is not empty, only those gists that match the listed tags will be provided to you."`
 	SuffixRegex               []string        `yaml:"suffixRegex" head_comment:"Only gist files with endings which match one of the listed suffixes will be considered."`
-	NameMode                  SnippetNameMode `yaml:"nameMode" head_comment:"Defines where the snippet name is extracted from (see also titleHeaderEnabled). Allowed values: DESCRIPTION, FILENAME."`
+	NameMode                  SnippetNameMode `yaml:"nameMode" head_comment:"Defines where the snippet name is extracted from (see also titleHeaderEnabled). Allowed values: DESCRIPTION, FILENAME, COMBINE, COMBINE_PREFER_DESCRIPTION, COMBINE_PREFER_FILENAME."`
 	RemoveTagsFromDescription bool            `yaml:"removeTagsFromDescription" head_comment:"If set to true, any tags will be removed from the description."`
 	TitleHeaderEnabled        bool            `yaml:"titleHeaderEnabled" head_comment:"If set to true, the snippet title can be overwritten by defining a title header within the gist."`
+	HideTitleInPreview        bool            `yaml:"hideTitleInPreview" head_comment:"If set to true, the title header comment will not be shown in the preview window."`
 }
 
 func (g GistConfig) apiURL() string {
@@ -50,6 +54,15 @@ func (g GistConfig) apiURL() string {
 		panic(errors.Errorf("invalid gist url: %s", g.URL))
 	}
 	return fmt.Sprintf(apiURLPattern, matches[1], matches[2])
+}
+
+func (c *Config) getGistConfig(url string) *GistConfig {
+	for i := range c.Gists {
+		if c.Gists[i].URL == url {
+			return &c.Gists[i]
+		}
+	}
+	return nil
 }
 
 func AutoDiscoveryConfig(system *system.System) *Config {

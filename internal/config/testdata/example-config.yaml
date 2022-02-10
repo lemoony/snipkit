@@ -41,12 +41,14 @@ config:
           includeTags: []
           # Only gist files with endings which match one of the listed suffixes will be considered.
           suffixRegex: []
-          # Defines where the snippet name is extracted from (see also titleHeaderEnabled). Allowed values: DESCRIPTION, FILENAME.
-          nameMode: DESCRIPTION
+          # Defines where the snippet name is extracted from (see also titleHeaderEnabled). Allowed values: DESCRIPTION, FILENAME, COMBINE, COMBINE_PREFER_DESCRIPTION, COMBINE_PREFER_FILENAME.
+          nameMode: COMBINE_PREFER_DESCRIPTION
           # If set to true, any tags will be removed from the description.
           removeTagsFromDescription: true
           # If set to true, the snippet title can be overwritten by defining a title header within the gist.
           titleHeaderEnabled: true
+          # If set to true, the title header comment will not be shown in the preview window.
+          hideTitleInPreview: true
     fsLibrary:
       # If set to false, the files specified via libraryPath will not be provided to you.
       enabled: true

@@ -28,6 +28,7 @@ type rawSnippet struct {
 	ETag        string `json:"etag"`
 	Pubic       bool   `json:"public"`
 	Description string `json:"description"`
+	FilesInGist int    `json:"filesInGist"`
 }
 
 func (m *Manager) loadFromCache() (map[string]*gistStore, bool) {

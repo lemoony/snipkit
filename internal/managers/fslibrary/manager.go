@@ -13,10 +13,6 @@ import (
 	"github.com/lemoony/snipkit/internal/utils/system"
 )
 
-const (
-	maxLineNumberTitleComment = 3
-)
-
 var suffixLanguageMap = map[string]model.Language{
 	".sh":   model.LanguageBash,
 	".yaml": model.LanguageYAML,
