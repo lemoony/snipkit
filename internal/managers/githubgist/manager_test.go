@@ -81,6 +81,8 @@ func Test_GetSnippets(t *testing.T) {
 	assert.Equal(t, snippets[0].GetContent(), "foo")
 }
 
+// Scenario: Auth method is none.
+// Expected: No token check is required.
 func Test_Sync_noAuth(t *testing.T) {
 	defer gock.Off()
 
@@ -119,6 +121,8 @@ func Test_Sync_noAuth(t *testing.T) {
 	cacheMock.AssertCalled(t, "PutData", storeKey, expectedStoreForTestData().serialize())
 }
 
+// Scenario: Auth method is to token and no token was provided previously.
+// Expected: UI should prompt for token and call to GitHub is using the same token.
 func Test_Sync_tokenAuth(t *testing.T) {
 	defer gock.Off()
 
@@ -168,6 +172,8 @@ func Test_Sync_tokenAuth(t *testing.T) {
 	cacheMock.AssertCalled(t, "PutData", storeKey, expectedStoreForTestData().serialize())
 }
 
+// Scenario: Token is expired (github returns 401 code) and user is prompted for new token but aborts.
+// Expected: No cache update; token secret should be removed.
 func Test_Sync_tokenAuth_expired_abort(t *testing.T) {
 	defer gock.Off()
 
@@ -212,6 +218,8 @@ func Test_Sync_tokenAuth_expired_abort(t *testing.T) {
 	cacheMock.AssertNotCalled(t, "PutData", storeKey, mock.Anything)
 }
 
+// Scenario: Sync is triggerd and the cache already contains entries. ETag from github does not change (status 304)
+// Expected: The same data is put into the store as it was retrieved previously.
 func Test_Sync_ifNoneMatch(t *testing.T) {
 	defer gock.Off()
 
@@ -247,6 +255,8 @@ func Test_Sync_ifNoneMatch(t *testing.T) {
 	cacheMock.AssertCalled(t, "PutData", storeKey, cachedStore.serialize())
 }
 
+// Scenario: A single gist file has changed, so the etag values are different than the ones previously stored.
+// Expected: Update the cache with new etag values.
 func Test_Sync_ifNoneMatch_forSingleFile(t *testing.T) {
 	defer gock.Off()
 
@@ -265,7 +275,7 @@ func Test_Sync_ifNoneMatch_forSingleFile(t *testing.T) {
 		SetHeader("etag", updatedGistEtag).
 		JSON(readTestdata(t, testGitHubTestDataPath))
 
-	gock.New("https://gist.github.test/lemoony/6e9855e7234se158b6414c/raw/52a5fd68a0fffd06297100d77c41/test-file.sh").
+	gock.New(testGitHubRawURL).
 		Get("").
 		MatchHeader("If-None-Match", cachedStore.Gists[0].RawSnippets[0].ETag).
 		Reply(http.StatusOK).

@@ -12,6 +12,8 @@ import (
 	"github.com/lemoony/snipkit/internal/utils/system"
 )
 
+// TODO: Document this manager in /docs
+
 const (
 	SecretKeyPAT        = cache.SecretKey("GitHub Personal Access Token")
 	SecretKeyOauthToken = cache.SecretKey("GitHub OAuth Access Token") // TODO
