@@ -14,7 +14,7 @@ import (
 
 const (
 	SecretKeyPAT        = cache.SecretKey("GitHub Personal Access Token")
-	SecretKeyOauthToken = cache.SecretKey("GitHub OAuth Access Token")
+	SecretKeyOauthToken = cache.SecretKey("GitHub OAuth Access Token") // TODO
 )
 
 type Manager struct {
@@ -119,9 +119,7 @@ func (m *Manager) Sync(events model.SyncEventChannel) bool {
 			prevGistStore = overallStore.getGists(gistConfig)
 		}
 
-		if s, err2 := m.getSnippetsFromAPI(gistConfig, token, prevGistStore); err2 != nil {
-			panic(err2)
-		} else {
+		if s := m.getSnippetsFromAPI(gistConfig, token, prevGistStore); s != nil {
 			all[gistConfig.URL] = s
 		}
 	}
@@ -173,16 +171,12 @@ func (m *Manager) requestAuthToken(cfg GistConfig, lines []model.SyncLine, event
 	contChannel := make(chan model.SyncInputResult)
 
 	if token, tokenFound := m.cache.GetSecret(SecretKeyPAT, cfg.URL); tokenFound {
-		tokenOK, tokenErr := m.checkToken(cfg, token)
-		switch {
-		case tokenErr != nil:
-			panic(tokenErr)
-		case !tokenOK:
+		if tokenOK := m.checkToken(cfg, token); tokenOK {
+			return token, true
+		} else {
 			log.Info().Msgf("Stored token for %s is invalid. Delete it.", cfg.URL)
 			m.cache.DeleteSecret(SecretKeyPAT, cfg.URL)
 			lines = append(lines, model.SyncLine{Type: model.SyncLineTypeError, Value: "The current token is invalid"})
-		case tokenOK:
-			return token, true
 		}
 	}
 
@@ -202,9 +196,7 @@ func (m *Manager) requestAuthToken(cfg GistConfig, lines []model.SyncLine, event
 	events <- model.SyncEvent{Status: model.SyncStatusStarted, Lines: lines}
 
 	if token := value.Text; token != "" {
-		if ok, err := m.checkToken(cfg, token); err != nil {
-			panic(err)
-		} else if !ok {
+		if ok := m.checkToken(cfg, token); !ok {
 			panic("invalid token")
 		}
 
@@ -223,7 +215,7 @@ func (m *Manager) requestAuthToken(cfg GistConfig, lines []model.SyncLine, event
 	return "", false
 }
 
-func (m *Manager) getSnippetsFromAPI(cfg GistConfig, token string, cache *gistStore) (*gistStore, error) {
+func (m *Manager) getSnippetsFromAPI(cfg GistConfig, token string, cache *gistStore) *gistStore {
 	etag := ""
 	if cache != nil {
 		log.Debug().Msg("cached previous store available")
@@ -231,15 +223,10 @@ func (m *Manager) getSnippetsFromAPI(cfg GistConfig, token string, cache *gistSt
 	}
 
 	var snippets []rawSnippet
-	resp, err := m.getGists(cfg, etag, token)
-	if err != nil && errors.Is(err, errAuth) {
-		return nil, err
-	} else if err != nil {
-		panic(err)
-	}
+	resp := m.getGists(cfg, etag, token)
 
 	if !resp.hasUpdates {
-		return cache, nil
+		return cache
 	}
 
 	for _, gist := range *resp.gistsResponse {
@@ -258,10 +245,7 @@ func (m *Manager) getSnippetsFromAPI(cfg GistConfig, token string, cache *gistSt
 				}
 			}
 
-			singleRawGistResp, err := m.getRawGist(file.RawURL, fileETag, token)
-			if err != nil {
-				panic(err)
-			}
+			singleRawGistResp := m.getRawGist(file.RawURL, fileETag, token)
 
 			if !singleRawGistResp.hasUpdates {
 				snippets = append(snippets, *prevRawSnippet)
@@ -280,5 +264,5 @@ func (m *Manager) getSnippetsFromAPI(cfg GistConfig, token string, cache *gistSt
 		}
 	}
 
-	return &gistStore{URL: cfg.URL, ETag: resp.etag, RawSnippets: snippets}, nil
+	return &gistStore{URL: cfg.URL, ETag: resp.etag, RawSnippets: snippets}
 }

@@ -12,7 +12,10 @@ import (
 	"github.com/phuslu/log"
 )
 
-var errAuth = errors.New("github unauthorized")
+var (
+	errAuth       = errors.New("github unauthorized")
+	errUnexpected = errors.New("unexpected status code from github")
+)
 
 type rawResponse struct {
 	hasUpdates    bool
@@ -33,11 +36,11 @@ type rawGistsResponse struct {
 	Description string `json:"description"`
 }
 
-func (m Manager) checkToken(cfg GistConfig, token string) (bool, error) {
+func (m Manager) checkToken(cfg GistConfig, token string) bool {
 	client := &http.Client{}
 	req, err := http.NewRequestWithContext(context.Background(), http.MethodHead, cfg.apiURL(), nil)
 	if err != nil {
-		return false, err
+		panic(err)
 	}
 
 	if token != "" {
@@ -46,7 +49,7 @@ func (m Manager) checkToken(cfg GistConfig, token string) (bool, error) {
 
 	resp, err := client.Do(req)
 	if err != nil {
-		return false, err
+		panic(err)
 	}
 	defer func() {
 		_ = resp.Body.Close()
@@ -55,48 +58,44 @@ func (m Manager) checkToken(cfg GistConfig, token string) (bool, error) {
 	log.Trace().Msgf("Response status HEAD URL %s: %s", cfg.apiURL(), resp.Status)
 
 	if resp.StatusCode == http.StatusUnauthorized || resp.StatusCode == http.StatusForbidden {
-		return false, nil
+		return false
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return false, errors.Errorf("unexpected status code from github: %s", resp.Status)
+		panic(errors.Wrap(errUnexpected, resp.Status))
 	}
 
-	return true, nil
+	return true
 }
 
-func (m Manager) getGists(cfg GistConfig, etag, token string) (rawResponse, error) {
-	raw, err := m.getRawResponse(cfg.apiURL(), etag, token)
-	if err != nil {
-		return rawResponse{}, err
-	}
-
+func (m Manager) getGists(cfg GistConfig, etag, token string) rawResponse {
+	raw := m.getRawResponse(cfg.apiURL(), etag, token)
 	if !raw.hasUpdates {
-		return rawResponse{hasUpdates: false}, nil
+		return rawResponse{hasUpdates: false}
 	}
 
 	var response []rawGistsResponse
-	err = json.Unmarshal(*raw.rawContent, &response)
+	err := json.Unmarshal(*raw.rawContent, &response)
 	if err != nil {
-		return rawResponse{}, err
+		panic(err)
 	}
 
 	return rawResponse{
 		hasUpdates:    true,
 		etag:          raw.etag,
 		gistsResponse: &response,
-	}, nil
+	}
 }
 
-func (m Manager) getRawGist(url, etag, token string) (rawResponse, error) {
+func (m Manager) getRawGist(url, etag, token string) rawResponse {
 	return m.getRawResponse(url, etag, token)
 }
 
-func (m Manager) getRawResponse(url, etag, token string) (rawResponse, error) {
+func (m Manager) getRawResponse(url, etag, token string) rawResponse {
 	client := &http.Client{}
 	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, url, nil)
 	if err != nil {
-		return rawResponse{}, err
+		panic(err)
 	}
 
 	req.Header.Set("Accept", "application/vnd.github.VERSION.base64")
@@ -113,32 +112,30 @@ func (m Manager) getRawResponse(url, etag, token string) (rawResponse, error) {
 		_ = resp.Body.Close()
 	}()
 
-	log.Trace().Msgf("Response status %s URL %s: %s", req.Method, url, resp.Status)
-
 	if err != nil {
-		return rawResponse{}, err
+		panic(err)
 	}
 
-	if resp.StatusCode == http.StatusUnauthorized || resp.StatusCode == http.StatusForbidden {
+	log.Trace().Msgf("Response status %s URL %s: %s", req.Method, url, resp.Status)
+
+	if resp.StatusCode == http.StatusNotModified {
+		return rawResponse{hasUpdates: false}
+	} else if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusNoContent {
 		if payload, err2 := ioutil.ReadAll(resp.Body); err != nil {
 			panic(err2)
 		} else {
-			return rawResponse{}, errors.Wrap(errAuth, string(payload))
+			panic(errors.Wrap(errAuth, string(payload)))
 		}
 	}
 
-	if resp.StatusCode == http.StatusNotModified {
-		return rawResponse{hasUpdates: false}, nil
-	}
-
 	if bytes, err := ioutil.ReadAll(resp.Body); err != nil {
-		return rawResponse{}, err
+		panic(err)
 	} else {
 		return rawResponse{
 			hasUpdates: true,
 			rawContent: &bytes,
 			etag:       toStrongETag(resp.Header.Get("etag")),
-		}, nil
+		}
 	}
 }
 
