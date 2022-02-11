@@ -8,7 +8,10 @@ import (
 	"github.com/lemoony/snipkit/internal/cache"
 )
 
-const storeKey = cache.DataKey("github_gist_cache")
+const (
+	storeKey     = cache.DataKey("github_gist_cache")
+	storeVersion = "1.0"
+)
 
 type store struct {
 	Version string      `json:"version"`
@@ -32,48 +35,16 @@ type rawSnippet struct {
 	FilesInGist int    `json:"filesInGist"`
 }
 
-func (m *Manager) loadFromCache() (map[string]*gistStore, bool) {
-	if bytes, ok := m.cache.GetData(storeKey); !ok {
-		return nil, false
-	} else {
-		var s store
-		if err := json.Unmarshal(bytes, &s); err != nil {
-			panic(err)
-		}
-
-		result := map[string]*gistStore{}
-		for i := range s.Gists {
-			result[s.Gists[i].URL] = &s.Gists[i]
-		}
-		return result, true
-	}
-}
-
 func (m *Manager) getStoreFromCache() *store {
-	raw, ok := m.cache.GetData(storeKey)
-	if !ok {
-		return nil
+	result := &store{}
+	if raw, ok := m.cache.GetData(storeKey); ok {
+		result.deserialize(raw)
 	}
-
-	var resultStore store
-	if !resultStore.deserialize(raw) {
-		return nil
-	}
-
-	return &resultStore
+	return result
 }
 
-func (m *Manager) storeInCache(all map[string]*gistStore) {
-	var s store
-	s.Version = "1.0.0"
-	s.Gists = make([]gistStore, len(all))
-	i := 0
-	for k := range all {
-		s.Gists[i] = *all[k]
-	}
-
-	bytes := s.serialize()
-	m.cache.PutData(storeKey, bytes)
+func (m *Manager) storeInCache(s *store) {
+	m.cache.PutData(storeKey, s.serialize())
 }
 
 func (c *store) serialize() []byte {
@@ -84,12 +55,10 @@ func (c *store) serialize() []byte {
 	}
 }
 
-func (c *store) deserialize(bytes []byte) bool {
+func (c *store) deserialize(bytes []byte) {
 	if err := json.Unmarshal(bytes, c); err != nil {
-		log.Info().Err(err).Msg("store invalid")
-		return false
+		log.Warn().Err(err).Msg("store invalid")
 	}
-	return true
 }
 
 func (c *store) getGists(cfg GistConfig) *gistStore {

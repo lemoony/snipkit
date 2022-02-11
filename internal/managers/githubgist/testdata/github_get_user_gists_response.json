@@ -1,0 +1,49 @@
+[
+  {
+    "url": "https://api.github.com/gists/testsnippetid",
+    "forks_url": "https://api.github.com/gists/testsnippetid/forks",
+    "commits_url": "https://api.github.com/gists/testsnippetid/commits",
+    "id": "testsnippetid",
+    "node_id": "G_kwDOAB-gp9oAIDZlOTg1NWU3NWNiNDZiMjNjYzEyMzllMTU4YjY0MTRj",
+    "git_pull_url": "https://gist.github.com/testsnippetid.git",
+    "git_push_url": "https://gist.github.com/testsnippetid.git",
+    "html_url": "https://gist.github.com/testsnippetid",
+    "files": {
+      "test-file.sh": {
+        "filename": "test-file.sh",
+        "type": "application/x-sh",
+        "language": "Shell",
+        "raw_url": "https://gist.github.test/lemoony/6e9855e7234se158b6414c/raw/52a5fd68a0fffd06297100d77c41/test-file.sh",
+        "size": 488
+      }
+    },
+    "public": true,
+    "created_at": "2022-01-29T17:52:23Z",
+    "updated_at": "2022-02-11T07:15:22Z",
+    "description": "Echo Something #foo",
+    "comments": 0,
+    "user": null,
+    "comments_url": "https://api.github.com/gists/testsnippetid/comments",
+    "owner": {
+      "login": "lemoony",
+      "id": 2072743,
+      "node_id": "MDQ6VXNlcjIwNzI3NDM=",
+      "avatar_url": "https://avatars.githubusercontent.com/u/2072743?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/lemoony",
+      "html_url": "https://github.com/lemoony",
+      "followers_url": "https://api.github.com/users/lemoony/followers",
+      "following_url": "https://api.github.com/users/lemoony/following{/other_user}",
+      "gists_url": "https://api.github.com/users/lemoony/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/lemoony/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/lemoony/subscriptions",
+      "organizations_url": "https://api.github.com/users/lemoony/orgs",
+      "repos_url": "https://api.github.com/users/lemoony/repos",
+      "events_url": "https://api.github.com/users/lemoony/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/lemoony/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "truncated": false
+  }
+]

@@ -102,10 +102,8 @@ func (m *Manager) Sync(events model.SyncEventChannel) bool {
 	var lines []model.SyncLine
 	events <- model.SyncEvent{Status: model.SyncStatusStarted, Lines: lines}
 
-	all := map[string]*gistStore{}
-
-	overallStore := m.getStoreFromCache()
-
+	currentStore := m.getStoreFromCache()
+	updatedStore := &store{Version: storeVersion}
 	for _, gistConfig := range m.config.Gists {
 		lines = append(lines, model.SyncLine{Type: model.SyncLineTypeInfo, Value: fmt.Sprintf("Checking %s", gistConfig.URL)})
 
@@ -114,20 +112,20 @@ func (m *Manager) Sync(events model.SyncEventChannel) bool {
 			panic(err)
 		}
 
-		var prevGistStore *gistStore
-		if overallStore != nil {
-			prevGistStore = overallStore.getGists(gistConfig)
+		var currentGistStore *gistStore
+		if currentStore != nil {
+			currentGistStore = currentStore.getGists(gistConfig)
 		}
 
-		if s := m.getSnippetsFromAPI(gistConfig, token, prevGistStore); s != nil {
-			all[gistConfig.URL] = s
+		if s := m.getSnippetsFromAPI(gistConfig, token, currentGistStore); s != nil {
+			updatedStore.Gists = append(updatedStore.Gists, *s)
 		}
 	}
 
 	events <- model.SyncEvent{Status: model.SyncStatusFinished, Lines: lines}
 	close(events)
 
-	m.storeInCache(all)
+	m.storeInCache(updatedStore)
 
 	log.Trace().Msg("github gist sync finished")
 	return true
@@ -136,8 +134,8 @@ func (m *Manager) Sync(events model.SyncEventChannel) bool {
 func (m *Manager) GetSnippets() []model.Snippet {
 	var result []model.Snippet
 
-	if cacheStore, ok := m.loadFromCache(); ok {
-		for _, gstore := range cacheStore {
+	if cacheStore := m.getStoreFromCache(); cacheStore != nil {
+		for _, gstore := range cacheStore.Gists {
 			gistConfig := m.config.getGistConfig(gstore.URL)
 			for _, raw := range gstore.RawSnippets {
 				result = append(result, parseSnippet(raw, *gistConfig))
