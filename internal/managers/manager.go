@@ -6,5 +6,5 @@ type Manager interface {
 	Key() model.ManagerKey
 	Info() []model.InfoLine
 	GetSnippets() []model.Snippet
-	Sync(model.SyncEventChannel) bool
+	Sync(model.SyncEventChannel)
 }

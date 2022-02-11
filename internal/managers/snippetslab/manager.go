@@ -92,8 +92,8 @@ func (m Manager) Info() []model.InfoLine {
 	return lines
 }
 
-func (m *Manager) Sync(events model.SyncEventChannel) bool {
-	return false
+func (m *Manager) Sync(events model.SyncEventChannel) {
+	close(events)
 }
 
 func (m *Manager) GetSnippets() []model.Snippet {

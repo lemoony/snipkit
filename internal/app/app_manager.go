@@ -3,6 +3,8 @@ package app
 import (
 	"strings"
 
+	"emperror.dev/errors"
+
 	"github.com/lemoony/snipkit/internal/config"
 	"github.com/lemoony/snipkit/internal/model"
 	"github.com/lemoony/snipkit/internal/ui/picker"
@@ -32,20 +34,45 @@ func (a *appImpl) AddManager() {
 
 func (a *appImpl) SyncManager() {
 	screen := sync.New()
-	go a.startSyncManagers(screen)
+
+	var err error
+	doneChannel := make(chan struct{})
+
+	go func() {
+		defer close(doneChannel)
+		err = a.startSyncManagers(screen)
+	}()
+
 	screen.Start()
+
+	<-doneChannel
+	if err != nil {
+		panic(err)
+	}
 }
 
-func (a *appImpl) startSyncManagers(s *sync.Screen) {
+func (a *appImpl) startSyncManagers(s *sync.Screen) error {
 	s.Send(sync.UpdateStateMsg{Status: model.SyncStatusStarted})
 
 	for _, manager := range a.managers {
 		events := make(chan model.SyncEvent)
 
+		var syncError error
+		syncDone := make(chan struct{})
+
 		go func() {
-			if !manager.Sync(events) {
+			defer func() {
+				if panicValue := recover(); panicValue != nil {
+					if err, ok := panicValue.(error); ok {
+						syncError = err
+					} else {
+						syncError = errors.Errorf("sync failed: %s", panicValue)
+					}
+				}
+				close(syncDone)
 				close(events)
-			}
+			}()
+			manager.Sync(events)
 		}()
 
 		for v := range events {
@@ -58,7 +85,13 @@ func (a *appImpl) startSyncManagers(s *sync.Screen) {
 				},
 			})
 		}
+
+		<-syncDone
+		if syncError != nil {
+			return syncError
+		}
 	}
 
 	s.Send(sync.UpdateStateMsg{Status: model.SyncStatusFinished})
+	return nil
 }

@@ -91,8 +91,7 @@ func Test_Sync_noAuth(t *testing.T) {
 	doneSync := make(chan struct{})
 	go func() {
 		defer close(doneSync)
-		success := manager.Sync(eventChannel)
-		assert.True(t, success)
+		manager.Sync(eventChannel)
 	}()
 
 	for event := range eventChannel {
@@ -102,6 +101,99 @@ func Test_Sync_noAuth(t *testing.T) {
 	<-doneSync
 
 	cacheMock.AssertCalled(t, "PutData", storeKey, expectedStoreForTestData().serialize())
+}
+
+func Test_Sync_tokenAuth(t *testing.T) {
+	defer gock.Off()
+
+	cacheMock := mocks.Cache{}
+	cacheMock.On("GetSecret", SecretKeyPAT, testURL).Return("", false)
+	cacheMock.On("GetData", storeKey).Return(nil, false)
+	cacheMock.On("PutData", storeKey, mock.Anything).Return()
+	cacheMock.On("PutSecret", SecretKeyPAT, testURL, testToken).Return()
+
+	gock.New(fmt.Sprintf("https://api.%s", testHost)).
+		MatchHeader("Authorization", fmt.Sprintf("token %s", testToken)).
+		Head(fmt.Sprintf("users/%s/gists", testUser)).
+		Reply(200)
+
+	gock.New(fmt.Sprintf("https://api.%s", testHost)).
+		Get(fmt.Sprintf("users/%s/gists", testUser)).
+		Reply(200).
+		SetHeader("etag", "test_etag_value").
+		JSON(readTestdata(t, testGitHubTestDataPath))
+
+	gock.New(testGitHubRawURL).Get("").Reply(200).
+		SetHeader("etag", "raw_snippet_etag_value").
+		BodyString("foo")
+
+	manager := &Manager{cache: &cacheMock, config: Config{Enabled: true, Gists: []GistConfig{
+		{Enabled: true, URL: testURL, AuthenticationMethod: AuthMethodToken},
+	}}}
+
+	eventChannel := make(model.SyncEventChannel)
+
+	doneSync := make(chan struct{})
+	go func() {
+		defer close(doneSync)
+		manager.Sync(eventChannel)
+	}()
+
+	for event := range eventChannel {
+		t.Logf("Received event: %v\n", event)
+		// test needs to provide a token for github (fake user input)
+		if login := event.Login; login != nil {
+			login.Input <- model.SyncInputResult{Text: testToken}
+		}
+	}
+
+	<-doneSync
+
+	cacheMock.AssertCalled(t, "PutData", storeKey, expectedStoreForTestData().serialize())
+}
+
+func Test_Sync_tokenAuth_expired_abort(t *testing.T) {
+	defer gock.Off()
+
+	const expiredToken = "expired_token"
+
+	cacheMock := mocks.Cache{}
+	cacheMock.On("GetData", storeKey).Return(nil, false)
+	cacheMock.On("GetSecret", SecretKeyPAT, testURL).Return(expiredToken, true)
+	cacheMock.On("DeleteSecret", SecretKeyPAT, testURL).Return()
+
+	gock.New(fmt.Sprintf("https://api.%s", testHost)).
+		MatchHeader("Authorization", fmt.Sprintf("token %s", expiredToken)).
+		Head(fmt.Sprintf("users/%s/gists", testUser)).
+		Reply(401)
+
+	manager := &Manager{cache: &cacheMock, config: Config{Enabled: true, Gists: []GistConfig{
+		{Enabled: true, URL: testURL, AuthenticationMethod: AuthMethodToken},
+	}}}
+
+	eventChannel := make(model.SyncEventChannel)
+
+	doneSync := make(chan struct{})
+	go func() {
+		defer close(doneSync)
+		defer close(eventChannel)
+		assert.Panics(t, func() {
+			manager.Sync(eventChannel)
+		})
+	}()
+
+	for event := range eventChannel {
+		t.Logf("Received event: %v\n", event)
+		// test needs to provide a token for github (fake user input)
+		if login := event.Login; login != nil {
+			login.Input <- model.SyncInputResult{Abort: true}
+		}
+	}
+
+	<-doneSync
+
+	cacheMock.AssertCalled(t, "DeleteSecret", SecretKeyPAT, testURL)
+	cacheMock.AssertNotCalled(t, "PutData", storeKey, mock.Anything)
 }
 
 func readTestdata(t *testing.T, path string) string {

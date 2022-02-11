@@ -142,8 +142,8 @@ func (m *Manager) GetSnippets() []model.Snippet {
 	return result
 }
 
-func (m *Manager) Sync(events model.SyncEventChannel) bool {
-	return false
+func (m *Manager) Sync(events model.SyncEventChannel) {
+	close(events)
 }
 
 func checkSuffix(filename string, regexes []*regexp.Regexp) bool {

@@ -60,8 +60,8 @@ func (m Manager) Key() model.ManagerKey {
 	return Key
 }
 
-func (m *Manager) Sync(events model.SyncEventChannel) bool {
-	return false
+func (m *Manager) Sync(events model.SyncEventChannel) {
+	close(events)
 }
 
 func (m Manager) Info() []model.InfoLine {

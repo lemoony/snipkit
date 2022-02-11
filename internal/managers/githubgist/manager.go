@@ -96,7 +96,7 @@ func (m Manager) Info() []model.InfoLine {
 	return lines
 }
 
-func (m *Manager) Sync(events model.SyncEventChannel) bool {
+func (m *Manager) Sync(events model.SyncEventChannel) {
 	log.Trace().Msg("github gist sync started")
 
 	var lines []model.SyncLine
@@ -123,12 +123,11 @@ func (m *Manager) Sync(events model.SyncEventChannel) bool {
 	}
 
 	events <- model.SyncEvent{Status: model.SyncStatusFinished, Lines: lines}
-	close(events)
 
 	m.storeInCache(updatedStore)
 
 	log.Trace().Msg("github gist sync finished")
-	return true
+	close(events)
 }
 
 func (m *Manager) GetSnippets() []model.Snippet {
@@ -147,10 +146,6 @@ func (m *Manager) GetSnippets() []model.Snippet {
 }
 
 func (m *Manager) authToken(cfg GistConfig, lines []model.SyncLine, events model.SyncEventChannel) (string, error) {
-	if cfg.AuthenticationMethod == AuthMethodNone {
-		return "", nil
-	}
-
 	switch cfg.AuthenticationMethod {
 	case AuthMethodNone:
 		return "", nil
@@ -205,7 +200,7 @@ func (m *Manager) requestAuthToken(cfg GistConfig, lines []model.SyncLine, event
 
 	if value.Abort {
 		events <- model.SyncEvent{
-			Status: model.SyncStatusStarted,
+			Status: model.SyncStatusAborted,
 			Lines:  append(lines, model.SyncLine{Type: model.SyncLineTypeInfo, Value: "Aborted"}),
 		}
 	}
