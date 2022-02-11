@@ -5,8 +5,6 @@ import (
 	"regexp"
 
 	"emperror.dev/errors"
-
-	"github.com/lemoony/snipkit/internal/utils/system"
 )
 
 type (
@@ -65,15 +63,19 @@ func (c *Config) getGistConfig(url string) *GistConfig {
 	return nil
 }
 
-func AutoDiscoveryConfig(system *system.System) *Config {
+func AutoDiscoveryConfig() *Config {
 	return &Config{
 		Enabled: false,
 		Gists: []GistConfig{
 			{
-				Enabled:              false,
-				URL:                  "gist.github.com/<USERNAME>",
-				AuthenticationMethod: AuthMethodNone,
-				IncludeTags:          []string{},
+				Enabled:                   false,
+				URL:                       "gist.github.com/<USERNAME>",
+				AuthenticationMethod:      AuthMethodNone,
+				IncludeTags:               []string{},
+				NameMode:                  SnippetNameModeCombinePreferDescription,
+				TitleHeaderEnabled:        true,
+				HideTitleInPreview:        true,
+				RemoveTagsFromDescription: true,
 			},
 		},
 	}

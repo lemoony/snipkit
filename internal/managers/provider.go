@@ -103,7 +103,7 @@ func (p providerImpl) AutoConfig(key model.ManagerKey, s *system.System) Config 
 	case pictarinesnip.Key:
 		return Config{PictarineSnip: pictarinesnip.AutoDiscoveryConfig(s)}
 	case githubgist.Key:
-		return Config{GithubGist: githubgist.AutoDiscoveryConfig(s)}
+		return Config{GithubGist: githubgist.AutoDiscoveryConfig()}
 	case fslibrary.Key:
 		return Config{FsLibrary: fslibrary.AutoDiscoveryConfig(s)}
 	}
