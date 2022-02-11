@@ -28,6 +28,7 @@ type rawSnippet struct {
 	ETag        string `json:"etag"`
 	Pubic       bool   `json:"public"`
 	Description string `json:"description"`
+	Language    string `json:"language"`
 	FilesInGist int    `json:"filesInGist"`
 }
 

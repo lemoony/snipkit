@@ -272,6 +272,7 @@ func (m *Manager) getSnippetsFromAPI(cfg GistConfig, token string, cache *gistSt
 					Content:     *singleRawGistResp.rawContent,
 					Pubic:       gist.Public,
 					Description: gist.Description,
+					Language:    file.Language,
 					ETag:        singleRawGistResp.etag,
 					FilesInGist: len(gist.Files),
 				})
@@ -279,9 +280,5 @@ func (m *Manager) getSnippetsFromAPI(cfg GistConfig, token string, cache *gistSt
 		}
 	}
 
-	return &gistStore{
-		URL:         cfg.URL,
-		ETag:        resp.etag,
-		RawSnippets: snippets,
-	}, nil
+	return &gistStore{URL: cfg.URL, ETag: resp.etag, RawSnippets: snippets}, nil
 }
