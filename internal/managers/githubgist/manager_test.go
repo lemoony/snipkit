@@ -3,6 +3,7 @@ package githubgist
 import (
 	"fmt"
 	"io/ioutil"
+	"net/http"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -63,6 +64,21 @@ func Test_NewManager_disabled(t *testing.T) {
 	manager, err := NewManager(WithConfig(Config{Enabled: false}))
 	assert.NoError(t, err)
 	assert.Nil(t, manager)
+}
+
+func Test_GetSnippets(t *testing.T) {
+	testStore := expectedStoreForTestData()
+
+	cacheMock := mocks.Cache{}
+	cacheMock.On("GetData", storeKey).Return(testStore.serialize(), true)
+
+	manager := &Manager{cache: &cacheMock, config: Config{Enabled: true, Gists: []GistConfig{
+		{Enabled: true, URL: testURL, AuthenticationMethod: AuthMethodNone},
+	}}}
+
+	snippets := manager.GetSnippets()
+	assert.Len(t, snippets, 1)
+	assert.Equal(t, snippets[0].GetContent(), "foo")
 }
 
 func Test_Sync_noAuth(t *testing.T) {
@@ -194,6 +210,91 @@ func Test_Sync_tokenAuth_expired_abort(t *testing.T) {
 
 	cacheMock.AssertCalled(t, "DeleteSecret", SecretKeyPAT, testURL)
 	cacheMock.AssertNotCalled(t, "PutData", storeKey, mock.Anything)
+}
+
+func Test_Sync_ifNoneMatch(t *testing.T) {
+	defer gock.Off()
+
+	cachedStore := expectedStoreForTestData()
+
+	cacheMock := mocks.Cache{}
+	cacheMock.On("GetData", storeKey).Return(cachedStore.serialize(), true)
+	cacheMock.On("PutData", storeKey, mock.Anything).Return()
+
+	gock.New(fmt.Sprintf("https://api.%s", testHost)).
+		MatchHeader("If-None-Match", cachedStore.Gists[0].ETag).
+		Get(fmt.Sprintf("users/%s/gists", testUser)).
+		Reply(http.StatusNotModified).
+		SetHeader("etag", cachedStore.Gists[0].ETag)
+
+	manager := &Manager{cache: &cacheMock, config: Config{Enabled: true, Gists: []GistConfig{
+		{Enabled: true, URL: testURL, AuthenticationMethod: AuthMethodNone},
+	}}}
+
+	eventChannel := make(model.SyncEventChannel)
+	doneSync := make(chan struct{})
+	go func() {
+		defer close(doneSync)
+		manager.Sync(eventChannel)
+	}()
+
+	for event := range eventChannel {
+		t.Logf("Received event: %v\n", event)
+	}
+
+	<-doneSync
+
+	cacheMock.AssertCalled(t, "PutData", storeKey, cachedStore.serialize())
+}
+
+func Test_Sync_ifNoneMatch_forSingleFile(t *testing.T) {
+	defer gock.Off()
+
+	const updatedGistEtag = "etag_updated"
+	const updatedFileEtag = "etag_file_updated"
+	cachedStore := expectedStoreForTestData()
+
+	cacheMock := mocks.Cache{}
+	cacheMock.On("GetData", storeKey).Return(cachedStore.serialize(), true)
+	cacheMock.On("PutData", storeKey, mock.Anything).Return()
+
+	gock.New(fmt.Sprintf("https://api.%s", testHost)).
+		MatchHeader("If-None-Match", cachedStore.Gists[0].ETag).
+		Get(fmt.Sprintf("users/%s/gists", testUser)).
+		Reply(http.StatusOK).
+		SetHeader("etag", updatedGistEtag).
+		JSON(readTestdata(t, testGitHubTestDataPath))
+
+	gock.New("https://gist.github.test/lemoony/6e9855e7234se158b6414c/raw/52a5fd68a0fffd06297100d77c41/test-file.sh").
+		Get("").
+		MatchHeader("If-None-Match", cachedStore.Gists[0].RawSnippets[0].ETag).
+		Reply(http.StatusOK).
+		SetHeader("etag", updatedFileEtag).
+		BodyString("foo")
+
+	manager := &Manager{cache: &cacheMock, config: Config{Enabled: true, Gists: []GistConfig{
+		{Enabled: true, URL: testURL, AuthenticationMethod: AuthMethodNone},
+	}}}
+
+	eventChannel := make(model.SyncEventChannel)
+	doneSync := make(chan struct{})
+	go func() {
+		defer close(doneSync)
+		manager.Sync(eventChannel)
+	}()
+
+	for event := range eventChannel {
+		t.Logf("Received event: %v\n", event)
+	}
+
+	<-doneSync
+
+	updatedStore := *cachedStore
+	updatedStore.Gists[0].ETag = updatedGistEtag
+	updatedStore.Gists[0].RawSnippets[0].ETag = updatedFileEtag
+	updatedStore.Gists[0].RawSnippets[0].Content = []byte("foo")
+
+	cacheMock.AssertCalled(t, "PutData", storeKey, updatedStore.serialize())
 }
 
 func readTestdata(t *testing.T, path string) string {
