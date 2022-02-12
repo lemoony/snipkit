@@ -42,7 +42,12 @@ var (
 	)
 )
 
-type Screen struct {
+type Screen interface {
+	Start()
+	Send(msg UpdateStateMsg)
+}
+
+type screenImpl struct {
 	program *tea.Program
 }
 
@@ -87,7 +92,7 @@ type model struct {
 	textinput textinput.Model
 }
 
-func New(options ...Option) *Screen {
+func New(options ...Option) Screen {
 	m := &model{
 		state: state{
 			Status:       appModel.SyncStatusFinished,
@@ -113,18 +118,18 @@ func New(options ...Option) *Screen {
 		teaOptions = append(teaOptions, tea.WithOutput(*m.output))
 	}
 
-	return &Screen{
+	return &screenImpl{
 		program: tea.NewProgram(m, teaOptions...),
 	}
 }
 
-func (s *Screen) Start() {
+func (s *screenImpl) Start() {
 	if err := s.program.Start(); err != nil {
 		panic(err)
 	}
 }
 
-func (s *Screen) Send(msg UpdateStateMsg) {
+func (s *screenImpl) Send(msg UpdateStateMsg) {
 	s.program.Send(msg)
 }
 

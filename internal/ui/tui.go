@@ -71,7 +71,7 @@ type TUI interface {
 	ShowLookup(snippets []model.Snippet) int
 	ShowParameterForm(parameters []model.Parameter, okButton OkButton) ([]string, bool)
 	ShowPicker(items []picker.Item, options ...tea.ProgramOption) (int, bool)
-	ShowSync() *sync.Screen
+	ShowSync() sync.Screen
 }
 
 type tuiImpl struct {
@@ -179,7 +179,7 @@ func (t tuiImpl) ShowPicker(items []picker.Item, options ...tea.ProgramOption) (
 	)
 }
 
-func (t tuiImpl) ShowSync() *sync.Screen {
+func (t tuiImpl) ShowSync() sync.Screen {
 	return sync.New(
 		sync.WithOut(t.stdio.Out),
 		sync.WithIn(t.stdio.In),

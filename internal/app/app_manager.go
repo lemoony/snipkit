@@ -51,7 +51,7 @@ func (a *appImpl) SyncManager() {
 	}
 }
 
-func (a *appImpl) startSyncManagers(syncScreen *sync.Screen) error {
+func (a *appImpl) startSyncManagers(syncScreen sync.Screen) error {
 	syncScreen.Send(sync.UpdateStateMsg{Status: model.SyncStatusStarted})
 
 	for _, manager := range a.managers {
