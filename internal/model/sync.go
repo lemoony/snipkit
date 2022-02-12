@@ -11,7 +11,7 @@ type (
 const (
 	SyncStatusStarted  = SyncStatus(1)
 	SyncStatusFinished = SyncStatus(2)
-	SyncStatusAborted  = SyncStatus(2)
+	SyncStatusAborted  = SyncStatus(3)
 
 	SyncLineTypeInfo    = SyncLineType(0)
 	SyncLineTypeSuccess = SyncLineType(1)

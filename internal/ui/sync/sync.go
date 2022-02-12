@@ -26,6 +26,11 @@ var (
 			PaddingRight(1).
 			String()
 
+	crossMark = lipgloss.NewStyle().SetString("✗").
+			Foreground(lipgloss.AdaptiveColor{Light: "#43BF6D", Dark: "#73F59F"}).
+			PaddingRight(1).
+			String()
+
 	continueKeyBinding = key.NewBinding(
 		key.WithKeys("enter"),
 		key.WithHelp("↵", "apply"),
@@ -74,8 +79,7 @@ type model struct {
 	input  *io.Reader
 	output *io.Writer
 
-	state state
-
+	state  state
 	width  int
 	height int
 
@@ -84,10 +88,12 @@ type model struct {
 }
 
 func New(options ...Option) *Screen {
-	m := &model{state: state{
-		Status:       appModel.SyncStatusFinished,
-		ManagerState: map[appModel.ManagerKey]ManagerState{},
-	}}
+	m := &model{
+		state: state{
+			Status:       appModel.SyncStatusFinished,
+			ManagerState: map[appModel.ManagerKey]ManagerState{},
+		},
+	}
 
 	s := spinner.New()
 	s.Spinner = spinner.Dot
@@ -211,6 +217,8 @@ func (m *model) View() string {
 
 	if m.state.Status == appModel.SyncStatusFinished {
 		sections = append(sections, fmt.Sprintf("%s All done.\n", checkMark))
+	} else if m.state.Status == appModel.SyncStatusAborted {
+		sections = append(sections, fmt.Sprintf("%s Aborted.\n", crossMark))
 	}
 
 	return m.wrap(lipgloss.JoinVertical(lipgloss.Left, sections...))

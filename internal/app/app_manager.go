@@ -33,17 +33,17 @@ func (a *appImpl) AddManager() {
 }
 
 func (a *appImpl) SyncManager() {
-	screen := sync.New()
+	syncScreen := a.tui.ShowSync()
 
 	var err error
 	doneChannel := make(chan struct{})
 
 	go func() {
 		defer close(doneChannel)
-		err = a.startSyncManagers(screen)
+		err = a.startSyncManagers(syncScreen)
 	}()
 
-	screen.Start()
+	syncScreen.Start()
 
 	<-doneChannel
 	if err != nil {
@@ -51,8 +51,8 @@ func (a *appImpl) SyncManager() {
 	}
 }
 
-func (a *appImpl) startSyncManagers(s *sync.Screen) error {
-	s.Send(sync.UpdateStateMsg{Status: model.SyncStatusStarted})
+func (a *appImpl) startSyncManagers(syncScreen *sync.Screen) error {
+	syncScreen.Send(sync.UpdateStateMsg{Status: model.SyncStatusStarted})
 
 	for _, manager := range a.managers {
 		events := make(chan model.SyncEvent)
@@ -76,7 +76,7 @@ func (a *appImpl) startSyncManagers(s *sync.Screen) error {
 		}()
 
 		for v := range events {
-			s.Send(sync.UpdateStateMsg{
+			syncScreen.Send(sync.UpdateStateMsg{
 				ManagerState: &sync.ManagerState{
 					Key:    manager.Key(),
 					Status: v.Status,
@@ -92,6 +92,6 @@ func (a *appImpl) startSyncManagers(s *sync.Screen) error {
 		}
 	}
 
-	s.Send(sync.UpdateStateMsg{Status: model.SyncStatusFinished})
+	syncScreen.Send(sync.UpdateStateMsg{Status: model.SyncStatusFinished})
 	return nil
 }
