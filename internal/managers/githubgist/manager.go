@@ -129,7 +129,6 @@ func (m *Manager) Sync(events model.SyncEventChannel) {
 	m.storeInCache(updatedStore)
 
 	log.Trace().Msg("github gist sync finished")
-	close(events)
 }
 
 func (m *Manager) GetSnippets() []model.Snippet {
@@ -153,7 +152,7 @@ func (m *Manager) authToken(cfg GistConfig, lines []model.SyncLine, events model
 		return "", nil
 	case AuthMethodToken:
 		if token, ok := m.requestAuthToken(cfg, lines, events); !ok {
-			return "", errors.New("no auth token")
+			return "", errors.New("No auth token provided")
 		} else {
 			return token, nil
 		}

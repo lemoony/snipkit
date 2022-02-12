@@ -106,17 +106,14 @@ func Test_Sync_noAuth(t *testing.T) {
 
 	eventChannel := make(model.SyncEventChannel)
 
-	doneSync := make(chan struct{})
 	go func() {
-		defer close(doneSync)
+		defer close(eventChannel)
 		manager.Sync(eventChannel)
 	}()
 
 	for event := range eventChannel {
 		t.Logf("Received event: %v\n", event)
 	}
-
-	<-doneSync
 
 	cacheMock.AssertCalled(t, "PutData", storeKey, expectedStoreForTestData().serialize())
 }
@@ -156,6 +153,7 @@ func Test_Sync_tokenAuth(t *testing.T) {
 	doneSync := make(chan struct{})
 	go func() {
 		defer close(doneSync)
+		defer close(eventChannel)
 		manager.Sync(eventChannel)
 	}()
 
@@ -240,17 +238,14 @@ func Test_Sync_ifNoneMatch(t *testing.T) {
 	}}}
 
 	eventChannel := make(model.SyncEventChannel)
-	doneSync := make(chan struct{})
 	go func() {
-		defer close(doneSync)
+		defer close(eventChannel)
 		manager.Sync(eventChannel)
 	}()
 
 	for event := range eventChannel {
 		t.Logf("Received event: %v\n", event)
 	}
-
-	<-doneSync
 
 	cacheMock.AssertCalled(t, "PutData", storeKey, cachedStore.serialize())
 }
@@ -287,17 +282,14 @@ func Test_Sync_ifNoneMatch_forSingleFile(t *testing.T) {
 	}}}
 
 	eventChannel := make(model.SyncEventChannel)
-	doneSync := make(chan struct{})
 	go func() {
-		defer close(doneSync)
+		defer close(eventChannel)
 		manager.Sync(eventChannel)
 	}()
 
 	for event := range eventChannel {
 		t.Logf("Received event: %v\n", event)
 	}
-
-	<-doneSync
 
 	updatedStore := *cachedStore
 	updatedStore.Gists[0].ETag = updatedGistEtag
