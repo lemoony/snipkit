@@ -72,9 +72,7 @@ func Test_parseTitle(t *testing.T) {
 		testWith(SnippetNameModeFilename, true, 1, "filename.sh"),
 		testWith(SnippetNameModeCombine, true, 1, "snippet description - filename.sh"),
 		testWith(SnippetNameModeCombinePreferDescription, true, 1, "snippet description"),
-		testWith(SnippetNameModeCombinePreferFilename, true, 1, "filename.sh"),
 		testWith(SnippetNameModeCombinePreferDescription, true, 2, "snippet description - filename.sh"),
-		testWith(SnippetNameModeCombinePreferFilename, true, 2, "snippet description - filename.sh"),
 		testWithContent("#\n# Title Header\n#", "Title Header"),
 	}
 

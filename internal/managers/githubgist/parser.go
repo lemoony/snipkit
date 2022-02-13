@@ -52,10 +52,6 @@ func parseTitle(raw rawSnippet, nameMode SnippetNameMode, titleHeaderEnabled boo
 		if raw.FilesInGist == 1 {
 			return raw.Description
 		}
-	case SnippetNameModeCombinePreferFilename:
-		if raw.FilesInGist == 1 {
-			return raw.Filename
-		}
 	}
 	return fmt.Sprintf("%s - %s", raw.Description, raw.Filename)
 }

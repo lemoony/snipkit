@@ -24,7 +24,6 @@ const (
 	SnippetNameModeFilename                 = "FILENAME"
 	SnippetNameModeCombine                  = "COMBINE"
 	SnippetNameModeCombinePreferDescription = "COMBINE_PREFER_DESCRIPTION"
-	SnippetNameModeCombinePreferFilename    = "COMBINE_PREFER_FILENAME"
 )
 
 var urlRegex = regexp.MustCompile("^gist.(.*)/(.*)$")
@@ -41,7 +40,7 @@ type GistConfig struct {
 	OAuthClientID             string          `yaml:"oauthClientID,omitempty" head_comment:"OAuth application ID, only required if the host is not github.com AND you're using OAuthDeviceFlow'."`
 	IncludeTags               []string        `yaml:"includeTags" head_comment:"If this list is not empty, only those gists that match the listed tags will be provided to you."`
 	SuffixRegex               []string        `yaml:"suffixRegex" head_comment:"Only gist files with endings which match one of the listed suffixes will be considered."`
-	NameMode                  SnippetNameMode `yaml:"nameMode" head_comment:"Defines where the snippet name is extracted from (see also titleHeaderEnabled). Allowed values: DESCRIPTION, FILENAME, COMBINE, COMBINE_PREFER_DESCRIPTION, COMBINE_PREFER_FILENAME."`
+	NameMode                  SnippetNameMode `yaml:"nameMode" head_comment:"Defines where the snippet name is extracted from (see also titleHeaderEnabled). Allowed values: DESCRIPTION, FILENAME, COMBINE, COMBINE_PREFER_DESCRIPTION."`
 	RemoveTagsFromDescription bool            `yaml:"removeTagsFromDescription" head_comment:"If set to true, any tags will be removed from the description."`
 	TitleHeaderEnabled        bool            `yaml:"titleHeaderEnabled" head_comment:"If set to true, the snippet title can be overwritten by defining a title header within the gist."`
 	HideTitleInPreview        bool            `yaml:"hideTitleInPreview" head_comment:"If set to true, the title header comment will not be shown in the preview window."`

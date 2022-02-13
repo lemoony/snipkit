@@ -41,7 +41,7 @@ config:
           includeTags: []
           # Only gist files with endings which match one of the listed suffixes will be considered.
           suffixRegex: []
-          # Defines where the snippet name is extracted from (see also titleHeaderEnabled). Allowed values: DESCRIPTION, FILENAME, COMBINE, COMBINE_PREFER_DESCRIPTION, COMBINE_PREFER_FILENAME.
+          # Defines where the snippet name is extracted from (see also titleHeaderEnabled). Allowed values: DESCRIPTION, FILENAME, COMBINE, COMBINE_PREFER_DESCRIPTION.
           nameMode: COMBINE_PREFER_DESCRIPTION
           # If set to true, any tags will be removed from the description.
           removeTagsFromDescription: true
