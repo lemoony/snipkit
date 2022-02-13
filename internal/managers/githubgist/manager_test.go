@@ -203,17 +203,8 @@ func Test_Sync_oauthDeviceFlow(t *testing.T) {
 	cacheMock.On("GetData", storeKey).Return(nil, false)
 	cacheMock.On("PutData", storeKey, mock.Anything).Return()
 
-	gock.New(fmt.Sprintf("https://%s", testHost)).
-		BodyString(fmt.Sprintf(`client_id=%s&scope=gist`, defaultOAuthClientID)).
-		Post("login/device/code").
-		Reply(200).
-		JSON(readTestdata(t, testDataGitHubDeviceCode))
-
-	gock.New(fmt.Sprintf("https://%s", testHost)).
-		Post("login/oauth/access_token").
-		Reply(200).
-		JSON(fmt.Sprintf(readTestdata(t, testDataGitHubOAuthToken), testToken))
-
+	mockGitHubDeviceCode(t)
+	mockGitHubBearerToken(t)
 	mockGitHubTokenCheck(true, testToken)
 	mockGitHubGists(t)
 	mockGitHubRawSnippetURL()
@@ -249,10 +240,52 @@ func Test_Sync_oauthDeviceFlow(t *testing.T) {
 	cacheMock.AssertCalled(t, "PutData", storeKey, expectedStoreForTestData().serialize())
 }
 
-// Scenario: TODO.
-// Expected: TODO.
+// Scenario: Token is expired (github returns 401 code) and user is prompted for device flow but aborts
+// Expected: No cache update; token secret should be removed.
 func Test_Sync_oauthDeviceFlow_abort(t *testing.T) {
-	// TODO: implement test.
+	defer gock.Off()
+
+	const expiredToken = "toke_expired"
+
+	cacheMock := mocks.Cache{}
+	cacheMock.On("GetSecret", secretKeyAccessToken, testGistURL).Return(expiredToken, true)
+	cacheMock.On("DeleteSecret", secretKeyAccessToken, testGistURL).Return()
+	cacheMock.On("GetData", storeKey).Return(nil, false)
+
+	mockGitHubTokenCheck(false, expiredToken)
+	mockGitHubDeviceCode(t)
+	mockGitHubBearerToken(t)
+	mockGitHubGists(t)
+	mockGitHubRawSnippetURL()
+
+	didCallBrowseURL := false
+	browseURLFunc := func(s string) error {
+		didCallBrowseURL = true
+		return nil
+	}
+
+	manager := &Manager{cache: &cacheMock, config: Config{Enabled: true, Gists: []GistConfig{
+		{Enabled: true, URL: testGistURL, AuthenticationMethod: AuthMethodOAuthDeviceFlow},
+	}}, browseURL: browseURLFunc}
+
+	eventChannel := make(model.SyncEventChannel)
+
+	go func() {
+		defer close(eventChannel)
+		manager.Sync(eventChannel)
+	}()
+
+	for event := range eventChannel {
+		t.Logf("Received event: %v\n", event)
+		if login := event.Login; login != nil {
+			login.Input <- model.SyncInputResult{Abort: true}
+		}
+	}
+
+	assert.False(t, didCallBrowseURL)
+
+	cacheMock.AssertCalled(t, "DeleteSecret", secretKeyAccessToken, testGistURL)
+	cacheMock.AssertNotCalled(t, "PutData")
 }
 
 // Scenario: Sync is triggerd and the cache already contains entries. ETag from github does not change (status 304)
@@ -394,4 +427,21 @@ func mockGitHubRawSnippetURL() {
 	gock.New(testGitHubRawURL).Get("").Reply(200).
 		SetHeader("etag", "raw_snippet_etag_value").
 		BodyString("foo")
+}
+
+func mockGitHubDeviceCode(t *testing.T) {
+	t.Helper()
+	gock.New(fmt.Sprintf("https://%s", testHost)).
+		BodyString(fmt.Sprintf(`client_id=%s&scope=gist`, defaultOAuthClientID)).
+		Post("login/device/code").
+		Reply(200).
+		JSON(readTestdata(t, testDataGitHubDeviceCode))
+}
+
+func mockGitHubBearerToken(t *testing.T) {
+	t.Helper()
+	gock.New(fmt.Sprintf("https://%s", testHost)).
+		Post("login/oauth/access_token").
+		Reply(200).
+		JSON(fmt.Sprintf(readTestdata(t, testDataGitHubOAuthToken), testToken))
 }

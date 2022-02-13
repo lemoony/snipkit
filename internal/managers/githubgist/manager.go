@@ -240,15 +240,9 @@ func (m *Manager) requestOAuthToken(cfg GistConfig, lines []model.SyncLine, even
 	events <- model.SyncEvent{Status: model.SyncStatusStarted, Lines: lines}
 
 	if ok := m.checkToken(cfg, accessToken.Token); !ok {
-		events <- model.SyncEvent{
-			Status: model.SyncStatusAborted,
-			Lines: append(
-				lines,
-				model.SyncLine{Type: model.SyncLineTypeInfo, Value: fmt.Sprintf("Invalid token: %s", err.Error())},
-			),
+		if ok := m.checkToken(cfg, accessToken.Token); !ok {
+			return "", errors.New("The provided token is invalid")
 		}
-
-		m.cache.DeleteSecret(secretKeyAccessToken, cfg.URL)
 	}
 
 	m.cache.PutSecret(secretKeyAccessToken, cfg.URL, accessToken.Token)
