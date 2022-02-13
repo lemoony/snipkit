@@ -5,56 +5,31 @@ import (
 	"regexp"
 
 	"emperror.dev/errors"
+	"github.com/cli/oauth"
 	"github.com/phuslu/log"
 
 	"github.com/lemoony/snipkit/internal/cache"
 	"github.com/lemoony/snipkit/internal/model"
+	"github.com/lemoony/snipkit/internal/ui/uimsg"
+	"github.com/lemoony/snipkit/internal/utils/stringutil"
 	"github.com/lemoony/snipkit/internal/utils/system"
 )
 
 // TODO: Document this manager in /docs
 
 const (
-	SecretKeyPAT        = cache.SecretKey("GitHub Personal Access Token")
-	SecretKeyOauthToken = cache.SecretKey("GitHub OAuth Access Token") // TODO
+	secretKeyAccessToken = cache.SecretKey("GitHub Access Token")
+	defaultOAuthClientID = "26b4225d7ae7b3961624"
 )
+
+var errAbort = errors.New("abort")
 
 type Manager struct {
 	system      *system.System
 	config      Config
 	suffixRegex []*regexp.Regexp //nolint:structcheck,unused // ignore for now since not used yet
 	cache       cache.Cache
-}
-
-// Option configures a Manager.
-type Option interface {
-	apply(p *Manager)
-}
-
-// optionFunc wraps a func so that it satisfies the Option interface.
-type optionFunc func(manager *Manager)
-
-func (f optionFunc) apply(manager *Manager) {
-	f(manager)
-}
-
-// WithSystem sets the utils.System instance to be used by Manager.
-func WithSystem(system *system.System) Option {
-	return optionFunc(func(p *Manager) {
-		p.system = system
-	})
-}
-
-func WithConfig(config Config) Option {
-	return optionFunc(func(p *Manager) {
-		p.config = config
-	})
-}
-
-func WithCache(cache cache.Cache) Option {
-	return optionFunc(func(p *Manager) {
-		p.cache = cache
-	})
+	browseURL   func(s string) error
 }
 
 func NewManager(options ...Option) (*Manager, error) {
@@ -99,9 +74,20 @@ func (m Manager) Info() []model.InfoLine {
 }
 
 func (m *Manager) Sync(events model.SyncEventChannel) {
+	var lines []model.SyncLine
 	log.Trace().Msg("github gist sync started")
 
-	var lines []model.SyncLine
+	defer func() {
+		if panicValue := recover(); panicValue != nil {
+			err := errors.Errorf("Sync failed: %s", panicValue)
+			log.Error().Err(err).Msg("Sync failed")
+			events <- model.SyncEvent{
+				Status: model.SyncStatusAborted,
+				Lines:  append(lines, model.SyncLine{Type: model.SyncLineTypeError, Value: err.Error()}),
+			}
+		}
+	}()
+
 	events <- model.SyncEvent{Status: model.SyncStatusStarted, Lines: lines}
 
 	currentStore := m.getStoreFromCache()
@@ -151,25 +137,31 @@ func (m *Manager) authToken(cfg GistConfig, lines []model.SyncLine, events model
 	case AuthMethodNone:
 		return "", nil
 	case AuthMethodToken:
-		if token, ok := m.requestAuthToken(cfg, lines, events); !ok {
-			return "", errors.New("No auth token provided")
+		if token, err := m.requestPAT(cfg, lines, events); err != nil {
+			return "", err
+		} else {
+			return token, nil
+		}
+	case AuthMethodOAuthDeviceFlow:
+		if token, err := m.requestOAuthToken(cfg, lines, events); err != nil {
+			return "", err
 		} else {
 			return token, nil
 		}
 	}
 
-	panic("TODO: oauth not supported yet")
+	panic(errors.Errorf("unsupported auth method: %s", cfg.AuthenticationMethod))
 }
 
-func (m *Manager) requestAuthToken(cfg GistConfig, lines []model.SyncLine, events model.SyncEventChannel) (string, bool) {
+func (m *Manager) requestPAT(cfg GistConfig, lines []model.SyncLine, events model.SyncEventChannel) (string, error) {
 	contChannel := make(chan model.SyncInputResult)
 
-	if token, tokenFound := m.cache.GetSecret(SecretKeyPAT, cfg.URL); tokenFound {
+	if token, tokenFound := m.cache.GetSecret(secretKeyAccessToken, cfg.URL); tokenFound {
 		if tokenOK := m.checkToken(cfg, token); tokenOK {
-			return token, true
+			return token, nil
 		} else {
 			log.Info().Msgf("Stored token for %s is invalid. Delete it.", cfg.URL)
-			m.cache.DeleteSecret(SecretKeyPAT, cfg.URL)
+			m.cache.DeleteSecret(secretKeyAccessToken, cfg.URL)
 			lines = append(lines, model.SyncLine{Type: model.SyncLineTypeError, Value: "The current token is invalid"})
 		}
 	}
@@ -178,7 +170,7 @@ func (m *Manager) requestAuthToken(cfg GistConfig, lines []model.SyncLine, event
 		Status: model.SyncStatusStarted,
 		Lines:  lines,
 		Login: &model.SyncInput{
-			Content:     "You need to login into GitHub.\nYou have not yet provided an Access Token..",
+			Content:     fmt.Sprintf("Please provide an access token for %s with scope 'gist'...", cfg.URL),
 			Placeholder: "Access token",
 			Type:        model.SyncLoginTypeText,
 			Input:       contChannel,
@@ -191,22 +183,77 @@ func (m *Manager) requestAuthToken(cfg GistConfig, lines []model.SyncLine, event
 
 	if token := value.Text; token != "" {
 		if ok := m.checkToken(cfg, token); !ok {
-			panic("invalid token")
+			return "", errors.New("The provided token is invalid")
 		}
 
-		m.cache.PutSecret(SecretKeyPAT, cfg.URL, token)
+		m.cache.PutSecret(secretKeyAccessToken, cfg.URL, token)
 
-		return token, true
+		return token, nil
 	}
 
-	if value.Abort {
+	return "", errAbort
+}
+
+func (m *Manager) requestOAuthToken(cfg GistConfig, lines []model.SyncLine, events model.SyncEventChannel) (string, error) {
+	contChannel := make(chan model.SyncInputResult)
+
+	if token, tokenFound := m.cache.GetSecret(secretKeyAccessToken, cfg.URL); tokenFound {
+		if tokenOK := m.checkToken(cfg, token); tokenOK {
+			return token, nil
+		} else {
+			log.Info().Msgf("Stored token for %s is invalid. Delete it.", cfg.URL)
+			m.cache.DeleteSecret(secretKeyAccessToken, cfg.URL)
+			lines = append(lines, model.SyncLine{Type: model.SyncLineTypeError, Value: "The current token is invalid"})
+		}
+	}
+
+	flow := &oauth.Flow{
+		Host:      oauth.GitHubHost(cfg.hostURL()),
+		ClientID:  stringutil.StringOrDefault(cfg.OAuthClientID, defaultOAuthClientID),
+		Scopes:    []string{"gist"},
+		BrowseURL: m.browseURL,
+		DisplayCode: func(userCode string, uri string) error {
+			content := uimsg.ManagerOauthDeviceFlow(cfg.hostURL(), userCode)
+			events <- model.SyncEvent{
+				Status: model.SyncStatusStarted,
+				Lines:  lines,
+				Login: &model.SyncInput{
+					Content: &content,
+					Type:    model.SyncLoginTypeContinue,
+					Input:   contChannel,
+				},
+			}
+
+			if x := <-contChannel; x.Abort {
+				return errAbort
+			}
+
+			return nil
+		},
+	}
+
+	accessToken, err := flow.DetectFlow()
+	if err != nil {
+		return "", err
+	}
+
+	events <- model.SyncEvent{Status: model.SyncStatusStarted, Lines: lines}
+
+	if ok := m.checkToken(cfg, accessToken.Token); !ok {
 		events <- model.SyncEvent{
 			Status: model.SyncStatusAborted,
-			Lines:  append(lines, model.SyncLine{Type: model.SyncLineTypeInfo, Value: "Aborted"}),
+			Lines: append(
+				lines,
+				model.SyncLine{Type: model.SyncLineTypeInfo, Value: fmt.Sprintf("Invalid token: %s", err.Error())},
+			),
 		}
+
+		m.cache.DeleteSecret(secretKeyAccessToken, cfg.URL)
 	}
 
-	return "", false
+	m.cache.PutSecret(secretKeyAccessToken, cfg.URL, accessToken.Token)
+
+	return accessToken.Token, nil
 }
 
 func (m *Manager) getSnippetsFromAPI(cfg GistConfig, token string, cache *gistStore) *gistStore {

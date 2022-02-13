@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"emperror.dev/errors"
+	"github.com/phuslu/log"
 
 	"github.com/lemoony/snipkit/internal/config"
 	"github.com/lemoony/snipkit/internal/model"
@@ -35,30 +36,29 @@ func (a *appImpl) AddManager() {
 func (a *appImpl) SyncManager() {
 	syncScreen := a.tui.ShowSync()
 
-	var err error
 	doneChannel := make(chan struct{})
 
 	go func() {
-		defer close(doneChannel)
-		err = a.startSyncManagers(syncScreen)
+		defer func() {
+			close(doneChannel)
+		}()
+		a.startSyncManagers(syncScreen)
 	}()
 
 	syncScreen.Start()
 
 	<-doneChannel
-	if err != nil {
-		panic(err)
-	}
 }
 
-func (a *appImpl) startSyncManagers(syncScreen sync.Screen) error {
+func (a *appImpl) startSyncManagers(syncScreen sync.Screen) {
 	syncScreen.Send(sync.UpdateStateMsg{Status: model.SyncStatusStarted})
+
+	allSucceeded := true
 
 	for _, manager := range a.managers {
 		events := make(chan model.SyncEvent)
 
 		var syncError error
-		syncDone := make(chan struct{})
 
 		go func() {
 			defer func() {
@@ -69,13 +69,16 @@ func (a *appImpl) startSyncManagers(syncScreen sync.Screen) error {
 						syncError = errors.Errorf("sync failed: %s", panicValue)
 					}
 				}
-				close(syncDone)
 				close(events)
 			}()
 			manager.Sync(events)
 		}()
 
 		for v := range events {
+			if v.Status == model.SyncStatusAborted {
+				allSucceeded = false
+			}
+
 			syncScreen.Send(sync.UpdateStateMsg{
 				ManagerState: &sync.ManagerState{
 					Key:    manager.Key(),
@@ -86,12 +89,15 @@ func (a *appImpl) startSyncManagers(syncScreen sync.Screen) error {
 			})
 		}
 
-		<-syncDone
 		if syncError != nil {
-			return syncError
+			allSucceeded = false
+			log.Error().Err(syncError).Msg("Uncaught panic while syncing")
 		}
 	}
 
-	syncScreen.Send(sync.UpdateStateMsg{Status: model.SyncStatusFinished})
-	return nil
+	if allSucceeded {
+		syncScreen.Send(sync.UpdateStateMsg{Status: model.SyncStatusFinished})
+	} else {
+		syncScreen.Send(sync.UpdateStateMsg{Status: model.SyncStatusAborted})
+	}
 }

@@ -100,9 +100,8 @@ func Test_Sync_manager_panic(t *testing.T) {
 		close(managerSyncCloseChannel)
 	}()
 
-	assert.Panics(t, func() {
-		app.SyncManager()
-	})
+	app.SyncManager()
 
 	syncScreen.AssertCalled(t, "Send", sync.UpdateStateMsg{Status: model.SyncStatusStarted})
+	syncScreen.AssertCalled(t, "Send", sync.UpdateStateMsg{Status: model.SyncStatusAborted})
 }

@@ -31,6 +31,7 @@ const (
 
 	managerAddConfigConfirm = "manager_add_config_confirm.gotmpl"
 	managerAddConfigResult  = "manager_add_config_result.gotmpl"
+	managerOAuthDeviceFlow  = "manager_oauth_device_flow.gotmpl"
 
 	snippetWidthMargin = 10
 )
@@ -147,6 +148,13 @@ func ManagerAddConfigResult(confirmed bool, cfgPath string) Printable {
 	return Printable{
 		template: managerAddConfigResult,
 		data:     map[string]interface{}{"confirmed": confirmed, "cfgPath": cfgPath},
+	}
+}
+
+func ManagerOauthDeviceFlow(host string, code string) Printable {
+	return Printable{
+		template: managerOAuthDeviceFlow,
+		data:     map[string]interface{}{"host": host, "code": code},
 	}
 }
 

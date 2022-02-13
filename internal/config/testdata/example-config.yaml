@@ -35,7 +35,7 @@ config:
           enabled: true
           # URL to the GitHub gist account.
           url: gist.github.com/<yourUser>
-          # Supported values: None, OAuth, Token. Default value: None (which means no authentication). In order to retrieve secret gists, you must be authenticated.
+          # Supported values: None, OAuthDeviceFlow, Token. Default value: None (which means no authentication). In order to retrieve secret gists, you must be authenticated.
           authenticationMethod: Token
           # If this list is not empty, only those gists that match the listed tags will be provided to you.
           includeTags: []

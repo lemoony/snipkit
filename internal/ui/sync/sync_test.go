@@ -117,7 +117,7 @@ func Test_SyncScreen_input_abort(t *testing.T) {
 		c.ExpectString("Manager X sync started")
 		c.ExpectString("Please type in something")
 		c.SendKey(termtest.KeyStrC)
-		c.ExpectString("Aborted")
+		c.ExpectString("Sync did not finish.")
 	}, func(stdio termutil.Stdio) {
 		screen := New(WithIn(stdio.In), WithOut(stdio.Out))
 		syncChannel := make(chan struct{})

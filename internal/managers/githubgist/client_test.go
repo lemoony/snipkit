@@ -14,11 +14,16 @@ import (
 
 const (
 	testToken = "test_token"
-	testHost  = "gist.github.test"
+	testHost  = "github.test"
 	testUser  = "foouser"
 
 	testNoETag         = ""
 	testNoResponseEtag = ""
+)
+
+var (
+	testAPIURL  = fmt.Sprintf("https://api.%s", testHost)
+	testGistURL = fmt.Sprintf("gist.%s/%s", testHost, testUser)
 )
 
 func Test_checkToken_valid(t *testing.T) {

@@ -17,11 +17,11 @@ import (
 )
 
 const (
-	testGitHubTestDataPath = "testdata/github_get_user_gists_response.json"
-	testGitHubRawURL       = "https://gist.github.test/lemoony/6e9855e7234se158b6414c/raw/52a5fd68a0fffd06297100d77c41/test-file.sh"
+	testDataGitHubDataPath   = "testdata/github_get_user_gists_response.json"
+	testDataGitHubDeviceCode = "testdata/github_device_code.json"
+	testDataGitHubOAuthToken = "testdata/github_oauth_access_token.json"
+	testGitHubRawURL         = "https://gist.github.test/lemoony/6e9855e7234se158b6414c/raw/52a5fd68a0fffd06297100d77c41/test-file.sh"
 )
-
-var testURL = fmt.Sprintf("gist.%s/%s", testHost, testUser)
 
 func Test_GetInfo(t *testing.T) {
 	config := Config{
@@ -73,7 +73,7 @@ func Test_GetSnippets(t *testing.T) {
 	cacheMock.On("GetData", storeKey).Return(testStore.serialize(), true)
 
 	manager := &Manager{cache: &cacheMock, config: Config{Enabled: true, Gists: []GistConfig{
-		{Enabled: true, URL: testURL, AuthenticationMethod: AuthMethodNone},
+		{Enabled: true, URL: testGistURL, AuthenticationMethod: AuthMethodNone},
 	}}}
 
 	snippets := manager.GetSnippets()
@@ -90,18 +90,11 @@ func Test_Sync_noAuth(t *testing.T) {
 	cacheMock.On("GetData", storeKey).Return(nil, false)
 	cacheMock.On("PutData", storeKey, mock.Anything).Return()
 
-	gock.New(fmt.Sprintf("https://api.%s", testHost)).
-		Get(fmt.Sprintf("users/%s/gists", testUser)).
-		Reply(200).
-		SetHeader("etag", "test_etag_value").
-		JSON(readTestdata(t, testGitHubTestDataPath))
-
-	gock.New(testGitHubRawURL).Get("").Reply(200).
-		SetHeader("etag", "raw_snippet_etag_value").
-		BodyString("foo")
+	mockGitHubGists(t)
+	mockGitHubRawSnippetURL()
 
 	manager := &Manager{cache: &cacheMock, config: Config{Enabled: true, Gists: []GistConfig{
-		{Enabled: true, URL: testURL, AuthenticationMethod: AuthMethodNone},
+		{Enabled: true, URL: testGistURL, AuthenticationMethod: AuthMethodNone},
 	}}}
 
 	eventChannel := make(model.SyncEventChannel)
@@ -120,39 +113,26 @@ func Test_Sync_noAuth(t *testing.T) {
 
 // Scenario: Auth method is to token and no token was provided previously.
 // Expected: UI should prompt for token and call to GitHub is using the same token.
-func Test_Sync_tokenAuth(t *testing.T) {
+func Test_Sync_patAuth(t *testing.T) {
 	defer gock.Off()
 
 	cacheMock := mocks.Cache{}
-	cacheMock.On("GetSecret", SecretKeyPAT, testURL).Return("", false)
+	cacheMock.On("GetSecret", secretKeyAccessToken, testGistURL).Return("", false)
 	cacheMock.On("GetData", storeKey).Return(nil, false)
 	cacheMock.On("PutData", storeKey, mock.Anything).Return()
-	cacheMock.On("PutSecret", SecretKeyPAT, testURL, testToken).Return()
+	cacheMock.On("PutSecret", secretKeyAccessToken, testGistURL, testToken).Return()
 
-	gock.New(fmt.Sprintf("https://api.%s", testHost)).
-		MatchHeader("Authorization", fmt.Sprintf("token %s", testToken)).
-		Head(fmt.Sprintf("users/%s/gists", testUser)).
-		Reply(200)
-
-	gock.New(fmt.Sprintf("https://api.%s", testHost)).
-		Get(fmt.Sprintf("users/%s/gists", testUser)).
-		Reply(200).
-		SetHeader("etag", "test_etag_value").
-		JSON(readTestdata(t, testGitHubTestDataPath))
-
-	gock.New(testGitHubRawURL).Get("").Reply(200).
-		SetHeader("etag", "raw_snippet_etag_value").
-		BodyString("foo")
+	mockGitHubTokenCheck(true, testToken)
+	mockGitHubGists(t)
+	mockGitHubRawSnippetURL()
 
 	manager := &Manager{cache: &cacheMock, config: Config{Enabled: true, Gists: []GistConfig{
-		{Enabled: true, URL: testURL, AuthenticationMethod: AuthMethodToken},
+		{Enabled: true, URL: testGistURL, AuthenticationMethod: AuthMethodToken},
 	}}}
 
 	eventChannel := make(model.SyncEventChannel)
 
-	doneSync := make(chan struct{})
 	go func() {
-		defer close(doneSync)
 		defer close(eventChannel)
 		manager.Sync(eventChannel)
 	}()
@@ -165,55 +145,114 @@ func Test_Sync_tokenAuth(t *testing.T) {
 		}
 	}
 
-	<-doneSync
-
 	cacheMock.AssertCalled(t, "PutData", storeKey, expectedStoreForTestData().serialize())
 }
 
 // Scenario: Token is expired (github returns 401 code) and user is prompted for new token but aborts.
 // Expected: No cache update; token secret should be removed.
-func Test_Sync_tokenAuth_expired_abort(t *testing.T) {
+func Test_Sync_patAuth_expired_abort(t *testing.T) {
 	defer gock.Off()
 
 	const expiredToken = "expired_token"
 
 	cacheMock := mocks.Cache{}
 	cacheMock.On("GetData", storeKey).Return(nil, false)
-	cacheMock.On("GetSecret", SecretKeyPAT, testURL).Return(expiredToken, true)
-	cacheMock.On("DeleteSecret", SecretKeyPAT, testURL).Return()
+	cacheMock.On("GetSecret", secretKeyAccessToken, testGistURL).Return(expiredToken, true)
+	cacheMock.On("DeleteSecret", secretKeyAccessToken, testGistURL).Return()
 
-	gock.New(fmt.Sprintf("https://api.%s", testHost)).
-		MatchHeader("Authorization", fmt.Sprintf("token %s", expiredToken)).
-		Head(fmt.Sprintf("users/%s/gists", testUser)).
-		Reply(401)
+	mockGitHubTokenCheck(false, expiredToken)
 
 	manager := &Manager{cache: &cacheMock, config: Config{Enabled: true, Gists: []GistConfig{
-		{Enabled: true, URL: testURL, AuthenticationMethod: AuthMethodToken},
+		{Enabled: true, URL: testGistURL, AuthenticationMethod: AuthMethodToken},
 	}}}
 
 	eventChannel := make(model.SyncEventChannel)
 
-	doneSync := make(chan struct{})
 	go func() {
-		defer close(doneSync)
 		defer close(eventChannel)
-		assert.Panics(t, func() {
-			manager.Sync(eventChannel)
-		})
+		manager.Sync(eventChannel)
 	}()
 
+	didReceiveAbort := false
 	for event := range eventChannel {
 		t.Logf("Received event: %v\n", event)
 		// test needs to provide a token for github (fake user input)
 		if login := event.Login; login != nil {
 			login.Input <- model.SyncInputResult{Abort: true}
 		}
+
+		if event.Status == model.SyncStatusAborted {
+			didReceiveAbort = true
+		}
 	}
 
-	<-doneSync
+	assert.True(t, didReceiveAbort)
 
-	cacheMock.AssertCalled(t, "DeleteSecret", SecretKeyPAT, testURL)
+	cacheMock.AssertCalled(t, "DeleteSecret", secretKeyAccessToken, testGistURL)
 	cacheMock.AssertNotCalled(t, "PutData", storeKey, mock.Anything)
+}
+
+// Scenario: Auth method is to oauth device flow and no token was provided previously.
+// Expected: UI should prompt for pressing enter to continue and GitHub device flow is triggered.
+func Test_Sync_oauthDeviceFlow(t *testing.T) {
+	defer gock.Off()
+
+	cacheMock := mocks.Cache{}
+	cacheMock.On("GetSecret", secretKeyAccessToken, testGistURL).Return("", false)
+	cacheMock.On("PutSecret", secretKeyAccessToken, mock.Anything, mock.Anything).Return()
+	cacheMock.On("GetData", storeKey).Return(nil, false)
+	cacheMock.On("PutData", storeKey, mock.Anything).Return()
+
+	gock.New(fmt.Sprintf("https://%s", testHost)).
+		BodyString(fmt.Sprintf(`client_id=%s&scope=gist`, defaultOAuthClientID)).
+		Post("login/device/code").
+		Reply(200).
+		JSON(readTestdata(t, testDataGitHubDeviceCode))
+
+	gock.New(fmt.Sprintf("https://%s", testHost)).
+		Post("login/oauth/access_token").
+		Reply(200).
+		JSON(fmt.Sprintf(readTestdata(t, testDataGitHubOAuthToken), testToken))
+
+	mockGitHubTokenCheck(true, testToken)
+	mockGitHubGists(t)
+	mockGitHubRawSnippetURL()
+
+	didCallBrowseURL := false
+	browseURLFunc := func(s string) error {
+		didCallBrowseURL = true
+		return nil
+	}
+
+	manager := &Manager{cache: &cacheMock, config: Config{Enabled: true, Gists: []GistConfig{
+		{Enabled: true, URL: testGistURL, AuthenticationMethod: AuthMethodOAuthDeviceFlow},
+	}}, browseURL: browseURLFunc}
+
+	eventChannel := make(model.SyncEventChannel)
+
+	go func() {
+		defer close(eventChannel)
+		manager.Sync(eventChannel)
+	}()
+
+	for event := range eventChannel {
+		t.Logf("Received event: %v\n", event)
+		// test needs to provide a token for github (fake user input)
+		if login := event.Login; login != nil {
+			login.Input <- model.SyncInputResult{Text: testToken}
+		}
+	}
+
+	assert.True(t, didCallBrowseURL)
+
+	cacheMock.AssertCalled(t, "PutSecret", secretKeyAccessToken, testGistURL, testToken)
+	cacheMock.AssertCalled(t, "PutData", storeKey, expectedStoreForTestData().serialize())
+}
+
+// Scenario: TODO.
+// Expected: TODO.
+func Test_Sync_oauthDeviceFlow_abort(t *testing.T) {
+	// TODO: implement test.
 }
 
 // Scenario: Sync is triggerd and the cache already contains entries. ETag from github does not change (status 304)
@@ -234,7 +273,7 @@ func Test_Sync_ifNoneMatch(t *testing.T) {
 		SetHeader("etag", cachedStore.Gists[0].ETag)
 
 	manager := &Manager{cache: &cacheMock, config: Config{Enabled: true, Gists: []GistConfig{
-		{Enabled: true, URL: testURL, AuthenticationMethod: AuthMethodNone},
+		{Enabled: true, URL: testGistURL, AuthenticationMethod: AuthMethodNone},
 	}}}
 
 	eventChannel := make(model.SyncEventChannel)
@@ -268,7 +307,7 @@ func Test_Sync_ifNoneMatch_forSingleFile(t *testing.T) {
 		Get(fmt.Sprintf("users/%s/gists", testUser)).
 		Reply(http.StatusOK).
 		SetHeader("etag", updatedGistEtag).
-		JSON(readTestdata(t, testGitHubTestDataPath))
+		JSON(readTestdata(t, testDataGitHubDataPath))
 
 	gock.New(testGitHubRawURL).
 		Get("").
@@ -278,7 +317,7 @@ func Test_Sync_ifNoneMatch_forSingleFile(t *testing.T) {
 		BodyString("foo")
 
 	manager := &Manager{cache: &cacheMock, config: Config{Enabled: true, Gists: []GistConfig{
-		{Enabled: true, URL: testURL, AuthenticationMethod: AuthMethodNone},
+		{Enabled: true, URL: testGistURL, AuthenticationMethod: AuthMethodNone},
 	}}}
 
 	eventChannel := make(model.SyncEventChannel)
@@ -311,7 +350,7 @@ func expectedStoreForTestData() *store {
 		Version: storeVersion,
 		Gists: []gistStore{
 			{
-				URL:  testURL,
+				URL:  testGistURL,
 				ETag: "test_etag_value",
 				RawSnippets: []rawSnippet{
 					{
@@ -328,4 +367,31 @@ func expectedStoreForTestData() *store {
 			},
 		},
 	}
+}
+
+func mockGitHubTokenCheck(valid bool, token string) {
+	status := http.StatusOK
+	if !valid {
+		status = http.StatusUnauthorized
+	}
+
+	gock.New(testAPIURL).
+		MatchHeader("Authorization", fmt.Sprintf("token %s", token)).
+		Head(fmt.Sprintf("users/%s/gists", testUser)).
+		Reply(status)
+}
+
+func mockGitHubGists(t *testing.T) {
+	t.Helper()
+	gock.New(testAPIURL).
+		Get(fmt.Sprintf("users/%s/gists", testUser)).
+		Reply(200).
+		SetHeader("etag", "test_etag_value").
+		JSON(readTestdata(t, testDataGitHubDataPath))
+}
+
+func mockGitHubRawSnippetURL() {
+	gock.New(testGitHubRawURL).Get("").Reply(200).
+		SetHeader("etag", "raw_snippet_etag_value").
+		BodyString("foo")
 }

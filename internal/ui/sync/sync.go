@@ -14,6 +14,7 @@ import (
 
 	appModel "github.com/lemoony/snipkit/internal/model"
 	"github.com/lemoony/snipkit/internal/ui/style"
+	"github.com/lemoony/snipkit/internal/ui/uimsg"
 )
 
 const (
@@ -21,6 +22,8 @@ const (
 )
 
 var (
+
+	// TODO style with theme.
 	checkMark = lipgloss.NewStyle().SetString("✓").
 			Foreground(lipgloss.AdaptiveColor{Light: "#43BF6D", Dark: "#73F59F"}).
 			PaddingRight(1).
@@ -209,9 +212,19 @@ func (m *model) View() string {
 		}
 
 		if input := v.Input; input != nil {
+			text := ""
+
+			if printable, ok := input.Content.(string); ok && printable != "" {
+				text = printable
+			}
+
+			if printable, ok := input.Content.(*uimsg.Printable); ok && printable != nil {
+				text = printable.RenderWith(&m.styler)
+			}
+
 			sections = append(
 				sections,
-				lipgloss.NewStyle().MarginLeft(managerMarginLeft).MarginTop(1).Render(input.Content),
+				lipgloss.NewStyle().MarginLeft(managerMarginLeft).MarginTop(1).Render(text),
 			)
 
 			if input.Type == appModel.SyncLoginTypeText {
@@ -223,7 +236,7 @@ func (m *model) View() string {
 	if m.state.Status == appModel.SyncStatusFinished {
 		sections = append(sections, fmt.Sprintf("%s All done.\n", checkMark))
 	} else if m.state.Status == appModel.SyncStatusAborted {
-		sections = append(sections, fmt.Sprintf("%s Aborted.\n", crossMark))
+		sections = append(sections, fmt.Sprintf("%s Sync did not finish.\n", crossMark))
 	}
 
 	return m.wrap(lipgloss.JoinVertical(lipgloss.Left, sections...))

@@ -29,7 +29,7 @@ type SyncEvent struct {
 }
 
 type SyncInput struct {
-	Content     string
+	Content     interface{}
 	Placeholder string
 	Type        SyncLoginType
 	Input       chan SyncInputResult
