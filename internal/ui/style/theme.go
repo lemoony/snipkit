@@ -28,4 +28,7 @@ type ThemeValues struct {
 
 	SnippetColor         string `yaml:"snippetColor"`
 	SnippetContrastColor string `yaml:"snippetContrastColor"`
+
+	SuccessColor string `yaml:"successColor"`
+	ErrorColor   string `yaml:"errorColor"`
 }

@@ -194,6 +194,14 @@ func (s Style) ButtonColor(selected bool) Color {
 	return s.colors.subduedColor
 }
 
+func (s Style) SuccessColor() Color {
+	return s.colors.successColor
+}
+
+func (s Style) ErrorColor() Color {
+	return s.colors.errorColor
+}
+
 func max(a, b int) int {
 	if a > b {
 		return a

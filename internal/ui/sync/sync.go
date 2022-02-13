@@ -22,17 +22,8 @@ const (
 )
 
 var (
-
-	// TODO style with theme.
-	checkMark = lipgloss.NewStyle().SetString("✓").
-			Foreground(lipgloss.AdaptiveColor{Light: "#43BF6D", Dark: "#73F59F"}).
-			PaddingRight(1).
-			String()
-
-	crossMark = lipgloss.NewStyle().SetString("✗").
-			Foreground(lipgloss.AdaptiveColor{Light: "#43BF6D", Dark: "#73F59F"}).
-			PaddingRight(1).
-			String()
+	checkMark = lipgloss.NewStyle().SetString("✓").PaddingRight(1)
+	crossMark = lipgloss.NewStyle().SetString("✗").PaddingRight(1)
 
 	continueKeyBinding = key.NewBinding(
 		key.WithKeys("enter"),
@@ -140,7 +131,7 @@ func (m *model) Init() tea.Cmd {
 	return m.spinner.Tick
 }
 
-//nolint:gocognit,gocyclo //TODO refactor at a later point
+//nolint:gocognit,gocyclo // refactor at a later point - right now it's more clear as it is.
 func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
@@ -234,9 +225,13 @@ func (m *model) View() string {
 	}
 
 	if m.state.Status == appModel.SyncStatusFinished {
-		sections = append(sections, fmt.Sprintf("%s All done.\n", checkMark))
+		sections = append(sections,
+			fmt.Sprintf("%s All done.\n", checkMark.Foreground(m.styler.SuccessColor().Value()).String()),
+		)
 	} else if m.state.Status == appModel.SyncStatusAborted {
-		sections = append(sections, fmt.Sprintf("%s Sync did not finish.\n", crossMark))
+		sections = append(sections,
+			fmt.Sprintf("%s Sync did not finish.\n", crossMark.Foreground(m.styler.ErrorColor().Value()).String()),
+		)
 	}
 
 	return m.wrap(lipgloss.JoinVertical(lipgloss.Left, sections...))
