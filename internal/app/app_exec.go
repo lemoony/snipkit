@@ -12,6 +12,8 @@ import (
 	"github.com/lemoony/snipkit/internal/utils/stringutil"
 )
 
+const fallbackShell = "/bin/bash"
+
 func (a *appImpl) LookupAndExecuteSnippet() {
 	snippet := a.LookupSnippet()
 	if snippet == nil {
@@ -21,12 +23,12 @@ func (a *appImpl) LookupAndExecuteSnippet() {
 	parameters := parser.ParseParameters(snippet.GetContent())
 	if parameterValues, ok := a.tui.ShowParameterForm(parameters, ui.OkButtonExecute); ok {
 		script := parser.CreateSnippet(snippet.GetContent(), parameters, parameterValues)
-		executeScript(script)
+		executeScript(script, a.config.Shell)
 	}
 }
 
-func executeScript(script string) {
-	shell := stringutil.StringOrDefault(os.Getenv("SHELL"), "/bin/bash")
+func executeScript(script, configuredShell string) {
+	shell := stringutil.FirstNotEmpty(configuredShell, os.Getenv("SHELL"), fallbackShell)
 
 	//nolint:gosec // since it would report G204 complaining about using a variable as input for exec.Command
 	cmd := exec.Command(shell, "-c", script)

@@ -38,10 +38,29 @@ func Test_SplitWithSingleEscapedCharacter(t *testing.T) {
 	assert.Equal(t, "String without split, character", splits[0])
 }
 
-func Test_SplitWihtoutTrimming(t *testing.T) {
+func Test_SplitWithoutTrimming(t *testing.T) {
 	s := " One, Two"
 	splits := SplitWithEscape(s, ',', '\\', false)
 	assert.Len(t, splits, 2)
 	assert.Equal(t, " One", splits[0])
 	assert.Equal(t, " Two", splits[1])
+}
+
+func Test_FirstNotEmpty(t *testing.T) {
+	tests := []struct {
+		name     string
+		values   []string
+		expected string
+	}{
+		{name: "no values", values: []string{}, expected: ""},
+		{name: "nil", values: nil, expected: ""},
+		{name: "first value", values: []string{"first", ""}, expected: "first"},
+		{name: "last value", values: []string{"", "last"}, expected: "last"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.expected, FirstNotEmpty(tt.values...))
+		})
+	}
 }
