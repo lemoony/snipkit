@@ -23,7 +23,7 @@ Execute the scripts saved in your favorite snippet manager without even leaving 
 - Load snippets form an external snippet manager (filtered by tags)
   - [SnippetsLab](https://www.renfei.org/snippets-lab/)
   - [Snip](https://github.com/Pictarine/macos-snippets)
-  - GitHub Gist ([Example gist](https://gist.github.com/lemoony))
+  - GitHub Gist ([Example gist](https://gist.github.com/lemoony/4905e7468b8f0a7991d6122d7d09e40d))
   - File system directory
 - Search for snippets by typing
 - Parameter substitution

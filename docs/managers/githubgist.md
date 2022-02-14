@@ -5,6 +5,10 @@ Available for: macOS, Linux
 The GitHub Gist manager lets you provide snippets via multiple GitHub accounts. Each gist may contain multiple files which 
 are mapped to single snippets. The gists are cached locally and synchronized manually, so accessing them is very fast.
 
+!!! tip "Example Gist"
+    Upon adding the GitHub Gist manager via `snipkit manager add`, SnipKit will configure a working 
+    [example gist](https://gist.github.com/lemoony/4905e7468b8f0a7991d6122d7d09e40d), so you can quickly see how it works.
+
 ## Configuration
 
 The configuration for the GitHub Gist manager may look similar to this:
