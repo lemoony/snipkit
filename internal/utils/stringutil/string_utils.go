@@ -45,3 +45,12 @@ func SplitWithEscape(s string, split uint8, escape uint8, trim bool) []string {
 
 	return result
 }
+
+func FirstNotEmpty(values ...string) string {
+	for _, value := range values {
+		if value != "" {
+			return value
+		}
+	}
+	return ""
+}

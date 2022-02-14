@@ -49,7 +49,9 @@ snipkit manager add
 
 For more information on the different managers supported, please see [Managers][managers].
 
-## Editor
+## Config options
+
+### Editor
 
 When typing `snipkit config edit` the configuration file will be opened in an editor of your choice.
 
@@ -64,7 +66,21 @@ config:
 
 If no value is provided at all, SnipKit will try to use `vim`.
 
-## Theme
+### Shell
+
+The shell for script executions is defined by the `$SHELL` environment variable. This behavior can be overwritten by
+setting the `shell` option to a non-empty string, e.g.:
+
+```yaml
+version: 1.0.0
+config:
+  shell: "/bin/zsh"
+```
+
+If neither `$SHELL` nor the config option `shell` is defined, SnipKit will try to use `/bin/bash` as a fallback value.
+
+
+### Theme
 
 SnipKit supports multiple themes out of the box and also allows you to define your own themes:
 
@@ -79,7 +95,7 @@ must be located at `<SNIPKIT_HOME>/<xxx>.yaml`.
 
 For a list of supported default themes, have a look at the [Themes][themes] page.
 
-## Default Root Command
+### Default Root Command
 
 Most of the time, you want to call the same subcommand, e.g. `print` or `exec`. You can configure `snipkit` so that this
 command gets executed by default:
