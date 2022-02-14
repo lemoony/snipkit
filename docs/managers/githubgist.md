@@ -2,8 +2,8 @@
 
 Available for: macOS, Linux
 
-The GitHub Gist manager lets you provide snippets via multiple GitHub Gist accounts. The snippets are cached locally and
-synchronized manually.
+The GitHub Gist manager lets you provide snippets via multiple GitHub accounts. Each gist may contain multiple files which 
+are mapped to single snippets. The gists are cached locally and synchronized manually, so accessing them is very fast.
 
 ## Configuration
 
@@ -14,13 +14,13 @@ manager:
     githubGist:
       # If set to false, github gist is disabled completely.
       enabled: true
-      # You can define multiple independent Github Gist sources.
+      # You can define multiple independent GitHub Gist sources.
       gists:
-        - # If set to false, this github gist url is ignored.
+        - # If set to false, this GitHub gist url is ignored.
           enabled: true
           # URL to the GitHub gist account.
           url: gist.github.com/lemoony
-          # Supported values: None, OAuthDeviceFlow, Token. Default value: None (which means no authentication). In order to retrieve secret gists, you must be authenticated.
+          # Supported values: None, OAuthDeviceFlow, PAT. Default value: None (which means no authentication). In order to retrieve secret gists, you must be authenticated.
           authenticationMethod: OAuthDeviceFlow
           # If this list is not empty, only those gists that match the listed tags will be provided to you.
           includeTags: [snipkitExample]
@@ -59,21 +59,34 @@ use one of the following values:
 - `PAT`
 - `OAuthDeviceFlow`
 
-Option `PAT` refers to a
+Value `PAT` refers to a
 [personalized access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token),
 which has to be created manually. `OAuthDeviceFlow` refers to the OAuth Device Flow supported by GitHub. In both cases, 
 the scope of the token is limited to `gist`.
 
 
 After specifying the desired authentication mechanism, just trigger a synchronization via `snipkit sync`. Snipkit will
-ask you for the PAT or redirect you. The access token will be stored securely (e.g. by means of Keychain on macOS).
+ask you for the PAT or perform the OAuth authorization. The access token will be stored securely (e.g., by means of Keychain 
+on macOS).
 
 !!! tip "PAT vs OAuth"
-    If you want to use a PAT or the OAuth device flow is up to you. Both mechanisms have different advantages.
-    E.g. with a personalized access token, you have full control over the expiration date. The OAuth mechanism,
-    on the other hand, is more easy to use since you don't have to create a token yourself. With an OAuth token, however,
-    you may have to perform the authentication process more often.
+    If you want to use a PAT or OAuth. Both mechanisms have different advantages. With a personalized access token, you have 
+    full control over the expiration date, but you have to create the token yourself. The OAuth mechanism is more convenient 
+    since you don't have to create a token yourself. However, the token may expire sooner and you have to perform the 
+    authentication process more often.
 
+### Custom OAuth Client ID
+
+One option which is not listed by default, since it won't be required very often, is the following:
+
+```yaml title="config.yaml"
+manager:
+    githubGist:
+      OAuthClientID: <client_id>
+```
+
+The `OAuthClientID` lets you specify a custom client ID when performing the OAuth authentication. This is only required if 
+your gists are not hosted on github.com and you want to use `OAuthDeviceFlow`.
 
 ## Snippet Names
 
@@ -88,7 +101,7 @@ the following values:
     the description and the filename of the gist will be concatenated.
 
 !!! tip "Comment Syntax"
-    Moreover, SnipKit lets you also provide a different snippet name via a special comment syntax. For a more detailed
+    SnipKit lets you also provide a different snippet name via a special comment syntax. For a more detailed
     description, please see section *Snippet Names* in [file system directory][fslibrary].
     In order to enable this feature, set `titleHeaderEnabled` to `true`. If a snippet does not contain a title header
     comment, the specified `nameMode` will decide the snippet name.

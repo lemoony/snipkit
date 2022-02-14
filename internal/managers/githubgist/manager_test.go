@@ -127,7 +127,7 @@ func Test_Sync_patAuth(t *testing.T) {
 	mockGitHubRawSnippetURL()
 
 	manager := &Manager{cache: &cacheMock, config: Config{Enabled: true, Gists: []GistConfig{
-		{Enabled: true, URL: testGistURL, AuthenticationMethod: AuthMethodToken},
+		{Enabled: true, URL: testGistURL, AuthenticationMethod: AuthMethodPAT},
 	}}}
 
 	eventChannel := make(model.SyncEventChannel)
@@ -163,7 +163,7 @@ func Test_Sync_patAuth_expired_abort(t *testing.T) {
 	mockGitHubTokenCheck(false, expiredToken)
 
 	manager := &Manager{cache: &cacheMock, config: Config{Enabled: true, Gists: []GistConfig{
-		{Enabled: true, URL: testGistURL, AuthenticationMethod: AuthMethodToken},
+		{Enabled: true, URL: testGistURL, AuthenticationMethod: AuthMethodPAT},
 	}}}
 
 	eventChannel := make(model.SyncEventChannel)

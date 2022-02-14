@@ -23,6 +23,7 @@ Execute the scripts saved in your favorite snippet manager without even leaving 
 - Load snippets form an external snippet manager (filtered by tags)
   - [SnippetsLab](https://www.renfei.org/snippets-lab/)
   - [Snip](https://github.com/Pictarine/macos-snippets)
+  - GitHub Gist ([Example gist](https://gist.github.com/lemoony))
   - File system directory
 - Search for snippets by typing
 - Parameter substitution
@@ -68,7 +69,8 @@ snipkit exec
 ```
 
 SnipKit will connect to the external snippet manager configured and provide all corresponding snippets
-to you.
+to you. If you don't want to execute a snippet directly but have a look at the resulting command, call `snipkit print`
+instead.
 
 > _Tip_: In order to execute snippets even faster, have a look at the 
 > [power setup](https://lemoony.github.io/snipkit/latest/getting-started/power-setup/) described in the documentation.
@@ -99,6 +101,7 @@ enabled=1
 gpgcheck=0' | sudo tee /etc/yum.repos.d/snipkit.repo
 sudo yum install snipkit
 ```
+
 ### deb, rpm and apk packages 
 
 Download the .deb, .rpm or .apk packages from [releases page](https://github.com/lemoony/snipkit/releases) and install 

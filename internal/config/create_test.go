@@ -33,7 +33,7 @@ func Test_serializeToYamlWithComment(t *testing.T) {
 		{
 			Enabled:                   true,
 			URL:                       "gist.github.com/<yourUser>",
-			AuthenticationMethod:      githubgist.AuthMethodToken,
+			AuthenticationMethod:      githubgist.AuthMethodPAT,
 			IncludeTags:               []string{},
 			SuffixRegex:               []string{},
 			NameMode:                  githubgist.SnippetNameModeCombinePreferDescription,

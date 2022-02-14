@@ -55,7 +55,7 @@ func testCheckToken(t *testing.T, statusCode int, err error, expectedValid bool)
 		Gists: []GistConfig{
 			{
 				URL:                  fmt.Sprintf("gist.%s/%s", testHost, testUser),
-				AuthenticationMethod: AuthMethodToken,
+				AuthenticationMethod: AuthMethodPAT,
 			},
 		},
 	}
@@ -166,7 +166,7 @@ func Test_getRawGist_Error(t *testing.T) {
 		Gists: []GistConfig{
 			{
 				URL:                  fmt.Sprintf("gist.%s/%s", testHost, testUser),
-				AuthenticationMethod: AuthMethodToken,
+				AuthenticationMethod: AuthMethodPAT,
 			},
 		},
 	}
@@ -220,7 +220,7 @@ func prepareGetRawResponse(path, etag string, statusCode int, responseEtag, resp
 		Gists: []GistConfig{
 			{
 				URL:                  fmt.Sprintf("gist.%s/%s", testHost, testUser),
-				AuthenticationMethod: AuthMethodToken,
+				AuthenticationMethod: AuthMethodPAT,
 			},
 		},
 	}

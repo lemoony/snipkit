@@ -139,7 +139,7 @@ func (m *Manager) authToken(cfg GistConfig, lines []model.SyncLine, events model
 	switch cfg.AuthenticationMethod {
 	case AuthMethodNone:
 		return "", nil
-	case AuthMethodToken:
+	case AuthMethodPAT:
 		if token, err := m.requestPAT(cfg, lines, events); err != nil {
 			return "", err
 		} else {

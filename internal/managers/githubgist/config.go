@@ -14,7 +14,7 @@ type (
 
 const (
 	AuthMethodNone            = AuthMethod("None")
-	AuthMethodToken           = AuthMethod("Token")
+	AuthMethodPAT             = AuthMethod("PAT")
 	AuthMethodOAuthDeviceFlow = AuthMethod("OAuthDeviceFlow")
 
 	apiURLPattern  = "https://api.%s/users/%s/gists"
@@ -30,13 +30,13 @@ var urlRegex = regexp.MustCompile("^gist.(.*)/(.*)$")
 
 type Config struct {
 	Enabled bool         `yaml:"enabled" head_comment:"If set to false, github gist is disabled completely."`
-	Gists   []GistConfig `yaml:"gists" head_comment:"You can define multiple independent Github Gist sources."`
+	Gists   []GistConfig `yaml:"gists" head_comment:"You can define multiple independent GitHub Gist sources."`
 }
 
 type GistConfig struct {
-	Enabled                   bool            `yaml:"enabled" head_comment:"If set to false, this github gist url is ignored."`
+	Enabled                   bool            `yaml:"enabled" head_comment:"If set to false, this GitHub gist url is ignored."`
 	URL                       string          `yaml:"url" head_comment:"URL to the GitHub gist account."`
-	AuthenticationMethod      AuthMethod      `yaml:"authenticationMethod" head_comment:"Supported values: None, OAuthDeviceFlow, Token. Default value: None (which means no authentication). In order to retrieve secret gists, you must be authenticated."`
+	AuthenticationMethod      AuthMethod      `yaml:"authenticationMethod" head_comment:"Supported values: None, OAuthDeviceFlow, PAT. Default value: None (which means no authentication). In order to retrieve secret gists, you must be authenticated."`
 	OAuthClientID             string          `yaml:"oauthClientID,omitempty" head_comment:"OAuth application ID, only required if the host is not github.com AND you're using OAuthDeviceFlow'."`
 	IncludeTags               []string        `yaml:"includeTags" head_comment:"If this list is not empty, only those gists that match the listed tags will be provided to you."`
 	SuffixRegex               []string        `yaml:"suffixRegex" head_comment:"Only gist files with endings which match one of the listed suffixes will be considered."`
