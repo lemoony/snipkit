@@ -455,23 +455,43 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#config-options" class="md-nav__link">
+    Config options
+  </a>
+  
+    <nav class="md-nav" aria-label="Config options">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#editor" class="md-nav__link">
     Editor
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
+  <a href="#shell" class="md-nav__link">
+    Shell
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#theme" class="md-nav__link">
     Theme
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#default-root-command" class="md-nav__link">
     Default Root Command
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -656,23 +676,43 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#config-options" class="md-nav__link">
+    Config options
+  </a>
+  
+    <nav class="md-nav" aria-label="Config options">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#editor" class="md-nav__link">
     Editor
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
+  <a href="#shell" class="md-nav__link">
+    Shell
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#theme" class="md-nav__link">
     Theme
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#default-root-command" class="md-nav__link">
     Default Root Command
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -734,7 +774,8 @@ want to put the following into your <code>~/.zshrc</code> file:</p>
 <div class="highlight"><pre><span></span><code>snipkit manager add
 </code></pre></div>
 <p>For more information on the different managers supported, please see <a href="../../managers/overview/">Managers</a>.</p>
-<h2 id="editor">Editor</h2>
+<h2 id="config-options">Config options</h2>
+<h3 id="editor">Editor</h3>
 <p>When typing <code>snipkit config edit</code> the configuration file will be opened in an editor of your choice.</p>
 <p>The default editor is defined by the <code>$VISUAL</code> or <code>$EDITOR</code> environment variables. This behavior can be overwritten by
 setting the <code>editor</code> field in the configuration file to a non-empty string, e.g.:</p>
@@ -743,7 +784,15 @@ setting the <code>editor</code> field in the configuration file to a non-empty s
 <span class="w">  </span><span class="nt">editor</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;code&quot;</span><span class="w"></span>
 </code></pre></div>
 <p>If no value is provided at all, SnipKit will try to use <code>vim</code>.</p>
-<h2 id="theme">Theme</h2>
+<h3 id="shell">Shell</h3>
+<p>The shell for script executions is defined by the <code>$SHELL</code> environment variable. This behavior can be overwritten by
+setting the <code>shell</code> option to a non-empty string, e.g.:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0.0</span><span class="w"></span>
+<span class="nt">config</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">shell</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/bin/zsh&quot;</span><span class="w"></span>
+</code></pre></div>
+<p>If neither <code>$SHELL</code> nor the config option <code>shell</code> is defined, SnipKit will try to use <code>/bin/bash</code> as a fallback value.</p>
+<h3 id="theme">Theme</h3>
 <p>SnipKit supports multiple themes out of the box and also allows you to define your own themes:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0.0</span><span class="w"></span>
 <span class="nt">config</span><span class="p">:</span><span class="w"></span>
@@ -752,7 +801,7 @@ setting the <code>editor</code> field in the configuration file to a non-empty s
 <p>If the theme is not shipped with snipkit, it will try to look up a custom theme. If the theme is named <code>&lt;xx&gt;</code>, the theme file
 must be located at <code>&lt;SNIPKIT_HOME&gt;/&lt;xxx&gt;.yaml</code>.</p>
 <p>For a list of supported default themes, have a look at the <a href="../themes/">Themes</a> page.</p>
-<h2 id="default-root-command">Default Root Command</h2>
+<h3 id="default-root-command">Default Root Command</h3>
 <p>Most of the time, you want to call the same subcommand, e.g. <code>print</code> or <code>exec</code>. You can configure <code>snipkit</code> so that this
 command gets executed by default:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0.0</span><span class="w"></span>
