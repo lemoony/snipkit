@@ -1,7 +1,9 @@
 tasks:
   - name: Setup
-    before: pip install pre-commit mkdocs mkdocs-material && pre-commit install
-    init: make install generate
+    init: |
+      pip install pre-commit mkdocs mkdocs-material && pre-commit install
+    command: |
+      make install generate
 ports:
   - port: 8000
     onOpen: open-preview

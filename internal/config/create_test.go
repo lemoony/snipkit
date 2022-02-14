@@ -7,6 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/lemoony/snipkit/internal/managers/fslibrary"
+	"github.com/lemoony/snipkit/internal/managers/githubgist"
 	"github.com/lemoony/snipkit/internal/managers/pictarinesnip"
 	"github.com/lemoony/snipkit/internal/managers/snippetslab"
 )
@@ -26,6 +27,21 @@ func Test_serializeToYamlWithComment(t *testing.T) {
 	testConfig.Config.Manager.PictarineSnip.LibraryPath = ""
 	testConfig.Config.Manager.PictarineSnip.IncludeTags = []string{}
 
+	testConfig.Config.Manager.GithubGist = &githubgist.Config{}
+	testConfig.Config.Manager.GithubGist.Enabled = true
+	testConfig.Config.Manager.GithubGist.Gists = []githubgist.GistConfig{
+		{
+			Enabled:                   true,
+			URL:                       "gist.github.com/<yourUser>",
+			AuthenticationMethod:      githubgist.AuthMethodPAT,
+			IncludeTags:               []string{},
+			SuffixRegex:               []string{},
+			NameMode:                  githubgist.SnippetNameModeCombinePreferDescription,
+			TitleHeaderEnabled:        true,
+			RemoveTagsFromDescription: true,
+			HideTitleInPreview:        true,
+		},
+	}
 	testConfig.Config.Manager.FsLibrary = &fslibrary.Config{}
 	testConfig.Config.Manager.FsLibrary.Enabled = true
 	testConfig.Config.Manager.FsLibrary.LibraryPath = []string{"/path/to/file/system/library"}

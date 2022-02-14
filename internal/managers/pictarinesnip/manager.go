@@ -56,36 +56,44 @@ func NewManager(options ...Option) (*Manager, error) {
 	return manager, nil
 }
 
-func (p Manager) Info() []model.InfoLine {
+func (m Manager) Key() model.ManagerKey {
+	return Key
+}
+
+func (m *Manager) Sync(events model.SyncEventChannel) {
+	close(events)
+}
+
+func (m Manager) Info() []model.InfoLine {
 	var lines []model.InfoLine
 
 	lines = append(lines, model.InfoLine{
 		IsError: false,
 		Key:     "Pictarine Snip library path",
-		Value:   stringutil.StringOrDefault(p.config.LibraryPath, "not set"),
+		Value:   stringutil.StringOrDefault(m.config.LibraryPath, "not set"),
 	})
 
 	lines = append(lines, model.InfoLine{
 		IsError: false,
 		Key:     "Pictarine Snip tags",
-		Value:   stringutil.StringOrDefault(strings.Join(p.config.IncludeTags, ","), "None"),
+		Value:   stringutil.StringOrDefault(strings.Join(m.config.IncludeTags, ","), "None"),
 	})
 
 	lines = append(lines, model.InfoLine{
-		IsError: true, Key: "Pictarine Snip total number of snippets", Value: fmt.Sprintf("%d", len(p.GetSnippets())),
+		IsError: true, Key: "Pictarine Snip total number of snippets", Value: fmt.Sprintf("%d", len(m.GetSnippets())),
 	})
 
 	return lines
 }
 
-func (p *Manager) GetSnippets() []model.Snippet {
-	tags := p.getValidTagUUIDs()
-	return parseLibrary(p.config.LibraryPath, p.system, &tags)
+func (m *Manager) GetSnippets() []model.Snippet {
+	tags := m.getValidTagUUIDs()
+	return parseLibrary(m.config.LibraryPath, m.system, &tags)
 }
 
-func (p *Manager) getValidTagUUIDs() stringutil.StringSet {
+func (m *Manager) getValidTagUUIDs() stringutil.StringSet {
 	result := stringutil.StringSet{}
-	for _, validTag := range p.config.IncludeTags {
+	for _, validTag := range m.config.IncludeTags {
 		result.Add(validTag)
 	}
 	return result

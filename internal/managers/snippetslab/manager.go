@@ -9,6 +9,7 @@ import (
 	"github.com/lemoony/snipkit/internal/model"
 	"github.com/lemoony/snipkit/internal/utils/stringutil"
 	"github.com/lemoony/snipkit/internal/utils/system"
+	"github.com/lemoony/snipkit/internal/utils/tagutil"
 )
 
 type Manager struct {
@@ -60,6 +61,10 @@ func (m Manager) libraryPath() snippetsLabLibrary {
 	return snippetsLabLibrary(m.config.LibraryPath)
 }
 
+func (m Manager) Key() model.ManagerKey {
+	return Key
+}
+
 func (m Manager) Info() []model.InfoLine {
 	var lines []model.InfoLine
 
@@ -88,6 +93,10 @@ func (m Manager) Info() []model.InfoLine {
 	return lines
 }
 
+func (m *Manager) Sync(events model.SyncEventChannel) {
+	close(events)
+}
+
 func (m *Manager) GetSnippets() []model.Snippet {
 	validTagUUIDs := m.getValidTagUUIDs()
 
@@ -101,21 +110,12 @@ func (m *Manager) GetSnippets() []model.Snippet {
 	} else {
 		var result []model.Snippet
 		for _, snippet := range snippets {
-			if hasValidTag(snippet.TagUUIDs, validTagUUIDs) {
+			if tagutil.HasValidTag(validTagUUIDs, snippet.TagUUIDs) {
 				result = append(result, snippet)
 			}
 		}
 		return result
 	}
-}
-
-func hasValidTag(snippetTagUUIDS []string, validTagUUIDs stringutil.StringSet) bool {
-	for _, tagUUID := range snippetTagUUIDS {
-		if validTagUUIDs.Contains(tagUUID) {
-			return true
-		}
-	}
-	return false
 }
 
 func (m *Manager) getValidTagUUIDs() stringutil.StringSet {

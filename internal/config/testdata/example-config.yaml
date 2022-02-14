@@ -26,6 +26,29 @@ config:
       libraryPath: ""
       # If this list is not empty, only those snippets that match the listed tags will be provided to you.
       includeTags: []
+    githubGist:
+      # If set to false, github gist is disabled completely.
+      enabled: true
+      # You can define multiple independent GitHub Gist sources.
+      gists:
+        - # If set to false, this GitHub gist url is ignored.
+          enabled: true
+          # URL to the GitHub gist account.
+          url: gist.github.com/<yourUser>
+          # Supported values: None, OAuthDeviceFlow, PAT. Default value: None (which means no authentication). In order to retrieve secret gists, you must be authenticated.
+          authenticationMethod: PAT
+          # If this list is not empty, only those gists that match the listed tags will be provided to you.
+          includeTags: []
+          # Only gist files with endings which match one of the listed suffixes will be considered.
+          suffixRegex: []
+          # Defines where the snippet name is extracted from (see also titleHeaderEnabled). Allowed values: DESCRIPTION, FILENAME, COMBINE, COMBINE_PREFER_DESCRIPTION.
+          nameMode: COMBINE_PREFER_DESCRIPTION
+          # If set to true, any tags will be removed from the description.
+          removeTagsFromDescription: true
+          # If set to true, the snippet title can be overwritten by defining a title header within the gist.
+          titleHeaderEnabled: true
+          # If set to true, the title header comment will not be shown in the preview window.
+          hideTitleInPreview: true
     fsLibrary:
       # If set to false, the files specified via libraryPath will not be provided to you.
       enabled: true

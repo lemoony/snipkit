@@ -13,6 +13,7 @@ import (
 
 	"github.com/lemoony/snipkit/internal/model"
 	"github.com/lemoony/snipkit/internal/ui/picker"
+	"github.com/lemoony/snipkit/internal/ui/sync"
 	"github.com/lemoony/snipkit/internal/ui/uimsg"
 	"github.com/lemoony/snipkit/internal/utils/termtest"
 	"github.com/lemoony/snipkit/internal/utils/termutil"
@@ -169,6 +170,26 @@ func Test_Confirmation(t *testing.T) {
 		term := NewTUI(WithStdio(stdio))
 		confirmed := term.Confirmation(uimsg.ConfigFileDeleteConfirm("/some/path"))
 		assert.True(t, confirmed)
+	})
+}
+
+func Test_ShowSync(t *testing.T) {
+	termtest.RunTerminalTest(t, func(c *termtest.Console) {
+		c.ExpectString("Syncing all managers...")
+		c.ExpectString("All done.")
+	}, func(stdio termutil.Stdio) {
+		term := NewTUI(WithStdio(stdio))
+		screen := term.ShowSync()
+		syncChannel := make(chan struct{})
+		go func() {
+			defer close(syncChannel)
+			syncChannel <- struct{}{}
+			screen.Start()
+		}()
+		<-syncChannel // wait for screen.Start()
+		screen.Send(sync.UpdateStateMsg{Status: model.SyncStatusStarted})
+		screen.Send(sync.UpdateStateMsg{Status: model.SyncStatusFinished})
+		<-syncChannel // wait for screen.Start() to return
 	})
 }
 

@@ -1,0 +1,5 @@
+{
+  "access_token": "%s",
+  "token_type": "bearer",
+  "scope": "gist"
+}

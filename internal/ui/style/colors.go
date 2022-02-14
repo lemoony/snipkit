@@ -62,6 +62,9 @@ type colors struct {
 
 	snippetColor         Color
 	snippetContrastColor Color
+
+	successColor Color
+	errorColor   Color
 }
 
 func newColors(t *ThemeValues) colors {
@@ -83,6 +86,8 @@ func newColors(t *ThemeValues) colors {
 		infoContrastColor:        colorWithDefaultForeground(t.InfoContrastColor),
 		snippetColor:             newColor(t.SnippetColor),
 		snippetContrastColor:     colorWithDefaultForeground(t.SnippetContrastColor),
+		successColor:             newColor(t.SuccessColor),
+		errorColor:               newColor(t.ErrorColor),
 	}
 }
 

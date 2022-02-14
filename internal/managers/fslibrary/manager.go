@@ -13,10 +13,6 @@ import (
 	"github.com/lemoony/snipkit/internal/utils/system"
 )
 
-const (
-	maxLineNumberTitleComment = 3
-)
-
 var suffixLanguageMap = map[string]model.Language{
 	".sh":   model.LanguageBash,
 	".yaml": model.LanguageYAML,
@@ -71,6 +67,10 @@ func NewManager(options ...Option) (*Manager, error) {
 	manager.compileSuffixRegex()
 
 	return manager, nil
+}
+
+func (m Manager) Key() model.ManagerKey {
+	return Key
 }
 
 func (m Manager) Info() []model.InfoLine {
@@ -140,6 +140,10 @@ func (m *Manager) GetSnippets() []model.Snippet {
 	}
 
 	return result
+}
+
+func (m *Manager) Sync(events model.SyncEventChannel) {
+	close(events)
 }
 
 func checkSuffix(filename string, regexes []*regexp.Regexp) bool {

@@ -4,6 +4,7 @@ import (
 	"emperror.dev/errors"
 	"github.com/phuslu/log"
 
+	"github.com/lemoony/snipkit/internal/cache"
 	"github.com/lemoony/snipkit/internal/config"
 	"github.com/lemoony/snipkit/internal/managers"
 	"github.com/lemoony/snipkit/internal/model"
@@ -19,6 +20,7 @@ type App interface {
 	LookupAndExecuteSnippet()
 	Info()
 	AddManager()
+	SyncManager()
 }
 
 // Option configures an App.
@@ -67,7 +69,7 @@ func NewApp(options ...Option) App {
 	app := &appImpl{
 		system:   system,
 		tui:      ui.NewTUI(),
-		provider: managers.NewBuilder(),
+		provider: managers.NewBuilder(cache.New(system)),
 	}
 
 	for _, o := range options {

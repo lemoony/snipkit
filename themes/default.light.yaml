@@ -4,6 +4,7 @@ variables:
   black: "#000000"
   gray: "#8A8A8A"
   lightGray: "#DDDADA"
+  green: "#40916c"
 theme:
   borderColor: ${gray}
   borderTitleColor: ${gray}
@@ -17,9 +18,11 @@ theme:
   activeContrastColor: "#FFFFFF"
   titleColor: "62"
   titleContrastColor: "230"
-  highlightColor: "#40916c"
+  highlightColor: ${green}
   highlightContrastColor: ${black}
   infoColor: "#F6A935"
   infoContrastColor: ${black}
   snippetColor: "#EE6FF8"
   snippetContrastColor: ${white}
+  successColor: ${green}
+  errorColor: "#FF0000"

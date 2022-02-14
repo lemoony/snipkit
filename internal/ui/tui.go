@@ -18,6 +18,7 @@ import (
 	"github.com/lemoony/snipkit/internal/ui/form"
 	"github.com/lemoony/snipkit/internal/ui/picker"
 	"github.com/lemoony/snipkit/internal/ui/style"
+	"github.com/lemoony/snipkit/internal/ui/sync"
 	"github.com/lemoony/snipkit/internal/ui/uimsg"
 	"github.com/lemoony/snipkit/internal/utils/system"
 	"github.com/lemoony/snipkit/internal/utils/termutil"
@@ -70,6 +71,7 @@ type TUI interface {
 	ShowLookup(snippets []model.Snippet) int
 	ShowParameterForm(parameters []model.Parameter, okButton OkButton) ([]string, bool)
 	ShowPicker(items []picker.Item, options ...tea.ProgramOption) (int, bool)
+	ShowSync() sync.Screen
 }
 
 type tuiImpl struct {
@@ -174,6 +176,14 @@ func (t tuiImpl) ShowPicker(items []picker.Item, options ...tea.ProgramOption) (
 			tea.WithOutput(t.stdio.Out),
 		},
 		options...)...,
+	)
+}
+
+func (t tuiImpl) ShowSync() sync.Screen {
+	return sync.New(
+		sync.WithOut(t.stdio.Out),
+		sync.WithIn(t.stdio.In),
+		sync.WithStyler(t.styler),
 	)
 }
 

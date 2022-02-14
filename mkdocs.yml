@@ -41,6 +41,7 @@ nav:
       - Themes: 'configuration/themes.md'
   - Managers:
     - Overview: 'managers/overview.md'
+    - File System Library: 'managers/fslibrary.md'
+    - GitHub Gist: 'managers/githubgist.md'
     - SnippetsLab: 'managers/snippetslab.md'
     - Snip: 'managers/pictarinesnip.md'
-    - File System Library: 'managers/fslibrary.md'

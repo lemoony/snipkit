@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/lemoony/snipkit/internal/app"
+	"github.com/lemoony/snipkit/internal/cache"
 	"github.com/lemoony/snipkit/internal/config"
 	"github.com/lemoony/snipkit/internal/managers"
 	"github.com/lemoony/snipkit/internal/ui"
@@ -31,12 +32,15 @@ func (s *setup) configService() config.Service {
 	)
 }
 
-var _defaultSetup = setup{
-	terminal: ui.NewTUI(),
-	provider: managers.NewBuilder(),
-	v:        viper.GetViper(),
-	system:   system.NewSystem(),
-}
+var (
+	_defaultSystem = system.NewSystem()
+	_defaultSetup  = setup{
+		terminal: ui.NewTUI(),
+		provider: managers.NewBuilder(cache.New(_defaultSystem)),
+		v:        viper.GetViper(),
+		system:   _defaultSystem,
+	}
+)
 
 type ctxKey string
 

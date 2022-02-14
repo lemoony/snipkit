@@ -27,3 +27,5 @@ theme:
   infoContrastColor: ${white}
   snippetColor: ${lightGray}
   snippetContrastColor: ${black}
+  successColor: ${green}
+  errorColor: ${red}

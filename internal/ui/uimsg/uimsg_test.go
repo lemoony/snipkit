@@ -102,6 +102,10 @@ func Test_ManagerAddConfigResult(t *testing.T) {
 	assert.Contains(t, render(ManagerAddConfigResult(true, testCfgPath)), testCfgPath)
 }
 
+func Test_ManagerOauthDeviceFlow(t *testing.T) {
+	assert.Contains(t, render(ManagerOauthDeviceFlow("github.com", "1234-5678")), "1234-5678")
+}
+
 func Test_renderInvalidTemplate(t *testing.T) {
 	assert.Panics(t, func() {
 		_ = renderWithStyle("{{ if .var }} bla", testStyle, map[string]interface{}{})
