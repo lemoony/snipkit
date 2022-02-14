@@ -12,14 +12,14 @@
         <meta name="author" content="lemoony">
       
       
-        <link rel="canonical" href="https://lyrahgames.github.io/snipkit/dev/managers/fslibrary/">
+        <link rel="canonical" href="https://lyrahgames.github.io/snipkit/dev/managers/githubgist/">
       
       <link rel="icon" href="../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-8.1.11">
     
     
       
-        <title>File System Library - SnipKit Documentation</title>
+        <title>GitHub Gist - SnipKit Documentation</title>
       
     
     
@@ -64,7 +64,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#file-system-library" class="md-skip">
+        <a href="#github-gist" class="md-skip">
           Skip to content
         </a>
       
@@ -105,7 +105,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              File System Library
+              GitHub Gist
             
           </span>
         </div>
@@ -481,6 +481,20 @@
               
   
   
+  
+    <li class="md-nav__item">
+      <a href="../fslibrary/" class="md-nav__link">
+        File System Library
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
     
   
   
@@ -493,12 +507,12 @@
       
       
         <label class="md-nav__link md-nav__link--active" for="__toc">
-          File System Library
+          GitHub Gist
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <a href="./" class="md-nav__link md-nav__link--active">
-        File System Library
+        GitHub Gist
       </a>
       
         
@@ -524,8 +538,42 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#synchronization" class="md-nav__link">
+    Synchronization
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#authentication" class="md-nav__link">
+    Authentication
+  </a>
+  
+    <nav class="md-nav" aria-label="Authentication">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#custom-oauth-client-id" class="md-nav__link">
+    Custom OAuth Client ID
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#snippet-names" class="md-nav__link">
     Snippet Names
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tags" class="md-nav__link">
+    Tags
   </a>
   
 </li>
@@ -534,20 +582,6 @@
   
 </nav>
       
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../githubgist/" class="md-nav__link">
-        GitHub Gist
-      </a>
     </li>
   
 
@@ -621,8 +655,42 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#synchronization" class="md-nav__link">
+    Synchronization
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#authentication" class="md-nav__link">
+    Authentication
+  </a>
+  
+    <nav class="md-nav" aria-label="Authentication">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#custom-oauth-client-id" class="md-nav__link">
+    Custom OAuth Client ID
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#snippet-names" class="md-nav__link">
     Snippet Names
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tags" class="md-nav__link">
+    Tags
   </a>
   
 </li>
@@ -639,69 +707,106 @@
             <article class="md-content__inner md-typeset">
               
                 
-<a href="https://github.com/lemoony/snipkit/edit/master/docs/managers/fslibrary.md" title="Edit this page" class="md-content__button md-icon">
+<a href="https://github.com/lemoony/snipkit/edit/master/docs/managers/githubgist.md" title="Edit this page" class="md-content__button md-icon">
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
 </a>
 
 
-<h1 id="file-system-library">File System Library</h1>
+<h1 id="github-gist">GitHub Gist</h1>
 <p>Available for: macOS, Linux</p>
-<p>The file system library manager lets you provide snippets via multiple local directories. Each directory contains
-files which correspond to snippets.</p>
-<h2 id="configuration">Configuration</h2>
-<p>The configuration for the file system library may look similar to this:</p>
-<div class="highlight"><span class="filename">config.yaml</span><pre><span></span><code><span class="nt">manager</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="nt">fsLibrary</span><span class="p">:</span><span class="w"></span>
-<span class="w">    </span><span class="c1"># If set to false, the files specified via libraryPath will not be provided to you.</span><span class="w"></span>
-<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
-<span class="w">    </span><span class="c1"># Paths directories that hold snippets files. Each file must hold one snippet only.</span><span class="w"></span>
-<span class="w">    </span><span class="nt">libraryPath</span><span class="p">:</span><span class="w"></span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/path/to/file/system/library</span><span class="w"></span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/another/path</span><span class="w"></span>
-<span class="w">    </span><span class="c1"># Only files with endings which match one of the listed suffixes will be considered.</span><span class="w"></span>
-<span class="w">    </span><span class="nt">suffixRegex</span><span class="p">:</span><span class="w"></span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">.sh</span><span class="w"></span>
-<span class="w">    </span><span class="c1"># If set to true, the files will not be parsed in advance. This means, only the filename can be used as the snippet name.</span><span class="w"></span>
-<span class="w">    </span><span class="nt">lazyOpen</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w"></span>
-<span class="w">    </span><span class="c1"># If set to true, the title comment will not be shown in the preview window.</span><span class="w"></span>
-<span class="w">    </span><span class="nt">hideTitleInPreview</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
-</code></pre></div>
-<h2 id="snippet-names">Snippet Names</h2>
-<p>By default, the file name will be used as the snippet name. E.g., snippet <code>/another/path/count-character.sh</code> will be 
-presented to you as <code>count-character.sh</code> in the lookup window.</p>
-<p>However, SnipKit lets you also provide a different snippet name via a special comment syntax:</p>
-<div class="highlight"><pre><span></span><code><span class="c1">#</span>
-<span class="c1"># &lt;custom snippet name&gt;</span>
-<span class="c1">#</span>
-</code></pre></div>
-<p>The <em>start</em> of this comment must be within the first 3 lines of the file. If the first of three consecutive lines starting
-with <code>#</code> is after line 3, the snippet name will be ignored.</p>
-<p>E.g., a valid snippet named <code>Do something</code> instead of <code>example.sh</code> may look like this:</p>
-<table class="highlighttable"><tr><th colspan="2" class="filename"><div class="highlight"><span class="filename">example.sh</span></div></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">1</span>
-<span class="normal">2</span>
-<span class="normal">3</span>
-<span class="normal">4</span>
-<span class="normal">5</span>
-<span class="normal">6</span>
-<span class="normal">7</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><code><span class="ch">#!/bin/bash</span>
-
-<span class="c1">#</span>
-<span class="c1"># Do something</span>
-<span class="c1">#</span>
-
-<span class="nb">echo</span> <span class="s2">&quot;here we go...&quot;</span>
-</code></pre></div>
-</td></tr></table>
-<div class="admonition attention">
-<p class="admonition-title">Open snippets lazily</p>
-<p>This only works if <code>lazyOpen</code> is set to false since the snippet files must be parsed in advance before presenting
-the lookup window. If set to <code>true</code>, only the filename can be used as snippet name.</p>
-</div>
+<p>The GitHub Gist manager lets you provide snippets via multiple GitHub accounts. Each gist may contain multiple files which 
+are mapped to single snippets. The gists are cached locally and synchronized manually, so accessing them is very fast.</p>
 <div class="admonition tip">
-<p class="admonition-title">Hide the title comment</p>
-<p>If you don't want to show the title header in the snippet preview window, set <code>hideTitleInPreview: true</code>.
-SnipKit will remove the title header.</p>
+<p class="admonition-title">Example Gist</p>
+<p>Upon adding the GitHub Gist manager via <code>snipkit manager add</code>, SnipKit will configure a working 
+<a href="https://gist.github.com/lemoony/4905e7468b8f0a7991d6122d7d09e40d">example gist</a>, so you can quickly see how it works.</p>
 </div>
+<h2 id="configuration">Configuration</h2>
+<p>The configuration for the GitHub Gist manager may look similar to this:</p>
+<div class="highlight"><span class="filename">config.yaml</span><pre><span></span><code><span class="nt">manager</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">githubGist</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="c1"># If set to false, github gist is disabled completely.</span><span class="w"></span>
+<span class="w">      </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
+<span class="w">      </span><span class="c1"># You can define multiple independent GitHub Gist sources.</span><span class="w"></span>
+<span class="w">      </span><span class="nt">gists</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="c1"># If set to false, this GitHub gist url is ignored.</span><span class="w"></span>
+<span class="w">          </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
+<span class="w">          </span><span class="c1"># URL to the GitHub gist account.</span><span class="w"></span>
+<span class="w">          </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">gist.github.com/lemoony</span><span class="w"></span>
+<span class="w">          </span><span class="c1"># Supported values: None, OAuthDeviceFlow, PAT. Default value: None (which means no authentication). In order to retrieve secret gists, you must be authenticated.</span><span class="w"></span>
+<span class="w">          </span><span class="nt">authenticationMethod</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">OAuthDeviceFlow</span><span class="w"></span>
+<span class="w">          </span><span class="c1"># If this list is not empty, only those gists that match the listed tags will be provided to you.</span><span class="w"></span>
+<span class="w">          </span><span class="nt">includeTags</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">snipkitExample</span><span class="p p-Indicator">]</span><span class="w"></span>
+<span class="w">          </span><span class="c1"># Only gist files with endings which match one of the listed suffixes will be considered.</span><span class="w"></span>
+<span class="w">          </span><span class="nt">suffixRegex</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">.sh</span><span class="p p-Indicator">]</span><span class="w"></span>
+<span class="w">          </span><span class="c1"># Defines where the snippet name is extracted from (see also titleHeaderEnabled). Allowed values: DESCRIPTION, FILENAME, COMBINE, COMBINE_PREFER_DESCRIPTION.</span><span class="w"></span>
+<span class="w">          </span><span class="nt">nameMode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">COMBINE_PREFER_DESCRIPTION</span><span class="w"></span>
+<span class="w">          </span><span class="c1"># If set to true, any tags will be removed from the description.</span><span class="w"></span>
+<span class="w">          </span><span class="nt">removeTagsFromDescription</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
+<span class="w">          </span><span class="c1"># If set to true, the snippet title can be overwritten by defining a title header within the gist.</span><span class="w"></span>
+<span class="w">          </span><span class="nt">titleHeaderEnabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
+<span class="w">          </span><span class="c1"># If set to true, the title header comment will not be shown in the preview window.</span><span class="w"></span>
+<span class="w">          </span><span class="nt">hideTitleInPreview</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
+</code></pre></div>
+<h2 id="synchronization">Synchronization</h2>
+<p>All gists are cached locally. If there are updates, you have to manually trigger a synchronization
+process via</p>
+<div class="highlight"><pre><span></span><code>snipkit manager sync
+</code></pre></div>
+<p>There is also a shorthand alias:</p>
+<div class="highlight"><pre><span></span><code>snipkit sync
+</code></pre></div>
+<h2 id="authentication">Authentication</h2>
+<p>If <code>authenticationMethod</code> is set to <code>None</code>, only public gists are available. In order to retrieve secret gists,
+use one of the following values:</p>
+<ul>
+<li><code>PAT</code></li>
+<li><code>OAuthDeviceFlow</code></li>
+</ul>
+<p>Value <code>PAT</code> refers to a
+<a href="https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token">personalized access token</a>,
+which has to be created manually. <code>OAuthDeviceFlow</code> refers to the OAuth Device Flow supported by GitHub. In both cases, 
+the scope of the token is limited to <code>gist</code>.</p>
+<p>After specifying the desired authentication mechanism, just trigger a synchronization via <code>snipkit sync</code>. Snipkit will
+ask you for the PAT or perform the OAuth authorization. The access token will be stored securely (e.g., by means of Keychain 
+on macOS).</p>
+<div class="admonition tip">
+<p class="admonition-title">PAT vs OAuth</p>
+<p>If you want to use a PAT or OAuth. Both mechanisms have different advantages. With a personalized access token, you have 
+full control over the expiration date, but you have to create the token yourself. The OAuth mechanism is more convenient 
+since you don't have to create a token yourself. However, the token may expire sooner and you have to perform the 
+authentication process more often.</p>
+</div>
+<h3 id="custom-oauth-client-id">Custom OAuth Client ID</h3>
+<p>One option which is not listed by default, since it won't be required very often, is the following:</p>
+<div class="highlight"><span class="filename">config.yaml</span><pre><span></span><code><span class="nt">manager</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">githubGist</span><span class="p">:</span><span class="w"></span>
+<span class="w">      </span><span class="nt">OAuthClientID</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;client_id&gt;</span><span class="w"></span>
+</code></pre></div>
+<p>The <code>OAuthClientID</code> lets you specify a custom client ID when performing the OAuth authentication. This is only required if 
+your gists are not hosted on github.com and you want to use <code>OAuthDeviceFlow</code>.</p>
+<h2 id="snippet-names">Snippet Names</h2>
+<p>The name of a snippet can be retrieved by multiple ways. Set config option <code>nameMode</code> to one of 
+the following values:</p>
+<ul>
+<li><code>DESCRIPTION</code>: The description of the gist will be used as name. If a gist contains multiple files, all snippets will 
+    have the same name.</li>
+<li><code>FILENAME</code>: The filename of the gist will be used as name.</li>
+<li><code>COMBINE</code>: The description and the filename of the gist will be concatenated (<code>&lt;description&gt; - &lt;filename&gt;</code>). </li>
+<li><code>COMBINE_PREFER_DESCRIPTION</code>:  The description of the gist will be used as name. If a gist contains multiple files, 
+    the description and the filename of the gist will be concatenated.</li>
+</ul>
+<div class="admonition tip">
+<p class="admonition-title">Comment Syntax</p>
+<p>SnipKit lets you also provide a different snippet name via a special comment syntax. For a more detailed
+description, please see section <em>Snippet Names</em> in <a href="../fslibrary/">file system directory</a>.
+In order to enable this feature, set <code>titleHeaderEnabled</code> to <code>true</code>. If a snippet does not contain a title header
+comment, the specified <code>nameMode</code> will decide the snippet name.</p>
+</div>
+<h2 id="tags">Tags</h2>
+<p>The description of a gist may contain multiple tags which can be used for filtering via the <code>includeTags</code> option.</p>
+<p>E.g., a gist with the description <code>Example gist title #test #snipkit</code> is tagged with <code>test</code> and <code>snipkit</code>. 
+If you have set <code>removeTagsFromDescription</code> to <code>true</code>, only <code>Example gist title</code> will be used as Snippet Name.</p>
 
               
             </article>
@@ -715,7 +820,7 @@ SnipKit will remove the title header.</p>
     <nav class="md-footer__inner md-grid" aria-label="Footer">
       
         
-        <a href="../overview/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Overview" rel="prev">
+        <a href="../fslibrary/" class="md-footer__link md-footer__link--prev" aria-label="Previous: File System Library" rel="prev">
           <div class="md-footer__button md-icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
           </div>
@@ -724,20 +829,20 @@ SnipKit will remove the title header.</p>
               <span class="md-footer__direction">
                 Previous
               </span>
-              Overview
+              File System Library
             </div>
           </div>
         </a>
       
       
         
-        <a href="../githubgist/" class="md-footer__link md-footer__link--next" aria-label="Next: GitHub Gist" rel="next">
+        <a href="../snippetslab/" class="md-footer__link md-footer__link--next" aria-label="Next: SnippetsLab" rel="next">
           <div class="md-footer__title">
             <div class="md-ellipsis">
               <span class="md-footer__direction">
                 Next
               </span>
-              GitHub Gist
+              SnippetsLab
             </div>
           </div>
           <div class="md-footer__button md-icon">
