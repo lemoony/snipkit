@@ -73,7 +73,7 @@ func Test_GetSnippets(t *testing.T) {
 	cacheMock.On("GetData", storeKey).Return(testStore.serialize(), true)
 
 	manager := &Manager{cache: &cacheMock, config: Config{Enabled: true, Gists: []GistConfig{
-		{Enabled: true, URL: testGistURL, AuthenticationMethod: AuthMethodNone},
+		{Enabled: true, URL: testGistURL, AuthenticationMethod: AuthMethodNone, IncludeTags: []string{"foo"}},
 	}}}
 
 	snippets := manager.GetSnippets()

@@ -80,9 +80,9 @@ func AutoDiscoveryConfig() *Config {
 		Gists: []GistConfig{
 			{
 				Enabled:                   false,
-				URL:                       "gist.github.com/<USERNAME>",
+				URL:                       "gist.github.com/lemoony",
 				AuthenticationMethod:      AuthMethodNone,
-				IncludeTags:               []string{},
+				IncludeTags:               []string{"snipkitExample"},
 				NameMode:                  SnippetNameModeCombinePreferDescription,
 				TitleHeaderEnabled:        true,
 				HideTitleInPreview:        true,

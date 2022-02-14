@@ -13,10 +13,10 @@ func Test_AutoDiscoveryConfig(t *testing.T) {
 	assert.Len(t, cfg.Gists, 1)
 
 	gistConfig := cfg.Gists[0]
-	assert.Equal(t, "gist.github.com/<USERNAME>", gistConfig.URL)
-	assert.Equal(t, "https://api.github.com/users/<USERNAME>/gists", gistConfig.apiURL())
+	assert.Equal(t, "gist.github.com/lemoony", gistConfig.URL)
+	assert.Equal(t, "https://api.github.com/users/lemoony/gists", gistConfig.apiURL())
 
-	assert.Equal(t, &gistConfig, cfg.getGistConfig("gist.github.com/<USERNAME>"))
+	assert.Equal(t, &gistConfig, cfg.getGistConfig("gist.github.com/lemoony"))
 }
 
 func Test_getGistConfig_unknown(t *testing.T) {

@@ -6,6 +6,7 @@ import (
 	"github.com/lemoony/snipkit/internal/model"
 	"github.com/lemoony/snipkit/internal/utils/stringutil"
 	"github.com/lemoony/snipkit/internal/utils/system"
+	"github.com/lemoony/snipkit/internal/utils/tagutil"
 )
 
 var languageMapping = map[string]model.Language{
@@ -44,7 +45,7 @@ func mapToModel(rawSnippets []picatrineSnippet, tags *stringutil.StringSet) []mo
 	for i := range rawSnippets {
 		raw := rawSnippets[i]
 
-		if !hasValidTag(raw.Tags, tags) {
+		if !tagutil.HasValidTag(*tags, raw.Tags) {
 			continue
 		}
 
@@ -69,17 +70,4 @@ func mapToLanguage(name string) model.Language {
 		return entry
 	}
 	return model.LanguageUnknown
-}
-
-func hasValidTag(snippetTagUUIDS []string, validTagUUIDs *stringutil.StringSet) bool {
-	if len(*validTagUUIDs) == 0 {
-		return true
-	}
-
-	for _, tagUUID := range snippetTagUUIDS {
-		if validTagUUIDs.Contains(tagUUID) {
-			return true
-		}
-	}
-	return false
 }

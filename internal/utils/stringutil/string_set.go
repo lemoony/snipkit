@@ -2,6 +2,14 @@ package stringutil
 
 type StringSet map[string]struct{}
 
+func NewStringSet(values []string) StringSet {
+	result := StringSet{}
+	for _, value := range values {
+		result.Add(value)
+	}
+	return result
+}
+
 func (s *StringSet) Add(v string) {
 	(*s)[v] = struct{}{}
 }

@@ -9,6 +9,7 @@ import (
 	"github.com/lemoony/snipkit/internal/model"
 	"github.com/lemoony/snipkit/internal/utils/stringutil"
 	"github.com/lemoony/snipkit/internal/utils/system"
+	"github.com/lemoony/snipkit/internal/utils/tagutil"
 )
 
 type Manager struct {
@@ -109,21 +110,12 @@ func (m *Manager) GetSnippets() []model.Snippet {
 	} else {
 		var result []model.Snippet
 		for _, snippet := range snippets {
-			if hasValidTag(snippet.TagUUIDs, validTagUUIDs) {
+			if tagutil.HasValidTag(validTagUUIDs, snippet.TagUUIDs) {
 				result = append(result, snippet)
 			}
 		}
 		return result
 	}
-}
-
-func hasValidTag(snippetTagUUIDS []string, validTagUUIDs stringutil.StringSet) bool {
-	for _, tagUUID := range snippetTagUUIDS {
-		if validTagUUIDs.Contains(tagUUID) {
-			return true
-		}
-	}
-	return false
 }
 
 func (m *Manager) getValidTagUUIDs() stringutil.StringSet {

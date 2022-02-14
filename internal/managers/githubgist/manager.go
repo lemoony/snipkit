@@ -13,9 +13,8 @@ import (
 	"github.com/lemoony/snipkit/internal/ui/uimsg"
 	"github.com/lemoony/snipkit/internal/utils/stringutil"
 	"github.com/lemoony/snipkit/internal/utils/system"
+	"github.com/lemoony/snipkit/internal/utils/tagutil"
 )
-
-// TODO: Document this manager in /docs
 
 const (
 	secretKeyAccessToken = cache.SecretKey("GitHub Access Token")
@@ -73,6 +72,25 @@ func (m Manager) Info() []model.InfoLine {
 	return lines
 }
 
+func (m *Manager) GetSnippets() []model.Snippet {
+	var result []model.Snippet
+
+	if cacheStore := m.getStoreFromCache(); cacheStore != nil {
+		for _, gstore := range cacheStore.Gists {
+			gistConfig := m.config.getGistConfig(gstore.URL)
+			validTags := stringutil.NewStringSet(gistConfig.IncludeTags)
+			for _, raw := range gstore.RawSnippets {
+				snippet := parseSnippet(raw, *gistConfig)
+				if tagutil.HasValidTag(validTags, snippet.TagUUIDs) {
+					result = append(result, parseSnippet(raw, *gistConfig))
+				}
+			}
+		}
+	}
+
+	return result
+}
+
 func (m *Manager) Sync(events model.SyncEventChannel) {
 	var lines []model.SyncLine
 	log.Trace().Msg("github gist sync started")
@@ -115,21 +133,6 @@ func (m *Manager) Sync(events model.SyncEventChannel) {
 	m.storeInCache(updatedStore)
 
 	log.Trace().Msg("github gist sync finished")
-}
-
-func (m *Manager) GetSnippets() []model.Snippet {
-	var result []model.Snippet
-
-	if cacheStore := m.getStoreFromCache(); cacheStore != nil {
-		for _, gstore := range cacheStore.Gists {
-			gistConfig := m.config.getGistConfig(gstore.URL)
-			for _, raw := range gstore.RawSnippets {
-				result = append(result, parseSnippet(raw, *gistConfig))
-			}
-		}
-	}
-
-	return result
 }
 
 func (m *Manager) authToken(cfg GistConfig, lines []model.SyncLine, events model.SyncEventChannel) (string, error) {
