@@ -4,7 +4,6 @@ repos:
     hooks:
       - id: go-fmt
         args: [-over=15]
-      - id: validate-toml
       - id: golangci-lint
       - id: go-unit-tests
       - id: go-mod-tidy

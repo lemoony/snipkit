@@ -73,8 +73,8 @@ func Test_NewAppNoManagers(t *testing.T) {
 
 func Test_appImpl_GetAllSnippets(t *testing.T) {
 	snippets := []model.Snippet{
-		{UUID: "uuid1", TitleFunc: testutil.FixedString("title-1"), LanguageFunc: testutil.FixedLanguage(model.LanguageYAML), TagUUIDs: []string{}, ContentFunc: testutil.FixedString("content-1")},
-		{UUID: "uuid2", TitleFunc: testutil.FixedString("title-1"), LanguageFunc: testutil.FixedLanguage(model.LanguageBash), TagUUIDs: []string{}, ContentFunc: testutil.FixedString("content-2")},
+		testutil.TestSnippet{ID: "uuid1", Title: "title-1", Language: model.LanguageYAML, Tags: []string{}, Content: "content-1"},
+		testutil.TestSnippet{ID: "uuid2", Title: "title-2", Language: model.LanguageBash, Tags: []string{}, Content: "content-2"},
 	}
 
 	manager := managerMocks.Manager{}

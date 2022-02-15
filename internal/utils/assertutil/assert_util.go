@@ -27,8 +27,8 @@ func AssertSnippetsEqual(t *testing.T, expected []model.Snippet, actual []model.
 	for i, e := range expected {
 		a := actual[i]
 
-		assert.Equal(t, e.UUID, a.UUID)
-		assert.Equal(t, e.TagUUIDs, a.TagUUIDs)
+		assert.Equal(t, e.GetID(), a.GetID())
+		assert.Equal(t, e.GetTags(), a.GetTags())
 		assert.Equal(t, e.GetLanguage(), a.GetLanguage())
 		assert.Equal(t, e.GetTitle(), a.GetTitle())
 		assert.Equal(t, e.GetContent(), a.GetContent())

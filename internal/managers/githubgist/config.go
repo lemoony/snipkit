@@ -73,7 +73,6 @@ func (c *Config) getGistConfig(url string) *GistConfig {
 	return nil
 }
 
-// AutoDiscoveryConfig TODO: actual gist sample from github.com/lemoony.
 func AutoDiscoveryConfig() *Config {
 	return &Config{
 		Enabled: false,

@@ -60,12 +60,6 @@ func Test_Key(t *testing.T) {
 	assert.Equal(t, Key, Manager{}.Key())
 }
 
-func Test_NewManager_disabled(t *testing.T) {
-	manager, err := NewManager(WithConfig(Config{Enabled: false}))
-	assert.NoError(t, err)
-	assert.Nil(t, manager)
-}
-
 func Test_GetSnippets(t *testing.T) {
 	testStore := expectedStoreForTestData()
 

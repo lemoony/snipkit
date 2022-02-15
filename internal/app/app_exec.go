@@ -7,7 +7,6 @@ import (
 	"emperror.dev/errors"
 	"github.com/phuslu/log"
 
-	"github.com/lemoony/snipkit/internal/parser"
 	"github.com/lemoony/snipkit/internal/ui"
 	"github.com/lemoony/snipkit/internal/utils/stringutil"
 )
@@ -20,10 +19,9 @@ func (a *appImpl) LookupAndExecuteSnippet() {
 		return
 	}
 
-	parameters := parser.ParseParameters(snippet.GetContent())
+	parameters := snippet.GetParameters()
 	if parameterValues, ok := a.tui.ShowParameterForm(parameters, ui.OkButtonExecute); ok {
-		script := parser.CreateSnippet(snippet.GetContent(), parameters, parameterValues)
-		executeScript(script, a.config.Shell)
+		executeScript(snippet.Format(parameterValues), a.config.Shell)
 	}
 }
 

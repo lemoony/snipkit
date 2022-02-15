@@ -5,6 +5,7 @@ package cache
 
 import (
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 
@@ -25,6 +26,11 @@ func Test_PutAndGetSecret(t *testing.T) {
 		cache.DeleteSecret(testSecretKey, testAccount1)
 		cache.DeleteSecret(testSecretKey, testAccount2)
 	}()
+
+	cache.DeleteSecret(testSecretKey, testAccount1)
+	cache.DeleteSecret(testSecretKey, testAccount2)
+
+	time.Sleep(time.Millisecond * 50)
 
 	s, ok := cache.GetSecret(testSecretKey, testAccount1)
 	assert.False(t, ok)

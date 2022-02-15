@@ -13,6 +13,7 @@ import (
 
 	"github.com/lemoony/snipkit/internal/managers"
 	"github.com/lemoony/snipkit/internal/managers/fslibrary"
+	"github.com/lemoony/snipkit/internal/managers/pet"
 	"github.com/lemoony/snipkit/internal/managers/pictarinesnip"
 	"github.com/lemoony/snipkit/internal/managers/snippetslab"
 	"github.com/lemoony/snipkit/internal/ui/uimsg"
@@ -271,15 +272,15 @@ func Test_UpdateManagerConfig(t *testing.T) {
 	}{
 		{
 			name: "snippetslab", update: managers.Config{SnippetsLab: &snippetslab.Config{Enabled: true}},
-			assert: func(cfg Config) {
-				assert.True(t, cfg.Manager.SnippetsLab.Enabled)
-			},
+			assert: func(cfg Config) { assert.True(t, cfg.Manager.SnippetsLab.Enabled) },
 		},
 		{
 			name: "pictarinesnip", update: managers.Config{PictarineSnip: &pictarinesnip.Config{Enabled: true}},
-			assert: func(cfg Config) {
-				assert.True(t, cfg.Manager.PictarineSnip.Enabled)
-			},
+			assert: func(cfg Config) { assert.True(t, cfg.Manager.PictarineSnip.Enabled) },
+		},
+		{
+			name: "üet", update: managers.Config{Pet: &pet.Config{Enabled: true}},
+			assert: func(cfg Config) { assert.True(t, cfg.Manager.Pet.Enabled) },
 		},
 		{
 			name: "fslibrary", update: managers.Config{FsLibrary: &fslibrary.Config{Enabled: true}}, assert: func(cfg Config) {

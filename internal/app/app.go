@@ -15,7 +15,7 @@ import (
 var ErrNoSnippetsAvailable = errors.New("No snippets are available.")
 
 type App interface {
-	LookupSnippet() *model.Snippet
+	LookupSnippet() model.Snippet
 	LookupAndCreatePrintableSnippet() (string, bool)
 	LookupAndExecuteSnippet()
 	Info()
@@ -89,11 +89,7 @@ func NewApp(options ...Option) App {
 	}
 
 	app.tui.ApplyConfig(app.config.Style, system)
-	if p, err := app.provider.CreateManager(*app.system, app.config.Manager); err != nil {
-		panic(err)
-	} else {
-		app.managers = p
-	}
+	app.managers = app.provider.CreateManager(*app.system, app.config.Manager)
 
 	return app
 }

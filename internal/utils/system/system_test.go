@@ -23,6 +23,7 @@ func Test_System_Default(t *testing.T) {
 	assert.Nil(t, s.userContainersDir)
 
 	assert.NotNil(t, s.UserContainersHome())
+	assert.NotEmpty(t, s.UserHome())
 	assert.NotEmpty(t, s.UserDataHome())
 	assert.NotEmpty(t, s.UserConfigDirs())
 
@@ -39,6 +40,7 @@ func Test_System_WithOptions(t *testing.T) {
 	s := NewSystem(
 		WithUserConfigDirs([]string{"/test/config/dir-0", "/test/config/dir-1"}),
 		WithUserDataDir("/test/user/data"),
+		WithUserHome("/test/user"),
 		WithUserContainersDir("/test/container/dir"),
 	)
 	assert.NotNil(t, s)
@@ -49,6 +51,7 @@ func Test_System_WithOptions(t *testing.T) {
 	assert.Equal(t, userConfigDirs[0], "/test/config/dir-0")
 	assert.Equal(t, userConfigDirs[1], "/test/config/dir-1")
 
+	assert.Equal(t, s.UserHome(), "/test/user")
 	assert.Equal(t, s.UserDataHome(), "/test/user/data")
 	assert.Equal(t, s.UserContainersHome(), "/test/container/dir")
 
@@ -264,4 +267,9 @@ func Test_ReadFile_DoesntExist(t *testing.T) {
 	_ = assertutil.AssertPanicsWithError(t, ErrFileSystem{}, func() {
 		_ = system.ReadFile(filePath)
 	})
+}
+
+func Test_HomeEnvValue(t *testing.T) {
+	_ = os.Setenv(envSnipkitHome, "test")
+	assert.Equal(t, "test", NewSystem().HomeEnvValue())
 }

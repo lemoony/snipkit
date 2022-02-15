@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/phuslu/log"
-
 	"github.com/lemoony/snipkit/internal/model"
 	"github.com/lemoony/snipkit/internal/utils/stringutil"
 	"github.com/lemoony/snipkit/internal/utils/system"
@@ -44,16 +42,9 @@ func WithConfig(config Config) Option {
 
 func NewManager(options ...Option) (*Manager, error) {
 	manager := &Manager{}
-
 	for _, o := range options {
 		o.apply(manager)
 	}
-
-	if !manager.config.Enabled {
-		log.Debug().Msg("No snippetsLab manager because it is disabled")
-		return nil, nil
-	}
-
 	return manager, nil
 }
 
@@ -93,8 +84,8 @@ func (m Manager) Info() []model.InfoLine {
 	return lines
 }
 
-func (m *Manager) Sync(events model.SyncEventChannel) {
-	close(events)
+func (m *Manager) Sync(model.SyncEventChannel) {
+	// do nothing
 }
 
 func (m *Manager) GetSnippets() []model.Snippet {
@@ -110,7 +101,7 @@ func (m *Manager) GetSnippets() []model.Snippet {
 	} else {
 		var result []model.Snippet
 		for _, snippet := range snippets {
-			if tagutil.HasValidTag(validTagUUIDs, snippet.TagUUIDs) {
+			if tagutil.HasValidTag(validTagUUIDs, snippet.GetTags()) {
 				result = append(result, snippet)
 			}
 		}

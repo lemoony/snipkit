@@ -1,7 +1,6 @@
 package app
 
 import (
-	"github.com/lemoony/snipkit/internal/parser"
 	"github.com/lemoony/snipkit/internal/ui"
 )
 
@@ -11,9 +10,9 @@ func (a *appImpl) LookupAndCreatePrintableSnippet() (string, bool) {
 		return "", false
 	}
 
-	parameters := parser.ParseParameters(snippet.GetContent())
+	parameters := snippet.GetParameters()
 	if parameterValues, ok := a.tui.ShowParameterForm(parameters, ui.OkButtonPrint); ok {
-		return parser.CreateSnippet(snippet.GetContent(), parameters, parameterValues), true
+		return snippet.Format(parameterValues), true
 	}
 
 	return "", false

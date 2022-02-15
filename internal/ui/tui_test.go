@@ -101,15 +101,15 @@ func Test_getEditor(t *testing.T) {
 
 func Test_ShowLookup(t *testing.T) {
 	snippets := []model.Snippet{
-		{
-			TitleFunc:    testutil.FixedString("Title 1"),
-			ContentFunc:  testutil.FixedString("Content: One"),
-			LanguageFunc: testutil.FixedLanguage(model.LanguageYAML),
+		testutil.TestSnippet{
+			Title:    "Title 1",
+			Content:  "Content: One",
+			Language: model.LanguageYAML,
 		},
-		{
-			TitleFunc:    testutil.FixedString("Title 2"),
-			ContentFunc:  testutil.FixedString("Content: Two"),
-			LanguageFunc: testutil.FixedLanguage(model.LanguageYAML),
+		testutil.TestSnippet{
+			Title:    "Title 2",
+			Content:  "Content: Two",
+			Language: model.LanguageYAML,
 		},
 	}
 

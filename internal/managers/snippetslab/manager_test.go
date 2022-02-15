@@ -5,6 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	"github.com/lemoony/snipkit/internal/model"
 	"github.com/lemoony/snipkit/internal/utils/system"
 	"github.com/lemoony/snipkit/internal/utils/testutil"
 )
@@ -68,4 +69,11 @@ func Test_Info(t *testing.T) {
 
 	assert.Equal(t, "SnippetsLab total number of snippets", info[3].Key)
 	assert.Equal(t, "2", info[3].Value)
+}
+
+func Test_Sync(t *testing.T) {
+	events := make(model.SyncEventChannel)
+	manager := Manager{}
+	manager.Sync(events)
+	close(events)
 }

@@ -6,7 +6,6 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/phuslu/log"
 	"github.com/spf13/afero"
 
 	"github.com/lemoony/snipkit/internal/model"
@@ -54,18 +53,10 @@ func WithConfig(config Config) Option {
 
 func NewManager(options ...Option) (*Manager, error) {
 	manager := &Manager{}
-
 	for _, o := range options {
 		o.apply(manager)
 	}
-
-	if !manager.config.Enabled {
-		log.Debug().Msg("No fslibrary manager because it is disabled")
-		return nil, nil
-	}
-
 	manager.compileSuffixRegex()
-
 	return manager, nil
 }
 
@@ -114,36 +105,35 @@ func (m *Manager) GetSnippets() []model.Snippet {
 				continue
 			}
 
-			snippet := model.Snippet{
-				UUID:     filePath,
-				TagUUIDs: []string{},
-				LanguageFunc: func() model.Language {
-					return languageForSuffix(filepath.Ext(fileName))
-				},
-				ContentFunc: func() string {
+			snippet := snippetImpl{
+				id:   filePath,
+				path: filePath,
+				tags: []string{},
+				contentFunc: func() string {
 					contents := string(m.system.ReadFile(filePath))
 					if m.config.HideTitleInPreview {
 						contents = pruneTitleHeader(strings.NewReader(contents))
 					}
 					return contents
 				},
+				titleFunc: func() string {
+					if m.config.LazyOpen {
+						return fileName
+					} else {
+						return m.getSnippetName(filePath)
+					}
+				},
 			}
 
-			if m.config.LazyOpen {
-				snippet.SetTitle(fileName)
-			} else {
-				snippet.SetTitle(m.getSnippetName(filePath))
-			}
-
-			result = append(result, snippet)
+			result = append(result, &snippet)
 		}
 	}
 
 	return result
 }
 
-func (m *Manager) Sync(events model.SyncEventChannel) {
-	close(events)
+func (m *Manager) Sync(model.SyncEventChannel) {
+	// do nothing
 }
 
 func checkSuffix(filename string, regexes []*regexp.Regexp) bool {

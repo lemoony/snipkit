@@ -28,6 +28,14 @@ config:
       libraryPath: ""
       # If this list is not empty, only those snippets that match the listed tags will be provided to you.
       includeTags: []
+    pet:
+      # Set to true if you want to use pet.
+      enabled: true
+      # List of pet snippet files.
+      libraryPaths:
+        - /foouser/.config/pet/snippet.toml
+      # If this list is not empty, only those snippets that match the listed tags will be provided to you.
+      includeTags: []
     githubGist:
       # If set to false, github gist is disabled completely.
       enabled: true

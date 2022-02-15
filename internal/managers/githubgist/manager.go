@@ -33,16 +33,9 @@ type Manager struct {
 
 func NewManager(options ...Option) (*Manager, error) {
 	manager := &Manager{}
-
 	for _, o := range options {
 		o.apply(manager)
 	}
-
-	if !manager.config.Enabled {
-		log.Debug().Msg("No github gist manager because it is disabled")
-		return nil, nil
-	}
-
 	return manager, nil
 }
 
@@ -81,7 +74,7 @@ func (m *Manager) GetSnippets() []model.Snippet {
 			validTags := stringutil.NewStringSet(gistConfig.IncludeTags)
 			for _, raw := range gstore.RawSnippets {
 				snippet := parseSnippet(raw, *gistConfig)
-				if tagutil.HasValidTag(validTags, snippet.TagUUIDs) {
+				if tagutil.HasValidTag(validTags, snippet.GetTags()) {
 					result = append(result, parseSnippet(raw, *gistConfig))
 				}
 			}

@@ -6,6 +6,8 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/phuslu/log"
+
 	"github.com/lemoony/snipkit/internal/model"
 	"github.com/lemoony/snipkit/internal/utils/stringutil"
 )
@@ -46,6 +48,15 @@ func ParseParameters(snippet string) []model.Parameter {
 }
 
 func CreateSnippet(snippet string, parameters []model.Parameter, values []string) string {
+	if len(values) != len(parameters) {
+		log.Warn().Msgf(
+			"Number of parameters (%d) and number of supplied values (%d) does not match",
+			len(parameters),
+			len(values),
+		)
+		return snippet
+	}
+
 	hints := parseHints(snippet)
 
 	start := 0
