@@ -15,7 +15,7 @@ import (
 var ErrNoSnippetsAvailable = errors.New("No snippets are available.")
 
 type App interface {
-	LookupSnippet() *model.Snippet
+	LookupSnippet() model.Snippet
 	LookupAndCreatePrintableSnippet() (string, bool)
 	LookupAndExecuteSnippet()
 	Info()

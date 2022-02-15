@@ -19,19 +19,20 @@ var languageMapping = map[string]model.Language{
 }
 
 func parseSnippet(raw rawSnippet, cfg GistConfig) model.Snippet {
-	result := model.Snippet{}
-	result.UUID = raw.ID
-	result.TagUUIDs = parseTags(raw.Description)
-	result.TitleFunc = func() string {
-		return parseTitle(raw, cfg.NameMode, cfg.TitleHeaderEnabled)
+	result := snippetImpl{
+		id:   raw.ID,
+		tags: parseTags(raw.Description),
+		titleFunc: func() string {
+			return parseTitle(raw, cfg.NameMode, cfg.TitleHeaderEnabled)
+		},
+		contentFunc: func() string {
+			return formatContent(string(raw.Content), cfg.HideTitleInPreview)
+		},
+		languageFunc: func() model.Language {
+			return mapLanguage(raw.Language)
+		},
 	}
-	result.ContentFunc = func() string {
-		return formatContent(string(raw.Content), cfg.HideTitleInPreview)
-	}
-	result.LanguageFunc = func() model.Language {
-		return mapLanguage(raw.Language)
-	}
-	return result
+	return &result
 }
 
 func parseTitle(raw rawSnippet, nameMode SnippetNameMode, titleHeaderEnabled bool) string {

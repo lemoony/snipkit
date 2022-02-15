@@ -49,14 +49,14 @@ func mapToModel(rawSnippets []picatrineSnippet, tags *stringutil.StringSet) []mo
 			continue
 		}
 
-		result = append(result, model.Snippet{
-			UUID:      raw.ID,
-			TitleFunc: func() string { return raw.Name },
-			TagUUIDs:  raw.Tags,
-			LanguageFunc: func() model.Language {
+		result = append(result, snippetImpl{
+			id:        raw.ID,
+			titleFunc: func() string { return raw.Name },
+			tags:      raw.Tags,
+			languageFunc: func() model.Language {
 				return mapToLanguage(raw.Mode.Name)
 			},
-			ContentFunc: func() string {
+			contentFunc: func() string {
 				return raw.Snippet
 			},
 		})

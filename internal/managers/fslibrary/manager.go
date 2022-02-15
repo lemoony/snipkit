@@ -105,20 +105,20 @@ func (m *Manager) GetSnippets() []model.Snippet {
 				continue
 			}
 
-			snippet := model.Snippet{
-				UUID:     filePath,
-				TagUUIDs: []string{},
-				LanguageFunc: func() model.Language {
+			snippet := snippetImpl{
+				id:   filePath,
+				tags: []string{},
+				languageFunc: func() model.Language {
 					return languageForSuffix(filepath.Ext(fileName))
 				},
-				ContentFunc: func() string {
+				contentFunc: func() string {
 					contents := string(m.system.ReadFile(filePath))
 					if m.config.HideTitleInPreview {
 						contents = pruneTitleHeader(strings.NewReader(contents))
 					}
 					return contents
 				},
-				TitleFunc: func() string {
+				titleFunc: func() string {
 					if m.config.LazyOpen {
 						return fileName
 					} else {
@@ -127,7 +127,7 @@ func (m *Manager) GetSnippets() []model.Snippet {
 				},
 			}
 
-			result = append(result, snippet)
+			result = append(result, &snippet)
 		}
 	}
 

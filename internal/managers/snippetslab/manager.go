@@ -101,7 +101,7 @@ func (m *Manager) GetSnippets() []model.Snippet {
 	} else {
 		var result []model.Snippet
 		for _, snippet := range snippets {
-			if tagutil.HasValidTag(validTagUUIDs, snippet.TagUUIDs) {
+			if tagutil.HasValidTag(validTagUUIDs, snippet.GetTags()) {
 				result = append(result, snippet)
 			}
 		}

@@ -19,12 +19,12 @@ func Test_App_Exec(t *testing.T) {
 echo "${VAR1}"`
 
 	snippets := []model.Snippet{
-		{
-			UUID:         "uuid1",
-			TitleFunc:    testutil.FixedString("title-1"),
-			LanguageFunc: testutil.FixedLanguage(model.LanguageYAML),
-			TagUUIDs:     []string{},
-			ContentFunc:  testutil.FixedString(snippetContent),
+		testutil.TestSnippet{
+			ID:       "uuid1",
+			Title:    "title-1",
+			Language: model.LanguageYAML,
+			Tags:     []string{},
+			Content:  snippetContent,
 		},
 	}
 

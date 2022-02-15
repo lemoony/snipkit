@@ -19,8 +19,8 @@ func Test_LookupAndCreatePrintableSnippet(t *testing.T) {
 echo "${VAR1}`
 
 	snippets := []model.Snippet{
-		{UUID: "uuid1", TitleFunc: testutil.FixedString("title-1"), LanguageFunc: testutil.FixedLanguage(model.LanguageYAML), TagUUIDs: []string{}, ContentFunc: testutil.FixedString("content-1")},
-		{UUID: "uuid2", TitleFunc: testutil.FixedString("title-2"), LanguageFunc: testutil.FixedLanguage(model.LanguageBash), TagUUIDs: []string{}, ContentFunc: testutil.FixedString(snippetContent)},
+		testutil.TestSnippet{ID: "uuid1", Title: "title-1", Language: model.LanguageYAML, Tags: []string{}, Content: "content-1"},
+		testutil.TestSnippet{ID: "uuid2", Title: "title-2", Language: model.LanguageBash, Tags: []string{}, Content: snippetContent},
 	}
 
 	tui := uiMocks.TUI{}

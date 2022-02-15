@@ -35,7 +35,7 @@ echo "Hello World"`),
 	assert.Equal(t, "Snippet Title", snippet.GetTitle())
 	assert.Equal(t, `echo "Hello World"`, snippet.GetContent())
 	assert.Equal(t, model.LanguageBash, snippet.GetLanguage())
-	assert.Equal(t, []string{"test"}, snippet.TagUUIDs)
+	assert.Equal(t, []string{"test"}, snippet.GetTags())
 }
 
 func Test_parseTitle(t *testing.T) {

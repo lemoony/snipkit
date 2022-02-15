@@ -77,22 +77,22 @@ func parseSnippetsFromTOML(contents string) []model.Snippet {
 }
 
 func mapToSnippet(raw tomlSnippet) model.Snippet {
-	return model.Snippet{
-		UUID: "not_used",
-		TitleFunc: func() string {
+	return &snippetImpl{
+		id: "not_used",
+		titleFunc: func() string {
 			return raw.Description
 		},
-		ContentFunc: func() string {
+		contentFunc: func() string {
 			return raw.Command
 		},
-		TagUUIDs: raw.Tags,
-		LanguageFunc: func() model.Language {
+		tags: raw.Tags,
+		languageFunc: func() model.Language {
 			return model.LanguageBash
 		},
-		ParameterFunc: func() []model.Parameter {
+		parameterFunc: func() []model.Parameter {
 			return parseParameters(raw.Command)
 		},
-		FormatFunc: formatContent,
+		formatFunc: formatContent,
 	}
 }
 

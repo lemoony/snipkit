@@ -85,7 +85,7 @@ func (m *Manager) GetSnippets() []model.Snippet {
 		contents := m.system.ReadFile(libPath)
 		snippets := parseSnippetsFromTOML(string(contents))
 		for _, snippet := range snippets {
-			if tagutil.HasValidTag(validTags, snippet.TagUUIDs) {
+			if tagutil.HasValidTag(validTags, snippet.GetTags()) {
 				result = append(result, snippet)
 			}
 		}

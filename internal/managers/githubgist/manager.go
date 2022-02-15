@@ -74,7 +74,7 @@ func (m *Manager) GetSnippets() []model.Snippet {
 			validTags := stringutil.NewStringSet(gistConfig.IncludeTags)
 			for _, raw := range gstore.RawSnippets {
 				snippet := parseSnippet(raw, *gistConfig)
-				if tagutil.HasValidTag(validTags, snippet.TagUUIDs) {
+				if tagutil.HasValidTag(validTags, snippet.GetTags()) {
 					result = append(result, parseSnippet(raw, *gistConfig))
 				}
 			}

@@ -118,7 +118,7 @@ func parseSnippets(library snippetsLabLibrary) ([]model.Snippet, error) {
 func parseSnippet(path string) (model.Snippet, error) {
 	fileBytes, err := ioutil.ReadFile(filepath.Clean(path))
 	if err != nil {
-		return model.Snippet{}, err
+		return snippetImpl{}, err
 	}
 
 	buf := bytes.NewReader(fileBytes)
@@ -126,7 +126,7 @@ func parseSnippet(path string) (model.Snippet, error) {
 
 	fileMap := make(map[string]interface{})
 	if err := decoder.Decode(&fileMap); err != nil {
-		return model.Snippet{}, err
+		return snippetImpl{}, err
 	}
 
 	objects := fileMap["$objects"].([]interface{})
@@ -169,19 +169,18 @@ func parseSnippet(path string) (model.Snippet, error) {
 	partMap0LanguageIndex := uint64(partMap0[SnippetPartLanguage].(plist.UID))
 	partMap0Language := objects[partMap0LanguageIndex].(string)
 
-	snippet := model.Snippet{
-		UUID: snippetUIID,
-		LanguageFunc: func() model.Language {
+	snippet := snippetImpl{
+		id: snippetUIID,
+		languageFunc: func() model.Language {
 			return mapToLanguage(partMap0Language)
 		},
-		TagUUIDs: tagUUIDS,
-		ContentFunc: func() string {
+		tags: tagUUIDS,
+		contentFunc: func() string {
 			return string(partMap0ContentData)
 		},
-	}
-
-	snippet.TitleFunc = func() string {
-		return objects[titleIndex].(string)
+		titleFunc: func() string {
+			return objects[titleIndex].(string)
+		},
 	}
 
 	return snippet, nil

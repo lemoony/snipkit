@@ -41,6 +41,13 @@ func Test_GetInfo(t *testing.T) {
 	assert.False(t, info[2].IsError)
 }
 
+func Test_Sync(t *testing.T) {
+	events := make(model.SyncEventChannel)
+	manager := Manager{}
+	manager.Sync(events)
+	close(events)
+}
+
 func Test_GetSnippets(t *testing.T) {
 	config := Config{
 		Enabled:     true,
