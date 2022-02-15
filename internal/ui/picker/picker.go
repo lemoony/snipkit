@@ -85,12 +85,10 @@ func ShowPicker(items []Item, styler *style.Style, options ...tea.ProgramOption)
 	delegate.SetSpacing(1)
 
 	delegate.Styles.NormalTitle.Foreground(styler.TextColor().Value())
-	delegate.Styles.SelectedTitle.Foreground(styler.ActiveColor().Value())
-	delegate.Styles.SelectedTitle.BorderForeground(styler.ActiveColor().Value())
+	delegate.Styles.SelectedTitle.Foreground(styler.ActiveColor().Value()).BorderForeground(styler.ActiveColor().Value())
 
 	delegate.Styles.NormalDesc.Foreground(styler.SubduedColor().Value())
-	delegate.Styles.SelectedDesc.Foreground(styler.ActiveColor().Value())
-	delegate.Styles.SelectedDesc.BorderForeground(styler.ActiveColor().Value())
+	delegate.Styles.SelectedDesc.Foreground(styler.ActiveColor().Value()).BorderForeground(styler.ActiveColor().Value())
 
 	p := tea.NewProgram(&m, append(options, tea.WithAltScreen())...)
 
