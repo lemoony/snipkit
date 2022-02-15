@@ -18,6 +18,7 @@ const (
 type System struct {
 	Fs afero.Fs
 
+	userHome       *string
 	userDataDir    *string
 	userConfigHome *string
 	userConfigDirs *[]string
@@ -35,6 +36,13 @@ type optionFunc func(provider *System)
 
 func (f optionFunc) apply(provider *System) {
 	f(provider)
+}
+
+// WithUserHome sets the home directory of the user.
+func WithUserHome(userHome string) Option {
+	return optionFunc(func(p *System) {
+		p.userHome = &userHome
+	})
 }
 
 // WithUserDataDir sets the data directory of the user.
@@ -84,6 +92,13 @@ func NewSystem(options ...Option) *System {
 
 func (s *System) HomeEnvValue() string {
 	return os.Getenv(envSnipkitHome)
+}
+
+func (s *System) UserHome() string {
+	if s.userHome != nil {
+		return *s.userHome
+	}
+	return xdg.Home
 }
 
 func (s *System) UserDataHome() string {

@@ -152,6 +152,9 @@ func (s *serviceImpl) UpdateManagerConfig(managerConfig managers.Config) {
 	if cfg := managerConfig.PictarineSnip; cfg != nil {
 		config.Manager.PictarineSnip = cfg
 	}
+	if cfg := managerConfig.Pet; cfg != nil {
+		config.Manager.Pet = cfg
+	}
 	if cfg := managerConfig.GithubGist; cfg != nil {
 		config.Manager.GithubGist = cfg
 	}

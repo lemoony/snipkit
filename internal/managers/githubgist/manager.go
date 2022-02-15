@@ -33,16 +33,9 @@ type Manager struct {
 
 func NewManager(options ...Option) (*Manager, error) {
 	manager := &Manager{}
-
 	for _, o := range options {
 		o.apply(manager)
 	}
-
-	if !manager.config.Enabled {
-		log.Debug().Msg("No github gist manager because it is disabled")
-		return nil, nil
-	}
-
 	return manager, nil
 }
 

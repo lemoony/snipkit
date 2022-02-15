@@ -1,14 +1,13 @@
-package pictarinesnip
+package pet
 
 import (
 	"fmt"
 	"strings"
 
-	"github.com/phuslu/log"
-
 	"github.com/lemoony/snipkit/internal/model"
 	"github.com/lemoony/snipkit/internal/utils/stringutil"
 	"github.com/lemoony/snipkit/internal/utils/system"
+	"github.com/lemoony/snipkit/internal/utils/tagutil"
 )
 
 type Manager struct {
@@ -43,16 +42,9 @@ func WithConfig(config Config) Option {
 
 func NewManager(options ...Option) (*Manager, error) {
 	manager := &Manager{}
-
 	for _, o := range options {
 		o.apply(manager)
 	}
-
-	if !manager.config.Enabled {
-		log.Debug().Msg("No pictarinesnip manager because it is disabled")
-		return nil, nil
-	}
-
 	return manager, nil
 }
 
@@ -69,32 +61,34 @@ func (m Manager) Info() []model.InfoLine {
 
 	lines = append(lines, model.InfoLine{
 		IsError: false,
-		Key:     "Pictarine Snip library path",
-		Value:   stringutil.StringOrDefault(m.config.LibraryPath, "not set"),
+		Key:     "Pet enabled",
+		Value:   fmt.Sprintf("%v", m.config.Enabled),
 	})
 
 	lines = append(lines, model.InfoLine{
 		IsError: false,
-		Key:     "Pictarine Snip tags",
-		Value:   stringutil.StringOrDefault(strings.Join(m.config.IncludeTags, ","), "None"),
+		Key:     "Pet snippet file paths",
+		Value:   strings.Join(m.config.LibraryPaths, ","),
 	})
 
 	lines = append(lines, model.InfoLine{
-		IsError: true, Key: "Pictarine Snip total number of snippets", Value: fmt.Sprintf("%d", len(m.GetSnippets())),
+		IsError: false, Key: "Pet total number of snippets", Value: fmt.Sprintf("%d", len(m.GetSnippets())),
 	})
 
 	return lines
 }
 
 func (m *Manager) GetSnippets() []model.Snippet {
-	tags := m.getValidTagUUIDs()
-	return parseLibrary(m.config.LibraryPath, m.system, &tags)
-}
-
-func (m *Manager) getValidTagUUIDs() stringutil.StringSet {
-	result := stringutil.StringSet{}
-	for _, validTag := range m.config.IncludeTags {
-		result.Add(validTag)
+	var result []model.Snippet
+	validTags := stringutil.NewStringSet(m.config.IncludeTags)
+	for _, libPath := range m.config.LibraryPaths {
+		contents := m.system.ReadFile(libPath)
+		snippets := parseSnippetsFromTOML(string(contents))
+		for _, snippet := range snippets {
+			if tagutil.HasValidTag(validTags, snippet.TagUUIDs) {
+				result = append(result, snippet)
+			}
+		}
 	}
 	return result
 }

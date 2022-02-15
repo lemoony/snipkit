@@ -7,32 +7,21 @@ import (
 
 type Snippet struct {
 	UUID     string
-	title    string
 	TagUUIDs []string
 
-	TitleFunc    func() string
-	ContentFunc  func() string
-	LanguageFunc func() Language
+	TitleFunc     func() string
+	ContentFunc   func() string
+	LanguageFunc  func() Language
+	ParameterFunc func() []Parameter
+	FormatFunc    func(content string, values []string) string
 }
 
 func (s *Snippet) GetTitle() string {
-	if s.TitleFunc != nil {
-		return s.TitleFunc()
-	}
-
-	return s.title
-}
-
-func (s *Snippet) SetTitle(title string) {
-	s.title = title
+	return s.TitleFunc()
 }
 
 func (s *Snippet) GetContent() string {
-	if s.ContentFunc != nil {
-		return s.ContentFunc()
-	}
-
-	return s.title
+	return s.ContentFunc()
 }
 
 func (s *Snippet) GetLanguage() Language {
@@ -43,9 +32,23 @@ func (s Snippet) String() string {
 	return fmt.Sprintf(
 		"UUD: %s, Title: %s, Tags: [%s], Language: %d Content: %s",
 		s.UUID,
-		s.title,
+		s.GetTitle(),
 		strings.Join(s.TagUUIDs, ","),
 		s.GetLanguage(),
 		s.GetContent(),
 	)
+}
+
+func (s Snippet) GetParameters() []Parameter {
+	if s.ParameterFunc == nil {
+		return nil
+	}
+	return s.ParameterFunc()
+}
+
+func (s Snippet) Format(values []string) string {
+	if s.FormatFunc == nil {
+		return ""
+	}
+	return s.FormatFunc(s.GetContent(), values)
 }

@@ -8,6 +8,7 @@ import (
 
 	"github.com/lemoony/snipkit/internal/managers/fslibrary"
 	"github.com/lemoony/snipkit/internal/managers/githubgist"
+	"github.com/lemoony/snipkit/internal/managers/pet"
 	"github.com/lemoony/snipkit/internal/managers/pictarinesnip"
 	"github.com/lemoony/snipkit/internal/managers/snippetslab"
 )
@@ -18,37 +19,40 @@ func Test_serializeToYamlWithComment(t *testing.T) {
 	testConfig.Config.Editor = "foo-editor"
 	testConfig.Config.Shell = "/bin/zsh"
 	testConfig.Config.Style.Theme = "simple"
-	testConfig.Config.Manager.SnippetsLab = &snippetslab.Config{}
-	testConfig.Config.Manager.SnippetsLab.Enabled = true
-	testConfig.Config.Manager.SnippetsLab.LibraryPath = "/path/to/lib"
-	testConfig.Config.Manager.SnippetsLab.IncludeTags = []string{"snipkit", "othertag"}
 
-	testConfig.Config.Manager.PictarineSnip = &pictarinesnip.Config{}
-	testConfig.Config.Manager.PictarineSnip.Enabled = false
-	testConfig.Config.Manager.PictarineSnip.LibraryPath = ""
-	testConfig.Config.Manager.PictarineSnip.IncludeTags = []string{}
-
-	testConfig.Config.Manager.GithubGist = &githubgist.Config{}
-	testConfig.Config.Manager.GithubGist.Enabled = true
-	testConfig.Config.Manager.GithubGist.Gists = []githubgist.GistConfig{
-		{
-			Enabled:                   true,
-			URL:                       "gist.github.com/<yourUser>",
-			AuthenticationMethod:      githubgist.AuthMethodPAT,
-			IncludeTags:               []string{},
-			SuffixRegex:               []string{},
-			NameMode:                  githubgist.SnippetNameModeCombinePreferDescription,
-			TitleHeaderEnabled:        true,
-			RemoveTagsFromDescription: true,
-			HideTitleInPreview:        true,
+	testConfig.Config.Manager.SnippetsLab = &snippetslab.Config{
+		Enabled: true, LibraryPath: "/path/to/lib", IncludeTags: []string{"snipkit", "othertag"},
+	}
+	testConfig.Config.Manager.PictarineSnip = &pictarinesnip.Config{
+		Enabled: false, LibraryPath: "", IncludeTags: []string{},
+	}
+	testConfig.Config.Manager.Pet = &pet.Config{
+		Enabled:      true,
+		LibraryPaths: []string{"/foouser/.config/pet/snippet.toml"},
+	}
+	testConfig.Config.Manager.GithubGist = &githubgist.Config{
+		Enabled: true,
+		Gists: []githubgist.GistConfig{
+			{
+				Enabled:                   true,
+				URL:                       "gist.github.com/<yourUser>",
+				AuthenticationMethod:      githubgist.AuthMethodPAT,
+				IncludeTags:               []string{},
+				SuffixRegex:               []string{},
+				NameMode:                  githubgist.SnippetNameModeCombinePreferDescription,
+				TitleHeaderEnabled:        true,
+				RemoveTagsFromDescription: true,
+				HideTitleInPreview:        true,
+			},
 		},
 	}
-	testConfig.Config.Manager.FsLibrary = &fslibrary.Config{}
-	testConfig.Config.Manager.FsLibrary.Enabled = true
-	testConfig.Config.Manager.FsLibrary.LibraryPath = []string{"/path/to/file/system/library"}
-	testConfig.Config.Manager.FsLibrary.SuffixRegex = []string{".sh"}
-	testConfig.Config.Manager.FsLibrary.LazyOpen = true
-	testConfig.Config.Manager.FsLibrary.HideTitleInPreview = true
+	testConfig.Config.Manager.FsLibrary = &fslibrary.Config{
+		Enabled:            true,
+		LibraryPath:        []string{"/path/to/file/system/library"},
+		SuffixRegex:        []string{".sh"},
+		LazyOpen:           true,
+		HideTitleInPreview: true,
+	}
 
 	expectedConfigBytes, err := ioutil.ReadFile(testDataExampleConfig)
 	assert.NoError(t, err)

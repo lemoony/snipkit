@@ -6,7 +6,6 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/phuslu/log"
 	"github.com/spf13/afero"
 
 	"github.com/lemoony/snipkit/internal/model"
@@ -54,18 +53,10 @@ func WithConfig(config Config) Option {
 
 func NewManager(options ...Option) (*Manager, error) {
 	manager := &Manager{}
-
 	for _, o := range options {
 		o.apply(manager)
 	}
-
-	if !manager.config.Enabled {
-		log.Debug().Msg("No fslibrary manager because it is disabled")
-		return nil, nil
-	}
-
 	manager.compileSuffixRegex()
-
 	return manager, nil
 }
 
@@ -127,12 +118,13 @@ func (m *Manager) GetSnippets() []model.Snippet {
 					}
 					return contents
 				},
-			}
-
-			if m.config.LazyOpen {
-				snippet.SetTitle(fileName)
-			} else {
-				snippet.SetTitle(m.getSnippetName(filePath))
+				TitleFunc: func() string {
+					if m.config.LazyOpen {
+						return fileName
+					} else {
+						return m.getSnippetName(filePath)
+					}
+				},
 			}
 
 			result = append(result, snippet)
@@ -142,8 +134,8 @@ func (m *Manager) GetSnippets() []model.Snippet {
 	return result
 }
 
-func (m *Manager) Sync(events model.SyncEventChannel) {
-	close(events)
+func (m *Manager) Sync(model.SyncEventChannel) {
+	// do nothing
 }
 
 func checkSuffix(filename string, regexes []*regexp.Regexp) bool {

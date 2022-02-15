@@ -180,7 +180,9 @@ func parseSnippet(path string) (model.Snippet, error) {
 		},
 	}
 
-	snippet.SetTitle(objects[titleIndex].(string))
+	snippet.TitleFunc = func() string {
+		return objects[titleIndex].(string)
+	}
 
 	return snippet, nil
 }

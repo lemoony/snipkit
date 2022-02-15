@@ -1,0 +1,10 @@
+[[snippets]]
+description = "Echo something"
+command = "echo <VAR1> && <VAR2=Snipkit> <VAR3=is a snippet manager for the terminal!>"
+output = ""
+
+[[snippets]]
+description = "Watches Kubernetes pods with refresh"
+command = "watch -n 5 'kubectl get pods | grep <pattern>'"
+tag = ["tag1", "tag2"]
+output = ""

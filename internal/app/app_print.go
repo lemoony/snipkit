@@ -11,9 +11,16 @@ func (a *appImpl) LookupAndCreatePrintableSnippet() (string, bool) {
 		return "", false
 	}
 
-	parameters := parser.ParseParameters(snippet.GetContent())
+	parameters := snippet.GetParameters()
+	if parameters == nil {
+		parameters = parser.ParseParameters(snippet.GetContent())
+	}
 	if parameterValues, ok := a.tui.ShowParameterForm(parameters, ui.OkButtonPrint); ok {
-		return parser.CreateSnippet(snippet.GetContent(), parameters, parameterValues), true
+		script := snippet.Format(parameterValues)
+		if script == "" {
+			script = parser.CreateSnippet(snippet.GetContent(), parameters, parameterValues)
+		}
+		return script, true
 	}
 
 	return "", false
