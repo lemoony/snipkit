@@ -3,7 +3,7 @@ module github.com/lemoony/snipkit/tools
 go 1.17
 
 require (
-	github.com/daixiang0/gci v0.2.9
+	github.com/daixiang0/gci v0.3.0
 	github.com/golangci/golangci-lint v1.44.0
 	github.com/goreleaser/goreleaser v1.5.0
 	github.com/vektra/mockery/v2 v2.10.0
@@ -149,6 +149,7 @@ require (
 	github.com/hashicorp/go-retryablehttp v0.7.0 // indirect
 	github.com/hashicorp/go-version v1.3.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
+	github.com/hexops/gotextdiff v1.0.3 // indirect
 	github.com/huandu/xstrings v1.3.2 // indirect
 	github.com/iancoleman/orderedmap v0.2.0 // indirect
 	github.com/imdario/mergo v0.3.12 // indirect
