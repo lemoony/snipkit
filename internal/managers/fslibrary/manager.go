@@ -107,10 +107,8 @@ func (m *Manager) GetSnippets() []model.Snippet {
 
 			snippet := snippetImpl{
 				id:   filePath,
+				path: filePath,
 				tags: []string{},
-				languageFunc: func() model.Language {
-					return languageForSuffix(filepath.Ext(fileName))
-				},
 				contentFunc: func() string {
 					contents := string(m.system.ReadFile(filePath))
 					if m.config.HideTitleInPreview {

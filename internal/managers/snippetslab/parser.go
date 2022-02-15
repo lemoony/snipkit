@@ -170,17 +170,11 @@ func parseSnippet(path string) (model.Snippet, error) {
 	partMap0Language := objects[partMap0LanguageIndex].(string)
 
 	snippet := snippetImpl{
-		id: snippetUIID,
-		languageFunc: func() model.Language {
-			return mapToLanguage(partMap0Language)
-		},
-		tags: tagUUIDS,
-		contentFunc: func() string {
-			return string(partMap0ContentData)
-		},
-		titleFunc: func() string {
-			return objects[titleIndex].(string)
-		},
+		id:       snippetUIID,
+		language: mapToLanguage(partMap0Language),
+		tags:     tagUUIDS,
+		content:  string(partMap0ContentData),
+		title:    objects[titleIndex].(string),
 	}
 
 	return snippet, nil

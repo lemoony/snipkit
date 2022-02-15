@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/phuslu/log"
-
 	"github.com/lemoony/snipkit/internal/model"
 	"github.com/lemoony/snipkit/internal/utils/stringutil"
 	"github.com/lemoony/snipkit/internal/utils/system"
@@ -43,16 +41,9 @@ func WithConfig(config Config) Option {
 
 func NewManager(options ...Option) (*Manager, error) {
 	manager := &Manager{}
-
 	for _, o := range options {
 		o.apply(manager)
 	}
-
-	if !manager.config.Enabled {
-		log.Debug().Msg("No pictarinesnip manager because it is disabled")
-		return nil, nil
-	}
-
 	return manager, nil
 }
 

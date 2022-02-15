@@ -3,14 +3,11 @@ package pet
 import "github.com/lemoony/snipkit/internal/model"
 
 type snippetImpl struct {
-	id   string
-	tags []string
-
-	titleFunc     func() string
-	contentFunc   func() string
-	languageFunc  func() model.Language
-	parameterFunc func() []model.Parameter
-	formatFunc    func(content string, values []string) string
+	id       string
+	tags     []string
+	title    string
+	content  string
+	language model.Language
 }
 
 func (s snippetImpl) GetID() string {
@@ -18,7 +15,7 @@ func (s snippetImpl) GetID() string {
 }
 
 func (s snippetImpl) GetTitle() string {
-	return s.titleFunc()
+	return s.title
 }
 
 func (s snippetImpl) GetTags() []string {
@@ -26,22 +23,17 @@ func (s snippetImpl) GetTags() []string {
 }
 
 func (s snippetImpl) GetContent() string {
-	return s.contentFunc()
+	return s.content
 }
 
 func (s snippetImpl) GetLanguage() model.Language {
-	return s.languageFunc()
+	return s.language
 }
 
 func (s snippetImpl) GetParameters() []model.Parameter {
-	return s.parameterFunc()
+	return parseParameters(s.content)
 }
 
 func (s snippetImpl) Format(values []string) string {
-	return s.formatFunc(s.contentFunc(), values)
-}
-
-func (s snippetImpl) String() string {
-	// TODO implement me
-	panic("implement me")
+	return formatContent(s.content, values)
 }

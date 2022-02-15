@@ -8,5 +8,4 @@ type Snippet interface {
 	GetLanguage() Language
 	GetParameters() []Parameter
 	Format([]string) string
-	String() string
 }

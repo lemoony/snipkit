@@ -48,6 +48,7 @@ func Test_parseSnippetsFromTOML(t *testing.T) {
 
 	snippets := parseSnippetsFromTOML(contents)
 	assert.Len(t, snippets, 2)
+	assert.NotEmpty(t, snippets[0].GetID())
 	assert.Equal(t, "Echo something", snippets[0].GetTitle())
 	assert.Equal(t,
 		"echo <VAR1> && <VAR2=Snipkit> <VAR3=is a snippet manager for the terminal!>",
@@ -56,12 +57,14 @@ func Test_parseSnippetsFromTOML(t *testing.T) {
 	assert.Equal(t, model.LanguageBash, snippets[0].GetLanguage())
 	assert.Len(t, snippets[0].GetParameters(), 3)
 	assert.Len(t, snippets[0].GetTags(), 0)
+	assert.Equal(t, snippets[0].Format([]string{"one", "two", "three"}), "echo one && two three")
 
 	assert.Equal(t, "Watches Kubernetes pods with refresh", snippets[1].GetTitle())
 	assert.Equal(t, "watch -n 5 'kubectl get pods | grep <pattern>'", snippets[1].GetContent())
 	assert.Equal(t, model.LanguageBash, snippets[1].GetLanguage())
 	assert.Len(t, snippets[1].GetParameters(), 1)
 	assert.Len(t, snippets[1].GetTags(), 2)
+	assert.Equal(t, snippets[1].Format([]string{"foo"}), "watch -n 5 'kubectl get pods | grep foo'")
 }
 
 func Test_parseParameters(t *testing.T) {

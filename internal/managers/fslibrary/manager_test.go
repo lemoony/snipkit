@@ -109,9 +109,10 @@ func Test_GetSnippets_LazyOpen_HideTitleHeader(t *testing.T) {
 	const filePerm = 0o600
 	system := testutil.NewTestSystem()
 
+	snippetFilePath := filepath.Join(config.LibraryPath[0], "snippet.sh")
 	assert.NoError(t, afero.WriteFile(
 		system.Fs,
-		filepath.Join(config.LibraryPath[0], "snippet.sh"),
+		snippetFilePath,
 		[]byte("#\n# title\n#\ncontent"),
 		filePerm,
 	))
@@ -122,8 +123,13 @@ func Test_GetSnippets_LazyOpen_HideTitleHeader(t *testing.T) {
 	snippets := provider.GetSnippets()
 	assert.Len(t, snippets, 1)
 
+	assert.Equal(t, snippetFilePath, snippets[0].GetID())
 	assert.Equal(t, "content", snippets[0].GetContent())
 	assert.Equal(t, "snippet.sh", snippets[0].GetTitle())
+	assert.Empty(t, snippets[0].GetTags())
+	assert.Equal(t, model.LanguageBash, snippets[0].GetLanguage())
+	assert.Empty(t, snippets[0].GetParameters())
+	assert.Equal(t, "content", snippets[0].Format([]string{}))
 }
 
 func Test_checkSuffix(t *testing.T) {

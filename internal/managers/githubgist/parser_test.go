@@ -32,10 +32,13 @@ echo "Hello World"`),
 
 	snippet := parseSnippet(raw, cfg)
 
+	assert.Equal(t, raw.ID, snippet.GetID())
 	assert.Equal(t, "Snippet Title", snippet.GetTitle())
 	assert.Equal(t, `echo "Hello World"`, snippet.GetContent())
 	assert.Equal(t, model.LanguageBash, snippet.GetLanguage())
 	assert.Equal(t, []string{"test"}, snippet.GetTags())
+	assert.Empty(t, snippet.GetParameters())
+	assert.Equal(t, snippet.GetContent(), snippet.Format([]string{}))
 }
 
 func Test_parseTitle(t *testing.T) {

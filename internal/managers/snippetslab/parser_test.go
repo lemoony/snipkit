@@ -34,5 +34,11 @@ func Test_parseSnippets(t *testing.T) {
 			is.AnyOf(is.MatchForPattern("^# some comment.*"), is.MatchForPattern("echo \"Foo!\"")),
 		)
 	}
+	assert.Equal(t, "84A08C4A-B2BE-4964-A521-180550BDA7B3", snippets[0].GetID())
+	assert.Empty(t, snippets[0].GetTags())
 	assert.Equal(t, model.LanguageBash, snippets[0].GetLanguage())
+	assert.Len(t, snippets[0].GetParameters(), 2)
+	assert.NotEqual(t, snippets[0].Format([]string{"one", "two"}), snippets[0].GetContent())
+
+	assert.Equal(t, []string{"2DA8009E-7BE7-420D-AD57-E7F9BB3ADCBE"}, snippets[1].GetTags())
 }
