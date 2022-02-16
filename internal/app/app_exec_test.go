@@ -1,10 +1,13 @@
 package app
 
 import (
+	"fmt"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
+	"github.com/lemoony/snipkit/internal/config"
 	"github.com/lemoony/snipkit/internal/config/configtest"
 	"github.com/lemoony/snipkit/internal/model"
 	"github.com/lemoony/snipkit/internal/utils/testutil"
@@ -42,4 +45,26 @@ echo "${VAR1}"`
 	)
 
 	app.LookupAndExecuteSnippet()
+}
+
+func Test_formatOptions(t *testing.T) {
+	tests := []struct {
+		config   config.ScriptConfig
+		expected model.SnippetFormatOptions
+	}{
+		{
+			config:   config.ScriptConfig{RemoveComments: true, ParameterMode: config.ParameterModeSet},
+			expected: model.SnippetFormatOptions{RemoveComments: true, ParamMode: model.SnippetParamModeSet},
+		},
+		{
+			config:   config.ScriptConfig{RemoveComments: false, ParameterMode: config.ParameterModeReplace},
+			expected: model.SnippetFormatOptions{RemoveComments: false, ParamMode: model.SnippetParamModeReplace},
+		},
+	}
+
+	for i, tt := range tests {
+		t.Run(fmt.Sprintf("test %d", i), func(t *testing.T) {
+			assert.Equal(t, tt.expected, formatOptions(tt.config))
+		})
+	}
 }

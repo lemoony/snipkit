@@ -30,8 +30,6 @@ func Test_ShowPicker(t *testing.T) {
 }
 
 func Test_ShowPicker_Cancel(t *testing.T) {
-	t.Parallel()
-
 	tests := []struct {
 		name string
 		key  termtest.Key
@@ -43,7 +41,6 @@ func Test_ShowPicker_Cancel(t *testing.T) {
 	for i := range tests {
 		tt := tests[i]
 		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
 			termtest.RunTerminalTest(t, func(c *termtest.Console) {
 				c.ExpectString("Which snippet manager should be added to your configuration")
 				c.SendKey(tt.key)

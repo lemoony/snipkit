@@ -87,6 +87,10 @@ func (s *serviceImpl) LoadConfig() (Config, error) {
 		return invalidConfig, err
 	}
 
+	if wrapper.Version != version {
+		log.Warn().Msgf("Config version is not up to date - expected %s, actual %s", version, wrapper.Version)
+	}
+
 	s.config = &wrapper.Config
 
 	return *s.config, nil

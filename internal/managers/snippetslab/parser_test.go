@@ -34,7 +34,7 @@ func Test_parseSnippets(t *testing.T) {
 	assert.Empty(t, snippet1.GetTags())
 	assert.Equal(t, model.LanguageBash, snippet1.GetLanguage())
 	assert.Len(t, snippet1.GetParameters(), 2)
-	assert.NotEqual(t, snippet1.Format([]string{"one", "two"}), snippet1.GetContent())
+	assert.NotEqual(t, snippet1.Format([]string{"one", "two"}, model.SnippetFormatOptions{}), snippet1.GetContent())
 	then.AssertThat(t, snippet1.GetContent(), is.MatchForPattern("^# some comment.*"))
 	then.AssertThat(t, snippet1.GetTitle(), is.AnyOf(is.EqualTo("Simple echo")))
 
@@ -43,7 +43,7 @@ func Test_parseSnippets(t *testing.T) {
 	assert.Equal(t, []string{"2DA8009E-7BE7-420D-AD57-E7F9BB3ADCBE"}, snippet2.GetTags())
 	assert.Equal(t, model.LanguageBash, snippet2.GetLanguage())
 	assert.Empty(t, snippet2.GetParameters())
-	assert.NotEqual(t, snippet2.Format([]string{}), snippet1.GetContent())
+	assert.NotEqual(t, snippet2.Format([]string{}, model.SnippetFormatOptions{}), snippet1.GetContent())
 	then.AssertThat(t, snippet2.GetContent(), is.MatchForPattern("echo \"Foo!\""))
 	then.AssertThat(t, snippet2.GetTitle(), is.AnyOf(is.EqualTo("Foos script")))
 }

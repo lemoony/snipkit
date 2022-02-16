@@ -28,28 +28,37 @@ const (
 	yamlCommentHead = yamlCommentKind(2)
 
 	yamlDefaultIndent = 2
+
+	version = "1.1.0"
 )
 
 var sliceIndexRegex = regexp.MustCompile(`\[\d]`)
 
 func wrap(config Config) VersionWrapper {
 	return VersionWrapper{
-		Version: "1.0.0",
+		Version: version,
 		Config:  config,
 	}
 }
 
 func createConfigFile(system *system.System, viper *viper.Viper) {
-	config := wrap(Config{})
-
-	config.Config.Style = ui.DefaultConfig()
+	config := wrap(defaultConfig())
 	data := SerializeToYamlWithComment(config)
 
 	configPath := viper.ConfigFileUsed()
-
 	log.Debug().Msgf("Going to use config path %s", configPath)
 	system.CreatePath(configPath)
 	system.WriteFile(configPath, data)
+}
+
+func defaultConfig() Config {
+	return Config{
+		Style: ui.DefaultConfig(),
+		Script: ScriptConfig{
+			ParameterMode:  ParameterModeSet,
+			RemoveComments: false,
+		},
+	}
 }
 
 func SerializeToYamlWithComment(value interface{}) []byte {

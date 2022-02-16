@@ -129,7 +129,7 @@ func Test_GetSnippets_LazyOpen_HideTitleHeader(t *testing.T) {
 	assert.Empty(t, snippets[0].GetTags())
 	assert.Equal(t, model.LanguageBash, snippets[0].GetLanguage())
 	assert.Empty(t, snippets[0].GetParameters())
-	assert.Equal(t, "content", snippets[0].Format([]string{}))
+	assert.Equal(t, "content", snippets[0].Format([]string{}, model.SnippetFormatOptions{}))
 }
 
 func Test_checkSuffix(t *testing.T) {
