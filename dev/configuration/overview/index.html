@@ -470,13 +470,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#shell" class="md-nav__link">
-    Shell
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#theme" class="md-nav__link">
     Theme
   </a>
@@ -487,6 +480,40 @@
   <a href="#default-root-command" class="md-nav__link">
     Default Root Command
   </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#script-options" class="md-nav__link">
+    Script Options
+  </a>
+  
+    <nav class="md-nav" aria-label="Script Options">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#shell" class="md-nav__link">
+    Shell
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parameter-mode" class="md-nav__link">
+    Parameter mode
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#remove-comments" class="md-nav__link">
+    Remove Comments
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -705,13 +732,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#shell" class="md-nav__link">
-    Shell
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#theme" class="md-nav__link">
     Theme
   </a>
@@ -722,6 +742,40 @@
   <a href="#default-root-command" class="md-nav__link">
     Default Root Command
   </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#script-options" class="md-nav__link">
+    Script Options
+  </a>
+  
+    <nav class="md-nav" aria-label="Script Options">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#shell" class="md-nav__link">
+    Shell
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parameter-mode" class="md-nav__link">
+    Parameter mode
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#remove-comments" class="md-nav__link">
+    Remove Comments
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -773,7 +827,7 @@ want to put the following into your <code>~/.zshrc</code> file:</p>
 <div class="highlight"><pre><span></span><code>snipkit config init
 </code></pre></div>
 <p>This command creates a config file in the SnipKit home directory. The initial config file looks similar to this:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0.0</span><span class="w"></span>
+<div class="highlight"><span class="filename">config.yaml</span><pre><span></span><code><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.1.0</span><span class="w"></span>
 <span class="nt">config</span><span class="p">:</span><span class="w"></span>
 <span class="w">  </span><span class="nt">style</span><span class="p">:</span><span class="w"></span>
 <span class="w">    </span><span class="c1"># The theme defines the terminal colors used by Snipkit.</span><span class="w"></span>
@@ -793,22 +847,14 @@ want to put the following into your <code>~/.zshrc</code> file:</p>
 <p>When typing <code>snipkit config edit</code> the configuration file will be opened in an editor of your choice.</p>
 <p>The default editor is defined by the <code>$VISUAL</code> or <code>$EDITOR</code> environment variables. This behavior can be overwritten by
 setting the <code>editor</code> field in the configuration file to a non-empty string, e.g.:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0.0</span><span class="w"></span>
+<div class="highlight"><span class="filename">config.yaml</span><pre><span></span><code><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.1.0</span><span class="w"></span>
 <span class="nt">config</span><span class="p">:</span><span class="w"></span>
 <span class="w">  </span><span class="nt">editor</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;code&quot;</span><span class="w"></span>
 </code></pre></div>
 <p>If no value is provided at all, SnipKit will try to use <code>vim</code>.</p>
-<h3 id="shell">Shell</h3>
-<p>The shell for script executions is defined by the <code>$SHELL</code> environment variable. This behavior can be overwritten by
-setting the <code>shell</code> option to a non-empty string, e.g.:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0.0</span><span class="w"></span>
-<span class="nt">config</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="nt">shell</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/bin/zsh&quot;</span><span class="w"></span>
-</code></pre></div>
-<p>If neither <code>$SHELL</code> nor the config option <code>shell</code> is defined, SnipKit will try to use <code>/bin/bash</code> as a fallback value.</p>
 <h3 id="theme">Theme</h3>
 <p>SnipKit supports multiple themes out of the box and also allows you to define your own themes:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0.0</span><span class="w"></span>
+<div class="highlight"><span class="filename">config.yaml</span><pre><span></span><code><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.1.0</span><span class="w"></span>
 <span class="nt">config</span><span class="p">:</span><span class="w"></span>
 <span class="w">  </span><span class="nt">theme</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;default&quot;</span><span class="w"></span>
 </code></pre></div>
@@ -818,12 +864,60 @@ must be located at <code>&lt;SNIPKIT_HOME&gt;/&lt;xxx&gt;.yaml</code>.</p>
 <h3 id="default-root-command">Default Root Command</h3>
 <p>Most of the time, you want to call the same subcommand, e.g. <code>print</code> or <code>exec</code>. You can configure <code>snipkit</code> so that this
 command gets executed by default:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0.0</span><span class="w"></span>
+<div class="highlight"><span class="filename">config.yaml</span><pre><span></span><code><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.1.0</span><span class="w"></span>
 <span class="nt">config</span><span class="p">:</span><span class="w"></span>
 <span class="w">  </span><span class="nt">defaultRootCommand</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;exec&quot;</span><span class="w"></span>
 </code></pre></div>
 <p>This way, calling <code>snipkit</code> will yield the same result as <code>snipkit exec</code>. If you want to call the <code>print</code> command instead,
 you can still call <code>snipkit print</code>.</p>
+<h3 id="script-options">Script Options</h3>
+<h4 id="shell">Shell</h4>
+<p>The shell for script executions is defined by the <code>$SHELL</code> environment variable. This behavior can be overwritten by setting
+the <code>shell</code> option to a non-empty string, e.g.:</p>
+<div class="highlight"><span class="filename">config.yaml</span><pre><span></span><code><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.1.0</span><span class="w"> </span>
+<span class="nt">config</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">script</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">shell</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/bin/zsh&quot;</span><span class="w"></span>
+</code></pre></div>
+<p>If neither <code>$SHELL</code> nor the config option <code>shell</code> is defined, SnipKit will try to use <code>/bin/bash</code> as a fallback value.</p>
+<h4 id="parameter-mode">Parameter mode</h4>
+<p>How values are injected into your snippet for the defined parameters is defined by the <code>parameterMode</code> option:</p>
+<div class="highlight"><span class="filename">config.yaml</span><pre><span></span><code><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.1.0</span><span class="w"></span>
+<span class="nt">config</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">script</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">parameterMode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SET</span><span class="w"></span>
+</code></pre></div>
+<p>The default value is <code>SET</code>, defining that values should be set as variables. This means that the following script</p>
+<div class="highlight"><span class="filename">Raw snippet before execution</span><pre><span></span><code><span class="c1"># ${VAR} Description: What to print</span>
+<span class="nb">echo</span> <span class="si">${</span><span class="nv">VAR</span><span class="si">}</span>
+</code></pre></div>
+<p>will be updated in the following way, e.g. for <code>VAR = "Hello word"</code>:</p>
+<div class="highlight"><span class="filename">Example for parameterMode SET</span><pre><span></span><code><span class="c1"># ${VAR} Description: What to print</span>
+<span class="nv">VAR</span><span class="o">=</span><span class="s2">&quot;Hello world&quot;</span>
+<span class="nb">echo</span> <span class="si">${</span><span class="nv">VAR</span><span class="si">}</span>
+</code></pre></div>
+<p>Alternatively, all occurrences of a parameter can be replaced with the actual value when 
+specifying <code>REPLACE</code> for <code>parameterMode</code>:</p>
+<div class="highlight"><span class="filename">Example for parameterMode = REPLACE</span><pre><span></span><code><span class="nb">echo</span> <span class="s2">&quot;Hello world&quot;</span>
+</code></pre></div>
+<h4 id="remove-comments">Remove Comments</h4>
+<p>SnipKit will remove all parameter comments from a snippet when specifying <code>removeComments</code>:</p>
+<div class="highlight"><span class="filename">config.yaml</span><pre><span></span><code><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.1.0</span><span class="w"></span>
+<span class="nt">config</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">script</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">removeComments</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
+</code></pre></div>
+<p>This means that the following script</p>
+<div class="highlight"><span class="filename">Raw snippet before execution</span><pre><span></span><code><span class="c1"># ${VAR} Description: What to print</span>
+<span class="nb">echo</span> <span class="si">${</span><span class="nv">VAR</span><span class="si">}</span>
+</code></pre></div>
+<p>will be formatted in the following way:</p>
+<div class="highlight"><span class="filename">Example for removeComments = true</span><pre><span></span><code><span class="nb">echo</span> <span class="si">${</span><span class="nv">VAR</span><span class="si">}</span>
+</code></pre></div>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>Comments will always be removed if <code>parameterMode</code> is set to <code>REPLACE</code>.</p>
+</div>
 <h2 id="clean-up">Clean up</h2>
 <p>The config file as well as all custom themes can be deleted with:</p>
 <div class="highlight"><pre><span></span><code>snipkit config clean
