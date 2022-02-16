@@ -38,7 +38,7 @@ echo "Hello World"`),
 	assert.Equal(t, model.LanguageBash, snippet.GetLanguage())
 	assert.Equal(t, []string{"test"}, snippet.GetTags())
 	assert.Empty(t, snippet.GetParameters())
-	assert.Equal(t, snippet.GetContent(), snippet.Format([]string{}))
+	assert.Equal(t, snippet.GetContent(), snippet.Format([]string{}, model.SnippetFormatOptions{}))
 }
 
 func Test_parseTitle(t *testing.T) {

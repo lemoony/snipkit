@@ -47,7 +47,7 @@ func ParseParameters(snippet string) []model.Parameter {
 	return hintsToParameters(hints)
 }
 
-func CreateSnippet(snippet string, parameters []model.Parameter, values []string) string {
+func CreateSnippet(snippet string, parameters []model.Parameter, values []string, options model.SnippetFormatOptions) string {
 	if len(values) != len(parameters) {
 		log.Warn().Msgf(
 			"Number of parameters (%d) and number of supplied values (%d) does not match",
@@ -57,6 +57,20 @@ func CreateSnippet(snippet string, parameters []model.Parameter, values []string
 		return snippet
 	}
 
+	var result string
+	if options.ParamMode == model.SnippetParamModeSet {
+		result = setParameters(snippet, parameters, values)
+		if options.RemoveComments {
+			result = pruneComments(result)
+		}
+	} else {
+		result = replaceParameters(snippet, parameters, values)
+	}
+
+	return result
+}
+
+func setParameters(snippet string, parameters []model.Parameter, values []string) string {
 	hints := parseHints(snippet)
 
 	start := 0
@@ -79,6 +93,14 @@ func CreateSnippet(snippet string, parameters []model.Parameter, values []string
 
 	result += snippet[start:]
 
+	return result
+}
+
+func replaceParameters(snippet string, parameters []model.Parameter, values []string) string {
+	result := pruneComments(snippet)
+	for i, parameter := range parameters {
+		result = strings.ReplaceAll(result, fmt.Sprintf("${%s}", parameter.Key), values[i])
+	}
 	return result
 }
 
@@ -210,4 +232,20 @@ func toRegexNamedGroup(val string) (regexNamedGroup, bool) {
 
 func (h *hint) isValid() bool {
 	return h.variable != "" && h.typeDescriptor != hintTypeInvalid && h.value != ""
+}
+
+func pruneComments(script string) string {
+	scanner := bufio.NewScanner(strings.NewReader(script))
+	result := ""
+	for scanner.Scan() {
+		line := scanner.Text()
+		if hintRegex.MatchString(line) {
+			continue
+		}
+		if result != "" {
+			result += "\n"
+		}
+		result += line
+	}
+	return result
 }

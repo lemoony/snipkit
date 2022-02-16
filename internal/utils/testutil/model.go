@@ -38,8 +38,8 @@ func (t TestSnippet) GetParameters() []model.Parameter {
 	return parser.ParseParameters(t.Content)
 }
 
-func (t TestSnippet) Format(values []string) string {
-	return parser.CreateSnippet(t.Content, t.GetParameters(), values)
+func (t TestSnippet) Format(values []string, options model.SnippetFormatOptions) string {
+	return parser.CreateSnippet(t.Content, t.GetParameters(), values, options)
 }
 
 func (t TestSnippet) String() string {

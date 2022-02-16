@@ -15,9 +15,11 @@ import (
 
 func Test_serializeToYamlWithComment(t *testing.T) {
 	var testConfig VersionWrapper
-	testConfig.Version = "1.0.0"
+	testConfig.Version = version
 	testConfig.Config.Editor = "foo-editor"
-	testConfig.Config.Shell = "/bin/zsh"
+	testConfig.Config.Script.Shell = "/bin/zsh"
+	testConfig.Config.Script.RemoveComments = true
+	testConfig.Config.Script.ParameterMode = ParameterModeSet
 	testConfig.Config.Style.Theme = "simple"
 
 	testConfig.Config.Manager.SnippetsLab = &snippetslab.Config{

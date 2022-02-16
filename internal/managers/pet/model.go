@@ -1,6 +1,8 @@
 package pet
 
-import "github.com/lemoony/snipkit/internal/model"
+import (
+	"github.com/lemoony/snipkit/internal/model"
+)
 
 type snippetImpl struct {
 	id       string
@@ -34,6 +36,6 @@ func (s snippetImpl) GetParameters() []model.Parameter {
 	return parseParameters(s.content)
 }
 
-func (s snippetImpl) Format(values []string) string {
+func (s snippetImpl) Format(values []string, _ model.SnippetFormatOptions) string {
 	return formatContent(s.content, values)
 }

@@ -28,8 +28,8 @@ snipkit config init
 
 This command creates a config file in the SnipKit home directory. The initial config file looks similar to this:
 
-```yaml 
-version: 1.0.0
+```yaml title="config.yaml"
+version: 1.1.0
 config:
   style:
     # The theme defines the terminal colors used by Snipkit.
@@ -58,34 +58,20 @@ When typing `snipkit config edit` the configuration file will be opened in an ed
 The default editor is defined by the `$VISUAL` or `$EDITOR` environment variables. This behavior can be overwritten by
 setting the `editor` field in the configuration file to a non-empty string, e.g.:
 
-```yaml
-version: 1.0.0
+```yaml title="config.yaml"
+version: 1.1.0
 config:
   editor: "code"
 ```
 
 If no value is provided at all, SnipKit will try to use `vim`.
 
-### Shell
-
-The shell for script executions is defined by the `$SHELL` environment variable. This behavior can be overwritten by
-setting the `shell` option to a non-empty string, e.g.:
-
-```yaml
-version: 1.0.0
-config:
-  shell: "/bin/zsh"
-```
-
-If neither `$SHELL` nor the config option `shell` is defined, SnipKit will try to use `/bin/bash` as a fallback value.
-
-
 ### Theme
 
 SnipKit supports multiple themes out of the box and also allows you to define your own themes:
 
-```yaml
-version: 1.0.0
+```yaml title="config.yaml"
+version: 1.1.0
 config:
   theme: "default"
 ```
@@ -100,8 +86,8 @@ For a list of supported default themes, have a look at the [Themes][themes] page
 Most of the time, you want to call the same subcommand, e.g. `print` or `exec`. You can configure `snipkit` so that this
 command gets executed by default:
 
-```yaml 
-version: 1.0.0
+```yaml title="config.yaml"
+version: 1.1.0
 config:
   defaultRootCommand: "exec"
 ```
@@ -109,6 +95,81 @@ config:
 This way, calling `snipkit` will yield the same result as `snipkit exec`. If you want to call the `print` command instead,
 you can still call `snipkit print`.
 
+### Script Options
+
+#### Shell
+
+The shell for script executions is defined by the `$SHELL` environment variable. This behavior can be overwritten by setting
+the `shell` option to a non-empty string, e.g.:
+
+```yaml title="config.yaml"
+version: 1.1.0 
+config:
+  script:
+    shell: "/bin/zsh"
+```
+
+If neither `$SHELL` nor the config option `shell` is defined, SnipKit will try to use `/bin/bash` as a fallback value.
+
+#### Parameter mode
+
+How values are injected into your snippet for the defined parameters is defined by the `parameterMode` option:
+
+```yaml title="config.yaml"
+version: 1.1.0
+config:
+  script:
+    parameterMode: SET
+```
+
+The default value is `SET`, defining that values should be set as variables. This means that the following script
+
+```sh title="Raw snippet before execution"
+# ${VAR} Description: What to print
+echo ${VAR}
+```
+
+will be updated in the following way, e.g. for `VAR = "Hello word"`:
+
+```sh  title="Example for parameterMode SET"
+# ${VAR} Description: What to print
+VAR="Hello world"
+echo ${VAR}
+```
+
+Alternatively, all occurrences of a parameter can be replaced with the actual value when 
+specifying `REPLACE` for `parameterMode`:
+
+```sh title="Example for parameterMode = REPLACE"
+echo "Hello world"
+```
+
+#### Remove Comments
+
+SnipKit will remove all parameter comments from a snippet when specifying `removeComments`:
+
+```yaml title="config.yaml"
+version: 1.1.0
+config:
+  script:
+    removeComments: true
+```
+
+This means that the following script
+
+```sh title="Raw snippet before execution"
+# ${VAR} Description: What to print
+echo ${VAR}
+```
+
+will be formatted in the following way:
+
+```sh  title="Example for removeComments = true"
+echo ${VAR}
+```
+
+!!! info
+    Comments will always be removed if `parameterMode` is set to `REPLACE`.
 
 ## Clean up
 
@@ -122,4 +183,5 @@ The cleanup method is a way to remove all SnipKit artifacts from your hard drive
 home directory. If this directory is empty at the end of the cleanup process, it will be deleted as well.
 
 [managers]: ../managers/overview.md
+
 [themes]: themes.md

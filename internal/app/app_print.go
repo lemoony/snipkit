@@ -12,7 +12,7 @@ func (a *appImpl) LookupAndCreatePrintableSnippet() (string, bool) {
 
 	parameters := snippet.GetParameters()
 	if parameterValues, ok := a.tui.ShowParameterForm(parameters, ui.OkButtonPrint); ok {
-		return snippet.Format(parameterValues), true
+		return snippet.Format(parameterValues, formatOptions(a.config.Script)), true
 	}
 
 	return "", false

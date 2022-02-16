@@ -23,7 +23,7 @@ func Test_parseLibrary(t *testing.T) {
 	assert.Equal(t, model.LanguageBash, snippet1.GetLanguage())
 	assert.Equal(t, []string{"snipkit"}, snippet1.GetTags())
 	assert.Len(t, snippet1.GetParameters(), 3)
-	assert.NotEqual(t, snippet1.GetContent(), snippet1.Format([]string{"one", "two", "three"}))
+	assert.NotEqual(t, snippet1.GetContent(), snippet1.Format([]string{"one", "two", "three"}, model.SnippetFormatOptions{}))
 
 	snippet2 := snippets[1]
 	assert.Equal(t, "B3473DF8-6ED6-4589-BFFC-C75F73B1B522", snippet2.GetID())
@@ -32,5 +32,5 @@ func Test_parseLibrary(t *testing.T) {
 	assert.Equal(t, model.LanguageUnknown, snippet2.GetLanguage())
 	assert.Equal(t, []string{}, snippet2.GetTags())
 	assert.Empty(t, snippet2.GetParameters())
-	assert.Equal(t, snippet2.GetContent(), snippet2.Format([]string{}))
+	assert.Equal(t, snippet2.GetContent(), snippet2.Format([]string{}, model.SnippetFormatOptions{}))
 }

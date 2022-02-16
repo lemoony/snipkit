@@ -37,6 +37,6 @@ func (s snippetImpl) GetParameters() []model.Parameter {
 	return parser.ParseParameters(s.content)
 }
 
-func (s snippetImpl) Format(values []string) string {
-	return parser.CreateSnippet(s.content, s.GetParameters(), values)
+func (s snippetImpl) Format(values []string, options model.SnippetFormatOptions) string {
+	return parser.CreateSnippet(s.GetContent(), s.GetParameters(), values, options)
 }

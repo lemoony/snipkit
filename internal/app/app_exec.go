@@ -7,6 +7,8 @@ import (
 	"emperror.dev/errors"
 	"github.com/phuslu/log"
 
+	"github.com/lemoony/snipkit/internal/config"
+	"github.com/lemoony/snipkit/internal/model"
 	"github.com/lemoony/snipkit/internal/ui"
 	"github.com/lemoony/snipkit/internal/utils/stringutil"
 )
@@ -21,7 +23,7 @@ func (a *appImpl) LookupAndExecuteSnippet() {
 
 	parameters := snippet.GetParameters()
 	if parameterValues, ok := a.tui.ShowParameterForm(parameters, ui.OkButtonExecute); ok {
-		executeScript(snippet.Format(parameterValues), a.config.Shell)
+		executeScript(snippet.Format(parameterValues, formatOptions(a.config.Script)), a.config.Script.Shell)
 	}
 }
 
@@ -41,5 +43,18 @@ func executeScript(script, configuredShell string) {
 
 	if err := cmd.Wait(); err != nil {
 		log.Info().Err(err)
+	}
+}
+
+func formatOptions(cfg config.ScriptConfig) model.SnippetFormatOptions {
+	var paramMode model.SnippetParamMode
+	if cfg.ParameterMode == config.ParameterModeReplace {
+		paramMode = model.SnippetParamModeReplace
+	} else {
+		paramMode = model.SnippetParamModeSet
+	}
+	return model.SnippetFormatOptions{
+		RemoveComments: cfg.RemoveComments,
+		ParamMode:      paramMode,
 	}
 }

@@ -70,9 +70,16 @@ func Test_parseParameters(t *testing.T) {
 
 func Test_createSnippet(t *testing.T) {
 	parameters := ParseParameters(testSnippet1)
-	printable := CreateSnippet(testSnippet1, parameters, []string{"FOO-1", "FOO-2"})
 
-	assert.Equal(t, `
+	tests := []struct {
+		name     string
+		options  model.SnippetFormatOptions
+		expected string
+	}{
+		{
+			name:    "default",
+			options: model.SnippetFormatOptions{},
+			expected: `
 # some comment
 # ${VAR1} Name: First Output
 # ${VAR1} Description: What to print on the terminal first
@@ -84,5 +91,54 @@ echo "1 -> ${VAR1}"
 # ${VAR2} Default: Hey there!
 VAR2="FOO-2"
 echo "2 -> ${VAR2}"
-`, printable)
+`,
+		},
+		{
+			name:    "set & remove comments",
+			options: model.SnippetFormatOptions{ParamMode: model.SnippetParamModeSet, RemoveComments: true},
+			expected: `# some comment
+VAR1="FOO-1"
+echo "1 -> ${VAR1}"
+
+VAR2="FOO-2"
+echo "2 -> ${VAR2}"`,
+		},
+		{
+			name:    "replace",
+			options: model.SnippetFormatOptions{ParamMode: model.SnippetParamModeReplace},
+			expected: `# some comment
+echo "1 -> FOO-1"
+
+echo "2 -> FOO-2"`,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			printable := CreateSnippet(testSnippet1, parameters, []string{"FOO-1", "FOO-2"}, tt.options)
+			assert.Equal(t, tt.expected, printable)
+		})
+	}
+}
+
+func Test_createSnippet_invalidArguments(t *testing.T) {
+	assert.Equal(t, testSnippet1, CreateSnippet(testSnippet1, ParseParameters(testSnippet1), []string{}, model.SnippetFormatOptions{}))
+}
+
+func Test_pruneComment(t *testing.T) {
+	tests := []struct {
+		name     string
+		script   string
+		expected string
+	}{
+		{name: "no comment", script: "echo hello!", expected: "echo hello!"},
+		{name: "comment but no hint", script: "#comment\necho hello!", expected: "#comment\necho hello!"},
+		{name: "hint comment", script: "# ${VAR1} Description: Foo\necho hello!", expected: "echo hello!"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.expected, pruneComments(tt.script))
+		})
+	}
 }
