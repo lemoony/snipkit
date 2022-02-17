@@ -15,6 +15,7 @@ import (
 type (
 	regexNamedGroup    string
 	hintTypeDescriptor string
+	hintParamType      string
 	hint               struct {
 		variable       string
 		typeDescriptor hintTypeDescriptor
@@ -27,12 +28,16 @@ const (
 	hintTypeName         = hintTypeDescriptor("Name")
 	hintTypeDescription  = hintTypeDescriptor("Description")
 	hintTypeDefaultValue = hintTypeDescriptor("Default")
+	hintTypeParamType    = hintTypeDescriptor("Type")
 	hintTypeValues       = hintTypeDescriptor("Values")
 	hintTypeInvalid      = hintTypeDescriptor("invalid")
 
 	regexNamedGroupVariable = regexNamedGroup("varname")
 	regexNamedGroupType     = regexNamedGroup("key")
 	regexNamedGroupValue    = regexNamedGroup("value")
+
+	paramTypePath     = hintParamType("PATH")
+	paramTypePassword = hintParamType("PASSWORD")
 )
 
 var hintRegex = regexp.MustCompile(fmt.Sprintf(
@@ -107,48 +112,11 @@ func replaceParameters(snippet string, parameters []model.Parameter, values []st
 func hintsToParameters(hints []hint) []model.Parameter {
 	var result []model.Parameter
 
-	// put all variables into a list in order to their order of occurrence in the snippet
-	var variableNames []string
+	allHintValues := toHintValues(hints)
 
-	names := map[string]string{}
-	descriptions := map[string]string{}
-	defaults := map[string]string{}
-	values := map[string][]string{}
-
-	for _, h := range hints {
-		variableNameExists := false
-		for i := range variableNames {
-			if varName := variableNames[i]; varName == h.variable {
-				variableNameExists = true
-				break
-			}
-		}
-
-		if !variableNameExists {
-			variableNames = append(variableNames, h.variable)
-		}
-
-		switch h.typeDescriptor {
-		case hintTypeName:
-			names[h.variable] = h.value
-		case hintTypeDescription:
-			descriptions[h.variable] = h.value
-		case hintTypeDefaultValue:
-			defaults[h.variable] = h.value
-		case hintTypeValues:
-			if parsedValues := stringutil.SplitWithEscape(h.value, ',', '\\', true); len(parsedValues) > 0 {
-				if alreadyValues, ok := values[h.variable]; !ok {
-					values[h.variable] = parsedValues
-				} else {
-					values[h.variable] = append(alreadyValues, parsedValues...)
-				}
-			}
-		}
-	}
-
-	for _, varName := range variableNames {
+	for _, varName := range allHintValues.variableNames {
 		// If no name is provided, use the variable name as parameter name
-		name, ok := names[varName]
+		name, ok := allHintValues.names[varName]
 		if !ok || name == "" {
 			name = varName
 		}
@@ -156,10 +124,66 @@ func hintsToParameters(hints []hint) []model.Parameter {
 		result = append(result, model.Parameter{
 			Key:          varName,
 			Name:         name,
-			Description:  descriptions[varName],
-			DefaultValue: defaults[varName],
-			Values:       values[varName],
+			Description:  allHintValues.descriptions[varName],
+			DefaultValue: allHintValues.defaults[varName],
+			Values:       allHintValues.values[varName],
+			Type:         mapToParameterType(allHintValues.types[varName]),
 		})
+	}
+
+	return result
+}
+
+type hintValues struct {
+	variableNames []string
+	names         map[string]string
+	descriptions  map[string]string
+	defaults      map[string]string
+	values        map[string][]string
+	types         map[string]string
+}
+
+func toHintValues(hints []hint) hintValues {
+	result := hintValues{
+		names:        map[string]string{},
+		descriptions: map[string]string{},
+		defaults:     map[string]string{},
+		values:       map[string][]string{},
+		types:        map[string]string{},
+	}
+
+	for _, h := range hints {
+		variableNameExists := false
+		for i := range result.variableNames {
+			if varName := result.variableNames[i]; varName == h.variable {
+				variableNameExists = true
+				break
+			}
+		}
+
+		if !variableNameExists {
+			result.variableNames = append(result.variableNames, h.variable)
+		}
+
+		switch h.typeDescriptor {
+		case hintTypeName:
+			result.names[h.variable] = h.value
+		case hintTypeDescription:
+			result.descriptions[h.variable] = h.value
+		case hintTypeDefaultValue:
+			result.defaults[h.variable] = h.value
+		case hintTypeParamType:
+			result.types[h.variable] = h.value
+
+		case hintTypeValues:
+			if parsedValues := stringutil.SplitWithEscape(h.value, ',', '\\', true); len(parsedValues) > 0 {
+				if alreadyValues, ok := result.values[h.variable]; !ok {
+					result.values[h.variable] = parsedValues
+				} else {
+					result.values[h.variable] = append(alreadyValues, parsedValues...)
+				}
+			}
+		}
 	}
 
 	return result
@@ -196,16 +220,7 @@ func parseHints(snippet string) []hint {
 				case regexNamedGroupVariable:
 					currentHint.variable = match[i]
 				case regexNamedGroupType:
-					switch match[i] {
-					case string(hintTypeName):
-						currentHint.typeDescriptor = hintTypeName
-					case string(hintTypeDescription):
-						currentHint.typeDescriptor = hintTypeDescription
-					case string(hintTypeDefaultValue):
-						currentHint.typeDescriptor = hintTypeDefaultValue
-					case string(hintTypeValues):
-						currentHint.typeDescriptor = hintTypeValues
-					}
+					currentHint.typeDescriptor = hintTypeDescriptor(match[i])
 				}
 			}
 		}
@@ -232,6 +247,16 @@ func toRegexNamedGroup(val string) (regexNamedGroup, bool) {
 
 func (h *hint) isValid() bool {
 	return h.variable != "" && h.typeDescriptor != hintTypeInvalid && h.value != ""
+}
+
+func mapToParameterType(val string) model.ParameterType {
+	switch val {
+	case string(paramTypePath):
+		return model.ParameterTypePath
+	case string(paramTypePassword):
+		return model.ParameterTypePassword
+	}
+	return model.ParameterTypeValue
 }
 
 func pruneComments(script string) string {

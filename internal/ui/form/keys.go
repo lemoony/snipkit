@@ -63,3 +63,38 @@ func (m *model) ShortHelp() []key.Binding {
 
 	return h
 }
+
+// FieldKeyMap defines keybindings. It satisfies to the help.KeyMap interface, which
+// is used to render the menu menu.
+type FieldKeyMap struct {
+	// Keybindings used when browsing the list.
+	CursorUp   key.Binding
+	CursorDown key.Binding
+	Apply      key.Binding
+
+	// The quit keybinding. This won't be caught when filtering.
+	Quit key.Binding
+}
+
+// defaultFieldKeyMap returns a default set of keybindings.
+func defaultFieldKeyMap() FieldKeyMap {
+	return FieldKeyMap{
+		// Browsing.
+		CursorUp: key.NewBinding(
+			key.WithKeys("up", "k"),
+			key.WithHelp("↑/k", "up"),
+		),
+		CursorDown: key.NewBinding(
+			key.WithKeys("down", "j"),
+			key.WithHelp("↓/j", "down"),
+		),
+		Apply: key.NewBinding(
+			key.WithKeys("enter"),
+			key.WithHelp("↵", "apply"),
+		),
+		Quit: key.NewBinding(
+			key.WithKeys("q", "esc", "ctrl+c"),
+			key.WithHelp("q", "quit"),
+		),
+	}
+}

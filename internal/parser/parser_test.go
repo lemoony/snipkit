@@ -32,6 +32,12 @@ echo "1 -> ${VAR1}"
 # ${VAR1} Description: What to print on the terminal
 echo "1 -> ${VAR1}"
 `
+	testSnippet4 = `
+# ${PATH} Type: PATH
+# ${PW} Type: PASSWORD
+echo ${PATH}
+echo ${PW}
+`
 )
 
 func Test_parseParameters(t *testing.T) {
@@ -52,8 +58,12 @@ func Test_parseParameters(t *testing.T) {
 				Values:      []string{"One + some more", "\"Two\"", "Three", "Four, and some more", "Five"},
 			},
 		}},
-		{name: "no_name", snippet: testSnippet3, parameters: []model.Parameter{
-			{Key: "VAR1", Name: "VAR1", Description: "What to print on the terminal"},
+		{name: "no_name - type value", snippet: testSnippet3, parameters: []model.Parameter{
+			{Key: "VAR1", Name: "VAR1", Type: model.ParameterTypeValue, Description: "What to print on the terminal"},
+		}},
+		{name: "with type", snippet: testSnippet4, parameters: []model.Parameter{
+			{Key: "PATH", Name: "PATH", Type: model.ParameterTypePath},
+			{Key: "PW", Name: "PW", Type: model.ParameterTypePassword},
 		}},
 	}
 
