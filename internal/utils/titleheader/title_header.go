@@ -22,7 +22,14 @@ func ParseTitleFromHeader(content string) (string, bool) {
 func PruneTitleHeader(content string) string {
 	first, last, ok := getTitleHeaderRange(content)
 	if ok {
-		return strings.TrimSpace(content[0:first]) + strings.TrimSpace(content[last:])
+		result := strings.TrimSpace(content[0:first])
+		if end := strings.TrimSpace(content[last:]); end != "" {
+			if result != "" {
+				result += "\n\n"
+			}
+			result += end
+		}
+		return result
 	}
 
 	return content

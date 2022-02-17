@@ -17,6 +17,11 @@ func Test_PruneTitleHeader(t *testing.T) {
 		{name: "example3", snippet: "#\n# title\n#", expected: ""},
 		{name: "example4", snippet: "#\n# title", expected: "#\n# title"},
 		{name: "example5", snippet: "#/bin/bash\n#\n#title\n#", expected: "#/bin/bash"},
+		{
+			name:     "example5",
+			snippet:  "#/bin/bash\n#\n#title\n#\n\n# ${VAR} Name: Variable\necho${VAR}",
+			expected: "#/bin/bash\n\n# ${VAR} Name: Variable\necho${VAR}",
+		},
 	}
 
 	for _, tt := range tests {
