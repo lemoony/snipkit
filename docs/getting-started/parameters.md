@@ -54,6 +54,8 @@ echo "${VAR1}"
 The example defines the values `One + some more`, `"Two"`, `Three`, `Four, and some more`, and `Five`. Empty pre-defined
 values will be omitted.
 
+![Demo](../images/param-example-predefined-values.gif)
+
 You can define multiple lines starting with `${<varname>} Values:` to list pre-defined values. The listed values will be
 joined by SnipKit. Each value must be seperated by the next via the character `,`.
 
@@ -70,6 +72,8 @@ A parameter can be marked to be a password. In this case, the actual characters 
 login ${PW}
 ```
 
+![Demo](../images/param-example-password.gif)
+
 Marking the parameter `PW` as password happens in line 2 by defining `Type: PASSWOPRD`.
 
 ## Paths
@@ -82,6 +86,8 @@ suggestions:
 # ${FILE} Type: PATH
 git ls-files "${FILE}" | xargs wc -l
 ```
+
+![Demo](../images/param-example-path.gif)
 
 Marking the parameter `PW` as password happens in line 2 by defining `Type: PASSWOPRD`.
 
