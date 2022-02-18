@@ -21,6 +21,7 @@ func Test_serializeToYamlWithComment(t *testing.T) {
 	testConfig.Config.Script.RemoveComments = true
 	testConfig.Config.Script.ParameterMode = ParameterModeSet
 	testConfig.Config.Style.Theme = "simple"
+	testConfig.Config.Style.HideKeyMap = true
 
 	testConfig.Config.Manager.SnippetsLab = &snippetslab.Config{
 		Enabled: true, LibraryPath: "/path/to/lib", IncludeTags: []string{"snipkit", "othertag"},

@@ -128,7 +128,9 @@ func traverseYamlTagComments(t reflect.Type, path []string, commentsMap *map[str
 		case reflect.Struct:
 			traverseYamlTagComments(field.Type, append(path, yamlName), commentsMap)
 		case reflect.Ptr:
-			traverseYamlTagComments(field.Type.Elem(), append(path, yamlName), commentsMap)
+			if field.Type.Elem().Kind() == reflect.Struct {
+				traverseYamlTagComments(field.Type.Elem(), append(path, yamlName), commentsMap)
+			}
 		case reflect.Slice:
 			if field.Type.Elem().Kind() == reflect.Struct {
 				traverseYamlTagComments(field.Type.Elem(), append(path, yamlName+"[*]"), commentsMap)

@@ -11,8 +11,8 @@ type Style struct {
 	width  int
 	height int
 
-	colors colors
-
+	colors   colors
+	showHelp bool
 	minimize bool
 
 	needsToResize bool
@@ -22,9 +22,10 @@ type Style struct {
 
 var NoopStyle = &Style{}
 
-func NewStyle(t *ThemeValues) Style {
+func NewStyle(t *ThemeValues, showKeyMap bool) Style {
 	return Style{
-		colors: newColors(t),
+		colors:   newColors(t),
+		showHelp: showKeyMap,
 	}
 }
 
@@ -76,7 +77,10 @@ func (s *Style) MainView(view string, help string, resize bool) string {
 	marginsMinimal := []int{0, 2, 0, 4}
 
 	viewHeight := lipgloss.Height(view)
-	helpHeight := lipgloss.Height(help)
+	helpHeight := 0
+	if s.showHelp {
+		helpHeight = lipgloss.Height(help)
+	}
 
 	var margins []int
 	if viewHeight+helpHeight+marginsDefault[0]+marginsDefault[2] <= s.height {
@@ -107,7 +111,9 @@ func (s *Style) MainView(view string, help string, resize bool) string {
 		sections = append(sections, extraLines)
 	}
 
-	sections = append(sections, help)
+	if s.showHelp {
+		sections = append(sections, help)
+	}
 
 	return lipgloss.NewStyle().Margin(margins...).Render(lipgloss.JoinVertical(lipgloss.Left, sections...))
 }

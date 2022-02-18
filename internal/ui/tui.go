@@ -97,7 +97,7 @@ func NewTUI(options ...TUIOption) TUI {
 
 func (t *tuiImpl) ApplyConfig(cfg Config, system *system.System) {
 	themeValues := cfg.GetSelectedTheme(system)
-	t.styler = style.NewStyle(&themeValues)
+	t.styler = style.NewStyle(&themeValues, !cfg.HideKeyMap)
 
 	tview.Styles.PrimitiveBackgroundColor = tcell.ColorReset
 	tview.Styles.BorderColor = t.styler.BorderColor().CellValue()
