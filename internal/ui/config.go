@@ -8,7 +8,8 @@ import (
 )
 
 type Config struct {
-	Theme string `yaml:"theme" head_comment:"The theme defines the terminal colors used by Snipkit.\nAvailable themes:default(.light|.dark),simple."`
+	Theme      string `yaml:"theme" head_comment:"The theme defines the terminal colors used by Snipkit.\nAvailable themes:default(.light|.dark),simple."`
+	HideKeyMap bool   `yaml:"hideKeyMap,omitempty" head_comment:"If set to true, the key map won't be displayed. Default value: false"`
 }
 
 type NamedTheme struct {
@@ -34,11 +35,9 @@ func (c *Config) GetSelectedTheme(system *system.System) style.ThemeValues {
 }
 
 func DefaultConfig() Config {
-	return Config{
-		Theme: "default",
-	}
+	return Config{Theme: "default"}
 }
 
 func ApplyConfig(cfg Config, system *system.System) {
-	applyTheme(cfg.GetSelectedTheme(system))
+	applyTheme(cfg, system)
 }

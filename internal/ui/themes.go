@@ -40,8 +40,9 @@ type themeWrapper struct {
 	Theme     style.ThemeValues `yaml:"theme"`
 }
 
-func applyTheme(theme style.ThemeValues) {
-	styler := style.NewStyle(&theme)
+func applyTheme(cfg Config, system *system.System) {
+	themeValues := cfg.GetSelectedTheme(system)
+	styler := style.NewStyle(&themeValues, !cfg.HideKeyMap)
 
 	tview.Styles.PrimitiveBackgroundColor = tcell.ColorReset
 	tview.Styles.BorderColor = styler.BorderColor().CellValue()
