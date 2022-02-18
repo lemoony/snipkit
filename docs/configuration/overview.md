@@ -66,21 +66,6 @@ config:
 
 If no value is provided at all, SnipKit will try to use `vim`.
 
-### Theme
-
-SnipKit supports multiple themes out of the box and also allows you to define your own themes:
-
-```yaml title="config.yaml"
-version: 1.1.0
-config:
-  theme: "default"
-```
-
-If the theme is not shipped with snipkit, it will try to look up a custom theme. If the theme is named `<xx>`, the theme file
-must be located at `<SNIPKIT_HOME>/<xxx>.yaml`.
-
-For a list of supported default themes, have a look at the [Themes][themes] page.
-
 ### Default Root Command
 
 Most of the time, you want to call the same subcommand, e.g. `print` or `exec`. You can configure `snipkit` so that this
@@ -94,6 +79,36 @@ config:
 
 This way, calling `snipkit` will yield the same result as `snipkit exec`. If you want to call the `print` command instead,
 you can still call `snipkit print`.
+
+### Style
+
+#### Theme 
+
+SnipKit supports multiple themes out of the box and also allows you to define your own themes:
+
+```yaml title="config.yaml"
+version: 1.1.0
+config:
+  style:
+    theme: "default"
+```
+
+If the theme is not shipped with snipkit, it will try to look up a custom theme. If the theme is named `<xx>`, the theme file
+must be located at `<SNIPKIT_HOME>/<xxx>.yaml`.
+
+For a list of supported default themes, have a look at the [Themes][themes] page.
+
+#### Hide Keymap
+
+By default, a help for the key mapping is displayed at the bottom of the screen. To save same screen space, this can be 
+disabled:
+
+```yaml title="config.yaml"
+version: 1.1.0
+config:
+  style:
+    hideKeyMap: true
+```
 
 ### Script Options
 
