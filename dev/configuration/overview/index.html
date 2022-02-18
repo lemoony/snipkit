@@ -15,7 +15,7 @@
         <link rel="canonical" href="https://lyrahgames.github.io/snipkit/dev/configuration/overview/">
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-8.1.11">
+      <meta name="generator" content="mkdocs-1.2.3, mkdocs-material-8.2.1">
     
     
       
@@ -23,7 +23,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.50e68009.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.e8d9bf0c.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.e6a45f82.min.css">
@@ -470,6 +470,21 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#default-root-command" class="md-nav__link">
+    Default Root Command
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#style" class="md-nav__link">
+    Style
+  </a>
+  
+    <nav class="md-nav" aria-label="Style">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#theme" class="md-nav__link">
     Theme
   </a>
@@ -477,9 +492,14 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#default-root-command" class="md-nav__link">
-    Default Root Command
+  <a href="#hide-keymap" class="md-nav__link">
+    Hide Keymap
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -732,6 +752,21 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#default-root-command" class="md-nav__link">
+    Default Root Command
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#style" class="md-nav__link">
+    Style
+  </a>
+  
+    <nav class="md-nav" aria-label="Style">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#theme" class="md-nav__link">
     Theme
   </a>
@@ -739,9 +774,14 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#default-root-command" class="md-nav__link">
-    Default Root Command
+  <a href="#hide-keymap" class="md-nav__link">
+    Hide Keymap
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -808,6 +848,7 @@
 </a>
 
 
+
 <h1 id="configuration">Configuration</h1>
 <p>Snipkit requires a configuration file to be present. The configuration file resides in the snipkit home directory.</p>
 <h2 id="home-directory">Home directory</h2>
@@ -852,15 +893,6 @@ setting the <code>editor</code> field in the configuration file to a non-empty s
 <span class="w">  </span><span class="nt">editor</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;code&quot;</span><span class="w"></span>
 </code></pre></div>
 <p>If no value is provided at all, SnipKit will try to use <code>vim</code>.</p>
-<h3 id="theme">Theme</h3>
-<p>SnipKit supports multiple themes out of the box and also allows you to define your own themes:</p>
-<div class="highlight"><span class="filename">config.yaml</span><pre><span></span><code><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.1.0</span><span class="w"></span>
-<span class="nt">config</span><span class="p">:</span><span class="w"></span>
-<span class="w">  </span><span class="nt">theme</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;default&quot;</span><span class="w"></span>
-</code></pre></div>
-<p>If the theme is not shipped with snipkit, it will try to look up a custom theme. If the theme is named <code>&lt;xx&gt;</code>, the theme file
-must be located at <code>&lt;SNIPKIT_HOME&gt;/&lt;xxx&gt;.yaml</code>.</p>
-<p>For a list of supported default themes, have a look at the <a href="../themes/">Themes</a> page.</p>
 <h3 id="default-root-command">Default Root Command</h3>
 <p>Most of the time, you want to call the same subcommand, e.g. <code>print</code> or <code>exec</code>. You can configure <code>snipkit</code> so that this
 command gets executed by default:</p>
@@ -870,6 +902,25 @@ command gets executed by default:</p>
 </code></pre></div>
 <p>This way, calling <code>snipkit</code> will yield the same result as <code>snipkit exec</code>. If you want to call the <code>print</code> command instead,
 you can still call <code>snipkit print</code>.</p>
+<h3 id="style">Style</h3>
+<h4 id="theme">Theme</h4>
+<p>SnipKit supports multiple themes out of the box and also allows you to define your own themes:</p>
+<div class="highlight"><span class="filename">config.yaml</span><pre><span></span><code><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.1.0</span><span class="w"></span>
+<span class="nt">config</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">style</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">theme</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;default&quot;</span><span class="w"></span>
+</code></pre></div>
+<p>If the theme is not shipped with snipkit, it will try to look up a custom theme. If the theme is named <code>&lt;xx&gt;</code>, the theme file
+must be located at <code>&lt;SNIPKIT_HOME&gt;/&lt;xxx&gt;.yaml</code>.</p>
+<p>For a list of supported default themes, have a look at the <a href="../themes/">Themes</a> page.</p>
+<h4 id="hide-keymap">Hide Keymap</h4>
+<p>By default, a help for the key mapping is displayed at the bottom of the screen. To save same screen space, this can be 
+disabled:</p>
+<div class="highlight"><span class="filename">config.yaml</span><pre><span></span><code><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.1.0</span><span class="w"></span>
+<span class="nt">config</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="nt">style</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="nt">hideKeyMap</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"></span>
+</code></pre></div>
 <h3 id="script-options">Script Options</h3>
 <h4 id="shell">Shell</h4>
 <p>The shell for script executions is defined by the <code>$SHELL</code> environment variable. This behavior can be overwritten by setting
@@ -993,10 +1044,10 @@ home directory. If this directory is empty at the end of the cleanup process, it
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../assets/javascripts/workers/search.092fa1f6.min.js", "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../../assets/javascripts/workers/search.bd0b6b67.min.js", "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.5a9542cf.min.js"></script>
+      <script src="../../assets/javascripts/bundle.8aa65030.min.js"></script>
       
     
   </body>
