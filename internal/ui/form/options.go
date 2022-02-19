@@ -3,6 +3,8 @@ package form
 import (
 	"io"
 
+	"github.com/spf13/afero"
+
 	"github.com/lemoony/snipkit/internal/ui/style"
 )
 
@@ -31,5 +33,11 @@ func WithOut(out io.Writer) Option {
 func WithStyler(styler style.Style) Option {
 	return optionFunc(func(c *model) {
 		c.styler = styler
+	})
+}
+
+func WithFS(fs afero.Fs) Option {
+	return optionFunc(func(c *model) {
+		c.fs = fs
 	})
 }

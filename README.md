@@ -28,7 +28,10 @@ Execute the scripts saved in your favorite snippet manager without even leaving 
   - File system directory
 - Search for snippets by typing
 - Parameter substitution
-- Enum parameters
+- Support for different [parameter types](https://lemoony.github.io/snipkit/latest/getting-started/parameters/):
+  - Pre-defined values / Enum parameters
+  - Password (will be masked)
+  - Paths (autocomplete)
 - Themes
   - Built-in themes (`default`, `simple`)
   - Define custom themes

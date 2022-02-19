@@ -9,9 +9,9 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/muesli/termenv"
+	"github.com/spf13/afero"
 
 	internalModel "github.com/lemoony/snipkit/internal/model"
-	"github.com/lemoony/snipkit/internal/ui/form/field"
 	"github.com/lemoony/snipkit/internal/ui/style"
 )
 
@@ -22,6 +22,7 @@ const (
 
 type model struct {
 	colorProfile termenv.Profile
+	fs           afero.Fs
 
 	input  *io.Reader
 	output *io.Writer
@@ -34,7 +35,7 @@ type model struct {
 
 	okButtonText string
 
-	fields       []*field.Model
+	fields       []*fieldModel
 	elementFocus int
 	showFields   int
 
@@ -80,7 +81,7 @@ func initialModel(parameters []internalModel.Parameter, okButtonText string, opt
 		o.apply(&m)
 	}
 
-	m.fields = make([]*field.Model, len(parameters))
+	m.fields = make([]*fieldModel, len(parameters))
 
 	for i, f := range parameters {
 		name := f.Key
@@ -88,7 +89,7 @@ func initialModel(parameters []internalModel.Parameter, okButtonText string, opt
 			name = f.Name
 		}
 
-		m.fields[i] = field.New(m.styler, name, f.Description, f.Values)
+		m.fields[i] = NewField(m.styler, name, f.Description, f.Type, f.Values, m.fs)
 		if f.DefaultValue != "" {
 			m.fields[i].SetValue(f.DefaultValue)
 		}
@@ -154,7 +155,9 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.apply = false
 				return m, tea.Quit
 			default:
-				cmds = append(cmds, m.changeFocus())
+				if m.elementFocus < len(m.fields) && !m.fields[m.elementFocus].HasOptionToApply() {
+					cmds = append(cmds, m.changeFocus())
+				}
 			}
 		case key.Matches(msg, m.keyMap.Next):
 			cmds = append(cmds, m.changeFocus())
