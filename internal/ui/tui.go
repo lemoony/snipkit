@@ -12,6 +12,7 @@ import (
 	"github.com/kballard/go-shellquote"
 	"github.com/phuslu/log"
 	"github.com/rivo/tview"
+	"github.com/spf13/afero"
 
 	"github.com/lemoony/snipkit/internal/model"
 	"github.com/lemoony/snipkit/internal/ui/confirm"
@@ -128,6 +129,7 @@ func (t tuiImpl) ShowParameterForm(parameters []model.Parameter, okButton OkButt
 		form.WithStyler(t.styler),
 		form.WithIn(t.stdio.In),
 		form.WithOut(t.stdio.Out),
+		form.WithFS(afero.NewOsFs()),
 	)
 }
 

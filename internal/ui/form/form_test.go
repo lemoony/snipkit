@@ -3,6 +3,7 @@ package form
 import (
 	"testing"
 
+	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 
 	internalModel "github.com/lemoony/snipkit/internal/model"
@@ -58,6 +59,67 @@ func Test_ShowForm(t *testing.T) {
 		assert.Equal(t, "hello", result[0])
 		assert.Equal(t, "probably marmelada", result[1])
 		assert.Equal(t, "default value", result[2])
+	})
+}
+
+func Test_ShowForm_password(t *testing.T) {
+	termtest.RunTerminalTest(t, func(c *termtest.Console) {
+		c.ExpectString("This snippet requires parameters")
+
+		// type in password & hint enter
+		c.Send("password123")
+		c.SendKey(termtest.KeyEnter)
+
+		// password should be masked
+		c.ExpectString("***********")
+
+		// hit enter
+		c.SendKey(termtest.KeyEnter)
+	}, func(stdio termutil.Stdio) {
+		result, ok := Show(
+			[]internalModel.Parameter{{Key: "Password", Type: internalModel.ParameterTypePassword}},
+			"ok", WithIn(stdio.In), WithOut(stdio.Out),
+		)
+
+		assert.Equal(t, true, ok)
+		assert.Len(t, result, 1)
+		assert.Equal(t, "password123", result[0])
+	})
+}
+
+func Test_ShowForm_pathParm(t *testing.T) {
+	fs := afero.NewMemMapFs()
+
+	const fileMode = 0o600
+	assert.NoError(t, afero.WriteFile(fs, "test-a.txt", []byte{}, fileMode))
+	assert.NoError(t, afero.WriteFile(fs, "test-b.txt", []byte{}, fileMode))
+	assert.NoError(t, afero.WriteFile(fs, "test-c.txt", []byte{}, fileMode))
+
+	termtest.RunTerminalTest(t, func(c *termtest.Console) {
+		c.ExpectString("This snippet requires parameters")
+
+		// type in password & hint enter
+		c.Send("test")
+		c.SendKey(termtest.KeyDown)
+		c.SendKey(termtest.KeyDown)
+		c.SendKey(termtest.KeyDown)
+		c.SendKey(termtest.KeyUp)
+		c.SendKey(termtest.KeyEnter) // apply option
+		c.SendKey(termtest.KeyEnter) // next field
+
+		c.ExpectString("test-b.txt")
+
+		// hit enter
+		c.SendKey(termtest.KeyEnter)
+	}, func(stdio termutil.Stdio) {
+		result, ok := Show(
+			[]internalModel.Parameter{{Key: "Path", Type: internalModel.ParameterTypePath}},
+			"ok", WithIn(stdio.In), WithOut(stdio.Out), WithFS(fs),
+		)
+
+		assert.Equal(t, true, ok)
+		assert.Len(t, result, 1)
+		assert.Equal(t, "test-b.txt", result[0])
 	})
 }
 

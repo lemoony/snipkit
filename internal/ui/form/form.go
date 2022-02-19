@@ -9,6 +9,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/muesli/termenv"
+	"github.com/spf13/afero"
 
 	internalModel "github.com/lemoony/snipkit/internal/model"
 	"github.com/lemoony/snipkit/internal/ui/style"
@@ -21,6 +22,7 @@ const (
 
 type model struct {
 	colorProfile termenv.Profile
+	fs           afero.Fs
 
 	input  *io.Reader
 	output *io.Writer
@@ -87,7 +89,7 @@ func initialModel(parameters []internalModel.Parameter, okButtonText string, opt
 			name = f.Name
 		}
 
-		m.fields[i] = NewField(m.styler, name, f.Description, f.Type, f.Values)
+		m.fields[i] = NewField(m.styler, name, f.Description, f.Type, f.Values, m.fs)
 		if f.DefaultValue != "" {
 			m.fields[i].SetValue(f.DefaultValue)
 		}

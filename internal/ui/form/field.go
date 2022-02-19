@@ -24,6 +24,7 @@ const (
 
 type fieldModel struct {
 	styler style.Style
+	fs     afero.Fs
 
 	Label           string
 	Description     string
@@ -43,9 +44,17 @@ type fieldModel struct {
 	optionOffset   int
 }
 
-func NewField(styler style.Style, label, description string, paramType appModel.ParameterType, options []string) *fieldModel {
+func NewField(
+	styler style.Style,
+	label,
+	description string,
+	paramType appModel.ParameterType,
+	options []string,
+	fs afero.Fs,
+) *fieldModel {
 	m := fieldModel{
 		styler:         styler,
+		fs:             fs,
 		Label:          label,
 		ParameterType:  paramType,
 		Description:    description,
@@ -199,7 +208,7 @@ func (m *fieldModel) filterOptionsForValue() {
 }
 
 func (m *fieldModel) filterOptionsForFilePath() {
-	m.filteredOptions = suggestionsForPath(afero.NewOsFs(), m.field.Value())
+	m.filteredOptions = suggestionsForPath(m.fs, m.field.Value())
 	m.options = m.filteredOptions
 	m.filterMatches = make([]int, len(m.filteredOptions))
 	for i := range m.filteredOptions {
