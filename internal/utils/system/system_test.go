@@ -269,6 +269,16 @@ func Test_ReadFile_DoesntExist(t *testing.T) {
 	})
 }
 
+func Test_FileExists(t *testing.T) {
+	fs := afero.NewMemMapFs()
+	filePath := filepath.Join(t.TempDir(), "test.txt")
+	system := NewSystem(WithFS(fs))
+
+	assert.False(t, system.FileExists(filePath))
+	assert.NoError(t, afero.WriteFile(fs, filePath, []byte{}, fileModeConfig))
+	assert.True(t, system.FileExists(filePath))
+}
+
 func Test_HomeEnvValue(t *testing.T) {
 	_ = os.Setenv(envSnipkitHome, "test")
 	assert.Equal(t, "test", NewSystem().HomeEnvValue())

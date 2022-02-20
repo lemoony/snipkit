@@ -1,0 +1,107 @@
+{
+  "folders": [
+    {
+      "name": "Inbox",
+      "isSystem": true,
+      "parentId": null,
+      "alias": "inbox",
+      "open": false,
+      "_id": "211ecf93-fb10-48e6-8b84-83cef7ff7003",
+      "createdAt": 1645021327351,
+      "updatedAt": 1645021327351
+    },
+    {
+      "name": "Favorites",
+      "isSystem": true,
+      "parentId": null,
+      "alias": "favorites",
+      "open": false,
+      "_id": "5762fc16-875d-4ccb-923d-aaf3dc3191a2",
+      "createdAt": 1645021327351,
+      "updatedAt": 1645021327351
+    },
+    {
+      "name": "All Snippets",
+      "isSystem": true,
+      "parentId": null,
+      "alias": "allSnippets",
+      "open": false,
+      "_id": "757483a9-931b-4a2f-8431-13207beaf93c",
+      "createdAt": 1645021327352,
+      "updatedAt": 1645021327352
+    },
+    {
+      "name": "Trash",
+      "isSystem": true,
+      "parentId": null,
+      "alias": "trash",
+      "open": false,
+      "_id": "1483b5d9-595b-46ad-b6ac-062aa83f9b63",
+      "createdAt": 1645021327352,
+      "updatedAt": 1645021327352
+    }
+  ],
+  "snippets": [
+    {
+      "name": "Another",
+      "content": [
+        {
+          "label": "Fragment 1",
+          "language": "text",
+          "value": "echo Hello world"
+        }
+      ],
+      "isFavorites": false,
+      "isDeleted": false,
+      "tagIds": [],
+      "folderId": null,
+      "_id": "176c30e0-2e5d-4be8-a2f2-970eba03901c",
+      "createdAt": 1645021327365,
+      "updatedAt": 1645294503749
+    },
+    {
+      "name": "Echo something",
+      "content": [
+        {
+          "label": "Fragment 1",
+          "language": "shell",
+          "value": "# some comment\n# ${VAR1} Name: First Output\n# ${VAR1} Description: What to print on the terminal first\necho \"${VAR1}\"\n\n# ${VAR2} Name: Second Output\n# ${VAR2} Description: What to print on the terminal second\n# ${VAR2} Default: friend\necho \"${VAR2}\"\n\n# ${VAR3} Name: Third Output\n# ${VAR3} Description: hat to print on the terminal third\n# ${VAR3} Values: One + some more, \"Two\",Three,  ,\n# ${VAR3} Values: Four\\, and some more, Five\n# ${VAR3} Default: Three\necho \"${VAR3}\"\n"
+        }
+      ],
+      "isFavorites": false,
+      "isDeleted": false,
+      "tagIds": [
+        "f0ae0a2d-477b-4a43-8f7e-5d185c1869f3"
+      ],
+      "folderId": null,
+      "_id": "aea48e0f-2df6-4383-8dda-2b0e1301cc4c",
+      "createdAt": 1645021327366,
+      "updatedAt": 1645294488390
+    },
+    {
+      "name": "markdown file",
+      "folderId": "211ecf93-fb10-48e6-8b84-83cef7ff7003",
+      "content": [
+        {
+          "label": "Fragment 1",
+          "language": "markdown",
+          "value": "# Title"
+        }
+      ],
+      "tagIds": [],
+      "isFavorites": false,
+      "isDeleted": false,
+      "_id": "9b571f45-7cf1-4a98-b1cf-9758e1ac52b6",
+      "createdAt": 1645294628095,
+      "updatedAt": 1645294641300
+    }
+  ],
+  "tags": [
+    {
+      "name": "snipkit",
+      "_id": "f0ae0a2d-477b-4a43-8f7e-5d185c1869f3",
+      "createdAt": 1645021327366,
+      "updatedAt": 1645021327366
+    }
+  ]
+}

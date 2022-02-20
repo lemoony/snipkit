@@ -25,6 +25,7 @@ Execute the scripts saved in your favorite snippet manager without even leaving 
   - [Snip](https://github.com/Pictarine/macos-snippets)
   - GitHub Gist ([Example gist](https://gist.github.com/lemoony/4905e7468b8f0a7991d6122d7d09e40d))
   - [Pet](https://github.com/knqyf263/pet)
+  - [MassCode](https://masscode.io/)
   - File system directory
 - Search for snippets by typing
 - Parameter substitution
