@@ -11,7 +11,7 @@ require (
 	github.com/adrg/xdg v0.4.0
 	github.com/alecthomas/chroma v0.10.0
 	github.com/charmbracelet/bubbles v0.10.2
-	github.com/charmbracelet/bubbletea v0.19.3
+	github.com/charmbracelet/bubbletea v0.20.0
 	github.com/charmbracelet/lipgloss v0.4.0
 	github.com/cli/oauth v0.9.0
 	github.com/corbym/gocrest v1.0.5
@@ -19,7 +19,7 @@ require (
 	github.com/hinshun/vt10x v0.0.0-20180809195222-d55458df857c
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51
 	github.com/muesli/reflow v0.3.0
-	github.com/muesli/termenv v0.11.0
+	github.com/muesli/termenv v0.11.1-0.20220212125758-44cd13922739
 	github.com/phuslu/log v1.0.77
 	github.com/rivo/tview v0.0.0-20211202162923-2a6de950f73b
 	github.com/spf13/afero v1.8.1
@@ -36,7 +36,7 @@ require (
 require (
 	github.com/atotto/clipboard v0.1.4 // indirect
 	github.com/cli/browser v1.1.0 // indirect
-	github.com/containerd/console v1.0.2 // indirect
+	github.com/containerd/console v1.0.3 // indirect
 	github.com/danieljoos/wincred v1.1.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dlclark/regexp2 v1.4.0 // indirect
