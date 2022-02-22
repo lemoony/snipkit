@@ -12,7 +12,7 @@ require (
 	github.com/alecthomas/chroma v0.10.0
 	github.com/charmbracelet/bubbles v0.10.3
 	github.com/charmbracelet/bubbletea v0.20.0
-	github.com/charmbracelet/lipgloss v0.4.0
+	github.com/charmbracelet/lipgloss v0.5.0
 	github.com/cli/oauth v0.9.0
 	github.com/corbym/gocrest v1.0.5
 	github.com/gdamore/tcell/v2 v2.4.1-0.20210905002822-f057f0a857a1
