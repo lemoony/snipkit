@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/lemoony/snipkit/internal/model"
-	system "github.com/lemoony/snipkit/internal/utils/system"
+	"github.com/lemoony/snipkit/internal/utils/system"
 	"github.com/lemoony/snipkit/internal/utils/testutil"
 )
 
@@ -18,8 +18,8 @@ func Test_GetInfo(t *testing.T) {
 		Version:      version2,
 	}
 
-	system := testutil.NewTestSystem()
-	provider, err := NewManager(WithSystem(system), WithConfig(config))
+	sys := testutil.NewTestSystem(system.WithUserHome(testDataUserHomeV2))
+	provider, err := NewManager(WithSystem(sys), WithConfig(config))
 	assert.NoError(t, err)
 
 	info := provider.Info()
@@ -52,33 +52,18 @@ func Test_Sync(t *testing.T) {
 
 func Test_GetSnippets(t *testing.T) {
 	tests := []struct {
-		name                     string
-		userHome                 string
-		version                  Version
-		includeTags              []string
-		expectedNumberOfSnippets int
+		name        string
+		userHome    string
+		version     Version
+		tags        []string
+		expectedLen int
 	}{
-		{
-			name:                     "v2 - no tags",
-			userHome:                 testDataUserHomeV2,
-			version:                  version2,
-			includeTags:              []string{},
-			expectedNumberOfSnippets: 3,
-		},
-		{
-			name:                     "v2 - 1 tag",
-			userHome:                 testDataUserHomeV2,
-			version:                  version2,
-			includeTags:              []string{"snipkit"},
-			expectedNumberOfSnippets: 1,
-		},
-		{
-			name:                     "v2 - tag excludes all",
-			userHome:                 testDataUserHomeV2,
-			version:                  version2,
-			includeTags:              []string{"foo"},
-			expectedNumberOfSnippets: 0,
-		},
+		{name: "v2 - no tags", userHome: testDataUserHomeV2, version: version2, tags: []string{}, expectedLen: 3},
+		{name: "v2 - 1 tag", userHome: testDataUserHomeV2, version: version2, tags: []string{"snipkit"}, expectedLen: 1},
+		{name: "v2 - tag excludes all", userHome: testDataUserHomeV2, version: version2, tags: []string{"foo"}, expectedLen: 0},
+		{name: "v1 - no tags", userHome: testDataUserHomeV1, version: version1, tags: []string{}, expectedLen: 2},
+		{name: "v1 - 1 tags", userHome: testDataUserHomeV1, version: version1, tags: []string{"snipkit"}, expectedLen: 1},
+		{name: "v1 - tage excludes all", userHome: testDataUserHomeV1, version: version1, tags: []string{"foo"}, expectedLen: 0},
 	}
 
 	for _, tt := range tests {
@@ -88,11 +73,11 @@ func Test_GetSnippets(t *testing.T) {
 				Enabled:      true,
 				MassCodeHome: filepath.Join(tt.userHome, defaultMassCodeHomePath),
 				Version:      tt.version,
-				IncludeTags:  tt.includeTags,
+				IncludeTags:  tt.tags,
 			}
 
 			provider, _ := NewManager(WithSystem(sys), WithConfig(config))
-			assert.Len(t, provider.GetSnippets(), tt.expectedNumberOfSnippets)
+			assert.Len(t, provider.GetSnippets(), tt.expectedLen)
 		})
 	}
 }

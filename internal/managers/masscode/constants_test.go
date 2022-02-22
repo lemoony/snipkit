@@ -8,6 +8,7 @@ const (
 )
 
 var (
+	testDataMassCodeV1Path = filepath.Join(testDataUserHomeV1, defaultMassCodeHomePath)
 	testDataMassCodeV2Path = filepath.Join(testDataUserHomeV2, defaultMassCodeHomePath)
 	testDataLibraryV2Path  = filepath.Join(testDataUserHomeV2, defaultMassCodeHomePath, v2DatabaseFile)
 )

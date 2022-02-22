@@ -76,7 +76,7 @@ func (m *Manager) GetSnippets() []model.Snippet {
 
 	var snippets []model.Snippet
 	if m.config.Version == version1 {
-		// TODO
+		snippets = parseDBFileV1(m.system, filepath.Join(m.system.UserHome(), defaultMassCodeHomePath))
 	} else if m.config.Version == version2 {
 		snippets = parseDBFileV2(m.system, filepath.Join(m.system.UserHome(), defaultMassCodeHomePath, v2DatabaseFile))
 	}

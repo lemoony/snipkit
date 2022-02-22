@@ -14,21 +14,20 @@ var languageMapping = map[string]model.Language{
 	"toml":     model.LanguageTOML,
 }
 
-type v2DbFile struct {
-	Snippets []rawSnippet `json:"Snippets"`
-	Tags     []rawTag     `json:"Tags"`
-}
-
 type rawTag struct {
-	Name string `json:"name"`
-	ID   string `json:"_id"`
+	ID      string `json:"_id"`
+	Deleted bool   `json:"$$deleted"`
+	Name    string `json:"name"`
 }
 
 type rawSnippet struct {
-	Name    string   `json:"name"`
-	ID      string   `json:"_id"`
-	TagIDs  []string `json:"tagIds"`
-	Content []struct {
+	ID        string   `json:"_id"`
+	Deleted   bool     `json:"$$deleted"`
+	Name      string   `json:"name"`
+	TagIDs    []string `json:"tagIds"` // used for v2.
+	Tags      []string `json:"tags"`   // used for v1.
+	IsInTrash bool     `json:"isDeleted"`
+	Content   []struct {
 		Language string `json:"language"`
 		Value    string `json:"value"`
 	}
@@ -37,27 +36,24 @@ type rawSnippet struct {
 func parseDBFileV2(sys *system.System, path string) []model.Snippet {
 	var result []model.Snippet
 
+	type v2DbFile struct {
+		Snippets []rawSnippet `json:"Snippets"`
+		Tags     []rawTag     `json:"Tags"`
+	}
+
 	var dbFile v2DbFile
 	contents := sys.ReadFile(path)
 	if err := json.Unmarshal(contents, &dbFile); err != nil {
 		panic(err)
 	}
 
-	tagMap := toTagMap(dbFile.Tags)
+	tagMap := toTagMapV2(dbFile.Tags)
 
 	for _, raw := range dbFile.Snippets {
-		var tags []string
-		tagIds := raw.TagIDs
-		for t := range raw.TagIDs {
-			if tag, ok := tagMap[tagIds[t]]; ok {
-				tags = append(tags, tag)
-			}
-		}
-
 		result = append(result, &snippetImpl{
 			id:       raw.ID,
 			title:    raw.Name,
-			tags:     tags,
+			tags:     toTagNames(raw.TagIDs, tagMap),
 			content:  raw.Content[0].Value,
 			language: mapLanguage(raw.Content[0].Language),
 		})
@@ -66,7 +62,7 @@ func parseDBFileV2(sys *system.System, path string) []model.Snippet {
 	return result
 }
 
-func toTagMap(tags []rawTag) map[string]string {
+func toTagMapV2(tags []rawTag) map[string]string {
 	result := map[string]string{}
 	for i := range tags {
 		result[tags[i].ID] = tags[i].Name
@@ -79,4 +75,15 @@ func mapLanguage(value string) model.Language {
 		return l
 	}
 	return model.LanguageText
+}
+
+func toTagNames(tagIDs []string, tagMap map[string]string) []string {
+	var tags []string
+	tagIds := tagIDs
+	for t := range tagIDs {
+		if tag, ok := tagMap[tagIds[t]]; ok {
+			tags = append(tags, tag)
+		}
+	}
+	return tags
 }

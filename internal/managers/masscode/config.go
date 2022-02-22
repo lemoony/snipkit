@@ -48,7 +48,7 @@ func findMassCodeHome(sys *system.System) autoDetectResult {
 	if v2DBFile := filepath.Join(defaultHome, v2DatabaseFile); sys.FileExists(v2DBFile) {
 		result.found = true
 		result.version = version2
-	} else if v1DBFile := filepath.Join(defaultHome, v1DatabaseFile); sys.FileExists(v1DBFile) {
+	} else if v1DBFile := filepath.Join(defaultHome, v1SnippetsFile); sys.FileExists(v1DBFile) {
 		result.found = true
 	}
 
