@@ -1,4 +1,6 @@
 linters-settings:
+  gci:
+    sections: [standard, default, Prefix(github.com/lemoony/snipkit)]
   goimports:
     local-prefixes: github.com/lemoony/snipkit
   revive:
