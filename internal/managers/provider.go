@@ -6,6 +6,7 @@ import (
 	"github.com/lemoony/snipkit/internal/cache"
 	"github.com/lemoony/snipkit/internal/managers/fslibrary"
 	"github.com/lemoony/snipkit/internal/managers/githubgist"
+	"github.com/lemoony/snipkit/internal/managers/masscode"
 	"github.com/lemoony/snipkit/internal/managers/pet"
 	"github.com/lemoony/snipkit/internal/managers/pictarinesnip"
 	"github.com/lemoony/snipkit/internal/managers/snippetslab"
@@ -39,6 +40,9 @@ func (p providerImpl) CreateManager(system system.System, config Config) []Manag
 	if manager := createPetConfig(system, config); manager != nil {
 		managers = append(managers, manager)
 	}
+	if manager := createMassCodeConfig(system, config); manager != nil {
+		managers = append(managers, manager)
+	}
 	if manager := createGitHubGist(system, config, p.cache); manager != nil {
 		managers = append(managers, manager)
 	}
@@ -62,6 +66,9 @@ func (p providerImpl) ManagerDescriptions(config Config) []model.ManagerDescript
 	if config.Pet == nil || !config.Pet.Enabled {
 		infos = append(infos, pet.Description(config.Pet))
 	}
+	if config.MassCode == nil || !config.MassCode.Enabled {
+		infos = append(infos, masscode.Description(config.MassCode))
+	}
 	if config.GithubGist == nil || !config.GithubGist.Enabled {
 		infos = append(infos, githubgist.Description(config.GithubGist))
 	}
@@ -79,6 +86,8 @@ func (p providerImpl) AutoConfig(key model.ManagerKey, s *system.System) Config 
 		return Config{PictarineSnip: pictarinesnip.AutoDiscoveryConfig(s)}
 	case pet.Key:
 		return Config{Pet: pet.AutoDiscoveryConfig(s)}
+	case masscode.Key:
+		return Config{MassCode: masscode.AutoDiscoveryConfig(s)}
 	case githubgist.Key:
 		return Config{GithubGist: githubgist.AutoDiscoveryConfig()}
 	case fslibrary.Key:
@@ -120,6 +129,17 @@ func createPetConfig(system system.System, config Config) Manager {
 		return nil
 	}
 	manager, err := pet.NewManager(pet.WithSystem(&system), pet.WithConfig(*config.Pet))
+	if err != nil {
+		panic(err)
+	}
+	return manager
+}
+
+func createMassCodeConfig(system system.System, config Config) Manager {
+	if config.Pet == nil || !config.Pet.Enabled {
+		return nil
+	}
+	manager, err := masscode.NewManager(masscode.WithSystem(&system), masscode.WithConfig(*config.MassCode))
 	if err != nil {
 		panic(err)
 	}

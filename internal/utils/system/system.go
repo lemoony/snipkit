@@ -160,6 +160,14 @@ func (s *System) RemoveAll(path string) {
 	}
 }
 
+func (s *System) FileExists(path string) bool {
+	exists, err := afero.Exists(s.Fs, path)
+	if err != nil {
+		panic(NewErrFileSystem(err, path, "failed to check if exists"))
+	}
+	return exists
+}
+
 func (s *System) DirExists(path string) bool {
 	exists, err := afero.DirExists(s.Fs, path)
 	if err != nil {
