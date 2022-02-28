@@ -5,7 +5,7 @@ go 1.17
 replace github.com/rivo/tview v0.0.0-20211202162923-2a6de950f73b => github.com/lemoony/tview v0.0.0-20220108075851-caa9ee4cec2d
 
 require (
-	emperror.dev/errors v0.8.0
+	emperror.dev/errors v0.8.1
 	github.com/BurntSushi/toml v1.0.0
 	github.com/Netflix/go-expect v0.0.0-20211003183012-e1a7c020ce25
 	github.com/adrg/xdg v0.4.0
