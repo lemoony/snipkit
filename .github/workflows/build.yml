@@ -22,7 +22,7 @@ jobs:
           # https://github.com/jaraco/keyring/blob/main/README.rst#using-keyring-on-headless-linux-systems
           make ci
       - name: Upload coverage
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: coverage
           path: coverage.*
@@ -45,7 +45,7 @@ jobs:
       - name: Build
         run: make ci
       - name: Upload coverage
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: coverage
           path: coverage.*
