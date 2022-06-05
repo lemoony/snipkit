@@ -3,7 +3,7 @@ module github.com/lemoony/snipkit/tools
 go 1.18
 
 require (
-	github.com/daixiang0/gci v0.3.3
+	github.com/daixiang0/gci v0.3.4
 	github.com/golangci/golangci-lint v1.46.2
 	github.com/goreleaser/goreleaser v1.5.0
 	github.com/vektra/mockery/v2 v2.12.3
@@ -251,6 +251,9 @@ require (
 	github.com/yeya24/promlinter v0.2.0 // indirect
 	gitlab.com/bosi/decorder v0.2.1 // indirect
 	go.opencensus.io v0.23.0 // indirect
+	go.uber.org/atomic v1.9.0 // indirect
+	go.uber.org/multierr v1.7.0 // indirect
+	go.uber.org/zap v1.19.0 // indirect
 	gocloud.dev v0.24.0 // indirect
 	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4 // indirect
 	golang.org/x/exp/typeparams v0.0.0-20220218215828-6cf2b201936e // indirect
