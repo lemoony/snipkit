@@ -1,15 +1,14 @@
 package termtest
 
 import (
-	"bytes"
 	"fmt"
 	"testing"
 	"time"
 
 	"github.com/Netflix/go-expect"
+	pseudotty "github.com/creack/pty"
 	"github.com/hinshun/vt10x"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 
 	"github.com/lemoony/snipkit/internal/utils/termutil"
 )
@@ -68,13 +67,16 @@ func Keys(keys ...Key) []string {
 func RunTerminalTest(t *testing.T, test func(c *Console), setupFunc func(termutil.Stdio)) {
 	t.Helper()
 
-	// Multiplex output to a buffer as well for the raw bytes.
-	buf := new(bytes.Buffer)
-	c, state, err := vt10x.NewVT10XConsole(
-		expect.WithStdout(buf),
-		expect.WithDefaultTimeout(defaultTestTimeout),
-	)
-	require.Nil(t, err)
+	pty, tty, err := pseudotty.Open()
+	if err != nil {
+		t.Fatalf("failed to open pseudotty: %v", err)
+	}
+
+	term := vt10x.New(vt10x.WithWriter(tty))
+	c, err := expect.NewConsole(expect.WithStdin(pty), expect.WithStdout(term), expect.WithCloser(pty, tty))
+	if err != nil {
+		t.Fatalf("failed to create console: %v", err)
+	}
 	defer func() {
 		_ = c.Close()
 	}()
@@ -96,11 +98,6 @@ func RunTerminalTest(t *testing.T, test func(c *Console), setupFunc func(termuti
 
 	// Close the slave end of the pty, and read the remaining bytes from the master end.
 	assert.NoError(t, c.Tty().Close())
-
-	t.Logf("Raw output: %q", buf.String())
-
-	// Dump the terminal's screen.
-	t.Logf("\n%s", expect.StripTrailingEmptyLines(state.String()))
 }
 
 func runWithTimeout(t *testing.T, procedure func(), timeout time.Duration) {
