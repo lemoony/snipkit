@@ -17,12 +17,6 @@ jobs:
       - uses: actions/setup-go@v3
         with:
           go-version: 1.18
-      - name: Install mockery
-        uses: jaxxstorm/action-install-gh-release@v1.5.0
-        with:
-          repo: vektra/mockery
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Build
         run: |
           # https://github.com/jaraco/keyring/blob/main/README.rst#using-keyring-on-headless-linux-systems
@@ -48,12 +42,6 @@ jobs:
       - uses: actions/setup-go@v3
         with:
           go-version: 1.18
-      - name: Install mockery
-        uses: jaxxstorm/action-install-gh-release@v1.5.0
-        with:
-          repo: vektra/mockery
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Build
         run: make ci
       - name: Upload coverage
