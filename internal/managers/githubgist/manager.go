@@ -26,7 +26,7 @@ var errAbort = errors.New("abort")
 type Manager struct {
 	system      *system.System
 	config      Config
-	suffixRegex []*regexp.Regexp //nolint:structcheck,unused // ignore for now since not used yet
+	suffixRegex []*regexp.Regexp //nolint:unused // ignore for now since not used yet
 	cache       cache.Cache
 	browseURL   func(s string) error
 }
