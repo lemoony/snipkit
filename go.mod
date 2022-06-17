@@ -2,7 +2,10 @@ module github.com/lemoony/snipkit
 
 go 1.18
 
-replace github.com/rivo/tview v0.0.0-20220307222120-9994674d60a8 => github.com/lemoony/tview v0.0.0-20220108075851-caa9ee4cec2d
+//replace github.com/rivo/tview v0.0.0-20220307222120-9994674d60a8 => github.com/lemoony/tview v0.0.0-20220108075851-caa9ee4cec2d
+
+replace github.com/rivo/tview => /Users/Shared/lemoony/tview
+
 
 require (
 	emperror.dev/errors v0.8.1
