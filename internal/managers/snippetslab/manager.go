@@ -89,27 +89,29 @@ func (m *Manager) Sync(model.SyncEventChannel) {
 }
 
 func (m *Manager) GetSnippets() []model.Snippet {
-	validTagUUIDs := m.getValidTagUUIDs()
+	validTagUUIDs, hasTags := m.getValidTagUUIDs()
 
 	snippets, err := parseSnippets(m.libraryPath())
 	if err != nil {
 		panic(err)
 	}
 
-	if len(validTagUUIDs) == 0 {
-		return snippets
-	} else {
+	if hasTags {
 		var result []model.Snippet
-		for _, snippet := range snippets {
-			if tagutil.HasValidTag(validTagUUIDs, snippet.GetTags()) {
-				result = append(result, snippet)
+		if len(validTagUUIDs) > 0 {
+			for _, snippet := range snippets {
+				if tagutil.HasValidTag(validTagUUIDs, snippet.GetTags()) {
+					result = append(result, snippet)
+				}
 			}
 		}
 		return result
 	}
+
+	return snippets
 }
 
-func (m *Manager) getValidTagUUIDs() stringutil.StringSet {
+func (m *Manager) getValidTagUUIDs() (stringutil.StringSet, bool) {
 	tags, err := parseTags(m.libraryPath())
 	if err != nil {
 		panic(err)
@@ -124,5 +126,5 @@ func (m *Manager) getValidTagUUIDs() stringutil.StringSet {
 		}
 	}
 
-	return result
+	return result, len(m.config.IncludeTags) > 0
 }

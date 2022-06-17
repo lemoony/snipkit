@@ -24,6 +24,24 @@ func Test_GetSnippets(t *testing.T) {
 			},
 			expectedCount: 2,
 		},
+		{
+			name: "one valid tag",
+			configFunc: func(config *Config) {
+				config.Enabled = true
+				config.LibraryPath = testDataDefaultLibraryPath
+				config.IncludeTags = []string{"snipkit"}
+			},
+			expectedCount: 1,
+		},
+		{
+			name: "unknown tag",
+			configFunc: func(config *Config) {
+				config.Enabled = true
+				config.LibraryPath = testDataDefaultLibraryPath
+				config.IncludeTags = []string{"foo"}
+			},
+			expectedCount: 0,
+		},
 	}
 
 	for _, tt := range tests {
