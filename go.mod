@@ -26,7 +26,7 @@ require (
 	github.com/spf13/afero v1.8.2
 	github.com/spf13/cobra v1.4.0
 	github.com/spf13/viper v1.12.0
-	github.com/stretchr/testify v1.7.3
+	github.com/stretchr/testify v1.7.5
 	github.com/zalando/go-keyring v0.2.1
 	golang.org/x/term v0.0.0-20220526004731-065cf7ba2467
 	gopkg.in/h2non/gock.v1 v1.1.2
