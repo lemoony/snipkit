@@ -72,7 +72,7 @@ func (p providerImpl) ManagerDescriptions(config Config) []model.ManagerDescript
 	if config.GithubGist == nil || !config.GithubGist.Enabled {
 		infos = append(infos, githubgist.Description(config.GithubGist))
 	}
-	if config.PictarineSnip == nil || !config.FsLibrary.Enabled {
+	if config.FsLibrary == nil || !config.FsLibrary.Enabled {
 		infos = append(infos, fslibrary.Description(config.FsLibrary))
 	}
 	return infos
@@ -136,7 +136,7 @@ func createPetConfig(system system.System, config Config) Manager {
 }
 
 func createMassCodeConfig(system system.System, config Config) Manager {
-	if config.Pet == nil || !config.Pet.Enabled {
+	if config.MassCode == nil || !config.MassCode.Enabled {
 		return nil
 	}
 	manager, err := masscode.NewManager(masscode.WithSystem(&system), masscode.WithConfig(*config.MassCode))
