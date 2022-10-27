@@ -29,7 +29,7 @@ const (
 
 	yamlDefaultIndent = 2
 
-	version = "1.1.0"
+	version = "1.1.1"
 )
 
 var sliceIndexRegex = regexp.MustCompile(`\[\d]`)

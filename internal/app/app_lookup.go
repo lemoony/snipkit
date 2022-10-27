@@ -10,7 +10,7 @@ func (a *appImpl) LookupSnippet() model.Snippet {
 		panic(ErrNoSnippetsAvailable)
 	}
 
-	if index := a.tui.ShowLookup(snippets); index < 0 {
+	if index := a.tui.ShowLookup(snippets, a.config.FuzzySearch); index < 0 {
 		return nil
 	} else {
 		return snippets[index]
