@@ -62,7 +62,7 @@ func NewTestConfigFilePath(t *testing.T, fs afero.Fs, options ...Option) string 
 
 func NewTestConfig() config.VersionWrapper {
 	return config.VersionWrapper{
-		Version: "1.0",
+		Version: "1.1.1",
 		Config: config.Config{
 			Editor: "test-editor",
 			Style:  ui.DefaultConfig(),

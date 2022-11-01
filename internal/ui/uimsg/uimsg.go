@@ -16,7 +16,8 @@ import (
 )
 
 const (
-	configNotFound = "config_not_found.gotmpl"
+	configNeedsMigration = "config_needs_migration.gotmpl"
+	configNotFound       = "config_not_found.gotmpl"
 
 	configFileCreateConfirm = "config_file_create_confirm.gotmpl"
 	configFileCreateResult  = "config_file_create_result.gotmpl"
@@ -162,6 +163,13 @@ func ConfigNotFound(configPath string) Printable {
 	return Printable{
 		template: configNotFound,
 		data:     map[string]interface{}{"cfgPath": configPath},
+	}
+}
+
+func ConfigNeedsMigration(current string, latest string) Printable {
+	return Printable{
+		template: configNeedsMigration,
+		data:     map[string]interface{}{"current": current, "latest": latest},
 	}
 }
 

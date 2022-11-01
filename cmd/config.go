@@ -42,10 +42,22 @@ present, vim is used.`,
 	},
 }
 
+var configMigrateCommand = &cobra.Command{
+	Use:   "migrate",
+	Short: "Migrate the snipkit config",
+	Long: `The snipkit configuration file will be migrated to the latest version.
+This command will do nothing if the version of the config file is already up-to-date.`,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		getConfigServiceFromContext(cmd.Context()).Migrate()
+		return nil
+	},
+}
+
 func init() {
 	rootCmd.AddCommand(configCmd)
 
 	configCmd.AddCommand(configInitCommand)
 	configCmd.AddCommand(configEditCommand)
+	configCmd.AddCommand(configMigrateCommand)
 	configCmd.AddCommand(configCleanCommand)
 }

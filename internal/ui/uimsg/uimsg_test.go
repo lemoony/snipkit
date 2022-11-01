@@ -25,6 +25,10 @@ func Test_ConfigNotFound(t *testing.T) {
 	assert.Contains(t, render(ConfigNotFound(testCfgPath)), testCfgPath)
 }
 
+func Test_ConfigNeedsMigration(t *testing.T) {
+	assert.Contains(t, render(ConfigNeedsMigration("1.0", "2.0")), "migrate the config file")
+}
+
 func Test_ConfigFileCreateConfirm(t *testing.T) {
 	tests := []struct {
 		name    string

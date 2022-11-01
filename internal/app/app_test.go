@@ -40,8 +40,26 @@ func Test_NewAppInvalidConfigFile(t *testing.T) {
 	})
 }
 
-func Test_NewAppNoManagers(t *testing.T) {
+func Test_NewAppConfigMigrate(t *testing.T) {
 	cfg := config.VersionWrapper{Version: "1.0.0", Config: config.Config{}}
+	cfgFile := path.Join(t.TempDir(), "temp-config.yaml")
+
+	if cfgBytes, err := yaml.Marshal(cfg); err != nil {
+		assert.NoError(t, err)
+	} else {
+		assert.NoError(t, ioutil.WriteFile(cfgFile, cfgBytes, 0o600))
+	}
+
+	v := viper.NewWithOptions()
+	v.SetConfigFile(cfgFile)
+
+	_ = assertutil.AssertPanicsWithError(t, config.ErrMigrateConfig{}, func() {
+		_ = NewApp(WithConfigService(config.NewService(config.WithViper(v))))
+	})
+}
+
+func Test_NewAppNoManagers(t *testing.T) {
+	cfg := config.VersionWrapper{Version: "1.1.1", Config: config.Config{}}
 	cfgFile := path.Join(t.TempDir(), "temp-config.yaml")
 
 	if cfgBytes, err := yaml.Marshal(cfg); err != nil {

@@ -40,6 +40,7 @@ type Service interface {
 	Edit()
 	Clean()
 	UpdateManagerConfig(config managers.Config)
+	Migrate()
 	ConfigFilePath() string
 	Info() []model.InfoLine
 }
@@ -89,6 +90,10 @@ func (s *serviceImpl) LoadConfig() (Config, error) {
 
 	if wrapper.Version != version {
 		log.Warn().Msgf("Config version is not up to date - expected %s, actual %s", version, wrapper.Version)
+		return invalidConfig, ErrMigrateConfig{
+			currentVersion: wrapper.Version,
+			latestVersion:  version,
+		}
 	}
 
 	s.config = &wrapper.Config
@@ -168,6 +173,10 @@ func (s *serviceImpl) UpdateManagerConfig(managerConfig managers.Config) {
 
 	bytes := SerializeToYamlWithComment(wrap(config))
 	s.system.WriteFile(s.ConfigFilePath(), bytes)
+}
+
+func (s *serviceImpl) Migrate() {
+	print("Migrated")
 }
 
 func (s *serviceImpl) hasConfig() bool {
