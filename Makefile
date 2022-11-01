@@ -44,7 +44,7 @@ vet: ## go vet
 fmt: ## go fmt
 	$(call print-target)
 	go fmt ./...
-	gci write --Section Standard --Section Default --Section "Prefix(github.com/lemoony/snipkit)" ./
+	gci write -s standard -s default -s "prefix(github.com/lemoony/snipkit)" main.go ./cmd ./internal ./themes
 	gofumpt -l -w .
 
 .PHONY: lint
