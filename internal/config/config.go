@@ -21,7 +21,8 @@ type Config struct {
 	Style              ui.Config       `yaml:"style" mapstructure:"style"`
 	Editor             string          `yaml:"editor" mapstructure:"editor" head_comment:"Your preferred editor to open the config file when typing 'snipkit config edit'." line_comment:"Defaults to a reasonable value for your operation system when empty."`
 	DefaultRootCommand string          `yaml:"defaultRootCommand" mapstructure:"defaultRootCommand" head_comment:"The command which should run if you don't provide any subcommand." line_comment:"If not set, the help text will be shown."`
-	Script             ScriptConfig    `yaml:"scripts" mapstructure:"Options regarding script handling"`
+	FuzzySearch        bool            `yaml:"fuzzySearch" mapstructure:"fuzzySearch" head_comment:"Enable fuzzy searching for snippet titles."`
+	Script             ScriptConfig    `yaml:"scripts" mapstructure:"scripts" head_comment:"Options regarding script handling"`
 	Manager            managers.Config `yaml:"manager" mapstructure:"manager"`
 }
 

@@ -23,6 +23,8 @@ func Test_serializeToYamlWithComment(t *testing.T) {
 	testConfig.Config.Style.Theme = "simple"
 	testConfig.Config.Style.HideKeyMap = true
 
+	testConfig.Config.FuzzySearch = true
+
 	testConfig.Config.Manager.SnippetsLab = &snippetslab.Config{
 		Enabled: true, LibraryPath: "/path/to/lib", IncludeTags: []string{"snipkit", "othertag"},
 	}

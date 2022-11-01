@@ -35,7 +35,7 @@ echo "${VAR1}"`
 
 	tui := uiMocks.TUI{}
 	tui.On(mockutil.ApplyConfig, mock.Anything, mock.Anything).Return()
-	tui.On("ShowLookup", mock.Anything).Return(0)
+	tui.On("ShowLookup", mock.Anything, mock.Anything).Return(0)
 	tui.On("ShowParameterForm", mock.Anything, mock.Anything).Return([]string{inputVar1Value, ""}, true)
 
 	tui.On(mockutil.PrintMessage, inputVar1Value+"\n").Return()

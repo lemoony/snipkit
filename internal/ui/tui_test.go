@@ -115,7 +115,7 @@ func Test_ShowLookup(t *testing.T) {
 
 	runScreenTest(t, func(s tcell.Screen) {
 		term := NewTUI(WithScreen(s))
-		selected := term.ShowLookup(snippets)
+		selected := term.ShowLookup(snippets, false)
 		assert.Equal(t, 1, selected)
 	}, func(screen tcell.SimulationScreen) {
 		time.Sleep(time.Millisecond * 50)

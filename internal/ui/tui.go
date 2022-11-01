@@ -69,7 +69,7 @@ type TUI interface {
 	PrintError(message string)
 	Confirmation(confirm uimsg.Confirm, options ...confirm.Option) bool
 	OpenEditor(path string, preferredEditor string)
-	ShowLookup(snippets []model.Snippet) int
+	ShowLookup(snippets []model.Snippet, fuzzySearch bool) int
 	ShowParameterForm(parameters []model.Parameter, okButton OkButton) ([]string, bool)
 	ShowPicker(items []picker.Item, options ...tea.ProgramOption) (int, bool)
 	ShowSync() sync.Screen
