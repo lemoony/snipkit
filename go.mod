@@ -24,7 +24,7 @@ require (
 	github.com/phuslu/log v1.0.80
 	github.com/rivo/tview v0.0.0-20220610163003-691f46d6f500
 	github.com/spf13/afero v1.8.2
-	github.com/spf13/cobra v1.4.0
+	github.com/spf13/cobra v1.6.1
 	github.com/spf13/viper v1.12.0
 	github.com/stretchr/testify v1.7.3
 	github.com/zalando/go-keyring v0.2.1
@@ -47,7 +47,7 @@ require (
 	github.com/godbus/dbus/v5 v5.1.0 // indirect
 	github.com/h2non/parth v0.0.0-20190131123155-b4df798d6542 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
-	github.com/inconshreveable/mousetrap v1.0.0 // indirect
+	github.com/inconshreveable/mousetrap v1.0.1 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
 	github.com/magiconair/properties v1.8.6 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
