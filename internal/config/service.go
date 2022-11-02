@@ -1,13 +1,16 @@
 package config
 
 import (
+	"io/ioutil"
 	"path/filepath"
 
 	"emperror.dev/errors"
 	"github.com/phuslu/log"
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
+	"gopkg.in/yaml.v3"
 
+	"github.com/lemoony/snipkit/internal/config/migrations"
 	"github.com/lemoony/snipkit/internal/managers"
 	"github.com/lemoony/snipkit/internal/model"
 	"github.com/lemoony/snipkit/internal/ui"
@@ -40,16 +43,18 @@ type Service interface {
 	Edit()
 	Clean()
 	UpdateManagerConfig(config managers.Config)
-	Migrate()
+	NeedsMigration() (bool, string, string)
+	Migrate(bool) string
 	ConfigFilePath() string
 	Info() []model.InfoLine
 }
 
 type serviceImpl struct {
-	v      *viper.Viper
-	system *system.System
-	tui    ui.TUI
-	config *Config
+	v       *viper.Viper
+	system  *system.System
+	tui     ui.TUI
+	version string
+	config  *Config
 }
 
 func (s *serviceImpl) Create() {
@@ -88,12 +93,9 @@ func (s *serviceImpl) LoadConfig() (Config, error) {
 		return invalidConfig, err
 	}
 
-	if wrapper.Version != version {
-		log.Warn().Msgf("Config version is not up to date - expected %s, actual %s", version, wrapper.Version)
-		return invalidConfig, ErrMigrateConfig{
-			currentVersion: wrapper.Version,
-			latestVersion:  version,
-		}
+	if wrapper.Version != Version {
+		log.Warn().Msgf("Config Version is not up to date - expected %s, actual %s", Version, wrapper.Version)
+		s.version = wrapper.Version
 	}
 
 	s.config = &wrapper.Config
@@ -175,8 +177,18 @@ func (s *serviceImpl) UpdateManagerConfig(managerConfig managers.Config) {
 	s.system.WriteFile(s.ConfigFilePath(), bytes)
 }
 
-func (s *serviceImpl) Migrate() {
-	print("Migrated")
+func (s *serviceImpl) NeedsMigration() (bool, string, string) {
+	return s.version != Version, s.version, Version
+}
+
+func (s *serviceImpl) Migrate(migrate bool) string {
+	if s.version == Version {
+		panic(errors.Errorf("Config is already up to date: %s", Version))
+	}
+
+	result := s.updateConfigToLatest()
+
+	return string(SerializeToYamlWithComment(result))
 }
 
 func (s *serviceImpl) hasConfig() bool {
@@ -216,6 +228,21 @@ func (s *serviceImpl) Info() []model.InfoLine {
 	cfg, err := s.LoadConfig()
 	if err == nil {
 		result = append(result, model.InfoLine{Key: "Theme", Value: cfg.Style.Theme})
+	}
+
+	return result
+}
+
+func (s *serviceImpl) updateConfigToLatest() VersionWrapper {
+	configBytes, err := ioutil.ReadFile(s.v.ConfigFileUsed())
+	if err != nil {
+		panic(err)
+	}
+	newConfig := migrations.Migrate(configBytes)
+
+	var result VersionWrapper
+	if err := yaml.Unmarshal(newConfig, &result); err != nil {
+		panic(err)
 	}
 
 	return result

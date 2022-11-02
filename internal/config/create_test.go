@@ -15,7 +15,7 @@ import (
 
 func Test_serializeToYamlWithComment(t *testing.T) {
 	var testConfig VersionWrapper
-	testConfig.Version = version
+	testConfig.Version = Version
 	testConfig.Config.Editor = "foo-editor"
 	testConfig.Config.Script.Shell = "/bin/zsh"
 	testConfig.Config.Script.RemoveComments = true

@@ -12,6 +12,7 @@ import (
 	"github.com/spf13/viper"
 	"gopkg.in/yaml.v3"
 
+	"github.com/lemoony/snipkit/internal/config/migrations"
 	"github.com/lemoony/snipkit/internal/ui"
 	"github.com/lemoony/snipkit/internal/utils/system"
 )
@@ -29,14 +30,14 @@ const (
 
 	yamlDefaultIndent = 2
 
-	version = "1.1.1"
+	Version = migrations.Latest
 )
 
 var sliceIndexRegex = regexp.MustCompile(`\[\d]`)
 
 func wrap(config Config) VersionWrapper {
 	return VersionWrapper{
-		Version: version,
+		Version: Version,
 		Config:  config,
 	}
 }

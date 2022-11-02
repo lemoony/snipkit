@@ -21,17 +21,3 @@ func (e ErrConfigNotFound) Is(target error) bool {
 	_, ok := target.(ErrConfigNotFound)
 	return ok
 }
-
-type ErrMigrateConfig struct {
-	currentVersion string
-	latestVersion  string
-}
-
-func (e ErrMigrateConfig) Error() string {
-	return uimsg.ConfigNeedsMigration(e.currentVersion, e.latestVersion).RenderWith(style.NoopStyle)
-}
-
-func (e ErrMigrateConfig) Is(target error) bool {
-	_, ok := target.(ErrMigrateConfig)
-	return ok
-}

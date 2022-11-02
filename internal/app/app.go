@@ -9,10 +9,26 @@ import (
 	"github.com/lemoony/snipkit/internal/managers"
 	"github.com/lemoony/snipkit/internal/model"
 	"github.com/lemoony/snipkit/internal/ui"
+	"github.com/lemoony/snipkit/internal/ui/style"
+	"github.com/lemoony/snipkit/internal/ui/uimsg"
 	"github.com/lemoony/snipkit/internal/utils/system"
 )
 
 var ErrNoSnippetsAvailable = errors.New("No snippets are available.")
+
+type ErrMigrateConfig struct {
+	currentVersion string
+	latestVersion  string
+}
+
+func (e ErrMigrateConfig) Error() string {
+	return uimsg.ConfigNeedsMigration(e.currentVersion, e.latestVersion).RenderWith(style.NoopStyle)
+}
+
+func (e ErrMigrateConfig) Is(target error) bool {
+	_, ok := target.(ErrMigrateConfig)
+	return ok
+}
 
 type App interface {
 	LookupSnippet() model.Snippet
@@ -21,6 +37,7 @@ type App interface {
 	Info()
 	AddManager()
 	SyncManager()
+	MigrateConfig()
 }
 
 // Option configures an App.

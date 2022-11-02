@@ -48,7 +48,8 @@ var configMigrateCommand = &cobra.Command{
 	Long: `The snipkit configuration file will be migrated to the latest version.
 This command will do nothing if the version of the config file is already up-to-date.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		getConfigServiceFromContext(cmd.Context()).Migrate()
+		app := getAppFromContext(cmd.Context())
+		app.MigrateConfig()
 		return nil
 	},
 }

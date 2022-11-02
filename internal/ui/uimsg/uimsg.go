@@ -25,6 +25,9 @@ const (
 	configFileDeleteConfirm = "config_file_delete_confirm.gotmpl"
 	configFileDeleteResult  = "config_file_delete_result.gotmpl"
 
+	configFileMigrationConfirm = "config_file_migration_confirm.gotmpl"
+	configFileMigrationResult  = "config_file_migration_result.gotmpl"
+
 	themesDeleteConfirm = "themes_delete_confirm.gotmpl"
 	themesDeleteResult  = "themes_delete_result.gotmpl"
 
@@ -119,6 +122,21 @@ func ConfigFileDeleteResult(deleted bool, configPath string) Printable {
 	return Printable{
 		template: configFileDeleteResult,
 		data:     map[string]interface{}{"deleted": deleted, "cfgPath": configPath},
+	}
+}
+
+func ConfigFileMigrationConfirm(cfg string) Confirm {
+	return Confirm{
+		Prompt:   "Do you want to apply the following change to the config?",
+		template: configFileMigrationConfirm,
+		data:     map[string]interface{}{"configYaml": cfg},
+	}
+}
+
+func ConfigFileMigrationResult(migrated bool, configPath string) Printable {
+	return Printable{
+		template: configFileMigrationResult,
+		data:     map[string]interface{}{"migrated": migrated, "cfgPath": configPath},
 	}
 }
 
