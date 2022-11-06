@@ -82,6 +82,20 @@ func Test_ConfigFileDeleteResult(t *testing.T) {
 	assert.Contains(t, render(ConfigFileDeleteResult(true, testCfgPath)), "Configuration file deleted")
 }
 
+func Test_ConfigFileMigrationConfirm(t *testing.T) {
+	configStr := `config: test`
+	c := ConfigFileMigrationConfirm(configStr)
+	assert.Contains(t, testutil.StripANSI(c.Header(testStyle, 0)), configStr)
+}
+
+func Test_ConfigFileMigrationResult(t *testing.T) {
+	assert.Contains(
+		t,
+		render(ConfigFileMigrationResult(false, testCfgPath)),
+		"The configuration file was not updated.",
+	)
+}
+
 func Test_HomeDirectoryStillExists(t *testing.T) {
 	assert.Contains(t, render(HomeDirectoryStillExists(testHomePath)), testHomePath)
 }

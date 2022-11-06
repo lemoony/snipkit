@@ -41,7 +41,9 @@ echo "${VAR1}"`
 	tui.On(mockutil.PrintMessage, inputVar1Value+"\n").Return()
 
 	app := NewApp(
-		WithTUI(&tui), WithConfig(configtest.NewTestConfig().Config), withManagerSnippets(snippets),
+		WithTUI(&tui),
+		WithConfig(configtest.NewTestConfig().Config),
+		withManagerSnippets(snippets),
 	)
 
 	app.LookupAndExecuteSnippet()

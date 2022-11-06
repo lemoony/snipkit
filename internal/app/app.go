@@ -37,7 +37,6 @@ type App interface {
 	Info()
 	AddManager()
 	SyncManager()
-	MigrateConfig()
 }
 
 // Option configures an App.
@@ -98,6 +97,10 @@ func NewApp(options ...Option) App {
 			panic(errors.WithStack(err))
 		} else {
 			app.config = &cfg
+		}
+
+		if needsMigration, fromVersion := app.configService.NeedsMigration(); needsMigration {
+			panic(ErrMigrateConfig{fromVersion, config.Version})
 		}
 	}
 

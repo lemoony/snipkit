@@ -127,7 +127,7 @@ func ConfigFileDeleteResult(deleted bool, configPath string) Printable {
 
 func ConfigFileMigrationConfirm(cfg string) Confirm {
 	return Confirm{
-		Prompt:   "Do you want to apply the following change to the config?",
+		Prompt:   "Do you want to apply the config change?",
 		template: configFileMigrationConfirm,
 		data:     map[string]interface{}{"configYaml": cfg},
 	}

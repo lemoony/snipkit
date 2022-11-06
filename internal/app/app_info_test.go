@@ -21,6 +21,7 @@ func Test_App_Info(t *testing.T) {
 
 	cfgService := configMocks.ConfigService{}
 	cfgService.On("LoadConfig").Return(cfg, nil)
+	cfgService.On("NeedsMigration").Return(false, "")
 	cfgService.On("Info").Return([]model.InfoLine{
 		{Key: "Some-Config-Key", Value: "Some-Value", IsError: false},
 	})

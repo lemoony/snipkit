@@ -43,8 +43,8 @@ type Service interface {
 	Edit()
 	Clean()
 	UpdateManagerConfig(config managers.Config)
-	NeedsMigration() (bool, string, string)
-	Migrate(bool) string
+	NeedsMigration() (bool, string)
+	Migrate()
 	ConfigFilePath() string
 	Info() []model.InfoLine
 }
@@ -95,9 +95,9 @@ func (s *serviceImpl) LoadConfig() (Config, error) {
 
 	if wrapper.Version != Version {
 		log.Warn().Msgf("Config Version is not up to date - expected %s, actual %s", Version, wrapper.Version)
-		s.version = wrapper.Version
 	}
 
+	s.version = wrapper.Version
 	s.config = &wrapper.Config
 
 	return *s.config, nil
@@ -177,18 +177,26 @@ func (s *serviceImpl) UpdateManagerConfig(managerConfig managers.Config) {
 	s.system.WriteFile(s.ConfigFilePath(), bytes)
 }
 
-func (s *serviceImpl) NeedsMigration() (bool, string, string) {
-	return s.version != Version, s.version, Version
+func (s *serviceImpl) NeedsMigration() (bool, string) {
+	return s.version != Version, s.version
 }
 
-func (s *serviceImpl) Migrate(migrate bool) string {
+func (s *serviceImpl) Migrate() {
+	s.tui.ApplyConfig(s.config.Style, s.system)
+
 	if s.version == Version {
 		panic(errors.Errorf("Config is already up to date: %s", Version))
 	}
 
-	result := s.updateConfigToLatest()
+	newConfig := s.updateConfigToLatest()
+	newConfigStr := SerializeToYamlWithComment(newConfig)
+	confirmed := s.tui.Confirmation(uimsg.ConfigFileMigrationConfirm(string(newConfigStr)))
 
-	return string(SerializeToYamlWithComment(result))
+	if confirmed {
+		print("confirmed")
+	}
+
+	s.tui.Print(uimsg.ConfigFileMigrationResult(confirmed, s.ConfigFilePath()))
 }
 
 func (s *serviceImpl) hasConfig() bool {

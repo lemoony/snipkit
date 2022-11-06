@@ -40,3 +40,14 @@ func Test_ConfigEdit(t *testing.T) {
 	assert.NoError(t, err)
 	configService.AssertNumberOfCalls(t, "Edit", 1)
 }
+
+func Test_ConfigMigrate(t *testing.T) {
+	configService := mocks.ConfigService{}
+
+	configService.On("Migrate").Return(nil)
+
+	err := runMockedTest(t, []string{"config", "migrate"}, withConfigService(&configService))
+
+	assert.NoError(t, err)
+	configService.AssertNumberOfCalls(t, "Migrate", 1)
+}

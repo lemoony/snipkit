@@ -22,7 +22,6 @@ func Migrate(config []byte) []byte {
 
 		switch currentVersion {
 		case configV111.VersionFrom:
-			print("migrate to 1.1.1")
 			config = configV111.Migrate(config)
 		case Latest:
 			return config
