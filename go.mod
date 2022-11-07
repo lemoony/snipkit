@@ -16,7 +16,7 @@ require (
 	github.com/cli/oauth v0.9.0
 	github.com/corbym/gocrest v1.0.5
 	github.com/creack/pty v1.1.18
-	github.com/gdamore/tcell/v2 v2.5.1
+	github.com/gdamore/tcell/v2 v2.5.3
 	github.com/hinshun/vt10x v0.0.0-20220301184237-5011da428d02
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51
 	github.com/muesli/reflow v0.3.0
