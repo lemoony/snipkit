@@ -6,7 +6,7 @@ replace github.com/rivo/tview v0.0.0-20220610163003-691f46d6f500 => github.com/l
 
 require (
 	emperror.dev/errors v0.8.1
-	github.com/BurntSushi/toml v1.1.0
+	github.com/BurntSushi/toml v1.2.1
 	github.com/Netflix/go-expect v0.0.0-20220104043353-73e0943537d2
 	github.com/adrg/xdg v0.4.0
 	github.com/alecthomas/chroma v0.10.0
