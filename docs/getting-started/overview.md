@@ -63,6 +63,14 @@ You will be presented with a list of supported managers. Pick the one you want t
 snipkit exec
 ```
 
+!!! tip "Confirm commands"
+    If you want to confirm a command before execution (with all parameters being resolved) add the 
+    flag `--confirm`:
+    ```bash 
+    snipkit exec --confirm
+    ```
+    Snpkit will print the command on stdout and ask you to explicitly confirm its execution.
+
 !!! tip "Print snippet on stdout"
     If you want to print the command that is executed add the flag `-p` or `--print`.
 
