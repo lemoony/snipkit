@@ -25,6 +25,10 @@ func Test_ConfigNotFound(t *testing.T) {
 	assert.Contains(t, render(ConfigNotFound(testCfgPath)), testCfgPath)
 }
 
+func Test_ConfigNeedsMigration(t *testing.T) {
+	assert.Contains(t, render(ConfigNeedsMigration("1.0", "2.0")), "migrate the config file")
+}
+
 func Test_ConfigFileCreateConfirm(t *testing.T) {
 	tests := []struct {
 		name    string
@@ -76,6 +80,20 @@ func Test_ConfigFileDeleteConfirm(t *testing.T) {
 
 func Test_ConfigFileDeleteResult(t *testing.T) {
 	assert.Contains(t, render(ConfigFileDeleteResult(true, testCfgPath)), "Configuration file deleted")
+}
+
+func Test_ConfigFileMigrationConfirm(t *testing.T) {
+	configStr := `config: test`
+	c := ConfigFileMigrationConfirm(configStr)
+	assert.Contains(t, testutil.StripANSI(c.Header(testStyle, 0)), configStr)
+}
+
+func Test_ConfigFileMigrationResult(t *testing.T) {
+	assert.Contains(
+		t,
+		render(ConfigFileMigrationResult(false, testCfgPath)),
+		"The configuration file was not updated.",
+	)
 }
 
 func Test_HomeDirectoryStillExists(t *testing.T) {

@@ -9,10 +9,26 @@ import (
 	"github.com/lemoony/snipkit/internal/managers"
 	"github.com/lemoony/snipkit/internal/model"
 	"github.com/lemoony/snipkit/internal/ui"
+	"github.com/lemoony/snipkit/internal/ui/style"
+	"github.com/lemoony/snipkit/internal/ui/uimsg"
 	"github.com/lemoony/snipkit/internal/utils/system"
 )
 
 var ErrNoSnippetsAvailable = errors.New("No snippets are available.")
+
+type ErrMigrateConfig struct {
+	currentVersion string
+	latestVersion  string
+}
+
+func (e ErrMigrateConfig) Error() string {
+	return uimsg.ConfigNeedsMigration(e.currentVersion, e.latestVersion).RenderWith(style.NoopStyle)
+}
+
+func (e ErrMigrateConfig) Is(target error) bool {
+	_, ok := target.(ErrMigrateConfig)
+	return ok
+}
 
 type App interface {
 	LookupSnippet() model.Snippet
@@ -63,13 +79,21 @@ func WithConfigService(service config.Service) Option {
 	})
 }
 
+// WithCheckNeedsConfigMigration sets if the config file is checked if it is up-to-date.
+func WithCheckNeedsConfigMigration(checkNeedsConfigMigration bool) Option {
+	return optionFunc(func(a *appImpl) {
+		a.checkNeedsConfigMigration = checkNeedsConfigMigration
+	})
+}
+
 func NewApp(options ...Option) App {
 	system := system.NewSystem()
 
 	app := &appImpl{
-		system:   system,
-		tui:      ui.NewTUI(),
-		provider: managers.NewBuilder(cache.New(system)),
+		system:                    system,
+		tui:                       ui.NewTUI(),
+		provider:                  managers.NewBuilder(cache.New(system)),
+		checkNeedsConfigMigration: true,
 	}
 
 	for _, o := range options {
@@ -81,6 +105,10 @@ func NewApp(options ...Option) App {
 			panic(errors.WithStack(err))
 		} else {
 			app.config = &cfg
+		}
+
+		if needsMigration, fromVersion := app.configService.NeedsMigration(); needsMigration && app.checkNeedsConfigMigration {
+			panic(ErrMigrateConfig{fromVersion, config.Version})
 		}
 	}
 
@@ -100,8 +128,9 @@ type appImpl struct {
 	config   *config.Config
 	tui      ui.TUI
 
-	configService config.Service
-	provider      managers.Provider
+	configService             config.Service
+	provider                  managers.Provider
+	checkNeedsConfigMigration bool
 }
 
 func (a *appImpl) getAllSnippets() []model.Snippet {

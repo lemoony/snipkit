@@ -7,7 +7,9 @@ import (
 	"github.com/phuslu/log"
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
+	"gopkg.in/yaml.v3"
 
+	"github.com/lemoony/snipkit/internal/config/migrations"
 	"github.com/lemoony/snipkit/internal/managers"
 	"github.com/lemoony/snipkit/internal/model"
 	"github.com/lemoony/snipkit/internal/ui"
@@ -40,15 +42,18 @@ type Service interface {
 	Edit()
 	Clean()
 	UpdateManagerConfig(config managers.Config)
+	NeedsMigration() (bool, string)
+	Migrate()
 	ConfigFilePath() string
 	Info() []model.InfoLine
 }
 
 type serviceImpl struct {
-	v      *viper.Viper
-	system *system.System
-	tui    ui.TUI
-	config *Config
+	v       *viper.Viper
+	system  *system.System
+	tui     ui.TUI
+	version string
+	config  *Config
 }
 
 func (s *serviceImpl) Create() {
@@ -87,10 +92,11 @@ func (s *serviceImpl) LoadConfig() (Config, error) {
 		return invalidConfig, err
 	}
 
-	if wrapper.Version != version {
-		log.Warn().Msgf("Config version is not up to date - expected %s, actual %s", version, wrapper.Version)
+	if wrapper.Version != Version {
+		log.Warn().Msgf("Config Version is not up to date - expected %s, actual %s", Version, wrapper.Version)
 	}
 
+	s.version = wrapper.Version
 	s.config = &wrapper.Config
 
 	return *s.config, nil
@@ -170,6 +176,28 @@ func (s *serviceImpl) UpdateManagerConfig(managerConfig managers.Config) {
 	s.system.WriteFile(s.ConfigFilePath(), bytes)
 }
 
+func (s *serviceImpl) NeedsMigration() (bool, string) {
+	return s.version != Version, s.version
+}
+
+func (s *serviceImpl) Migrate() {
+	s.tui.ApplyConfig(s.config.Style, s.system)
+
+	if s.version == Version {
+		panic(errors.Errorf("Config is already up to date: %s", Version))
+	}
+
+	newConfig := s.updateConfigToLatest()
+	newConfigBytes := SerializeToYamlWithComment(newConfig)
+	confirmed := s.tui.Confirmation(uimsg.ConfigFileMigrationConfirm(string(newConfigBytes)))
+
+	if confirmed {
+		s.system.WriteFile(s.v.ConfigFileUsed(), newConfigBytes)
+	}
+
+	s.tui.Print(uimsg.ConfigFileMigrationResult(confirmed, s.ConfigFilePath()))
+}
+
 func (s *serviceImpl) hasConfig() bool {
 	ok, _ := afero.Exists(s.system.Fs, s.v.ConfigFileUsed())
 	return ok
@@ -207,6 +235,18 @@ func (s *serviceImpl) Info() []model.InfoLine {
 	cfg, err := s.LoadConfig()
 	if err == nil {
 		result = append(result, model.InfoLine{Key: "Theme", Value: cfg.Style.Theme})
+	}
+
+	return result
+}
+
+func (s *serviceImpl) updateConfigToLatest() VersionWrapper {
+	configBytes := s.system.ReadFile(s.v.ConfigFileUsed())
+	newConfig := migrations.Migrate(configBytes)
+
+	var result VersionWrapper
+	if err := yaml.Unmarshal(newConfig, &result); err != nil {
+		panic(err)
 	}
 
 	return result

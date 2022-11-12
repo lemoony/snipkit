@@ -1,0 +1,22 @@
+version: 1.1.1
+config:
+  style:
+    # The theme defines the terminal colors used by Snipkit.
+    # Available themes:default(.light|.dark),simple.
+    theme: simple
+    # If set to true, the key map won't be displayed. Default value: false
+    hideKeyMap: true
+  # Your preferred editor to open the config file when typing 'snipkit config edit'.
+  editor: foo-editor # Defaults to a reasonable value for your operation system when empty.
+  # The command which should run if you don't provide any subcommand.
+  defaultRootCommand: "" # If not set, the help text will be shown.
+  # Enable fuzzy searching for snippet titles.
+  fuzzySearch: true
+  scripts:
+    # The path to the shell to execute scripts with. If not set or empty, $SHELL will be used instead. Fallback is '/bin/bash'.
+    shell: /bin/zsh
+    # Defines how parameters are handled. Allowed values: SET (sets the parameter value as shell variable) and REPLACE (replaces all occurrences of the variable with the actual value)
+    parameterMode: SET
+    # If set to true, any comments in your scripts will be removed upon executing or printing.
+    removeComments: true
+  manager: {}

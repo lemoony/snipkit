@@ -51,6 +51,10 @@ var (
 )
 
 func getAppFromContext(ctx context.Context) app.App {
+	return getAppFromContextWithConfigMigrationCheck(ctx, true)
+}
+
+func getAppFromContextWithConfigMigrationCheck(ctx context.Context, checkNeedsMigration bool) app.App {
 	if v := ctx.Value(_appKey); v != nil {
 		return v.(app.App)
 	}
@@ -60,6 +64,7 @@ func getAppFromContext(ctx context.Context) app.App {
 		app.WithTUI(s.terminal),
 		app.WithConfigService(s.configService()),
 		app.WithProvider(s.provider),
+		app.WithCheckNeedsConfigMigration(checkNeedsMigration),
 	)
 }
 

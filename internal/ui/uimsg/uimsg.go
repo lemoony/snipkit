@@ -16,13 +16,17 @@ import (
 )
 
 const (
-	configNotFound = "config_not_found.gotmpl"
+	configNeedsMigration = "config_needs_migration.gotmpl"
+	configNotFound       = "config_not_found.gotmpl"
 
 	configFileCreateConfirm = "config_file_create_confirm.gotmpl"
 	configFileCreateResult  = "config_file_create_result.gotmpl"
 
 	configFileDeleteConfirm = "config_file_delete_confirm.gotmpl"
 	configFileDeleteResult  = "config_file_delete_result.gotmpl"
+
+	configFileMigrationConfirm = "config_file_migration_confirm.gotmpl"
+	configFileMigrationResult  = "config_file_migration_result.gotmpl"
 
 	themesDeleteConfirm = "themes_delete_confirm.gotmpl"
 	themesDeleteResult  = "themes_delete_result.gotmpl"
@@ -121,6 +125,21 @@ func ConfigFileDeleteResult(deleted bool, configPath string) Printable {
 	}
 }
 
+func ConfigFileMigrationConfirm(cfg string) Confirm {
+	return Confirm{
+		Prompt:   "Do you want to apply the config change?",
+		template: configFileMigrationConfirm,
+		data:     map[string]interface{}{"configYaml": cfg},
+	}
+}
+
+func ConfigFileMigrationResult(migrated bool, configPath string) Printable {
+	return Printable{
+		template: configFileMigrationResult,
+		data:     map[string]interface{}{"migrated": migrated, "cfgPath": configPath},
+	}
+}
+
 func ThemesDeleteConfirm(path string) Confirm {
 	return Confirm{
 		Prompt:   "Do you want to the delete the themes directory?",
@@ -162,6 +181,13 @@ func ConfigNotFound(configPath string) Printable {
 	return Printable{
 		template: configNotFound,
 		data:     map[string]interface{}{"cfgPath": configPath},
+	}
+}
+
+func ConfigNeedsMigration(current string, latest string) Printable {
+	return Printable{
+		template: configNeedsMigration,
+		data:     map[string]interface{}{"current": current, "latest": latest},
 	}
 }
 

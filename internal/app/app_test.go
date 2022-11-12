@@ -40,8 +40,36 @@ func Test_NewAppInvalidConfigFile(t *testing.T) {
 	})
 }
 
+func Test_NewAppNeedsConfigMigration(t *testing.T) {
+	cfg := config.VersionWrapper{Version: "1.1.0", Config: config.Config{}}
+	cfgFile := path.Join(t.TempDir(), "temp-config.yaml")
+
+	if cfgBytes, err := yaml.Marshal(cfg); err != nil {
+		assert.NoError(t, err)
+	} else {
+		assert.NoError(t, ioutil.WriteFile(cfgFile, cfgBytes, 0o600))
+	}
+
+	v := viper.NewWithOptions()
+	v.SetConfigFile(cfgFile)
+
+	tui := uiMocks.TUI{}
+	tui.On(mockutil.ApplyConfig, mock.AnythingOfType("ui.Config"), mock.Anything).Return()
+
+	err := assertutil.AssertPanicsWithError(t, ErrMigrateConfig{}, func() {
+		_ = NewApp(
+			WithConfigService(config.NewService(config.WithViper(v))),
+			WithTUI(&tui),
+		)
+	}).(ErrMigrateConfig)
+
+	assert.Equal(t, config.Version, err.latestVersion)
+	assert.Equal(t, "1.1.0", err.currentVersion)
+	assert.Contains(t, err.Error(), "to migrate the config file from version 1.1.0 to 1.1.1.")
+}
+
 func Test_NewAppNoManagers(t *testing.T) {
-	cfg := config.VersionWrapper{Version: "1.0.0", Config: config.Config{}}
+	cfg := config.VersionWrapper{Version: config.Version, Config: config.Config{}}
 	cfgFile := path.Join(t.TempDir(), "temp-config.yaml")
 
 	if cfgBytes, err := yaml.Marshal(cfg); err != nil {

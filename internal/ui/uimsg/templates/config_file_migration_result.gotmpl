@@ -1,0 +1,5 @@
+{{- if .migrated -}}
+Configuration file updated: {{ .cfgPath }}
+{{- else -}}
+The configuration file was not updated.
+{{- end -}}

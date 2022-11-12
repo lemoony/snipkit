@@ -1,11 +1,11 @@
 package config
 
 import (
-	"io/ioutil"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 
+	"github.com/lemoony/snipkit/internal/config/testdata"
 	"github.com/lemoony/snipkit/internal/managers/fslibrary"
 	"github.com/lemoony/snipkit/internal/managers/githubgist"
 	"github.com/lemoony/snipkit/internal/managers/pet"
@@ -15,7 +15,7 @@ import (
 
 func Test_serializeToYamlWithComment(t *testing.T) {
 	var testConfig VersionWrapper
-	testConfig.Version = version
+	testConfig.Version = Version
 	testConfig.Config.Editor = "foo-editor"
 	testConfig.Config.Script.Shell = "/bin/zsh"
 	testConfig.Config.Script.RemoveComments = true
@@ -59,9 +59,7 @@ func Test_serializeToYamlWithComment(t *testing.T) {
 		HideTitleInPreview: true,
 	}
 
-	expectedConfigBytes, err := ioutil.ReadFile(testDataExampleConfig)
-	assert.NoError(t, err)
-
+	expectedConfigBytes := testdata.ConfigBytes(t, testdata.Example)
 	actualCfgBytes := SerializeToYamlWithComment(testConfig)
 	assert.Equal(t, string(expectedConfigBytes), string(actualCfgBytes))
 }
