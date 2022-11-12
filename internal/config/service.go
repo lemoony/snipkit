@@ -1,7 +1,6 @@
 package config
 
 import (
-	"io/ioutil"
 	"path/filepath"
 
 	"emperror.dev/errors"
@@ -189,11 +188,11 @@ func (s *serviceImpl) Migrate() {
 	}
 
 	newConfig := s.updateConfigToLatest()
-	newConfigStr := SerializeToYamlWithComment(newConfig)
-	confirmed := s.tui.Confirmation(uimsg.ConfigFileMigrationConfirm(string(newConfigStr)))
+	newConfigBytes := SerializeToYamlWithComment(newConfig)
+	confirmed := s.tui.Confirmation(uimsg.ConfigFileMigrationConfirm(string(newConfigBytes)))
 
 	if confirmed {
-		print("confirmed")
+		s.system.WriteFile(s.v.ConfigFileUsed(), newConfigBytes)
 	}
 
 	s.tui.Print(uimsg.ConfigFileMigrationResult(confirmed, s.ConfigFilePath()))
@@ -242,10 +241,7 @@ func (s *serviceImpl) Info() []model.InfoLine {
 }
 
 func (s *serviceImpl) updateConfigToLatest() VersionWrapper {
-	configBytes, err := ioutil.ReadFile(s.v.ConfigFileUsed())
-	if err != nil {
-		panic(err)
-	}
+	configBytes := s.system.ReadFile(s.v.ConfigFileUsed())
 	newConfig := migrations.Migrate(configBytes)
 
 	var result VersionWrapper

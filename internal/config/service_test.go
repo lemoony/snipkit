@@ -1,6 +1,8 @@
 package config
 
 import (
+	"fmt"
+	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
@@ -24,7 +26,10 @@ import (
 	mocks "github.com/lemoony/snipkit/mocks/ui"
 )
 
-const testDataExampleConfig = "testdata/example-config.yaml"
+const (
+	testDataExampleConfig    = "testdata/example-config.yaml"
+	testDataExampleConfig110 = "testdata/migrations/config-1-1-0.yaml"
+)
 
 func Test_LoadConfig(t *testing.T) {
 	v := viper.New()
@@ -136,6 +141,23 @@ func Test_Create_Recreate_Decline(t *testing.T) {
 
 	// assert file was not changed and, thus, is still empty
 	assert.Empty(t, system.ReadFile(cfgFilePath))
+}
+
+func Test_Info(t *testing.T) {
+	v := viper.New()
+	v.SetConfigFile(testDataExampleConfig)
+
+	tui := &mocks.TUI{}
+	tui.On("OpenEditor", testDataExampleConfig, "foo-editor").Return(nil)
+	tui.On(mockutil.ApplyConfig, mock.Anything, mock.Anything).Return()
+
+	s := NewService(WithViper(v), WithTerminal(tui))
+
+	infos := s.Info()
+
+	assert.Equal(t, "Config path", infos[0].Key)
+	assert.Equal(t, "SNIPKIT_HOME", infos[1].Key)
+	assert.Equal(t, "Theme", infos[2].Key)
 }
 
 func Test_Edit(t *testing.T) {
@@ -318,6 +340,65 @@ func Test_UpdateManagerConfig(t *testing.T) {
 			cfg, err := service.LoadConfig()
 			assert.NoError(t, err)
 			tt.assert(cfg)
+		})
+	}
+}
+
+func Test_NeedsMigration(t *testing.T) {
+	v := viper.New()
+	v.SetConfigFile(testDataExampleConfig110)
+
+	s := NewService(WithViper(v))
+
+	needsMigration, version := s.NeedsMigration()
+
+	assert.True(t, needsMigration)
+	assert.Equal(t, "1.1.0", version)
+}
+
+func Test_Migrate(t *testing.T) {
+	tests := []struct {
+		confirm bool
+	}{
+		{confirm: true},
+		{confirm: false},
+	}
+
+	for _, tt := range tests {
+		t.Run(fmt.Sprintf("Migrate - confirm: %t", tt.confirm), func(t *testing.T) {
+			config, err := ioutil.ReadFile(testDataExampleConfig)
+			assert.NoError(t, err)
+
+			config110, err := ioutil.ReadFile(testDataExampleConfig110)
+			assert.NoError(t, err)
+
+			s := testutil.NewTestSystem()
+
+			cfgFilePath := filepath.Join(s.UserHome(), "config.yml")
+			s.WriteFile(cfgFilePath, config110)
+
+			v := viper.New()
+			v.SetFs(s.Fs)
+			v.SetConfigFile(cfgFilePath)
+
+			tui := mocks.TUI{}
+			tui.On(mockutil.ApplyConfig, mock.Anything, mock.Anything).Return()
+			tui.On(mockutil.Print, mock.Anything).Return()
+			tui.
+				On(mockutil.Confirmation, uimsg.ConfigFileMigrationConfirm(string(config)), mock.Anything).
+				Return(tt.confirm)
+
+			service := NewService(WithViper(v), WithTerminal(&tui), WithSystem(s))
+			service.Migrate()
+
+			tui.AssertCalled(t, mockutil.Print, uimsg.ConfigFileMigrationResult(tt.confirm, cfgFilePath))
+
+			// check if config is migrated or not
+			if tt.confirm {
+				assert.Equal(t, config, s.ReadFile(cfgFilePath))
+			} else {
+				assert.Equal(t, config110, s.ReadFile(cfgFilePath))
+			}
 		})
 	}
 }
