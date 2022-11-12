@@ -385,6 +385,33 @@
     Snippet Commands
   </a>
   
+    <nav class="md-nav" aria-label="Snippet Commands">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#execute-snippets" class="md-nav__link">
+    Execute snippets
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#print-snippets" class="md-nav__link">
+    Print snippets
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#browse-snippets" class="md-nav__link">
+    Browse snippets
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -655,6 +682,33 @@
     Snippet Commands
   </a>
   
+    <nav class="md-nav" aria-label="Snippet Commands">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#execute-snippets" class="md-nav__link">
+    Execute snippets
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#print-snippets" class="md-nav__link">
+    Print snippets
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#browse-snippets" class="md-nav__link">
+    Browse snippets
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
     </ul>
@@ -722,11 +776,28 @@ to modify the behavior.</p>
 <p>Every manager has unique configuration options. Have a look at <a href="../../managers/overview/">Managers</a> for more information.</p>
 </div>
 <h2 id="snippet-commands">Snippet Commands</h2>
+<h4 id="execute-snippets">Execute snippets</h4>
+<div class="highlight"><span class="filename">Execute a snippet</span><pre><span></span><code>snipkit <span class="nb">exec</span>
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Confirm commands</p>
+<p>If you want to confirm a command before execution (with all parameters being resolved) add the 
+flag <code>--confirm</code>:
+<div class="highlight"><pre><span></span><code>snipkit <span class="nb">exec</span> --confirm
+</code></pre></div>
+Snpkit will print the command on stdout and ask you to explicitly confirm its execution.</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Print snippet on stdout</p>
+<p>If you want to print the command that is executed add the flag <code>-p</code> or <code>--print</code>.</p>
+</div>
+<h4 id="print-snippets">Print snippets</h4>
+<p>You can print snippets to stdout without executing them.</p>
 <div class="highlight"><span class="filename">Print a snippet</span><pre><span></span><code>snipkit print
 </code></pre></div>
-<div class="highlight"><span class="filename">Just browse the available snippets without doing anything</span><pre><span></span><code>snipkit browse
-</code></pre></div>
-<div class="highlight"><span class="filename">Execute a snippet</span><pre><span></span><code>snipkit <span class="nb">exec</span>
+<h4 id="browse-snippets">Browse snippets</h4>
+<p>You can browse all available snippets without executing or printing them.</p>
+<div class="highlight"><span class="filename">Browse all snippets</span><pre><span></span><code>snipkit browse
 </code></pre></div>
 
 
