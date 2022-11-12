@@ -92,7 +92,7 @@ func ShowPicker(items []Item, styler *style.Style, options ...tea.ProgramOption)
 
 	p := tea.NewProgram(&m, append(options, tea.WithAltScreen())...)
 
-	if err := p.Start(); err != nil {
+	if _, err := p.Run(); err != nil {
 		panic(err)
 	}
 

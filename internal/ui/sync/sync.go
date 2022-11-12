@@ -118,7 +118,7 @@ func New(options ...Option) Screen {
 }
 
 func (s *screenImpl) Start() {
-	if err := s.program.Start(); err != nil {
+	if _, err := s.program.Run(); err != nil {
 		panic(err)
 	}
 }
