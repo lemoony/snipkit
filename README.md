@@ -15,7 +15,7 @@ Execute the scripts saved in your favorite snippet manager without even leaving 
 </p>
 
 <p align="center">
-  <a href="https://lemoony.github.io/snipkit/">Documentation</a> | <a href="https://github.com/lemoony/snipkit/blob/master/CHANGELOG.md">Changelog</a>
+  <a href="https://lemoony.github.io/snipkit/">Documentation</a> | <a href="https://github.com/lemoony/snipkit/releases">Changelog</a>
 </p>
 
 ## Features
