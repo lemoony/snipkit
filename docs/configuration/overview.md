@@ -208,6 +208,44 @@ echo ${VAR}
 !!! info
     Comments will always be removed if `parameterMode` is set to `REPLACE`.
 
+#### Confirm Commands
+
+If you always want to explicitly confirm the command before execution, specify the `execConfirm` option as follows:
+
+```yaml title="config.yaml"
+version: 1.1.1
+config:
+  script:
+    execConfirm: true
+```
+
+!!! tip "Flag --confirm"
+
+The same functionality can be achieved by means of the `--confirm` flag:
+```bash
+snipkit exec --confirm
+```
+Use the flag instead of the config option if you only want to explicitly confirm the command in some cases.
+
+
+#### Print Commands
+
+SnipKit will print the command to be executed on stdout if specified by the `execPrint` commands:
+
+```yaml title="config.yaml"
+version: 1.1.1
+config:
+  script:
+    execPrint: true
+```
+
+!!! tip "Flag -p or --print"
+    The same functionality can be achieved by means of the `-p` or `--print` flag:
+    ```bash 
+    snipkit exec --print
+    ```
+    Use the flag instead of the config option if you only want to print the command every now and then.
+
 ## Clean up
 
 The config file as well as all custom themes can be deleted with:

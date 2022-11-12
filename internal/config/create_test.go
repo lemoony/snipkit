@@ -20,6 +20,8 @@ func Test_serializeToYamlWithComment(t *testing.T) {
 	testConfig.Config.Script.Shell = "/bin/zsh"
 	testConfig.Config.Script.RemoveComments = true
 	testConfig.Config.Script.ParameterMode = ParameterModeSet
+	testConfig.Config.Script.ExecConfirm = false
+	testConfig.Config.Script.ExecPrint = false
 	testConfig.Config.Style.Theme = "simple"
 	testConfig.Config.Style.HideKeyMap = true
 

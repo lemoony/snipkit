@@ -23,6 +23,8 @@ func Migrate(old []byte) []byte {
 
 	config.Version = VersionTo
 	config.Config.FuzzySearch = true
+	config.Config.Script["execConfirm"] = false
+	config.Config.Script["execPrint"] = false
 
 	configBytes, err := yaml.Marshal(config)
 	if err != nil {

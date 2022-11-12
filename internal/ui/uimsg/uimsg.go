@@ -28,6 +28,9 @@ const (
 	configFileMigrationConfirm = "config_file_migration_confirm.gotmpl"
 	configFileMigrationResult  = "config_file_migration_result.gotmpl"
 
+	execConfirm = "exec_confirm.gotmpl"
+	execPrint   = "exec_print.gotmpl"
+
 	themesDeleteConfirm = "themes_delete_confirm.gotmpl"
 	themesDeleteResult  = "themes_delete_result.gotmpl"
 
@@ -137,6 +140,21 @@ func ConfigFileMigrationResult(migrated bool, configPath string) Printable {
 	return Printable{
 		template: configFileMigrationResult,
 		data:     map[string]interface{}{"migrated": migrated, "cfgPath": configPath},
+	}
+}
+
+func ExecConfirm(title string, command string) Confirm {
+	return Confirm{
+		Prompt:   "Do you want to execute the snippet?",
+		template: execConfirm,
+		data:     map[string]interface{}{"title": title, "command": command},
+	}
+}
+
+func ExecPrint(title string, command string) Printable {
+	return Printable{
+		template: execPrint,
+		data:     map[string]interface{}{"title": title, "command": command},
 	}
 }
 

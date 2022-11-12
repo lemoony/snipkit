@@ -3,6 +3,7 @@ package app
 import (
 	"os"
 	"os/exec"
+	"strings"
 
 	"emperror.dev/errors"
 	"github.com/phuslu/log"
@@ -10,12 +11,13 @@ import (
 	"github.com/lemoony/snipkit/internal/config"
 	"github.com/lemoony/snipkit/internal/model"
 	"github.com/lemoony/snipkit/internal/ui"
+	"github.com/lemoony/snipkit/internal/ui/uimsg"
 	"github.com/lemoony/snipkit/internal/utils/stringutil"
 )
 
 const fallbackShell = "/bin/bash"
 
-func (a *appImpl) LookupAndExecuteSnippet() {
+func (a *appImpl) LookupAndExecuteSnippet(confirm, print bool) {
 	snippet := a.LookupSnippet()
 	if snippet == nil {
 		return
@@ -23,7 +25,18 @@ func (a *appImpl) LookupAndExecuteSnippet() {
 
 	parameters := snippet.GetParameters()
 	if parameterValues, ok := a.tui.ShowParameterForm(parameters, ui.OkButtonExecute); ok {
-		executeScript(snippet.Format(parameterValues, formatOptions(a.config.Script)), a.config.Script.Shell)
+		script := snippet.Format(parameterValues, formatOptions(a.config.Script))
+
+		if (confirm || a.config.Script.ExecConfirm) && !a.tui.Confirmation(uimsg.ExecConfirm(snippet.GetTitle(), script)) {
+			return
+		}
+
+		log.Trace().Msg(script)
+		if print || a.config.Script.ExecPrint {
+			a.tui.Print(uimsg.ExecPrint(snippet.GetTitle(), script))
+		}
+
+		executeScript(script, a.config.Script.Shell)
 	}
 }
 
@@ -48,7 +61,7 @@ func executeScript(script, configuredShell string) {
 
 func formatOptions(cfg config.ScriptConfig) model.SnippetFormatOptions {
 	var paramMode model.SnippetParamMode
-	if cfg.ParameterMode == config.ParameterModeReplace {
+	if strings.EqualFold(config.ParameterModeReplace, string(cfg.ParameterMode)) {
 		paramMode = model.SnippetParamModeReplace
 	} else {
 		paramMode = model.SnippetParamModeSet

@@ -96,6 +96,18 @@ func Test_ConfigFileMigrationResult(t *testing.T) {
 	)
 }
 
+func Test_ExecConfirm(t *testing.T) {
+	c := ExecConfirm("test-title", "print hello")
+	result := testutil.StripANSI(c.Header(testStyle, 0))
+	assert.Contains(t, result, "Snippet: test-title")
+	assert.Contains(t, result, "print hello")
+}
+
+func Test_ExecPrint(t *testing.T) {
+	c := ExecPrint("title", "print hello")
+	assert.Contains(t, render(c), "Snippet: title")
+}
+
 func Test_HomeDirectoryStillExists(t *testing.T) {
 	assert.Contains(t, render(HomeDirectoryStillExists(testHomePath)), testHomePath)
 }
