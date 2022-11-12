@@ -2,6 +2,7 @@ package fslibrary
 
 import (
 	"fmt"
+	"path"
 	"path/filepath"
 	"regexp"
 	"testing"
@@ -56,21 +57,26 @@ func Test_GetSnippets(t *testing.T) {
 	}
 
 	files := []struct {
-		file     string
+		dir      string
+		fileName string
 		language model.Language
 	}{
-		{file: "snippet-0.sh", language: model.LanguageBash},
-		{file: "snippet-1.sh", language: model.LanguageBash},
-		{file: "snippet-2.yaml", language: model.LanguageYAML},
+		{fileName: "snippet-0.sh", language: model.LanguageBash},
+		{dir: "./subfolder", fileName: "snippet-1.sh", language: model.LanguageBash},
+		{dir: "./subfolder/subfolder2", fileName: "snippet-2.yaml", language: model.LanguageYAML},
 	}
 
 	const filePerm = 0o600
+	const dirPerm = 0o700
 	s := testutil.NewTestSystem()
-
 	for i := 0; i < len(files); i++ {
+		filePath := path.Join(config.LibraryPath[0], files[i].dir, files[i].fileName)
+		if !s.DirExists(path.Dir(filePath)) {
+			assert.NoError(t, s.Fs.Mkdir(path.Dir(filePath), dirPerm))
+		}
 		assert.NoError(t, afero.WriteFile(
 			s.Fs,
-			filepath.Join(config.LibraryPath[0], files[i].file),
+			filePath,
 			[]byte(fmt.Sprintf("content-%d", i)),
 			filePerm,
 		))
@@ -91,7 +97,7 @@ func Test_GetSnippets(t *testing.T) {
 	assert.Len(t, snippets, len(files))
 
 	for i, s := range snippets {
-		assert.Equal(t, files[i].file, s.GetTitle())
+		assert.Equal(t, files[i].fileName, s.GetTitle())
 		assert.Equal(t, files[i].language, s.GetLanguage())
 		assert.Equal(t, fmt.Sprintf("content-%d", i), s.GetContent())
 	}

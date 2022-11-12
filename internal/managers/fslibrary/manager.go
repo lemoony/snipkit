@@ -2,6 +2,7 @@ package fslibrary
 
 import (
 	"fmt"
+	"path"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -90,50 +91,61 @@ func (m Manager) Info() []model.InfoLine {
 
 func (m *Manager) GetSnippets() []model.Snippet {
 	var result []model.Snippet
-
 	for _, dir := range m.config.LibraryPath {
-		entries, err := afero.ReadDir(m.system.Fs, dir)
-		if err != nil {
-			panic(err)
-		}
-
-		for _, entry := range entries {
-			fileName := filepath.Base(entry.Name())
-			filePath := filepath.Join(dir, fileName)
-
-			if !checkSuffix(fileName, m.suffixRegex) {
-				continue
-			}
-
-			snippet := snippetImpl{
-				id:   filePath,
-				path: filePath,
-				tags: []string{},
-				contentFunc: func() string {
-					contents := string(m.system.ReadFile(filePath))
-					if m.config.HideTitleInPreview {
-						contents = pruneTitleHeader(strings.NewReader(contents))
-					}
-					return contents
-				},
-				titleFunc: func() string {
-					if m.config.LazyOpen {
-						return fileName
-					} else {
-						return m.getSnippetName(filePath)
-					}
-				},
-			}
-
-			result = append(result, &snippet)
-		}
+		result = append(result, m.snippetsFromDir(dir)...)
 	}
-
 	return result
 }
 
 func (m *Manager) Sync(model.SyncEventChannel) {
 	// do nothing
+}
+
+func (m *Manager) snippetsFromDir(dir string) []model.Snippet {
+	var result []model.Snippet
+
+	entries, err := afero.ReadDir(m.system.Fs, dir)
+	if err != nil {
+		panic(err)
+	}
+
+	for _, entry := range entries {
+		if entry.IsDir() {
+			result = append(result, m.snippetsFromDir(path.Join(dir, entry.Name()))...)
+			continue
+		}
+
+		fileName := filepath.Base(entry.Name())
+		filePath := filepath.Join(dir, fileName)
+
+		if !checkSuffix(fileName, m.suffixRegex) {
+			continue
+		}
+
+		snippet := snippetImpl{
+			id:   filePath,
+			path: filePath,
+			tags: []string{},
+			contentFunc: func() string {
+				contents := string(m.system.ReadFile(filePath))
+				if m.config.HideTitleInPreview {
+					contents = pruneTitleHeader(strings.NewReader(contents))
+				}
+				return contents
+			},
+			titleFunc: func() string {
+				if m.config.LazyOpen {
+					return fileName
+				} else {
+					return m.getSnippetName(filePath)
+				}
+			},
+		}
+
+		result = append(result, &snippet)
+	}
+
+	return result
 }
 
 func checkSuffix(filename string, regexes []*regexp.Regexp) bool {
