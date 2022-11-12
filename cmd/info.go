@@ -10,7 +10,7 @@ var infoCmd = &cobra.Command{
 	Long: `This command is useful to view the current configuration of SnipKit, 
 helping to debug any issues you may experience`,
 	Run: func(cmd *cobra.Command, args []string) {
-		getAppFromContext(cmd.Context()).Info()
+		getAppFromContextWithConfigMigrationCheck(cmd.Context(), false).Info()
 	},
 }
 

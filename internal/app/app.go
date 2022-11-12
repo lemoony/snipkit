@@ -79,13 +79,21 @@ func WithConfigService(service config.Service) Option {
 	})
 }
 
+// WithCheckNeedsConfigMigration sets if the config file is checked if it is up-to-date.
+func WithCheckNeedsConfigMigration(checkNeedsConfigMigration bool) Option {
+	return optionFunc(func(a *appImpl) {
+		a.checkNeedsConfigMigration = checkNeedsConfigMigration
+	})
+}
+
 func NewApp(options ...Option) App {
 	system := system.NewSystem()
 
 	app := &appImpl{
-		system:   system,
-		tui:      ui.NewTUI(),
-		provider: managers.NewBuilder(cache.New(system)),
+		system:                    system,
+		tui:                       ui.NewTUI(),
+		provider:                  managers.NewBuilder(cache.New(system)),
+		checkNeedsConfigMigration: true,
 	}
 
 	for _, o := range options {
@@ -99,7 +107,7 @@ func NewApp(options ...Option) App {
 			app.config = &cfg
 		}
 
-		if needsMigration, fromVersion := app.configService.NeedsMigration(); needsMigration {
+		if needsMigration, fromVersion := app.configService.NeedsMigration(); needsMigration && app.checkNeedsConfigMigration {
 			panic(ErrMigrateConfig{fromVersion, config.Version})
 		}
 	}
@@ -120,8 +128,9 @@ type appImpl struct {
 	config   *config.Config
 	tui      ui.TUI
 
-	configService config.Service
-	provider      managers.Provider
+	configService             config.Service
+	provider                  managers.Provider
+	checkNeedsConfigMigration bool
 }
 
 func (a *appImpl) getAllSnippets() []model.Snippet {

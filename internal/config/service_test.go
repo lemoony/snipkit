@@ -2,7 +2,6 @@ package config
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
@@ -13,6 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
+	"github.com/lemoony/snipkit/internal/config/testdata"
 	"github.com/lemoony/snipkit/internal/managers"
 	"github.com/lemoony/snipkit/internal/managers/fslibrary"
 	"github.com/lemoony/snipkit/internal/managers/pet"
@@ -26,14 +26,9 @@ import (
 	mocks "github.com/lemoony/snipkit/mocks/ui"
 )
 
-const (
-	testDataExampleConfig    = "testdata/example-config.yaml"
-	testDataExampleConfig110 = "testdata/migrations/config-1-1-0.yaml"
-)
-
 func Test_LoadConfig(t *testing.T) {
 	v := viper.New()
-	v.SetConfigFile(testDataExampleConfig)
+	v.SetConfigFile(testdata.ConfigPath(t, testdata.Latest))
 
 	s := NewService(WithViper(v))
 
@@ -145,10 +140,10 @@ func Test_Create_Recreate_Decline(t *testing.T) {
 
 func Test_Info(t *testing.T) {
 	v := viper.New()
-	v.SetConfigFile(testDataExampleConfig)
+	v.SetConfigFile(testdata.ConfigPath(t, testdata.Latest))
 
 	tui := &mocks.TUI{}
-	tui.On("OpenEditor", testDataExampleConfig, "foo-editor").Return(nil)
+	tui.On("OpenEditor", testdata.ConfigPath(t, testdata.Latest), "foo-editor").Return(nil)
 	tui.On(mockutil.ApplyConfig, mock.Anything, mock.Anything).Return()
 
 	s := NewService(WithViper(v), WithTerminal(tui))
@@ -162,10 +157,10 @@ func Test_Info(t *testing.T) {
 
 func Test_Edit(t *testing.T) {
 	v := viper.New()
-	v.SetConfigFile(testDataExampleConfig)
+	v.SetConfigFile(testdata.ConfigPath(t, testdata.Latest))
 
 	tui := &mocks.TUI{}
-	tui.On("OpenEditor", testDataExampleConfig, "foo-editor").Return(nil)
+	tui.On("OpenEditor", testdata.ConfigPath(t, testdata.Latest), "foo-editor").Return(nil)
 	tui.On(mockutil.ApplyConfig, mock.Anything, mock.Anything).Return()
 
 	s := NewService(WithViper(v), WithTerminal(tui))
@@ -346,7 +341,7 @@ func Test_UpdateManagerConfig(t *testing.T) {
 
 func Test_NeedsMigration(t *testing.T) {
 	v := viper.New()
-	v.SetConfigFile(testDataExampleConfig110)
+	v.SetConfigFile(testdata.ConfigPath(t, testdata.ConfigV110))
 
 	s := NewService(WithViper(v))
 
@@ -366,11 +361,8 @@ func Test_Migrate(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(fmt.Sprintf("Migrate - confirm: %t", tt.confirm), func(t *testing.T) {
-			config, err := ioutil.ReadFile(testDataExampleConfig)
-			assert.NoError(t, err)
-
-			config110, err := ioutil.ReadFile(testDataExampleConfig110)
-			assert.NoError(t, err)
+			config := testdata.ConfigBytes(t, testdata.Latest)
+			config110 := testdata.ConfigBytes(t, testdata.ConfigV110)
 
 			s := testutil.NewTestSystem()
 

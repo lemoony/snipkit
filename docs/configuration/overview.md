@@ -51,6 +51,15 @@ snipkit manager add
 
 For more information on the different managers supported, please see [Managers][managers].
 
+## Migration
+
+The config file may change from time to time. If you use an outdated config file version, Snipkit will refuse to run. 
+Fortunately, you can migrate your config file to the latest version:
+
+```bash
+snipkit config migrate
+```
+
 ## Config options
 
 ### Editor

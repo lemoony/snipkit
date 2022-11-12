@@ -1,25 +1,28 @@
 package config
 
 import (
-	"io/ioutil"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-)
 
-const (
-	oldConfigPath = "../../testdata/migrations/config-1-1-0.yaml"
-	newConfigPath = "../../testdata/example-config.yaml"
+	"github.com/lemoony/snipkit/internal/config/testdata"
 )
 
 func Test_Migrate(t *testing.T) {
-	oldCfg, err := ioutil.ReadFile(oldConfigPath)
-	assert.NoError(t, err)
-
-	newCfg, err := ioutil.ReadFile(newConfigPath)
-	assert.NoError(t, err)
-
+	oldCfg := testdata.ConfigBytes(t, testdata.ConfigV110)
+	newCfg := testdata.ConfigBytes(t, testdata.Latest)
 	actualCfg := Migrate(oldCfg)
-
 	assert.YAMLEq(t, string(newCfg), string(actualCfg))
+}
+
+func Test_Migrate_invalidYamlPanic(t *testing.T) {
+	assert.Panics(t, func() {
+		Migrate([]byte("{"))
+	})
+}
+
+func Test_Migrate_invalidConfigVersion(t *testing.T) {
+	assert.Panics(t, func() {
+		Migrate([]byte("version: 3.0.0"))
+	})
 }
