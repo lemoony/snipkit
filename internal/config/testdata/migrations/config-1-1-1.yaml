@@ -19,6 +19,8 @@ config:
     parameterMode: SET
     # If set to true, any comments in your scripts will be removed upon executing or printing.
     removeComments: true
-    # If set to true, the executed command is printed on stdout (same functionality as providing flag -p).
+    # If set to true, the executed command is always printed on stdout before execution for confirmation (same functionality as providing flag -c/--confirm).
+    execConfirm: false
+    # If set to true, the executed command is always printed on stdout (same functionality as providing flag -p/--print).
     execPrint: false
   manager: {}

@@ -33,7 +33,7 @@ func (e ErrMigrateConfig) Is(target error) bool {
 type App interface {
 	LookupSnippet() model.Snippet
 	LookupAndCreatePrintableSnippet() (string, bool)
-	LookupAndExecuteSnippet(bool)
+	LookupAndExecuteSnippet(bool, bool)
 	Info()
 	AddManager()
 	SyncManager()

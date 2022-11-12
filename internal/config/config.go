@@ -30,5 +30,6 @@ type ScriptConfig struct {
 	Shell          string        `yaml:"shell" mapstructure:"shell" head_comment:"The path to the shell to execute scripts with. If not set or empty, $SHELL will be used instead. Fallback is '/bin/bash'."`
 	ParameterMode  ParameterMode `yaml:"parameterMode" mapstructure:"parameterMode" head_comment:"Defines how parameters are handled. Allowed values: SET (sets the parameter value as shell variable) and REPLACE (replaces all occurrences of the variable with the actual value)"`
 	RemoveComments bool          `yaml:"removeComments" mapstructure:"removeComments" head_comment:"If set to true, any comments in your scripts will be removed upon executing or printing."`
-	ExecPrint      bool          `yaml:"execPrint" mapstructure:"execPrint" head_comment:"If set to true, the executed command is printed on stdout (same functionality as providing flag -p)."`
+	ExecConfirm    bool          `yaml:"execConfirm" mapstructure:"execConfirm" head_comment:"If set to true, the executed command is always printed on stdout before execution for confirmation (same functionality as providing flag -c/--confirm)."`
+	ExecPrint      bool          `yaml:"execPrint" mapstructure:"execPrint" head_comment:"If set to true, the executed command is always printed on stdout (same functionality as providing flag -p/--print)."`
 }

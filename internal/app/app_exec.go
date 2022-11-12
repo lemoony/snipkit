@@ -17,7 +17,7 @@ import (
 
 const fallbackShell = "/bin/bash"
 
-func (a *appImpl) LookupAndExecuteSnippet(print bool) {
+func (a *appImpl) LookupAndExecuteSnippet(confirm, print bool) {
 	snippet := a.LookupSnippet()
 	if snippet == nil {
 		return
@@ -26,6 +26,11 @@ func (a *appImpl) LookupAndExecuteSnippet(print bool) {
 	parameters := snippet.GetParameters()
 	if parameterValues, ok := a.tui.ShowParameterForm(parameters, ui.OkButtonExecute); ok {
 		script := snippet.Format(parameterValues, formatOptions(a.config.Script))
+
+		if (confirm || a.config.Script.ExecConfirm) && !a.tui.Confirmation(uimsg.ExecConfirm(snippet.GetTitle(), script)) {
+			return
+		}
+
 		log.Trace().Msg(script)
 		if print || a.config.Script.ExecPrint {
 			a.tui.Print(uimsg.ExecPrint(snippet.GetTitle(), script))
