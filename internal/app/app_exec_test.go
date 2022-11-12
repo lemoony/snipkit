@@ -10,6 +10,7 @@ import (
 	"github.com/lemoony/snipkit/internal/config"
 	"github.com/lemoony/snipkit/internal/config/configtest"
 	"github.com/lemoony/snipkit/internal/model"
+	"github.com/lemoony/snipkit/internal/ui/uimsg"
 	"github.com/lemoony/snipkit/internal/utils/testutil"
 	"github.com/lemoony/snipkit/internal/utils/testutil/mockutil"
 	uiMocks "github.com/lemoony/snipkit/mocks/ui"
@@ -37,7 +38,7 @@ echo "${VAR1}"`
 	tui.On(mockutil.ApplyConfig, mock.Anything, mock.Anything).Return()
 	tui.On("ShowLookup", mock.Anything, mock.Anything).Return(0)
 	tui.On("ShowParameterForm", mock.Anything, mock.Anything).Return([]string{inputVar1Value, ""}, true)
-
+	tui.On(mockutil.Print, mock.Anything)
 	tui.On(mockutil.PrintMessage, inputVar1Value+"\n").Return()
 
 	app := NewApp(
@@ -46,7 +47,9 @@ echo "${VAR1}"`
 		withManagerSnippets(snippets),
 	)
 
-	app.LookupAndExecuteSnippet()
+	app.LookupAndExecuteSnippet(true)
+
+	tui.AssertCalled(t, mockutil.Print, uimsg.ExecPrint("title-1", snippetContent))
 }
 
 func Test_formatOptions(t *testing.T) {

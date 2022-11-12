@@ -57,14 +57,27 @@ You will be presented with a list of supported managers. Pick the one you want t
 
 ## Snippet Commands
 
+#### Execute snippets
+
+```sh title="Execute a snippet"
+snipkit exec
+```
+
+!!! tip "Print snippet on stdout"
+    If you want to print the command that is executed add the flag `-p` or `--print`.
+
+#### Print snippets
+
+You can print snippets to stdout without executing them.
+
 ```sh title="Print a snippet"
 snipkit print
 ```
 
-```sh title="Just browse the available snippets without doing anything"
-snipkit browse
-```
+#### Browse snippets
 
-```sh title="Execute a snippet"
-snipkit exec
+You can browse all available snippets without executing or printing them.
+
+```sh title="Browse all snippets"
+snipkit browse
 ```

@@ -10,10 +10,11 @@ import (
 
 func Test_Exec(t *testing.T) {
 	app := mocks.App{}
-	app.On("LookupAndExecuteSnippet").Return(nil)
+	app.On("LookupAndExecuteSnippet", false).Return(nil)
 
 	err := runMockedTest(t, []string{"exec"}, withApp(&app))
 
 	assert.NoError(t, err)
 	app.AssertNumberOfCalls(t, "LookupAndExecuteSnippet", 1)
+	app.AssertCalled(t, "LookupAndExecuteSnippet", false)
 }

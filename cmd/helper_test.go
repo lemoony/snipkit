@@ -61,8 +61,7 @@ func runMockedTest(t *testing.T, args []string, options ...option) error {
 
 	defer rootCmd.ResetFlags()
 	rootCmd.SetArgs(args)
-
-	// need to re-init the config in case custom flags have been apssed
+	// need to re-init the config in case custom flags have been passed
 	rootCmd.ResetFlags()
 	res := rootCmd.ExecuteContext(ctx)
 
