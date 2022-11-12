@@ -28,7 +28,7 @@ import (
 
 func Test_LoadConfig(t *testing.T) {
 	v := viper.New()
-	v.SetConfigFile(testdata.ConfigPath(t, testdata.Latest))
+	v.SetConfigFile(testdata.ConfigPath(t, testdata.Example))
 
 	s := NewService(WithViper(v))
 

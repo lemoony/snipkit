@@ -15,12 +15,19 @@ import (
 type ConfigVersion string
 
 const (
+	ConfigV100 = ConfigVersion("1.0.0")
 	ConfigV110 = ConfigVersion("1.1.0")
 	ConfigV111 = ConfigVersion("1.1.1")
 	Latest     = ConfigV111
+
+	Example = ConfigVersion("example-config.yaml")
 )
 
 func ConfigPath(t *testing.T, cfgVersion ConfigVersion) string {
+	if cfgVersion == Example {
+		return path.Join(absolutePath(t), "example-config.yaml")
+	}
+
 	return path.Join(
 		absolutePath(t),
 		"migrations",
@@ -29,7 +36,6 @@ func ConfigPath(t *testing.T, cfgVersion ConfigVersion) string {
 }
 
 func ConfigBytes(t *testing.T, cfgVersion ConfigVersion) []byte {
-	fmt.Println(ConfigPath(t, cfgVersion))
 	bytes, err := ioutil.ReadFile(ConfigPath(t, cfgVersion))
 	assert.NoError(t, err)
 	return bytes
@@ -37,7 +43,6 @@ func ConfigBytes(t *testing.T, cfgVersion ConfigVersion) []byte {
 
 func absolutePath(t *testing.T) string {
 	_, filename, _, ok := runtime.Caller(1)
-	fmt.Println(filename)
 	assert.True(t, ok)
 	return filepath.Dir(filename)
 }

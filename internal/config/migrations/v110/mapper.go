@@ -6,8 +6,8 @@ import (
 )
 
 const (
-	VersionFrom = "1.1.0"
-	VersionTo   = "1.1.1"
+	VersionFrom = "1.0.0"
+	VersionTo   = "1.1.0"
 )
 
 func Migrate(old []byte) []byte {
@@ -18,11 +18,18 @@ func Migrate(old []byte) []byte {
 	}
 
 	if config.Version != VersionFrom {
-		panic(errors.Errorf("Invalid version for migration to v1.1.1: %s", config.Version))
+		panic(errors.Errorf("Invalid version for migration to v1.1.0: %s", config.Version))
 	}
 
 	config.Version = VersionTo
-	config.Config.FuzzySearch = true
+
+	styleCfg := config.Config.Style
+	styleCfg["hideKeyMap"] = true
+
+	config.Config.Script = map[string]interface{}{}
+	config.Config.Script["shell"] = "/bin/zsh"
+	config.Config.Script["parameterMode"] = "SET"
+	config.Config.Script["removeComments"] = true
 
 	configBytes, err := yaml.Marshal(config)
 	if err != nil {
@@ -33,14 +40,13 @@ func Migrate(old []byte) []byte {
 
 type versionWrapper struct {
 	Version string     `yaml:"version"`
-	Config  configV111 `yaml:"config"`
+	Config  configV110 `yaml:"config"`
 }
 
-type configV111 struct {
+type configV110 struct {
 	Style              map[string]interface{} `yaml:"style"`
 	Editor             string                 `yaml:"editor"`
 	DefaultRootCommand string                 `yaml:"defaultRootCommand"`
-	FuzzySearch        bool                   `yaml:"fuzzySearch"`
 	Script             map[string]interface{} `yaml:"scripts"`
 	Manager            map[string]interface{} `yaml:"manager"`
 }

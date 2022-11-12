@@ -4,6 +4,7 @@ import (
 	"emperror.dev/errors"
 	"gopkg.in/yaml.v3"
 
+	configV110 "github.com/lemoony/snipkit/internal/config/migrations/v110"
 	configV111 "github.com/lemoony/snipkit/internal/config/migrations/v111"
 )
 
@@ -21,6 +22,8 @@ func Migrate(config []byte) []byte {
 		currentVersion := configMap["version"]
 
 		switch currentVersion {
+		case configV110.VersionFrom:
+			config = configV110.Migrate(config)
 		case configV111.VersionFrom:
 			config = configV111.Migrate(config)
 		case Latest:

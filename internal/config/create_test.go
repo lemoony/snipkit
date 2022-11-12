@@ -59,7 +59,7 @@ func Test_serializeToYamlWithComment(t *testing.T) {
 		HideTitleInPreview: true,
 	}
 
-	expectedConfigBytes := testdata.ConfigBytes(t, testdata.Latest)
+	expectedConfigBytes := testdata.ConfigBytes(t, testdata.Example)
 	actualCfgBytes := SerializeToYamlWithComment(testConfig)
 	assert.Equal(t, string(expectedConfigBytes), string(actualCfgBytes))
 }
