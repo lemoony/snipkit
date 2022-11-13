@@ -76,7 +76,7 @@ func Show(confirm uimsg.Confirm, options ...Option) bool {
 
 	p := tea.NewProgram(m, teaOptions...)
 
-	if err := p.Start(); err != nil {
+	if _, err := p.Run(); err != nil {
 		panic(err)
 	}
 	return m.value

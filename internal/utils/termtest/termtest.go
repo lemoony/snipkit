@@ -97,7 +97,7 @@ func RunTerminalTest(t *testing.T, test func(c *Console), setupFunc func(termuti
 	<-procedureDone
 
 	// Close the slave end of the pty, and read the remaining bytes from the master end.
-	assert.NoError(t, c.Tty().Close())
+	_ = c.Tty().Close()
 }
 
 func runWithTimeout(t *testing.T, procedure func(), timeout time.Duration) {
