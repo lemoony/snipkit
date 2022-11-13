@@ -12,6 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/lemoony/snipkit/internal/model"
+	"github.com/lemoony/snipkit/internal/ui/confirm"
 	"github.com/lemoony/snipkit/internal/ui/picker"
 	"github.com/lemoony/snipkit/internal/ui/sync"
 	"github.com/lemoony/snipkit/internal/ui/uimsg"
@@ -168,7 +169,11 @@ func Test_Confirmation(t *testing.T) {
 		c.SendKey(termtest.KeyEnter)
 	}, func(stdio termutil.Stdio) {
 		term := NewTUI(WithStdio(stdio))
-		confirmed := term.Confirmation(uimsg.ConfigFileDeleteConfirm("/some/path"))
+		confirmed := term.Confirmation(
+			uimsg.ConfigFileDeleteConfirm("/some/path"),
+			confirm.WithIn(stdio.In),
+			confirm.WithOut(stdio.Out),
+		)
 		assert.True(t, confirmed)
 	})
 }

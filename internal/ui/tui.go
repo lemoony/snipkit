@@ -137,11 +137,7 @@ func (t tuiImpl) Confirmation(confirmation uimsg.Confirm, options ...confirm.Opt
 	return confirm.Show(
 		confirmation,
 		append(
-			[]confirm.Option{
-				confirm.WithStyler(t.styler),
-				confirm.WithIn(t.stdio.In),
-				confirm.WithOut(t.stdio.Out),
-			},
+			[]confirm.Option{confirm.WithStyler(t.styler)},
 			options...,
 		)...,
 	)
