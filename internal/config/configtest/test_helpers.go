@@ -45,7 +45,7 @@ func NewTestConfigFilePath(t *testing.T, fs afero.Fs, options ...Option) string 
 		o.apply(&versionWrapper.Config)
 	}
 
-	cfgFilePath := path.Join(t.TempDir(), "temp-config.yaml")
+	cfgFilePath := path.Join(t.TempDir(), "config.yaml")
 
 	bytes, err := yaml.Marshal(versionWrapper)
 	if err != nil {
