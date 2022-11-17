@@ -144,8 +144,11 @@ func fuzzyMatcher(slice string, input string) ([][2]int, int, bool) {
 
 	for _, field := range fields {
 		if found, subrange := partiallyContains(slice, field); found {
-			score += subrange[1] - subrange[0]
-			indices = append(indices, subrange)
+			s := subrange[1] - subrange[0]
+			if s >= len(field) {
+				score += s
+				indices = append(indices, subrange)
+			}
 		}
 	}
 
