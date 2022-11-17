@@ -78,8 +78,6 @@ func runExecuteTest(t *testing.T, args []string, options ...option) {
 		cfgFile = _preCfgFile
 	}()
 
-	cfgFile = ts.v.ConfigFileUsed()
-
 	_defaultSetup = setup{
 		v:        _defaultSetup.v,
 		system:   _defaultSetup.system,
@@ -90,6 +88,9 @@ func runExecuteTest(t *testing.T, args []string, options ...option) {
 	ctx := context.Background()
 	if ts.app != nil {
 		ctx = context.WithValue(ctx, _appKey, ts.app)
+	}
+	if ts.configService != nil {
+		ctx = context.WithValue(ctx, _configServiceKey, ts.configService)
 	}
 	if ts.v != nil {
 		_defaultSetup.v = ts.v
@@ -103,31 +104,6 @@ func runExecuteTest(t *testing.T, args []string, options ...option) {
 	os.Args = append([]string{filename}, args...)
 
 	Execute(ctx)
-}
-
-func runMockedTest(t *testing.T, args []string, options ...option) error {
-	t.Helper()
-
-	ts := &testSetup{}
-	for _, o := range options {
-		o.apply(ts)
-	}
-
-	ctx := context.Background()
-	if ts.app != nil {
-		ctx = context.WithValue(ctx, _appKey, ts.app)
-	}
-	if ts.configService != nil {
-		ctx = context.WithValue(ctx, _configServiceKey, ts.configService)
-	}
-
-	defer rootCmd.ResetFlags()
-	rootCmd.SetArgs(args)
-	// need to re-init the config in case custom flags have been passed
-	rootCmd.ResetFlags()
-	res := rootCmd.ExecuteContext(ctx)
-
-	return res
 }
 
 func runTerminalTest(t *testing.T, args []string, setup setup, hasError bool, test func(*termtest.Console)) {

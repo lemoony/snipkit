@@ -7,6 +7,7 @@ import (
 
 	"emperror.dev/errors"
 	"github.com/spf13/afero"
+	"github.com/stretchr/testify/assert"
 	"gopkg.in/yaml.v3"
 
 	"github.com/lemoony/snipkit/internal/config"
@@ -76,4 +77,14 @@ func NewTestConfig() config.VersionWrapper {
 			},
 		},
 	}
+}
+
+func SetSnipkitHomeEnv(t *testing.T, val string) {
+	t.Helper()
+	assert.NoError(t, os.Setenv("SNIPKIT_HOME", val))
+}
+
+func ResetSnipkitHome(t *testing.T) {
+	t.Helper()
+	assert.NoError(t, os.Unsetenv("SNIPKIT_HOME"))
 }

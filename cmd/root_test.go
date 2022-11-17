@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"bytes"
-	"os"
 	"path"
 	"testing"
 
@@ -37,14 +36,14 @@ func Test_Root(t *testing.T) {
 
 func Test_Root_default_info(t *testing.T) {
 	defer func() {
-		_ = os.Unsetenv("SNIPKIT_HOME")
+		configtest.ResetSnipkitHome(t)
 	}()
 
 	system := testutil.NewTestSystem()
 	cfgFilePath := configtest.NewTestConfigFilePath(t, system.Fs, configtest.WithAdapter(func(c *config.Config) {
 		c.DefaultRootCommand = "info"
 	}))
-	_ = os.Setenv("SNIPKIT_HOME", path.Dir(cfgFilePath))
+	configtest.SetSnipkitHomeEnv(t, path.Dir(cfgFilePath))
 
 	v := viper.New()
 	v.SetFs(system.Fs)

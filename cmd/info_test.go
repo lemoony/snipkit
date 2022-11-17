@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"os"
 	"testing"
 
 	"github.com/spf13/viper"
@@ -14,7 +13,7 @@ import (
 )
 
 func Test_Info(t *testing.T) {
-	_ = os.Unsetenv("SNIPKIT_HOME")
+	configtest.ResetSnipkitHome(t)
 
 	system := testutil.NewTestSystem()
 	cfgFilePath := configtest.NewTestConfigFilePath(t, system.Fs)
