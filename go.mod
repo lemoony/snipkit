@@ -23,7 +23,7 @@ require (
 	github.com/muesli/termenv v0.13.0
 	github.com/phuslu/log v1.0.83
 	github.com/rivo/tview v0.0.0-20221029100920-c4a7e501810d
-	github.com/spf13/afero v1.9.2
+	github.com/spf13/afero v1.9.3
 	github.com/spf13/cobra v1.6.1
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.14.0
