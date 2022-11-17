@@ -3,9 +3,12 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"os"
+	"strings"
 
 	"github.com/phuslu/log"
 	"github.com/spf13/cobra"
+	flag "github.com/spf13/pflag"
 	"github.com/spf13/viper"
 
 	"github.com/lemoony/snipkit/internal/app"
@@ -95,32 +98,18 @@ var rootCmd = &cobra.Command{
 	Use:   "snipkit",
 	Short: "Use your favorite command line manager directly from the terminal",
 	Long:  `Snipkit helps you to execute scripts saved in your favorite snippets manager without even leaving the terminal.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
-		cfgService := getConfigServiceFromContext(cmd.Context())
-		if cfg, err := cfgService.LoadConfig(); err == nil && cfg.DefaultRootCommand != "" {
-			getDefaultCommand(cmd, cfg.DefaultRootCommand).Run(cmd, args)
-			return nil
-		}
-
-		return cmd.Help()
-	},
-}
-
-func getDefaultCommand(cmd *cobra.Command, cmdStr string) *cobra.Command {
-	for i := range cmd.Commands() {
-		if cmd.Commands()[i].Use == cmdStr {
-			return cmd.Commands()[i]
-		}
-	}
-
-	panic("Default command not supported: " + cmdStr)
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
-func Execute() {
+func Execute(ctx ...context.Context) {
 	defer handlePanic()
-	cobra.CheckErr(rootCmd.Execute())
+	setDefaultCommandIfNecessary()
+	if len(ctx) > 0 {
+		cobra.CheckErr(rootCmd.ExecuteContext(ctx[0]))
+	} else {
+		cobra.CheckErr(rootCmd.Execute())
+	}
 }
 
 func SetVersion(v string) {
@@ -164,4 +153,30 @@ func handlePanic() {
 			log.Error().Msgf("Exited with panic: %s", err)
 		}
 	}
+}
+
+func setDefaultCommandIfNecessary() {
+	if c, _, _ := rootCmd.Find(os.Args[1:]); c != rootCmd {
+		return
+	}
+
+	if defaultCommand, ok := getDefaultCommand(); ok {
+		flags := os.Args[1:]
+		defaultCommandFields := strings.Fields(defaultCommand)
+		os.Args = append([]string{os.Args[0]}, defaultCommandFields...)
+		if len(flags) > 0 {
+			os.Args = append(os.Args, flags...)
+		}
+	}
+}
+
+func getDefaultCommand() (string, bool) {
+	flag.StringVarP(&cfgFile, "config", "c", _defaultSetup.system.ConfigPath(), "config file")
+	initConfig()
+
+	if cfg, err := _defaultSetup.configService().LoadConfig(); err == nil {
+		return cfg.DefaultRootCommand, true
+	}
+
+	return "", false
 }

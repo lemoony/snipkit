@@ -7,6 +7,7 @@ import (
 
 	"emperror.dev/errors"
 	"github.com/spf13/afero"
+	"github.com/stretchr/testify/assert"
 	"gopkg.in/yaml.v3"
 
 	"github.com/lemoony/snipkit/internal/config"
@@ -45,7 +46,7 @@ func NewTestConfigFilePath(t *testing.T, fs afero.Fs, options ...Option) string 
 		o.apply(&versionWrapper.Config)
 	}
 
-	cfgFilePath := path.Join(t.TempDir(), "temp-config.yaml")
+	cfgFilePath := path.Join(t.TempDir(), "config.yaml")
 
 	bytes, err := yaml.Marshal(versionWrapper)
 	if err != nil {
@@ -76,4 +77,14 @@ func NewTestConfig() config.VersionWrapper {
 			},
 		},
 	}
+}
+
+func SetSnipkitHomeEnv(t *testing.T, val string) {
+	t.Helper()
+	assert.NoError(t, os.Setenv("SNIPKIT_HOME", val))
+}
+
+func ResetSnipkitHome(t *testing.T) {
+	t.Helper()
+	assert.NoError(t, os.Unsetenv("SNIPKIT_HOME"))
 }

@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"bytes"
+	"path"
 	"testing"
 
 	"emperror.dev/errors"
@@ -14,7 +15,6 @@ import (
 	"github.com/lemoony/snipkit/internal/utils/termtest"
 	"github.com/lemoony/snipkit/internal/utils/testutil"
 	appMocks "github.com/lemoony/snipkit/mocks/app"
-	configMocks "github.com/lemoony/snipkit/mocks/config"
 )
 
 func Test_Root(t *testing.T) {
@@ -35,19 +35,25 @@ func Test_Root(t *testing.T) {
 }
 
 func Test_Root_default_info(t *testing.T) {
-	cfg := config.Config{}
-	cfg.DefaultRootCommand = "info"
+	defer func() {
+		configtest.ResetSnipkitHome(t)
+	}()
 
-	cfgService := configMocks.ConfigService{}
-	cfgService.On("LoadConfig").Return(cfg, nil)
-	cfgService.On("ConfigFilePath").Return("/path/to/cfg-file")
+	system := testutil.NewTestSystem()
+	cfgFilePath := configtest.NewTestConfigFilePath(t, system.Fs, configtest.WithAdapter(func(c *config.Config) {
+		c.DefaultRootCommand = "info"
+	}))
+	configtest.SetSnipkitHomeEnv(t, path.Dir(cfgFilePath))
+
+	v := viper.New()
+	v.SetFs(system.Fs)
+	v.SetConfigFile(cfgFilePath)
 
 	app := appMocks.App{}
 	app.On("Info").Return()
 
-	err := runMockedTest(t, []string{}, withConfigService(&cfgService), withApp(&app))
+	runExecuteTest(t, []string{}, withViper(v), withSystem(system), withApp(&app))
 
-	assert.NoError(t, err)
 	app.AssertNumberOfCalls(t, "Info", 1)
 }
 
