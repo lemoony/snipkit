@@ -3,7 +3,7 @@ package snippetslab
 import (
 	"bytes"
 	"errors"
-	"io/ioutil"
+	"os"
 	"path"
 
 	"github.com/phuslu/log"
@@ -39,7 +39,7 @@ func findPreferencesPath(system *system.System) (string, error) {
 		return "", err
 	}
 	for _, prefPath := range preferencesURLs {
-		fileBytes, err := ioutil.ReadFile(prefPath) //nolint:gosec // potential file inclusion via variable
+		fileBytes, err := os.ReadFile(prefPath) //nolint:gosec // potential file inclusion via variable
 		if err != nil {
 			log.Trace().Msgf("could not open possible preference path %s: %e", prefPath, err)
 			continue
@@ -78,7 +78,7 @@ func getPossiblePreferencesURLs(system *system.System) ([]string, error) {
 }
 
 func parsePreferencesForLibraryPath(preferencesPath string) (snippetsLabLibrary, error) {
-	fileBytes, err := ioutil.ReadFile(preferencesPath) //nolint:gosec // potential file inclusion via variable
+	fileBytes, err := os.ReadFile(preferencesPath) //nolint:gosec // potential file inclusion via variable
 	if err != nil {
 		return invalidSnippetsLabLibrary, err
 	}

@@ -1,7 +1,7 @@
 package app
 
 import (
-	"io/ioutil"
+	"os"
 	"path"
 	"testing"
 
@@ -30,7 +30,7 @@ func Test_NewApp_NoConfigFile(t *testing.T) {
 
 func Test_NewAppInvalidConfigFile(t *testing.T) {
 	cfgFile := path.Join(t.TempDir(), "invalid-config")
-	assert.NoError(t, ioutil.WriteFile(cfgFile, []byte("invalid"), 0o600))
+	assert.NoError(t, os.WriteFile(cfgFile, []byte("invalid"), 0o600))
 
 	v := viper.NewWithOptions()
 	v.SetConfigFile(cfgFile)
@@ -47,7 +47,7 @@ func Test_NewAppNeedsConfigMigration(t *testing.T) {
 	if cfgBytes, err := yaml.Marshal(cfg); err != nil {
 		assert.NoError(t, err)
 	} else {
-		assert.NoError(t, ioutil.WriteFile(cfgFile, cfgBytes, 0o600))
+		assert.NoError(t, os.WriteFile(cfgFile, cfgBytes, 0o600))
 	}
 
 	v := viper.NewWithOptions()
@@ -75,7 +75,7 @@ func Test_NewAppNoManagers(t *testing.T) {
 	if cfgBytes, err := yaml.Marshal(cfg); err != nil {
 		assert.NoError(t, err)
 	} else {
-		assert.NoError(t, ioutil.WriteFile(cfgFile, cfgBytes, 0o600))
+		assert.NoError(t, os.WriteFile(cfgFile, cfgBytes, 0o600))
 	}
 
 	v := viper.NewWithOptions()

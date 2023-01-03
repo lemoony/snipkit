@@ -1,7 +1,7 @@
 package ui
 
 import (
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -29,7 +29,7 @@ func Test_themeNotFound(t *testing.T) {
 }
 
 func Test_embeddedThemes(t *testing.T) {
-	fileInfos, err := ioutil.ReadDir("../../themes")
+	fileInfos, err := os.ReadDir("../../themes")
 	assert.NoError(t, err)
 
 	for _, fileInfo := range fileInfos {

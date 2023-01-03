@@ -3,7 +3,6 @@ package snippetslab
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -116,7 +115,7 @@ func parseSnippets(library snippetsLabLibrary) ([]model.Snippet, error) {
 
 //nolint:forcetypeassert,funlen // since we will catch any panic error and checking each statement explicitly is too much work
 func parseSnippet(path string) (model.Snippet, error) {
-	fileBytes, err := ioutil.ReadFile(filepath.Clean(path))
+	fileBytes, err := os.ReadFile(filepath.Clean(path))
 	if err != nil {
 		return snippetImpl{}, err
 	}
@@ -181,7 +180,7 @@ func parseSnippet(path string) (model.Snippet, error) {
 }
 
 func readPblistFile(path string) (map[string]interface{}, error) {
-	fileBytes, err := ioutil.ReadFile(filepath.Clean(path))
+	fileBytes, err := os.ReadFile(filepath.Clean(path))
 	if err != nil {
 		return nil, err
 	}

@@ -2,7 +2,7 @@ package testdata
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 	"path"
 	"path/filepath"
 	"runtime"
@@ -36,7 +36,7 @@ func ConfigPath(t *testing.T, cfgVersion ConfigVersion) string {
 }
 
 func ConfigBytes(t *testing.T, cfgVersion ConfigVersion) []byte {
-	bytes, err := ioutil.ReadFile(ConfigPath(t, cfgVersion))
+	bytes, err := os.ReadFile(ConfigPath(t, cfgVersion))
 	assert.NoError(t, err)
 	return bytes
 }
