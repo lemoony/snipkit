@@ -12,6 +12,7 @@ import (
 	"github.com/rivo/tview"
 
 	"github.com/lemoony/snipkit/internal/model"
+	"github.com/lemoony/snipkit/internal/ui/finder"
 )
 
 var lexerMapping = map[model.Language]string{
@@ -33,7 +34,7 @@ func (t *tuiImpl) ShowLookup(snippets []model.Snippet, fuzzySearch bool) int {
 	selectedSnippet := -1
 	f, s := t.getPreviewFormatterAndStyle()
 
-	finder := tview.NewFinder().
+	finder := finder.NewFinder().
 		SetWrapAround(true).
 		SetItems(len(snippets), func(index int) string {
 			return snippets[index].GetTitle()
@@ -105,7 +106,7 @@ func (t *tuiImpl) getPreviewFormatterAndStyle() (chroma.Formatter, *chroma.Style
 	return f, s
 }
 
-func (t *tuiImpl) applyStyle(finder *tview.Finder, preview *tview.TextView) {
+func (t *tuiImpl) applyStyle(finder *finder.Finder, preview *tview.TextView) {
 	finder.SetSelectedItemLabel(">")
 	finder.SetInputLabel(">")
 	finder.SetInputLabelStyle(tcell.StyleDefault.Foreground(t.styler.ActiveColor().CellValue()))
