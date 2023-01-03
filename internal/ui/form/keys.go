@@ -24,12 +24,12 @@ func defaultKeyMap() KeyMap {
 	return KeyMap{
 		// Browsing.
 		CursorUp: key.NewBinding(
-			key.WithKeys("up", "k"),
-			key.WithHelp("↑/k", "up"),
+			key.WithKeys("up"),
+			key.WithHelp("↑", "up"),
 		),
 		CursorDown: key.NewBinding(
-			key.WithKeys("down", "j"),
-			key.WithHelp("↓/j", "down"),
+			key.WithKeys("down"),
+			key.WithHelp("", "down"),
 		),
 		Apply: key.NewBinding(
 			key.WithKeys("enter"),
@@ -40,8 +40,8 @@ func defaultKeyMap() KeyMap {
 			key.WithHelp("tab", "next"),
 		),
 		Quit: key.NewBinding(
-			key.WithKeys("q", "esc", "ctrl+c"),
-			key.WithHelp("q", "quit"),
+			key.WithKeys("esc", "ctrl+c"),
+			key.WithHelp("esc", "quit"),
 		),
 	}
 }
@@ -81,20 +81,20 @@ func defaultFieldKeyMap() FieldKeyMap {
 	return FieldKeyMap{
 		// Browsing.
 		CursorUp: key.NewBinding(
-			key.WithKeys("up", "k"),
-			key.WithHelp("↑/k", "up"),
+			key.WithKeys("up"),
+			key.WithHelp("↑", "up"),
 		),
 		CursorDown: key.NewBinding(
-			key.WithKeys("down", "j"),
-			key.WithHelp("↓/j", "down"),
+			key.WithKeys("down"),
+			key.WithHelp("↓", "down"),
 		),
 		Apply: key.NewBinding(
 			key.WithKeys("enter"),
 			key.WithHelp("↵", "apply"),
 		),
 		Quit: key.NewBinding(
-			key.WithKeys("q", "esc", "ctrl+c"),
-			key.WithHelp("q", "quit"),
+			key.WithKeys("esc", "ctrl+c"),
+			key.WithHelp("esc", "quit"),
 		),
 	}
 }

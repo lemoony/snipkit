@@ -2,7 +2,6 @@ package fslibrary
 
 import (
 	"io"
-	"io/ioutil"
 	"path/filepath"
 
 	"github.com/lemoony/snipkit/internal/utils/system"
@@ -18,7 +17,7 @@ func getSnippetName(system *system.System, filePath string) string {
 }
 
 func pruneTitleHeader(r io.Reader) string {
-	all, err := ioutil.ReadAll(r)
+	all, err := io.ReadAll(r)
 	if err != nil {
 		panic(err)
 	}

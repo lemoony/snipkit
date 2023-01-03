@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strings"
 
@@ -121,14 +121,14 @@ func (m Manager) getRawResponse(url, etag, token string) rawResponse {
 	if resp.StatusCode == http.StatusNotModified {
 		return rawResponse{hasUpdates: false}
 	} else if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusNoContent {
-		if payload, err2 := ioutil.ReadAll(resp.Body); err != nil {
+		if payload, err2 := io.ReadAll(resp.Body); err != nil {
 			panic(err2)
 		} else {
 			panic(errors.Wrap(errAuth, string(payload)))
 		}
 	}
 
-	if bytes, err := ioutil.ReadAll(resp.Body); err != nil {
+	if bytes, err := io.ReadAll(resp.Body); err != nil {
 		panic(err)
 	} else {
 		return rawResponse{

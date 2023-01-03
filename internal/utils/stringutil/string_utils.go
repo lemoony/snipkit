@@ -11,7 +11,6 @@ func StringOrDefault(val string, defaultStr string) string {
 
 // SplitWithEscape behaves like strings.Split but supports defining an escape character. E.g, when using ',' as split
 // separator and '\' es escape code, the string "1\,2,3," will not be split into ["1, 2", "3"].
-//
 func SplitWithEscape(s string, split uint8, escape uint8, trim bool) []string {
 	var splitIndices []int
 	for i := range s {

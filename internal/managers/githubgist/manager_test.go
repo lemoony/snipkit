@@ -2,8 +2,8 @@ package githubgist
 
 import (
 	"fmt"
-	"io/ioutil"
 	"net/http"
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -367,7 +367,7 @@ func Test_Sync_ifNoneMatch_forSingleFile(t *testing.T) {
 
 func readTestdata(t *testing.T, path string) string {
 	t.Helper()
-	contents, err := ioutil.ReadFile(path)
+	contents, err := os.ReadFile(path)
 	assert.NoError(t, err)
 	return string(contents)
 }
