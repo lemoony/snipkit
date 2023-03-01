@@ -23,7 +23,7 @@ require (
 	github.com/phuslu/log v1.0.83
 	github.com/rivo/tview v0.0.0-20230101141202-1dc4a83affeb
 	github.com/rivo/uniseg v0.4.3
-	github.com/spf13/afero v1.9.3
+	github.com/spf13/afero v1.9.4
 	github.com/spf13/cobra v1.6.1
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.14.0
