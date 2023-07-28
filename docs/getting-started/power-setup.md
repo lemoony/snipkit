@@ -28,3 +28,27 @@ defaultRootCommand: "exec"
 
 With this setup, calling `sn` will yield the same result as `snipkit exec`. If you want to call
 the `print` command instead, type `sn print`.
+
+### Interactive ZSH Widget
+
+Similar to the history search in ZSH, it is possible to bind `snipkit print` to a keybinding that will copy the generated snippet to the clipboard.
+
+Define a function:
+
+```shell
+snipkit-snippets-widget () {
+        echoti rmkx
+        exec </dev/tty
+        local snipkit_output=$(mktemp ${TMPDIR:-/tmp}/snipkit.output.XXXXXXXX)
+        ./snipkit print -o "${snipkit_output}"
+        echoti smkx
+        cat $snipkit_output | pbcopy
+        rm -f $snipkit_output
+}
+```
+
+Bind widget to `CTRL+x x`:
+
+```shell
+bindkey "^Xx" snipkit-snippets-widget
+```
