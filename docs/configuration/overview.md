@@ -15,8 +15,12 @@ You can specify another directory to be used by SnipKit be setting the environme
 want to put the following into your `~/.zshrc` file:
 
 ```bash 
-export SNIPKIT_HOME=~/.snipkit
+export SNIPKIT_HOME=/Users/<user>/.snipkit
 ```
+
+!!! warning "Use absolute paths for `SNIPKIT_HOME`"
+    Please make sure to use an absolute path for `SNIPKIT_HOME` and do not use the tilde (~) character to point to your 
+    home directory. Otherwise, SnipKit will not be able to find your configuration file.
 
 ## Initialization
 
@@ -220,12 +224,11 @@ config:
 ```
 
 !!! tip "Flag --confirm"
-
-The same functionality can be achieved by means of the `--confirm` flag:
-```bash
-snipkit exec --confirm
-```
-Use the flag instead of the config option if you only want to explicitly confirm the command in some cases.
+    The same functionality can be achieved by means of the `--confirm` flag:
+    ```bash
+    snipkit exec --confirm
+    ```
+    Use the flag instead of the config option if you only want to explicitly confirm the command in some cases.
 
 
 #### Print Commands
