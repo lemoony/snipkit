@@ -21,7 +21,7 @@ linters-settings:
   gomnd:
     settings:
       mnd:
-        checks: argument,case,condition,operation,return,assign
+        checks: [argument,case,condition,operation,return,assign]
         # ignored-numbers: 1000
         # ignored-files: magic_.*.go
         # ignored-functions: math.*
@@ -32,18 +32,14 @@ linters:
   # inverted configuration with `enable-all` and `disable` is not scalable during updates of golangci-lint
   disable-all: true
   enable:
-    - deadcode
     - errcheck
     - gosimple
     - govet
     - ineffassign
     - staticcheck
-    - structcheck
     - typecheck
     - unused
-    - varcheck
     - bodyclose
-    - depguard
     - dupl
     - exportloopref
     - funlen
@@ -58,7 +54,6 @@ linters:
     - gomnd
     - goprintffuncname
     - gosec
-    - ifshort
     - misspell
     - noctx
     - nolintlint
@@ -70,6 +65,7 @@ linters:
     - unconvert
     - unparam
     - whitespace
+    - unused
     # - errorlint
     # - goerr113
     # - wrapcheck
