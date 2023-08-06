@@ -74,18 +74,18 @@ func Test_getEditor(t *testing.T) {
 	}
 
 	for _, tt := range tests {
+		ttx := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-
-			if tt.envEditor == "" {
+			if ttx.envEditor == "" {
 				_ = os.Unsetenv(envEditor)
 			} else {
-				_ = os.Setenv(envEditor, tt.envEditor)
+				_ = os.Setenv(envEditor, ttx.envEditor)
 			}
-			if tt.envVisual == "" {
+			if ttx.envVisual == "" {
 				_ = os.Unsetenv(envVisual)
 			} else {
-				_ = os.Setenv(envVisual, tt.envVisual)
+				_ = os.Setenv(envVisual, ttx.envVisual)
 			}
 
 			defer func() {
@@ -93,8 +93,8 @@ func Test_getEditor(t *testing.T) {
 				_ = os.Unsetenv(envEditor)
 			}()
 
-			editor := getEditor(tt.preferred)
-			assert.Equal(t, tt.expected, editor)
+			editor := getEditor(ttx.preferred)
+			assert.Equal(t, ttx.expected, editor)
 		})
 	}
 }
