@@ -29,11 +29,6 @@ brews:
 nfpms:
   -
     builds: [linux]
-    replacements:
-      amd64: 64-bit
-      386: 32-bit
-      darwin: macOS
-      linux: Tux
     homepage: https://github.com/lemoony/snipkit
     maintainer: Philipp Sessler <sessler.phil@googlemail.com>
     description: Access snippets from your favorite snippet manager without leaving the terminal.
