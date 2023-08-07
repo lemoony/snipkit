@@ -6,7 +6,7 @@ require (
 	github.com/daixiang0/gci v0.10.1
 	github.com/golangci/golangci-lint v1.53.3
 	github.com/goreleaser/goreleaser v1.19.2
-	github.com/vektra/mockery/v2 v2.16.0
+	github.com/vektra/mockery/v2 v2.32.3
 	mvdan.cc/gofumpt v0.5.0
 )
 
@@ -107,7 +107,7 @@ require (
 	github.com/charithe/durationcheck v0.0.10 // indirect
 	github.com/charmbracelet/lipgloss v0.7.1 // indirect
 	github.com/chavacava/garif v0.0.0-20230227094218-b8c73b2037b8 // indirect
-	github.com/chigopher/pathlib v0.12.0 // indirect
+	github.com/chigopher/pathlib v0.15.0 // indirect
 	github.com/chrismellard/docker-credential-acr-env v0.0.0-20220327082430-c57b701bfc08 // indirect
 	github.com/cloudflare/circl v1.3.3 // indirect
 	github.com/containerd/stargz-snapshotter/estargz v0.14.3 // indirect
@@ -206,12 +206,14 @@ require (
 	github.com/hexops/gotextdiff v1.0.3 // indirect
 	github.com/huandu/xstrings v1.3.3 // indirect
 	github.com/iancoleman/orderedmap v0.2.0 // indirect
+	github.com/iancoleman/strcase v0.2.0 // indirect
 	github.com/imdario/mergo v0.3.16 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/invopop/jsonschema v0.7.0 // indirect
 	github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 // indirect
 	github.com/jgautheron/goconst v1.5.1 // indirect
 	github.com/jingyugao/rowserrcheck v1.1.1 // indirect
+	github.com/jinzhu/copier v0.3.5 // indirect
 	github.com/jirfag/go-printf-func-name v0.0.0-20200119135958-7558a9eaa5af // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
@@ -280,7 +282,7 @@ require (
 	github.com/quasilyte/regex/syntax v0.0.0-20210819130434-b3f0c404a727 // indirect
 	github.com/quasilyte/stdinfo v0.0.0-20220114132959-f7386bf02567 // indirect
 	github.com/rivo/uniseg v0.4.2 // indirect
-	github.com/rs/zerolog v1.27.0 // indirect
+	github.com/rs/zerolog v1.29.0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/ryancurrah/gomodguard v1.3.0 // indirect
 	github.com/ryanrolds/sqlclosecheck v0.4.0 // indirect
