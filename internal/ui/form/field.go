@@ -3,6 +3,7 @@ package form
 import (
 	"strings"
 
+	"github.com/charmbracelet/bubbles/cursor"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
@@ -67,7 +68,7 @@ func NewField(
 
 	m.field.Prompt = ""
 	m.field.Placeholder = stringutil.StringOrDefault(description, "Type here...")
-	m.field.SetCursorMode(textinput.CursorStatic)
+	m.field.Cursor.SetMode(cursor.CursorBlink)
 	if m.ParameterType == appModel.ParameterTypePassword {
 		m.field.EchoMode = textinput.EchoPassword
 	}
