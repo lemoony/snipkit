@@ -12,7 +12,7 @@ require (
 	github.com/charmbracelet/bubbletea v0.23.1
 	github.com/charmbracelet/lipgloss v0.6.0
 	github.com/cli/oauth v1.0.0
-	github.com/corbym/gocrest v1.0.5
+	github.com/corbym/gocrest v1.1.1
 	github.com/creack/pty v1.1.18
 	github.com/gdamore/tcell/v2 v2.5.4
 	github.com/hinshun/vt10x v0.0.0-20220301184237-5011da428d02
