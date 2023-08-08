@@ -20,6 +20,6 @@ func Test_StringSet(t *testing.T) {
 
 	then.AssertThat(t,
 		set.Keys(),
-		is.AllOf(is.ValueContaining("Foo"), is.ValueContaining("Moo")),
+		is.AllOf(is.ArrayContaining("Foo"), is.ArrayContaining("Moo")),
 	)
 }
