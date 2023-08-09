@@ -1,4 +1,4 @@
-name: mkdocs-dev
+name: mkdocs-latest
 on:
   workflow_dispatch:
     inputs:
@@ -10,8 +10,8 @@ on:
       - "v*"
 jobs:
   deploy:
-    name: mkdocs-dev
-    runs-on: ubuntu-18.04
+    name: mkdocs-latest
+    runs-on: ubuntu-20.04
     steps:
       - name: Checkout main
         uses: actions/checkout@v3
