@@ -10,7 +10,7 @@ require (
 	github.com/alecthomas/chroma v0.10.0
 	github.com/charmbracelet/bubbles v0.15.0
 	github.com/charmbracelet/bubbletea v0.23.1
-	github.com/charmbracelet/lipgloss v0.6.0
+	github.com/charmbracelet/lipgloss v0.8.0
 	github.com/cli/oauth v1.0.0
 	github.com/corbym/gocrest v1.1.1
 	github.com/creack/pty v1.1.18
@@ -19,7 +19,7 @@ require (
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51
 	github.com/mattn/go-runewidth v0.0.14
 	github.com/muesli/reflow v0.3.0
-	github.com/muesli/termenv v0.15.1
+	github.com/muesli/termenv v0.15.2
 	github.com/phuslu/log v1.0.83
 	github.com/rivo/tview v0.0.0-20230101141202-1dc4a83affeb
 	github.com/rivo/uniseg v0.4.4
