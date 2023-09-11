@@ -2,8 +2,12 @@ package cmd
 
 import (
 	"fmt"
-
 	"github.com/spf13/cobra"
+	"os"
+)
+
+var (
+	execCmdOutputFlag string
 )
 
 var printCmd = &cobra.Command{
@@ -13,11 +17,21 @@ var printCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		app := getAppFromContext(cmd.Context())
 		if snippet, ok := app.LookupAndCreatePrintableSnippet(); ok {
-			fmt.Println(snippet)
+			if execCmdOutputFlag != "" {
+				os.WriteFile(execCmdOutputFlag, []byte(snippet), 0644)
+			} else {
+				fmt.Println(snippet)
+			}
 		}
 	},
 }
 
 func init() {
+	printCmd.PersistentFlags().StringVarP(
+		&execCmdOutputFlag,
+		"output",
+		"o",
+		"",
+		fmt.Sprintf("Write snippet to file instead of stdout"))
 	rootCmd.AddCommand(printCmd)
 }
