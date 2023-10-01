@@ -19,7 +19,7 @@ require (
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51
 	github.com/mattn/go-runewidth v0.0.14
 	github.com/muesli/reflow v0.3.0
-	github.com/muesli/termenv v0.15.1
+	github.com/muesli/termenv v0.15.2
 	github.com/phuslu/log v1.0.83
 	github.com/rivo/tview v0.0.0-20230101141202-1dc4a83affeb
 	github.com/rivo/uniseg v0.4.4
