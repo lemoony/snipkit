@@ -78,7 +78,7 @@ Marking the parameter `PW` as password happens in line 2 by defining `Type: PASS
 
 ## Paths
 
-Often, parameters are a path to a file or a directory. In this case, SnipKit is able to provide you with automcomplete
+Often, parameters are a path to a file or a directory. In this case, SnipKit is able to provide you with autocomplete
 suggestions:
 
 ```sh linenums="1" title="Example snippet with a PATH parameters"
