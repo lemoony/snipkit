@@ -14,10 +14,10 @@ require (
 	github.com/cli/oauth v1.0.0
 	github.com/corbym/gocrest v1.1.1
 	github.com/creack/pty v1.1.18
-	github.com/gdamore/tcell/v2 v2.5.4
+	github.com/gdamore/tcell/v2 v2.7.4
 	github.com/hinshun/vt10x v0.0.0-20220301184237-5011da428d02
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51
-	github.com/mattn/go-runewidth v0.0.14
+	github.com/mattn/go-runewidth v0.0.15
 	github.com/muesli/reflow v0.3.0
 	github.com/muesli/termenv v0.15.1
 	github.com/phuslu/log v1.0.83
@@ -69,7 +69,7 @@ require (
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
 	golang.org/x/sys v0.20.0 // indirect
-	golang.org/x/text v0.9.0 // indirect
+	golang.org/x/text v0.14.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 )
