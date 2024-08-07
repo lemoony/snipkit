@@ -18,6 +18,7 @@ import (
 	"github.com/lemoony/snipkit/internal/ui"
 	"github.com/lemoony/snipkit/internal/utils/logutil"
 	"github.com/lemoony/snipkit/internal/utils/system"
+	"github.com/lemoony/snipkit/internal/utils/termutil"
 )
 
 type setup struct {
@@ -54,17 +55,33 @@ var (
 )
 
 func getAppFromContext(ctx context.Context) app.App {
-	return getAppFromContextWithConfigMigrationCheck(ctx, true)
+	return getAppFromContextWith(ctx, nil, true)
 }
 
 func getAppFromContextWithConfigMigrationCheck(ctx context.Context, checkNeedsMigration bool) app.App {
+	return getAppFromContextWith(ctx, nil, checkNeedsMigration)
+}
+
+func getAppFromContextWith(ctx context.Context, output *os.File, checkNeedsMigration bool) app.App {
 	if v := ctx.Value(_appKey); v != nil {
 		return v.(app.App)
 	}
 
 	s := getSetupFromContext(ctx)
+
+	var tui ui.TUI
+	if output != nil {
+		tui = ui.NewTUI(ui.WithStdio(termutil.Stdio{
+			In:  os.Stdin,
+			Out: output,
+			Err: os.Stderr,
+		}))
+	} else {
+		tui = s.terminal
+	}
+
 	return app.NewApp(
-		app.WithTUI(s.terminal),
+		app.WithTUI(tui),
 		app.WithConfigService(s.configService()),
 		app.WithProvider(s.provider),
 		app.WithCheckNeedsConfigMigration(checkNeedsMigration),

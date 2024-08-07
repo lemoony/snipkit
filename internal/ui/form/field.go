@@ -226,7 +226,7 @@ func (m *fieldModel) applyFilePathOption() {
 
 //nolint:funlen // refactor at a later point.
 func (m *fieldModel) View() string {
-	color := m.styler.TextColor()
+	color := m.styler.SubduedColor()
 	borderStyle := lipgloss.HiddenBorder()
 	if m.field.Focused() {
 		color = m.styler.ActiveColor()
