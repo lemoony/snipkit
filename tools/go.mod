@@ -3,7 +3,7 @@ module github.com/lemoony/snipkit/tools
 go 1.22
 
 require (
-	github.com/daixiang0/gci v0.11.2
+	github.com/daixiang0/gci v0.13.4
 	github.com/golangci/golangci-lint v1.55.2
 	github.com/goreleaser/goreleaser v1.26.2
 	github.com/vektra/mockery/v2 v2.33.1
@@ -426,6 +426,7 @@ require (
 	golang.org/x/tools v0.21.0 // indirect
 	golang.org/x/xerrors v0.0.0-20231012003039-104605ab7028 // indirect
 	google.golang.org/api v0.172.0 // indirect
+	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20240311173647-c811ad7063a7 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20240311173647-c811ad7063a7 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240318140521-94a12d6c2237 // indirect
