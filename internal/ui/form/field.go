@@ -81,7 +81,7 @@ func (m *fieldModel) Value() string {
 }
 
 func (m *fieldModel) SetLabelWidth(width int) {
-	m.field.Width = fieldTotalWidth - width - two - 8 //nolint:gomnd // TODO refactor at some point
+	m.field.Width = fieldTotalWidth - width - two - 8 //nolint:mnd // magic number 8
 	m.labelWidth = width
 }
 

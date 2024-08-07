@@ -18,7 +18,7 @@ import (
 	"github.com/lemoony/snipkit/internal/ui/uimsg"
 )
 
-var docStyle = lipgloss.NewStyle().Margin(1, 2, 0, 4) //nolint:gomnd // magic number is okay for styling purposes
+var docStyle = lipgloss.NewStyle().Margin(1, 2, 0, 4) //nolint:mnd // magic number is okay for styling purposes
 
 const TemplateYN = `{{- Bold .Prompt -}} 
 {{ if .Done }}

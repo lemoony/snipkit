@@ -108,15 +108,15 @@ func (t *tuiImpl) ApplyConfig(cfg Config, system *system.System) {
 }
 
 func (t tuiImpl) Print(p uimsg.Printable) {
-	fmt.Fprintln(t.stdio.Out, p.RenderWith(&t.styler))
+	_, _ = fmt.Fprintln(t.stdio.Out, p.RenderWith(&t.styler))
 }
 
 func (t tuiImpl) PrintMessage(msg string) {
-	fmt.Fprintln(t.stdio.Out, msg)
+	_, _ = fmt.Fprintln(t.stdio.Out, msg)
 }
 
 func (t tuiImpl) PrintError(msg string) {
-	fmt.Fprintln(t.stdio.Out, msg)
+	_, _ = fmt.Fprintln(t.stdio.Out, msg)
 }
 
 func (t tuiImpl) ShowParameterForm(parameters []model.Parameter, okButton OkButton) ([]string, bool) {
@@ -162,7 +162,7 @@ func (t tuiImpl) OpenEditor(path string, preferredEditor string) {
 		panic(errors.Wrapf(errors.WithStack(err), "failed to open editor: %s", strings.Join(args, " ")))
 	}
 
-	if err := cmd.Wait(); err != nil {
+	if err = cmd.Wait(); err != nil {
 		panic(err)
 	}
 }

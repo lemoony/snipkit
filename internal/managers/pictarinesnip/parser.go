@@ -32,7 +32,7 @@ func parseLibrary(path string, system *system.System, tags *stringutil.StringSet
 	}
 
 	var snippets []picatrineSnippet
-	if err := json.NewDecoder(file).Decode(&snippets); err != nil {
+	if err = json.NewDecoder(file).Decode(&snippets); err != nil {
 		panic(err)
 	}
 

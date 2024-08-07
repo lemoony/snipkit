@@ -22,7 +22,7 @@ func AutoDiscoveryConfig(system *system.System) *Config {
 
 	if ok, err := libraryURL.validate(); err != nil || !ok {
 		return &result
-	} else if basePath, err := libraryURL.basePath(); err == nil {
+	} else if basePath, err2 := libraryURL.basePath(); err2 == nil {
 		result.Enabled = true
 		result.LibraryPath = basePath
 	}

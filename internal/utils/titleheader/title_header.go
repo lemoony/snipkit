@@ -101,9 +101,7 @@ func splitterWithCRLF(data []byte, atEOF bool) (advance int, token []byte, err e
 	}
 	if i := bytes.IndexByte(data, '\n'); i >= 0 {
 		// We have a full newline-terminated line.
-		advance := i + 1
-		token := data[0 : i+1]
-		return advance, token, nil
+		return i + 1, data[0 : i+1], nil
 	}
 	// If we're at EOF, we have a final, non-terminated line. Return it.
 	if atEOF {

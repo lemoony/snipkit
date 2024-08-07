@@ -39,9 +39,9 @@ func findPreferencesPath(system *system.System) (string, error) {
 		return "", err
 	}
 	for _, prefPath := range preferencesURLs {
-		fileBytes, err := os.ReadFile(prefPath) //nolint:gosec // potential file inclusion via variable
-		if err != nil {
-			log.Trace().Msgf("could not open possible preference path %s: %e", prefPath, err)
+		fileBytes, err2 := os.ReadFile(prefPath) //nolint:gosec // potential file inclusion via variable
+		if err2 != nil {
+			log.Trace().Msgf("could not open possible preference path %s: %e", prefPath, err2)
 			continue
 		}
 
@@ -49,7 +49,7 @@ func findPreferencesPath(system *system.System) (string, error) {
 		decoder := plist.NewDecoder(buf)
 
 		fileMap := make(map[string]interface{})
-		if err := decoder.Decode(&fileMap); err != nil {
+		if err = decoder.Decode(&fileMap); err != nil {
 			log.Trace().Msgf("could not decode possible preference path %s: %e", prefPath, err)
 			continue
 		}
@@ -87,7 +87,7 @@ func parsePreferencesForLibraryPath(preferencesPath string) (snippetsLabLibrary,
 	decoder := plist.NewDecoder(buf)
 
 	fileMap := make(map[string]interface{})
-	if err := decoder.Decode(&fileMap); err != nil {
+	if err = decoder.Decode(&fileMap); err != nil {
 		return invalidSnippetsLabLibrary, err
 	}
 

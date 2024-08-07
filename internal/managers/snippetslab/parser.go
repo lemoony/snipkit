@@ -59,21 +59,21 @@ func parseTags(library snippetsLabLibrary) (map[string]string, error) {
 		tagDecoder := plist.NewDecoder(tagBuffer)
 
 		tagFields := make(map[string]interface{})
-		if err := tagDecoder.Decode(&tagFields); err != nil {
+		if err = tagDecoder.Decode(&tagFields); err != nil {
 			return nil, err
 		}
 
 		tagObjects := tagFields["$objects"].([]interface{})
 
-		var indexOfNull int
+		var idxOfNull int
 		for i, v := range tagObjects {
 			if v == nullEntry {
-				indexOfNull = i + 1
+				idxOfNull = i + 1
 				break
 			}
 		}
 
-		tagsKeyMapping := tagObjects[indexOfNull].(map[string]interface{})
+		tagsKeyMapping := tagObjects[idxOfNull].(map[string]interface{})
 
 		indexTagUUID := uint64(tagsKeyMapping[SnippetTagsTagUUID].(plist.UID))
 		indexTagTitle := uint64(tagsKeyMapping[SnippetTagsTagTitle].(plist.UID))
@@ -103,8 +103,8 @@ func parseSnippets(library snippetsLabLibrary) ([]model.Snippet, error) {
 	for i := range dirFiles {
 		file := dirFiles[i]
 
-		if snippet, err := parseSnippet(fmt.Sprintf("%s/%s", filePath, file.Name())); err != nil {
-			return snippets, err
+		if snippet, err2 := parseSnippet(fmt.Sprintf("%s/%s", filePath, file.Name())); err2 != nil {
+			return snippets, err2
 		} else {
 			snippets = append(snippets, snippet)
 		}
@@ -124,7 +124,7 @@ func parseSnippet(path string) (model.Snippet, error) {
 	decoder := plist.NewDecoder(buf)
 
 	fileMap := make(map[string]interface{})
-	if err := decoder.Decode(&fileMap); err != nil {
+	if err = decoder.Decode(&fileMap); err != nil {
 		return snippetImpl{}, err
 	}
 
@@ -189,7 +189,7 @@ func readPblistFile(path string) (map[string]interface{}, error) {
 	decoder := plist.NewDecoder(buf)
 
 	fileMap := make(map[string]interface{})
-	if err := decoder.Decode(&fileMap); err != nil {
+	if err = decoder.Decode(&fileMap); err != nil {
 		return nil, err
 	}
 
