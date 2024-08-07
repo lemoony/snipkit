@@ -205,10 +205,22 @@ func (s *System) WriteFile(path string, data []byte) {
 }
 
 func (s *System) ReadFile(path string) []byte {
+	path = expandPath(path)
 	bytes, err := afero.ReadFile(s.Fs, path)
 	if err != nil {
 		panic(ErrFileSystem{path: path, msg: "failed to read file", cause: err})
 	}
 
 	return bytes
+}
+
+func expandPath(path string) string {
+	if path[:2] == "~/" {
+		home, err := os.UserHomeDir()
+		if err != nil {
+			panic(err)
+		}
+		return filepath.Join(home, path[2:])
+	}
+	return path
 }

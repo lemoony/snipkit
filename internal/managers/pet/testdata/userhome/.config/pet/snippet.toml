@@ -1,6 +1,6 @@
 [[snippets]]
 description = "Echo something"
-command = "echo <VAR1> && <VAR2=Snipkit> <VAR3=is a snippet manager for the terminal!>"
+command = "echo <VAR1> <VAR2=default_value> <VAR3=|_first value_||_second value here_||_third value can be = anything too _|>"
 output = ""
 
 [[snippets]]

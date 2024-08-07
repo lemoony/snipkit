@@ -51,13 +51,19 @@ func Test_parseSnippetsFromTOML(t *testing.T) {
 	assert.NotEmpty(t, snippets[0].GetID())
 	assert.Equal(t, "Echo something", snippets[0].GetTitle())
 	assert.Equal(t,
-		"echo <VAR1> && <VAR2=Snipkit> <VAR3=is a snippet manager for the terminal!>",
+		"echo <VAR1> <VAR2=default_value> <VAR3=|_first value_||_second value here_||_third value can be = anything too _|>",
 		snippets[0].GetContent(),
 	)
 	assert.Equal(t, model.LanguageBash, snippets[0].GetLanguage())
 	assert.Len(t, snippets[0].GetParameters(), 3)
 	assert.Len(t, snippets[0].GetTags(), 0)
-	assert.Equal(t, snippets[0].Format([]string{"one", "two", "three"}, model.SnippetFormatOptions{}), "echo one && two three")
+	assert.Equal(t, snippets[0].GetParameters()[1].DefaultValue, "default_value")
+	assert.Empty(t, snippets[0].GetParameters()[2].DefaultValue)
+	assert.Len(t, snippets[0].GetParameters()[2].Values, 3)
+	assert.Equal(t, snippets[0].GetParameters()[2].Values[0], "first value")
+	assert.Equal(t, snippets[0].GetParameters()[2].Values[1], "second value here")
+	assert.Equal(t, snippets[0].GetParameters()[2].Values[2], "third value can be = anything too ")
+	assert.Equal(t, snippets[0].Format([]string{"one", "two", "three"}, model.SnippetFormatOptions{}), "echo one two three")
 
 	assert.Equal(t, "Watches Kubernetes pods with refresh", snippets[1].GetTitle())
 	assert.Equal(t, "watch -n 5 'kubectl get pods | grep <pattern>'", snippets[1].GetContent())

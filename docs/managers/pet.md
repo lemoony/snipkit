@@ -30,8 +30,8 @@ snippets will not be presented to you. If you don't want to filter for tags, set
 
 ## Parameter
 
-Pet comes with its own parameter syntax in the form of `<param>` or `<param=default_value>`. SnipKit supports this syntax and
-you should have no problems using your Pet snippets the same way in SnipKit.
+Pet comes with its own parameter syntax in the form of `<param>`, `<param=default_value>` or `<param=|_value1_||_value2_|>`. 
+SnipKit supports this syntax and you should have no problems using your Pet snippets the same way in SnipKit.
 
 !!! tip
     While being easy to use, Pet's parameter syntax is less expressive than the one of SnipKit.

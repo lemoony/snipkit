@@ -89,17 +89,27 @@ func mapToSnippet(raw tomlSnippet) model.Snippet {
 func parseParameters(command string) []model.Parameter {
 	const expectedMatches = 2
 
+	testRegex := regexp.MustCompile(`\|\_[^\|\|]+\_\|`)
+
 	var result []model.Parameter
 	matches := placeholderRegex.FindAllStringSubmatch(command, -1)
 	for i := range matches {
 		if len(matches[i]) >= expectedMatches {
-			split := strings.Split(matches[i][1], "=")
+			split := strings.SplitN(matches[i][1], "=", 2)
 			key := strings.TrimSpace(split[0])
 			defaultValue := ""
+			var values []string
 			if len(split) > 1 {
-				defaultValue = strings.TrimSpace(split[1])
+				if multipleDefValues := testRegex.FindAllStringSubmatch(split[1], -1); multipleDefValues != nil {
+					println(multipleDefValues)
+					for _, val := range multipleDefValues {
+						values = append(values, strings.Trim(val[0], "|_"))
+					}
+				} else {
+					defaultValue = strings.TrimSpace(split[1])
+				}
 			}
-			result = append(result, model.Parameter{Key: key, DefaultValue: defaultValue})
+			result = append(result, model.Parameter{Key: key, DefaultValue: defaultValue, Values: values})
 		}
 	}
 	return result
