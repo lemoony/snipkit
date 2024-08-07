@@ -236,7 +236,7 @@ func (m *Manager) requestOAuthToken(cfg GistConfig, lines []model.SyncLine, even
 	events <- model.SyncEvent{Status: model.SyncStatusStarted, Lines: lines}
 
 	if ok := m.checkToken(cfg, accessToken.Token); !ok {
-		if ok := m.checkToken(cfg, accessToken.Token); !ok {
+		if ok = m.checkToken(cfg, accessToken.Token); !ok {
 			return "", errors.New("The provided token is invalid")
 		}
 	}

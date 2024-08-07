@@ -45,7 +45,7 @@ func Test_getSnippetName(t *testing.T) {
 			file, err := afero.TempFile(system.Fs, t.TempDir(), "*.sh")
 
 			assert.NoError(t, err)
-			if _, err := file.Write([]byte(tt.content)); err != nil {
+			if _, err = file.Write([]byte(tt.content)); err != nil {
 				assert.NoError(t, err)
 			}
 

@@ -54,7 +54,7 @@ func executeScript(script, configuredShell string) {
 		panic(errors.Wrapf(errors.WithStack(err), "failed to run command"))
 	}
 
-	if err := cmd.Wait(); err != nil {
+	if err = cmd.Wait(); err != nil {
 		log.Info().Err(err)
 	}
 }
