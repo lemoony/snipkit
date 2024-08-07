@@ -283,3 +283,23 @@ func Test_HomeEnvValue(t *testing.T) {
 	_ = os.Setenv(envSnipkitHome, "test")
 	assert.Equal(t, "test", NewSystem().HomeEnvValue())
 }
+
+func Test_ExpandPath(t *testing.T) {
+	homeDir := "/home/testuser"
+	_ = os.Setenv("HOME", homeDir)
+
+	tests := []struct {
+		inputPath    string
+		expectedPath string
+	}{
+		{"~/test/path", filepath.Join(homeDir, "test/path")},
+		{"/absolute/path", "/absolute/path"},
+		{"relative/path", "relative/path"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.inputPath, func(t *testing.T) {
+			assert.Equal(t, tt.expectedPath, expandPath(tt.inputPath))
+		})
+	}
+}
