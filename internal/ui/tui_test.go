@@ -51,8 +51,6 @@ func Test_PrintError(t *testing.T) {
 }
 
 func Test_getEditor(t *testing.T) {
-	t.Parallel()
-
 	tests := []struct {
 		name      string
 		envVisual string
@@ -76,7 +74,6 @@ func Test_getEditor(t *testing.T) {
 	for _, tt := range tests {
 		ttx := tt
 		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
 			if ttx.envEditor == "" {
 				_ = os.Unsetenv(envEditor)
 			} else {
