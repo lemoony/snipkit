@@ -16,11 +16,11 @@ builds:
 checksum:
   name_template: "{{ .ProjectName }}_checksums.txt"
 brews:
-  - tap:
+  - repository:
       owner: lemoony
       name: homebrew-tap
       token: "{{ .Env.TAP_GITHUB_TOKEN }}"
-    folder: Formula
+    # folder: Formula
     homepage: https://github.com/lemoony/snipkit
     description: Access snippets from your favorite snippet manager without leaving the terminal
     #  skip_upload: auto
