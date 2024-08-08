@@ -24,20 +24,65 @@ func (a *appImpl) LookupAndExecuteSnippet(confirm, print bool) {
 	}
 
 	parameters := snippet.GetParameters()
-	if parameterValues, ok := a.tui.ShowParameterForm(parameters, ui.OkButtonExecute); ok {
-		script := snippet.Format(parameterValues, formatOptions(a.config.Script))
-
-		if (confirm || a.config.Script.ExecConfirm) && !a.tui.Confirmation(uimsg.ExecConfirm(snippet.GetTitle(), script)) {
+	if parameterValues, ok := a.tui.ShowParameterForm(parameters, nil, ui.OkButtonExecute); ok {
+		if a.executeSnippet(confirm, print, snippet, parameterValues) {
 			return
 		}
-
-		log.Trace().Msg(script)
-		if print || a.config.Script.ExecPrint {
-			a.tui.Print(uimsg.ExecPrint(snippet.GetTitle(), script))
-		}
-
-		executeScript(script, a.config.Script.Shell)
 	}
+}
+
+func (a *appImpl) FindScriptAndExecuteWithParameters(id string, paramValues []model.ParameterValue, confirm, print bool) {
+	if snippetFound, snippet := a.getSnippet(id); !snippetFound {
+		panic(ErrSnippetIDNotFound)
+	} else if paramOk, parameters := matchParameters(paramValues, snippet.GetParameters()); paramOk {
+		if a.executeSnippet(confirm, print, snippet, parameters) {
+			return
+		}
+	} else if parameterValues, formOk := a.tui.ShowParameterForm(snippet.GetParameters(), paramValues, ui.OkButtonExecute); formOk {
+		if a.executeSnippet(confirm, print, snippet, parameterValues) {
+			return
+		}
+	}
+}
+
+func (a *appImpl) getSnippet(id string) (bool, model.Snippet) {
+	snippets := a.getAllSnippets()
+	for i := range snippets {
+		if snippets[i].GetID() == id {
+			return true, snippets[i]
+		}
+	}
+	return false, nil
+}
+
+func matchParameters(paramValues []model.ParameterValue, snippetParameters []model.Parameter) (bool, []string) {
+	result := make([]string, len(snippetParameters))
+	found := 0
+	for i, parameter := range snippetParameters {
+		for _, parameterValue := range paramValues {
+			if parameterValue.Key == parameter.Key {
+				result[i] = parameterValue.Value
+				found++
+			}
+		}
+	}
+	return found == len(snippetParameters), result
+}
+
+func (a *appImpl) executeSnippet(confirm bool, print bool, snippet model.Snippet, parameterValues []string) bool {
+	script := snippet.Format(parameterValues, formatOptions(a.config.Script))
+
+	if (confirm || a.config.Script.ExecConfirm) && !a.tui.Confirmation(uimsg.ExecConfirm(snippet.GetTitle(), script)) {
+		return true
+	}
+
+	log.Trace().Msg(script)
+	if print || a.config.Script.ExecPrint {
+		a.tui.Print(uimsg.ExecPrint(snippet.GetTitle(), script))
+	}
+
+	executeScript(script, a.config.Script.Shell)
+	return false
 }
 
 func executeScript(script, configuredShell string) {

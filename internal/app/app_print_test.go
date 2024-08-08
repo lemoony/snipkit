@@ -26,7 +26,7 @@ echo "${VAR1}`
 	tui := uiMocks.TUI{}
 	tui.On(mockutil.ApplyConfig, mock.Anything, mock.Anything).Return()
 	tui.On("ShowLookup", mock.Anything, mock.Anything).Return(1)
-	tui.On("ShowParameterForm", mock.Anything, mock.Anything).Return([]string{"foo-value"}, true)
+	tui.On("ShowParameterForm", mock.Anything, mock.Anything, mock.Anything).Return([]string{"foo-value"}, true)
 
 	app := NewApp(
 		WithTUI(&tui), WithConfig(configtest.NewTestConfig().Config), withManagerSnippets(snippets),

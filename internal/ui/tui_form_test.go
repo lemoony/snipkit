@@ -10,9 +10,10 @@ import (
 
 func Test_Form_NoParameters(t *testing.T) {
 	var parameters []model.Parameter
+	var parameterValues []model.ParameterValue
 
 	term := NewTUI()
-	values, ok := term.ShowParameterForm(parameters, OkButtonPrint)
+	values, ok := term.ShowParameterForm(parameters, parameterValues, OkButtonPrint)
 	assert.Len(t, values, 0)
 	assert.True(t, ok)
 }
