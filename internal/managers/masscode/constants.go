@@ -1,5 +1,7 @@
 package masscode
 
+import "github.com/lemoony/snipkit/internal/utils/idutil"
+
 const (
 	defaultMassCodeHomePath = "massCode"
 
@@ -7,4 +9,6 @@ const (
 	v1TagsFile     = "tags.db"
 
 	v2DatabaseFile = "db.json"
+
+	idPrefix idutil.IDPrefix = "mass"
 )

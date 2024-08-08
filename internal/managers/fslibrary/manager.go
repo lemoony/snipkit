@@ -10,6 +10,7 @@ import (
 	"github.com/spf13/afero"
 
 	"github.com/lemoony/snipkit/internal/model"
+	"github.com/lemoony/snipkit/internal/utils/idutil"
 	"github.com/lemoony/snipkit/internal/utils/system"
 )
 
@@ -123,7 +124,7 @@ func (m *Manager) snippetsFromDir(dir string) []model.Snippet {
 		}
 
 		snippet := snippetImpl{
-			id:   filePath,
+			id:   idutil.FormatSnippetID(filePath, idPrefix),
 			path: filePath,
 			tags: []string{},
 			contentFunc: func() string {

@@ -8,6 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/lemoony/snipkit/internal/model"
+	"github.com/lemoony/snipkit/internal/utils/idutil"
 	"github.com/lemoony/snipkit/internal/utils/testutil"
 )
 
@@ -21,7 +22,7 @@ func Test_parseDBFileV1(t *testing.T) {
 		return snippets[i].GetID() < snippets[j].GetID()
 	})
 
-	assert.Equal(t, "0fpdzlOnHyoQbSjy", snippets[0].GetID())
+	assert.Equal(t, idutil.FormatSnippetID("0fpdzlOnHyoQbSjy", idPrefix), snippets[0].GetID())
 	assert.Equal(t, "Echo something", snippets[0].GetTitle())
 	assert.Equal(t, model.LanguageBash, snippets[0].GetLanguage())
 	assert.Equal(t, []string{"snipkit"}, snippets[0].GetTags())

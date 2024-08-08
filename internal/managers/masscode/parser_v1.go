@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 
 	"github.com/lemoony/snipkit/internal/model"
+	"github.com/lemoony/snipkit/internal/utils/idutil"
 	"github.com/lemoony/snipkit/internal/utils/system"
 )
 
@@ -16,7 +17,7 @@ func parseDBFileV1(sys *system.System, massCodePath string) []model.Snippet {
 
 	for _, raw := range snippetsMap {
 		result = append(result, &snippetImpl{
-			id:       raw.ID,
+			id:       idutil.FormatSnippetID(raw.ID, idPrefix),
 			title:    raw.Name,
 			tags:     toTagNames(raw.Tags, tagMap),
 			content:  raw.Content[0].Value,
