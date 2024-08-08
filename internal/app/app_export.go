@@ -2,6 +2,7 @@ package app
 
 import (
 	"encoding/json"
+	"encoding/xml"
 
 	"golang.org/x/exp/slices"
 
@@ -17,7 +18,15 @@ const (
 	ExportFieldParameters ExportField = 3
 )
 
-func (a *appImpl) ExportSnippets(fields []ExportField) string {
+type ExportFormat int64
+
+const (
+	ExportFormatJSON       ExportFormat = 0
+	ExportFormatPrettyJSON ExportFormat = 1
+	ExportFormatXML        ExportFormat = 2
+)
+
+func (a *appImpl) ExportSnippets(fields []ExportField, format ExportFormat) string {
 	snippets := a.getAllSnippets()
 	if len(snippets) == 0 {
 		panic(ErrNoSnippetsAvailable)
@@ -32,12 +41,22 @@ func (a *appImpl) ExportSnippets(fields []ExportField) string {
 		Snippets: snippetJSONList,
 	}
 
-	jsonData, err := json.Marshal(export)
+	var exportBytes []byte
+	var err error
+
+	switch format {
+	case ExportFormatJSON:
+		exportBytes, err = json.Marshal(export)
+	case ExportFormatPrettyJSON:
+		exportBytes, err = json.MarshalIndent(export, "", "    ")
+	case ExportFormatXML:
+		exportBytes, err = xml.MarshalIndent(export, "", "    ")
+	}
+
 	if err != nil {
 		panic(err)
 	}
-
-	return string(jsonData)
+	return string(exportBytes)
 }
 
 func convertSnippetToJSON(snippet model.Snippet, fields []ExportField) snippetJSON {
@@ -89,19 +108,19 @@ type exportJSON struct {
 }
 
 type snippetJSON struct {
-	ID         string          `json:"id,omitempty"`
-	Title      string          `json:"title,omitempty"`
-	Content    string          `json:"content,omitempty"`
-	Parameters []parameterJSON `json:"parameters,omitempty"`
+	ID         string          `json:"id,omitempty" xml:"id,omitempty"`
+	Title      string          `json:"title,omitempty" xml:"title,omitempty"`
+	Content    string          `json:"content,omitempty" xml:"content,omitempty"`
+	Parameters []parameterJSON `json:"parameters,omitempty" xml:"parameters,omitempty"`
 }
 
 type parameterJSON struct {
-	Key          string
-	Name         string
-	Type         parameterTypeJSON
-	Description  string
-	DefaultValue string
-	Values       []string
+	Key          string            `json:"key" xml:"key"`
+	Name         string            `json:"name" xml:"name"`
+	Type         parameterTypeJSON `json:"type" xml:"type"`
+	Description  string            `json:"description,omitempty" xml:"description,omitempty"`
+	DefaultValue string            `json:"defaultValue,omitempty" xml:"defaultValue,omitempty"`
+	Values       []string          `json:"values,omitempty" xml:"values,omitempty"`
 }
 
 type parameterTypeJSON string

@@ -34,7 +34,7 @@ type App interface {
 	LookupSnippet() model.Snippet
 	LookupAndCreatePrintableSnippet() (string, bool)
 	LookupAndExecuteSnippet(bool, bool)
-	ExportSnippets([]ExportField) string
+	ExportSnippets([]ExportField, ExportFormat) string
 	Info()
 	AddManager()
 	SyncManager()

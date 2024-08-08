@@ -16,10 +16,13 @@ Available Commands:
   config      Manage your snipkit configuration file
   copy        Copies the snippet to the clipboard
   exec        Execute a snippet directly from the terminal
+  export      Exports snippets on stdout
   help        Help about any command
   info        Provides useful information about the snipkit configuration
   manager     Manage the snippet managers snipkit connects to
   print       Prints the snippet on stdout
+  sync        Synchronizes all snippet managers
+
 
 Flags:
   -c, --config string      config file (default "/Users/pse/Library/Application Support/snipkit/config.yaml")
@@ -98,4 +101,37 @@ You can copy a snippet to the clipboard in two ways:
 ```sh title="Copy to clipboard"
 snipkit copy # Copies the snippet directly to the clipboard without printing
 snipkit print --copy # Prints the snippet on stdout and, additionally, copies it to the clipboard
+```
+
+#### Export snippets
+
+```bash
+$ snipkit export -h
+
+Exports all snippets on stdout as JSON including parsed meta information like parameters.
+
+Usage:
+  snipkit export [flags]
+
+Flags:
+  -f, --fields strings   Fields to be exported (default [id,title,content,parameters])
+  -o, --output string    Output format. One of: json,json-pretty,xml (default "json")
+```
+
+The number of exported fields can be limited with the `--fields` flag. For example `snipkit export --fields=title,content -o json-pretty` results in an export like
+
+```json 
+{
+  "snippets": [
+
+    {
+      "title": "List files in directory",
+      "content": "ls -l"
+    },
+    {
+      "title": "Check system uptime",
+      "content": "uptime"
+    }
+  ]
+}
 ```
