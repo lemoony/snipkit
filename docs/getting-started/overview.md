@@ -14,6 +14,7 @@ Available Commands:
   browse      Browse all snippets without executing them
   completion  Generate the autocompletion script for the specified shell
   config      Manage your snipkit configuration file
+  copy        Copies the snippet to the clipboard
   exec        Execute a snippet directly from the terminal
   help        Help about any command
   info        Provides useful information about the snipkit configuration
@@ -88,4 +89,13 @@ You can browse all available snippets without executing or printing them.
 
 ```sh title="Browse all snippets"
 snipkit browse
+```
+
+#### Copy snippet to clipboard
+
+You can copy a snippet to the clipboard in two ways:
+
+```sh title="Copy to clipboard"
+snipkit copy # Copies the snippet directly to the clipboard without printing
+snipkit print --copy # Prints the snippet on stdout and, additionally, copies it to the clipboard
 ```

@@ -9,6 +9,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var printCmdCopyFlag = false
+
 var printCmd = &cobra.Command{
 	Use:   "print",
 	Short: "Prints the snippet on stdout",
@@ -21,10 +23,21 @@ var printCmd = &cobra.Command{
 
 		if snippet, ok := app.LookupAndCreatePrintableSnippet(); ok {
 			_, _ = fmt.Fprintln(os.Stdout, snippet)
+			if printCmdCopyFlag {
+				copyToClipboard(snippet)
+			}
+
 		}
 	},
 }
 
 func init() {
+	printCmd.PersistentFlags().BoolVar(
+		&printCmdCopyFlag,
+		"copy",
+		false,
+		"copies the snippet to the clipboard",
+	)
+
 	rootCmd.AddCommand(printCmd)
 }
