@@ -17,6 +17,8 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: '1.22'
+      - name: Install clipboard utilities
+        run: sudo apt-get update && sudo apt-get install -y xsel wl-clipboard
       - name: Build
         run: |
           # https://github.com/jaraco/keyring/blob/main/README.rst#using-keyring-on-headless-linux-systems

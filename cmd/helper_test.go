@@ -86,6 +86,7 @@ func runExecuteTest(t *testing.T, args []string, options ...option) {
 	}
 
 	ctx := context.Background()
+
 	if ts.app != nil {
 		ctx = context.WithValue(ctx, _appKey, ts.app)
 	}
