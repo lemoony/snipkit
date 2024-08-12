@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"os"
+	"runtime"
 	"testing"
 
 	"github.com/atotto/clipboard"
@@ -18,9 +20,12 @@ func Test_Copy(t *testing.T) {
 
 	app.AssertNumberOfCalls(t, "LookupAndCreatePrintableSnippet", 1)
 
-	if content, err := clipboard.ReadAll(); err != nil {
-		assert.NoError(t, err)
-	} else {
-		assert.Equal(t, "snippet-printed", content)
+	// Workaround: Clipboard doesn't work on the CI for linux.
+	if runtime.GOOS != "linux" || os.Getenv("CI") != "true" {
+		if content, err := clipboard.ReadAll(); err != nil {
+			assert.NoError(t, err)
+		} else {
+			assert.Equal(t, "snippet-printed", content)
+		}
 	}
 }
