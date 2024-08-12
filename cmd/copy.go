@@ -21,7 +21,7 @@ var copyCmd = &cobra.Command{
 
 func copyToClipboard(snippet string) {
 	if err := clipboard.WriteAll(snippet); err != nil {
-		panic(errors.Wrap(err, "failed to write to clipboard"))
+		panic(errors.Wrap(errors.WithStack(err), "failed to write to clipboard"))
 	}
 }
 
