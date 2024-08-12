@@ -6,13 +6,30 @@ Always typing the full name `snipkit` in order to open the manager might be too
 cumbersome for you. Instead, define an alias (e.g. in your `.zshrc` file):
 
 ```bash 
-# SnipKit alais
+# SnipKit alias
 sn () {
-  snipkit $1
+  snipkit exec
 }
 ```
 
 Then you can just type `sn` instead of `snipkit` to open SnipKit.
+
+
+### Inline command for ZSH
+
+The `print -z` command in Zsh is used to push a command onto the Zsh input buffer, which effectively allows you to 
+simulate typing a command into the terminal. 
+
+The specified command appears as if you had typed it at the prompt, but it's not executed immediately; instead, it 
+waits for you to press Enter. This can be used as an alternative to SnipKit confirmation mechanism (via the 
+`--confirm` flag). For ease of convenience, define another alias:
+
+```bash 
+# SnipKit alias
+sn () {
+  print -z $(snipkit print)
+}
+```
 
 ### Default Root Command
 
@@ -28,3 +45,4 @@ defaultRootCommand: "exec"
 
 With this setup, calling `sn` will yield the same result as `snipkit exec`. If you want to call
 the `print` command instead, type `sn print`.
+
