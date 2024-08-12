@@ -471,6 +471,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#inline-command-for-zsh" class="md-nav__link">
+    <span class="md-ellipsis">
+      Inline command for ZSH
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#default-root-command" class="md-nav__link">
     <span class="md-ellipsis">
       Default Root Command
@@ -793,6 +802,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#inline-command-for-zsh" class="md-nav__link">
+    <span class="md-ellipsis">
+      Inline command for ZSH
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#default-root-command" class="md-nav__link">
     <span class="md-ellipsis">
       Default Root Command
@@ -823,12 +841,23 @@
 <h3 id="alias">Alias</h3>
 <p>Always typing the full name <code>snipkit</code> in order to open the manager might be too
 cumbersome for you. Instead, define an alias (e.g. in your <code>.zshrc</code> file):</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># SnipKit alais</span>
+<div class="highlight"><pre><span></span><code><span class="c1"># SnipKit alias</span>
 sn<span class="w"> </span><span class="o">()</span><span class="w"> </span><span class="o">{</span>
-<span class="w">  </span>snipkit<span class="w"> </span><span class="nv">$1</span>
+<span class="w">  </span>snipkit<span class="w"> </span><span class="nb">exec</span>
 <span class="o">}</span>
 </code></pre></div>
 <p>Then you can just type <code>sn</code> instead of <code>snipkit</code> to open SnipKit.</p>
+<h3 id="inline-command-for-zsh">Inline command for ZSH</h3>
+<p>The <code>print -z</code> command in Zsh is used to push a command onto the Zsh input buffer, which effectively allows you to 
+simulate typing a command into the terminal. </p>
+<p>The specified command appears as if you had typed it at the prompt, but it's not executed immediately; instead, it 
+waits for you to press Enter. This can be used as an alternative to SnipKit confirmation mechanism (via the 
+<code>--confirm</code> flag). For ease of convenience, define another alias:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># SnipKit alias</span>
+sn<span class="w"> </span><span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">  </span>print<span class="w"> </span>-z<span class="w"> </span><span class="k">$(</span>snipkit<span class="w"> </span>print<span class="k">)</span>
+<span class="o">}</span>
+</code></pre></div>
 <h3 id="default-root-command">Default Root Command</h3>
 <p>Most of the time, you want to call the same subcommand, e.g. <code>print</code> or <code>exec</code>. You
 can configure <code>snipkit</code> so that this command gets executed by default by editing the config:</p>
