@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/lemoony/snipkit/internal/model"
+	"github.com/lemoony/snipkit/internal/utils/idutil"
 	"github.com/lemoony/snipkit/internal/utils/titleheader"
 )
 
@@ -20,7 +21,7 @@ var languageMapping = map[string]model.Language{
 
 func parseSnippet(raw rawSnippet, cfg GistConfig) model.Snippet {
 	result := snippetImpl{
-		id:       raw.ID,
+		id:       idutil.FormatSnippetID(raw.ID, idPrefix),
 		tags:     parseTags(raw.Description),
 		title:    parseTitle(raw, cfg.NameMode, cfg.TitleHeaderEnabled),
 		content:  formatContent(string(raw.Content), cfg.HideTitleInPreview),

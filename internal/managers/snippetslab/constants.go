@@ -3,6 +3,8 @@ package snippetslab
 import (
 	"net/url"
 	"path"
+
+	"github.com/lemoony/snipkit/internal/utils/idutil"
 )
 
 type snippetsLabLibrary string
@@ -60,4 +62,6 @@ const (
 	userDesignatedLibraryPathString = "User DesignatedLibraryPathString"
 
 	invalidSnippetsLabLibrary = snippetsLabLibrary("")
+
+	idPrefix idutil.IDPrefix = "spl"
 )

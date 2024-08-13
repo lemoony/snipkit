@@ -6,6 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/lemoony/snipkit/internal/model"
+	"github.com/lemoony/snipkit/internal/utils/idutil"
 	"github.com/lemoony/snipkit/internal/utils/testutil"
 )
 
@@ -15,7 +16,7 @@ func Test_parseDBFileV2(t *testing.T) {
 	snippets := parseDBFileV2(sys, testDataLibraryV2Path)
 	assert.Len(t, snippets, 3)
 
-	assert.Equal(t, "176c30e0-2e5d-4be8-a2f2-970eba03901c", snippets[0].GetID())
+	assert.Equal(t, idutil.FormatSnippetID("176c30e0-2e5d-4be8-a2f2-970eba03901c", idPrefix), snippets[0].GetID())
 	assert.Equal(t, "Another", snippets[0].GetTitle())
 	assert.Equal(t, model.LanguageText, snippets[0].GetLanguage())
 	assert.Equal(t, "echo Hello world", snippets[0].GetContent())

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 
 	"github.com/lemoony/snipkit/internal/model"
+	"github.com/lemoony/snipkit/internal/utils/idutil"
 	"github.com/lemoony/snipkit/internal/utils/stringutil"
 	"github.com/lemoony/snipkit/internal/utils/system"
 	"github.com/lemoony/snipkit/internal/utils/tagutil"
@@ -50,7 +51,7 @@ func mapToModel(rawSnippets []picatrineSnippet, tags *stringutil.StringSet) []mo
 		}
 
 		result = append(result, snippetImpl{
-			id:       raw.ID,
+			id:       idutil.FormatSnippetID(raw.ID, idPrefix),
 			title:    raw.Name,
 			tags:     raw.Tags,
 			language: mapToLanguage(raw.Mode.Name),

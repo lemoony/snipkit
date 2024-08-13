@@ -7,6 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/lemoony/snipkit/internal/model"
+	"github.com/lemoony/snipkit/internal/utils/idutil"
 )
 
 func Test_parseSnippet(t *testing.T) {
@@ -32,7 +33,7 @@ echo "Hello World"`),
 
 	snippet := parseSnippet(raw, cfg)
 
-	assert.Equal(t, raw.ID, snippet.GetID())
+	assert.Equal(t, idutil.FormatSnippetID(raw.ID, idPrefix), snippet.GetID())
 	assert.Equal(t, "Snippet Title", snippet.GetTitle())
 	assert.Equal(t, `echo "Hello World"`, snippet.GetContent())
 	assert.Equal(t, model.LanguageBash, snippet.GetLanguage())

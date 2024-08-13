@@ -9,6 +9,7 @@ import (
 	"howett.net/plist"
 
 	"github.com/lemoony/snipkit/internal/model"
+	"github.com/lemoony/snipkit/internal/utils/idutil"
 )
 
 const (
@@ -169,7 +170,7 @@ func parseSnippet(path string) (model.Snippet, error) {
 	partMap0Language := objects[partMap0LanguageIndex].(string)
 
 	snippet := snippetImpl{
-		id:       snippetUIID,
+		id:       idutil.FormatSnippetID(snippetUIID, idPrefix),
 		language: mapToLanguage(partMap0Language),
 		tags:     tagUUIDS,
 		content:  string(partMap0ContentData),

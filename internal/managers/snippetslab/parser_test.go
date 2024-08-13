@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/lemoony/snipkit/internal/model"
+	"github.com/lemoony/snipkit/internal/utils/idutil"
 )
 
 func Test_parseTags(t *testing.T) {
@@ -26,11 +27,11 @@ func Test_parseSnippets(t *testing.T) {
 	assert.Len(t, snippets, 2)
 
 	sort.Slice(snippets, func(i, j int) bool {
-		return snippets[i].GetID() < snippets[j].GetID()
+		return snippets[i].GetID() > snippets[j].GetID()
 	})
 
 	snippet1 := snippets[0]
-	assert.Equal(t, "84A08C4A-B2BE-4964-A521-180550BDA7B3", snippet1.GetID())
+	assert.Equal(t, idutil.FormatSnippetID("84A08C4A-B2BE-4964-A521-180550BDA7B3", idPrefix), snippet1.GetID())
 	assert.Empty(t, snippet1.GetTags())
 	assert.Equal(t, model.LanguageBash, snippet1.GetLanguage())
 	assert.Len(t, snippet1.GetParameters(), 2)
@@ -39,7 +40,7 @@ func Test_parseSnippets(t *testing.T) {
 	then.AssertThat(t, snippet1.GetTitle(), is.AnyOf(is.EqualTo("Simple echo")))
 
 	snippet2 := snippets[1]
-	assert.Equal(t, "B3EDC3BE-6FE1-489E-9EB8-C400D4CF1B54", snippet2.GetID())
+	assert.Equal(t, idutil.FormatSnippetID("B3EDC3BE-6FE1-489E-9EB8-C400D4CF1B54", idPrefix), snippet2.GetID())
 	assert.Equal(t, []string{"2DA8009E-7BE7-420D-AD57-E7F9BB3ADCBE"}, snippet2.GetTags())
 	assert.Equal(t, model.LanguageBash, snippet2.GetLanguage())
 	assert.Empty(t, snippet2.GetParameters())

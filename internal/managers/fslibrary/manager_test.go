@@ -11,6 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/lemoony/snipkit/internal/model"
+	"github.com/lemoony/snipkit/internal/utils/idutil"
 	"github.com/lemoony/snipkit/internal/utils/testutil"
 )
 
@@ -129,7 +130,7 @@ func Test_GetSnippets_LazyOpen_HideTitleHeader(t *testing.T) {
 	snippets := provider.GetSnippets()
 	assert.Len(t, snippets, 1)
 
-	assert.Equal(t, snippetFilePath, snippets[0].GetID())
+	assert.Equal(t, idutil.FormatSnippetID(snippetFilePath, idPrefix), snippets[0].GetID())
 	assert.Equal(t, "content", snippets[0].GetContent())
 	assert.Equal(t, "snippet.sh", snippets[0].GetTitle())
 	assert.Empty(t, snippets[0].GetTags())

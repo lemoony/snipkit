@@ -10,6 +10,7 @@ import (
 	"github.com/spf13/afero"
 
 	"github.com/lemoony/snipkit/internal/model"
+	"github.com/lemoony/snipkit/internal/utils/idutil"
 	"github.com/lemoony/snipkit/internal/utils/system"
 )
 
@@ -78,7 +79,7 @@ func parseSnippetsFromTOML(contents string) []model.Snippet {
 
 func mapToSnippet(raw tomlSnippet) model.Snippet {
 	return &snippetImpl{
-		id:       "not_used",
+		id:       idutil.FormatSnippetID("not_used", idPrefix),
 		title:    raw.Description,
 		content:  raw.Command,
 		tags:     raw.Tags,
