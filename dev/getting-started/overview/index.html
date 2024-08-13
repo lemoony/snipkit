@@ -483,6 +483,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#export-snippets" class="md-nav__link">
+    <span class="md-ellipsis">
+      Export snippets
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -898,6 +907,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#export-snippets" class="md-nav__link">
+    <span class="md-ellipsis">
+      Export snippets
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -936,10 +954,13 @@ Available<span class="w"> </span>Commands:
 <span class="w">  </span>config<span class="w">      </span>Manage<span class="w"> </span>your<span class="w"> </span>snipkit<span class="w"> </span>configuration<span class="w"> </span>file
 <span class="w">  </span>copy<span class="w">        </span>Copies<span class="w"> </span>the<span class="w"> </span>snippet<span class="w"> </span>to<span class="w"> </span>the<span class="w"> </span>clipboard
 <span class="w">  </span><span class="nb">exec</span><span class="w">        </span>Execute<span class="w"> </span>a<span class="w"> </span>snippet<span class="w"> </span>directly<span class="w"> </span>from<span class="w"> </span>the<span class="w"> </span>terminal
+<span class="w">  </span><span class="nb">export</span><span class="w">      </span>Exports<span class="w"> </span>snippets<span class="w"> </span>on<span class="w"> </span>stdout
 <span class="w">  </span><span class="nb">help</span><span class="w">        </span>Help<span class="w"> </span>about<span class="w"> </span>any<span class="w"> </span><span class="nb">command</span>
 <span class="w">  </span>info<span class="w">        </span>Provides<span class="w"> </span>useful<span class="w"> </span>information<span class="w"> </span>about<span class="w"> </span>the<span class="w"> </span>snipkit<span class="w"> </span>configuration
 <span class="w">  </span>manager<span class="w">     </span>Manage<span class="w"> </span>the<span class="w"> </span>snippet<span class="w"> </span>managers<span class="w"> </span>snipkit<span class="w"> </span>connects<span class="w"> </span>to
 <span class="w">  </span>print<span class="w">       </span>Prints<span class="w"> </span>the<span class="w"> </span>snippet<span class="w"> </span>on<span class="w"> </span>stdout
+<span class="w">  </span>sync<span class="w">        </span>Synchronizes<span class="w"> </span>all<span class="w"> </span>snippet<span class="w"> </span>managers
+
 
 Flags:
 <span class="w">  </span>-c,<span class="w"> </span>--config<span class="w"> </span>string<span class="w">      </span>config<span class="w"> </span>file<span class="w"> </span><span class="o">(</span>default<span class="w"> </span><span class="s2">&quot;/Users/pse/Library/Application Support/snipkit/config.yaml&quot;</span><span class="o">)</span>
@@ -994,6 +1015,33 @@ Snpkit will print the command on stdout and ask you to explicitly confirm its ex
 <p>You can copy a snippet to the clipboard in two ways:</p>
 <div class="highlight"><span class="filename">Copy to clipboard</span><pre><span></span><code>snipkit<span class="w"> </span>copy<span class="w"> </span><span class="c1"># Copies the snippet directly to the clipboard without printing</span>
 snipkit<span class="w"> </span>print<span class="w"> </span>--copy<span class="w"> </span><span class="c1"># Prints the snippet on stdout and, additionally, copies it to the clipboard</span>
+</code></pre></div>
+<h4 id="export-snippets">Export snippets</h4>
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>snipkit<span class="w"> </span><span class="nb">export</span><span class="w"> </span>-h
+
+Exports<span class="w"> </span>all<span class="w"> </span>snippets<span class="w"> </span>on<span class="w"> </span>stdout<span class="w"> </span>as<span class="w"> </span>JSON<span class="w"> </span>including<span class="w"> </span>parsed<span class="w"> </span>meta<span class="w"> </span>information<span class="w"> </span>like<span class="w"> </span>parameters.
+
+Usage:
+<span class="w">  </span>snipkit<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
+
+Flags:
+<span class="w">  </span>-f,<span class="w"> </span>--fields<span class="w"> </span>strings<span class="w">   </span>Fields<span class="w"> </span>to<span class="w"> </span>be<span class="w"> </span>exported<span class="w"> </span><span class="o">(</span>default<span class="w"> </span><span class="o">[</span>id,title,content,parameters<span class="o">])</span>
+<span class="w">  </span>-o,<span class="w"> </span>--output<span class="w"> </span>string<span class="w">    </span>Output<span class="w"> </span>format.<span class="w"> </span>One<span class="w"> </span>of:<span class="w"> </span>json,json-pretty,xml<span class="w"> </span><span class="o">(</span>default<span class="w"> </span><span class="s2">&quot;json&quot;</span><span class="o">)</span>
+</code></pre></div>
+<p>The number of exported fields can be limited with the <code>--fields</code> flag. For example <code>snipkit export --fields=title,content -o json-pretty</code> results in an export like</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;snippets&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;List files in directory&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;content&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ls -l&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Check system uptime&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;content&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;uptime&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
 </code></pre></div>
 
 
