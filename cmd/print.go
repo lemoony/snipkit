@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	printCmdCopyFlag	   bool
+	printCmdCopyFlag       bool
 	printCmdIDFlag         string
 	printCmdParametersFlag []string
 )
@@ -61,7 +61,6 @@ func init() {
 		[]string{},
 		"Parameter values to be passed to the snippet",
 	)
-
 
 	rootCmd.AddCommand(printCmd)
 }
