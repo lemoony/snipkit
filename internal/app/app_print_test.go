@@ -33,7 +33,7 @@ func Test_LookupAndCreatePrintableSnippet(t *testing.T) {
 		WithTUI(&tui), WithConfig(configtest.NewTestConfig().Config), withManagerSnippets(snippets),
 	)
 
-	s, ok := app.LookupAndCreatePrintableSnippet()
+	ok, s := app.LookupAndCreatePrintableSnippet()
 	assert.True(t, ok)
 	assert.Equal(t, expectedPrintOutput, s)
 }
@@ -51,7 +51,7 @@ func Test_FindSnippetAndPrint(t *testing.T) {
 		WithTUI(&tui), WithConfig(configtest.NewTestConfig().Config), withManagerSnippets(snippets),
 	)
 
-	s, ok := app.FindSnippetAndPrint("uuid2", []model.ParameterValue{{Key: "VAR1", Value: "foo-value"}})
+	ok, s := app.FindSnippetAndPrint("uuid2", []model.ParameterValue{{Key: "VAR1", Value: "foo-value"}})
 	assert.True(t, ok)
 	assert.Equal(t, expectedPrintOutput, s)
 }
@@ -70,7 +70,7 @@ func Test_FindSnippetAndPrint_MissingParameters(t *testing.T) {
 		WithTUI(&tui), WithConfig(configtest.NewTestConfig().Config), withManagerSnippets(snippets),
 	)
 
-	s, ok := app.FindSnippetAndPrint("uuid2", []model.ParameterValue{})
+	ok, s := app.FindSnippetAndPrint("uuid2", []model.ParameterValue{})
 	assert.True(t, ok)
 	assert.Equal(t, expectedPrintOutput, s)
 }

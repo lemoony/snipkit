@@ -9,7 +9,7 @@ import (
 func Test_Copy(t *testing.T) {
 	app := mocks.App{}
 	app.On("LookupAndCreatePrintableSnippet").
-		Return("snippet-printed", true)
+		Return(true, "snippet-printed")
 
 	runExecuteTest(t, []string{"copy"}, withApp(&app))
 

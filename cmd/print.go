@@ -10,6 +10,7 @@ import (
 )
 
 var (
+	printCmdArgsFlag       bool
 	printCmdCopyFlag       bool
 	printCmdIDFlag         string
 	printCmdParametersFlag []string
@@ -23,14 +24,33 @@ var printCmd = &cobra.Command{
 		lipgloss.SetColorProfile(termenv.NewOutput(os.Stderr).Profile)
 		app := getAppFromContextWith(cmd.Context(), os.Stderr, true)
 
-		if printCmdIDFlag != "" {
-			if snippet, ok := app.FindSnippetAndPrint(printCmdIDFlag, toParameterValues(printCmdParametersFlag)); ok {
+		if printCmdArgsFlag {
+			if ok, snippetID, paramValues := app.LookupAndPrintSnippetArgs(); ok {
+
+				const whitespace = " "
+
+				cmd := "snipkit"
+				cmd += whitespace
+				cmd += "--id " + snippetID
+
+				for _, val := range paramValues {
+					cmd += whitespace
+					cmd += "--param " + val.Key + "=" + val.Value
+				}
+
+				fmt.Println(cmd)
+				if printCmdCopyFlag {
+					copyToClipboard(cmd)
+				}
+			}
+		} else if printCmdIDFlag != "" {
+			if ok, snippet := app.FindSnippetAndPrint(printCmdIDFlag, toParameterValues(printCmdParametersFlag)); ok {
 				fmt.Println(snippet)
 				if printCmdCopyFlag {
 					copyToClipboard(snippet)
 				}
 			}
-		} else if snippet, ok := app.LookupAndCreatePrintableSnippet(); ok {
+		} else if ok, snippet := app.LookupAndCreatePrintableSnippet(); ok {
 			fmt.Println(snippet)
 			if printCmdCopyFlag {
 				copyToClipboard(snippet)
@@ -40,6 +60,13 @@ var printCmd = &cobra.Command{
 }
 
 func init() {
+	printCmd.PersistentFlags().BoolVar(
+		&printCmdArgsFlag,
+		"args",
+		false,
+		"prints the snipkit command with the ID and the parameter values of the selected snippet instead of the snippet itself",
+	)
+
 	printCmd.PersistentFlags().BoolVar(
 		&printCmdCopyFlag,
 		"copy",

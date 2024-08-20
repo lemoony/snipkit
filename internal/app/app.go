@@ -34,8 +34,9 @@ func (e ErrMigrateConfig) Is(target error) bool {
 
 type App interface {
 	LookupSnippet() model.Snippet
-	LookupAndCreatePrintableSnippet() (string, bool)
-	FindSnippetAndPrint(string, []model.ParameterValue) (string, bool)
+	LookupAndCreatePrintableSnippet() (bool, string)
+	LookupAndPrintSnippetArgs() (bool, string, []model.ParameterValue)
+	FindSnippetAndPrint(string, []model.ParameterValue) (bool, string)
 	LookupAndExecuteSnippet(bool, bool)
 	FindScriptAndExecuteWithParameters(string, []model.ParameterValue, bool, bool)
 	ExportSnippets([]ExportField, ExportFormat) string
