@@ -8,7 +8,7 @@ import (
 )
 
 func Test_Exec(t *testing.T) {
-	defer execCmd.SetContext(nil) //nolint:staticcheck // allow nil as context in order to reset
+	defer resetCommand(execCmd)
 
 	app := mocks.App{}
 	app.On("LookupAndExecuteSnippet", false, false).Return(nil)
@@ -20,7 +20,7 @@ func Test_Exec(t *testing.T) {
 }
 
 func Test_Exec_WithFlags(t *testing.T) {
-	defer execCmd.SetContext(nil) //nolint:staticcheck // allow nil as context in order to reset
+	defer resetCommand(execCmd)
 
 	app := mocks.App{}
 	app.On(
