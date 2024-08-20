@@ -8,6 +8,10 @@ import (
 	managerMocks "github.com/lemoony/snipkit/mocks/managers"
 )
 
+var testSnippetContent = `# ${VAR1} Name: First Output
+# ${VAR1} Description: What to print on the tui first
+echo "${VAR1}`
+
 func withManagerSnippets(snippets []model.Snippet) Option {
 	return optionFunc(func(a *appImpl) {
 		manager := managerMocks.Manager{}

@@ -70,6 +70,7 @@ func runExecuteTest(t *testing.T, args []string, options ...option) {
 	}
 
 	rootCmd.SetArgs(nil)
+	rootCmd.SetContext(context.TODO())
 
 	_preSetup := _defaultSetup
 	_preCfgFile := cfgFile

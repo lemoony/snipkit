@@ -25,9 +25,7 @@ func (a *appImpl) LookupAndExecuteSnippet(confirm, print bool) {
 
 	parameters := snippet.GetParameters()
 	if parameterValues, ok := a.tui.ShowParameterForm(parameters, nil, ui.OkButtonExecute); ok {
-		if a.executeSnippet(confirm, print, snippet, parameterValues) {
-			return
-		}
+		a.executeSnippet(confirm, print, snippet, parameterValues)
 	}
 }
 
@@ -35,13 +33,9 @@ func (a *appImpl) FindScriptAndExecuteWithParameters(id string, paramValues []mo
 	if snippetFound, snippet := a.getSnippet(id); !snippetFound {
 		panic(ErrSnippetIDNotFound)
 	} else if paramOk, parameters := matchParameters(paramValues, snippet.GetParameters()); paramOk {
-		if a.executeSnippet(confirm, print, snippet, parameters) {
-			return
-		}
+		a.executeSnippet(confirm, print, snippet, parameters)
 	} else if parameterValues, formOk := a.tui.ShowParameterForm(snippet.GetParameters(), paramValues, ui.OkButtonExecute); formOk {
-		if a.executeSnippet(confirm, print, snippet, parameterValues) {
-			return
-		}
+		a.executeSnippet(confirm, print, snippet, parameterValues)
 	}
 }
 
@@ -69,11 +63,11 @@ func matchParameters(paramValues []model.ParameterValue, snippetParameters []mod
 	return found == len(snippetParameters), result
 }
 
-func (a *appImpl) executeSnippet(confirm bool, print bool, snippet model.Snippet, parameterValues []string) bool {
+func (a *appImpl) executeSnippet(confirm bool, print bool, snippet model.Snippet, parameterValues []string) {
 	script := snippet.Format(parameterValues, formatOptions(a.config.Script))
 
 	if (confirm || a.config.Script.ExecConfirm) && !a.tui.Confirmation(uimsg.ExecConfirm(snippet.GetTitle(), script)) {
-		return true
+		return
 	}
 
 	log.Trace().Msg(script)
@@ -82,7 +76,6 @@ func (a *appImpl) executeSnippet(confirm bool, print bool, snippet model.Snippet
 	}
 
 	executeScript(script, a.config.Script.Shell)
-	return false
 }
 
 func executeScript(script, configuredShell string) {
