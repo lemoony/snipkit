@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.31">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.32">
     
     
       
@@ -484,6 +484,15 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#execute-snippet-by-id" class="md-nav__link">
+    <span class="md-ellipsis">
+      Execute snippet by ID
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#export-snippets" class="md-nav__link">
     <span class="md-ellipsis">
       Export snippets
@@ -908,6 +917,15 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#execute-snippet-by-id" class="md-nav__link">
+    <span class="md-ellipsis">
+      Execute snippet by ID
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#export-snippets" class="md-nav__link">
     <span class="md-ellipsis">
       Export snippets
@@ -1003,10 +1021,22 @@ Snpkit will print the command on stdout and ask you to explicitly confirm its ex
 <p class="admonition-title">Print snippet on stdout</p>
 <p>If you want to print the command that is executed add the flag <code>-p</code> or <code>--print</code>.</p>
 </div>
+<div class="admonition tip">
+<p class="admonition-title">Execute a snippet directly by ID</p>
+<p>A snippet can be executed directly without selecting it via the UI. See <a href="#execute-snippet-by-id">Execute snippet by ID</a></p>
+</div>
 <h4 id="print-snippets">Print snippets</h4>
 <p>You can print snippets to stdout without executing them.</p>
 <div class="highlight"><span class="filename">Print a snippet</span><pre><span></span><code>snipkit<span class="w"> </span>print
 </code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Print and copy snippet</p>
+<p>Use <code>snipkit print --copy</code> to print the snippet and copy it to the clipboard at the same time.</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Print snippet by ID</p>
+<p>The print command also supports the <code>id</code> and <code>param</code> flags. See <a href="#execute-snippet-by-id">Execute snippet by ID</a>. </p>
+</div>
 <h4 id="browse-snippets">Browse snippets</h4>
 <p>You can browse all available snippets without executing or printing them.</p>
 <div class="highlight"><span class="filename">Browse all snippets</span><pre><span></span><code>snipkit<span class="w"> </span>browse
@@ -1016,6 +1046,11 @@ Snpkit will print the command on stdout and ask you to explicitly confirm its ex
 <div class="highlight"><span class="filename">Copy to clipboard</span><pre><span></span><code>snipkit<span class="w"> </span>copy<span class="w"> </span><span class="c1"># Copies the snippet directly to the clipboard without printing</span>
 snipkit<span class="w"> </span>print<span class="w"> </span>--copy<span class="w"> </span><span class="c1"># Prints the snippet on stdout and, additionally, copies it to the clipboard</span>
 </code></pre></div>
+<h4 id="execute-snippet-by-id">Execute snippet by ID</h4>
+<p>SnipKit allows you to execute a snippet directly by providing the snippet ID and, if required, parameter values via the <code>id</code> and <code>param</code> flag, e.g.:</p>
+<div class="highlight"><pre><span></span><code>snipkit<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>--id<span class="w"> </span><span class="nv">c3BsIzFBMUM5RDI2LTJCMDYtNDk5Mi1BRjA0LTZGREQ0RkNCQUU2MQ</span><span class="o">==</span><span class="w"> </span>--param<span class="w"> </span><span class="nv">VAR1</span><span class="o">=</span>example-value<span class="w"> </span>--param<span class="w"> </span><span class="nv">VAR2</span><span class="o">=</span><span class="s2">&quot;other value&quot;</span>
+</code></pre></div>
+<p>Use <code>snipkit print --args</code> to print the snippet ID and all parameter flags instead of the snippet itself (can be combined with the <code>--copy</code> flag).</p>
 <h4 id="export-snippets">Export snippets</h4>
 <div class="highlight"><pre><span></span><code>$<span class="w"> </span>snipkit<span class="w"> </span><span class="nb">export</span><span class="w"> </span>-h
 
@@ -1096,7 +1131,7 @@ Flags:
     <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections"], "search": "../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.fe8b6f2b.min.js"></script>
+      <script src="../../assets/javascripts/bundle.471ce7a9.min.js"></script>
       
     
   </body>
