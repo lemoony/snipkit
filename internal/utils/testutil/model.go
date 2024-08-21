@@ -14,6 +14,8 @@ type TestSnippet struct {
 	Language model.Language
 }
 
+var DummySnippet = TestSnippet{ID: "uuid-x", Title: "title-2", Language: model.LanguageBash, Tags: []string{}, Content: "testSnippetContent"}
+
 func (t TestSnippet) GetID() string {
 	return t.ID
 }
