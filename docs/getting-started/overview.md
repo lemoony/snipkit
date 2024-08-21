@@ -78,6 +78,9 @@ snipkit exec
 !!! tip "Print snippet on stdout"
     If you want to print the command that is executed add the flag `-p` or `--print`.
 
+!!! tip "Execute a snippet directly by ID"
+    A snippet can be executed directly without selecting it via the UI. See [Execute snippet by ID](#execute-snippet-by-id)
+
 #### Print snippets
 
 You can print snippets to stdout without executing them.
@@ -85,6 +88,12 @@ You can print snippets to stdout without executing them.
 ```sh title="Print a snippet"
 snipkit print
 ```
+
+!!! tip "Print and copy snippet"
+    Use `snipkit print --copy` to print the snippet and copy it to the clipboard at the same time.
+
+!!! tip "Print snippet by ID"
+    The print command also supports the `id` and `param` flags. See [Execute snippet by ID](#execute-snippet-by-id). 
 
 #### Browse snippets
 
@@ -102,6 +111,16 @@ You can copy a snippet to the clipboard in two ways:
 snipkit copy # Copies the snippet directly to the clipboard without printing
 snipkit print --copy # Prints the snippet on stdout and, additionally, copies it to the clipboard
 ```
+
+#### Execute snippet by ID
+
+SnipKit allows you to execute a snippet directly by providing the snippet ID and, if required, parameter values via the `id` and `param` flag, e.g.:
+
+```sh
+snipkit exec --id c3BsIzFBMUM5RDI2LTJCMDYtNDk5Mi1BRjA0LTZGREQ0RkNCQUU2MQ== --param VAR1=example-value --param VAR2="other value"
+```
+
+Use `snipkit print --args` to print the snippet ID and all parameter flags instead of the snippet itself (can be combined with the `--copy` flag).
 
 #### Export snippets
 

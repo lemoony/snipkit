@@ -45,8 +45,8 @@ type model struct {
 	apply  bool
 }
 
-func Show(parameters []internalModel.Parameter, okButton string, options ...Option) ([]string, bool) {
-	m := initialModel(parameters, okButton, options...)
+func Show(parameters []internalModel.Parameter, values []internalModel.ParameterValue, okButton string, options ...Option) ([]string, bool) {
+	m := initialModel(parameters, values, okButton, options...)
 
 	var teaOptions []tea.ProgramOption
 	if m.input != nil {
@@ -67,7 +67,7 @@ func Show(parameters []internalModel.Parameter, okButton string, options ...Opti
 	return m.values, m.apply
 }
 
-func initialModel(parameters []internalModel.Parameter, okButtonText string, options ...Option) *model {
+func initialModel(parameters []internalModel.Parameter, values []internalModel.ParameterValue, okButtonText string, options ...Option) *model {
 	m := model{
 		keyMap:       defaultKeyMap(),
 		help:         help.New(),
@@ -92,6 +92,12 @@ func initialModel(parameters []internalModel.Parameter, okButtonText string, opt
 		m.fields[i] = NewField(m.styler, name, f.Description, f.Type, f.Values, m.fs)
 		if f.DefaultValue != "" {
 			m.fields[i].SetValue(f.DefaultValue)
+		}
+
+		for _, paramValue := range values {
+			if paramValue.Key == f.Key {
+				m.fields[i].SetValue(paramValue.Value)
+			}
 		}
 	}
 

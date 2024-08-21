@@ -53,7 +53,7 @@ func Test_ShowForm(t *testing.T) {
 		// hit enter
 		c.SendKey(termtest.KeyEnter)
 	}, func(stdio termutil.Stdio) {
-		result, ok := Show(testFields, "ok", WithIn(stdio.In), WithOut(stdio.Out))
+		result, ok := Show(testFields, nil, "ok", WithIn(stdio.In), WithOut(stdio.Out))
 		assert.Equal(t, true, ok)
 		assert.Len(t, result, 3)
 		assert.Equal(t, "hello", result[0])
@@ -78,7 +78,7 @@ func Test_ShowForm_password(t *testing.T) {
 	}, func(stdio termutil.Stdio) {
 		result, ok := Show(
 			[]internalModel.Parameter{{Key: "Password", Type: internalModel.ParameterTypePassword}},
-			"ok", WithIn(stdio.In), WithOut(stdio.Out),
+			nil, "ok", WithIn(stdio.In), WithOut(stdio.Out),
 		)
 
 		assert.Equal(t, true, ok)
@@ -114,7 +114,7 @@ func Test_ShowForm_pathParm(t *testing.T) {
 	}, func(stdio termutil.Stdio) {
 		result, ok := Show(
 			[]internalModel.Parameter{{Key: "Path", Type: internalModel.ParameterTypePath}},
-			"ok", WithIn(stdio.In), WithOut(stdio.Out), WithFS(fs),
+			nil, "ok", WithIn(stdio.In), WithOut(stdio.Out), WithFS(fs),
 		)
 
 		assert.Equal(t, true, ok)
@@ -143,7 +143,7 @@ func Test_ShowForm_NextTabAndThenCancel(t *testing.T) {
 		c.SendKey(termtest.KeyTab)   // jump ok button
 		c.SendKey(termtest.KeyEnter) // hit abort button
 	}, func(stdio termutil.Stdio) {
-		result, ok := Show(testFields, "ok", WithIn(stdio.In), WithOut(stdio.Out))
+		result, ok := Show(testFields, nil, "ok", WithIn(stdio.In), WithOut(stdio.Out))
 		assert.False(t, ok)
 		assert.Len(t, result, 0)
 	})

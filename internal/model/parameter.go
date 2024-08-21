@@ -16,3 +16,8 @@ type Parameter struct {
 	DefaultValue string
 	Values       []string
 }
+
+type ParameterValue struct {
+	Key   string
+	Value string
+}

@@ -18,6 +18,8 @@ import (
 )
 
 func Test_Root(t *testing.T) {
+	defer resetCommand(rootCmd)
+
 	system := testutil.NewTestSystem()
 	cfgFilePath := configtest.NewTestConfigFilePath(t, system.Fs)
 
@@ -37,6 +39,7 @@ func Test_Root(t *testing.T) {
 func Test_Root_default_info(t *testing.T) {
 	defer func() {
 		configtest.ResetSnipkitHome(t)
+		resetCommand(rootCmd)
 	}()
 
 	system := testutil.NewTestSystem()
@@ -58,12 +61,16 @@ func Test_Root_default_info(t *testing.T) {
 }
 
 func Test_Help(t *testing.T) {
+	defer resetCommand(rootCmd)
+
 	runTerminalTest(t, []string{"--help"}, _defaultSetup, false, func(c *termtest.Console) {
 		c.ExpectString(rootCmd.Long)
 	})
 }
 
 func Test_Version(t *testing.T) {
+	rootCmd.ResetFlags()
+
 	version := "0.0.0-SNAPSHOT-cd1c032"
 	SetVersion(version)
 

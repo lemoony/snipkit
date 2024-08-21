@@ -70,7 +70,7 @@ type TUI interface {
 	Confirmation(confirm uimsg.Confirm, options ...confirm.Option) bool
 	OpenEditor(path string, preferredEditor string)
 	ShowLookup(snippets []model.Snippet, fuzzySearch bool) int
-	ShowParameterForm(parameters []model.Parameter, okButton OkButton) ([]string, bool)
+	ShowParameterForm(parameters []model.Parameter, values []model.ParameterValue, okButton OkButton) ([]string, bool)
 	ShowPicker(items []picker.Item, options ...tea.ProgramOption) (int, bool)
 	ShowSync() sync.Screen
 }
@@ -119,12 +119,13 @@ func (t tuiImpl) PrintError(msg string) {
 	_, _ = fmt.Fprintln(t.stdio.Out, msg)
 }
 
-func (t tuiImpl) ShowParameterForm(parameters []model.Parameter, okButton OkButton) ([]string, bool) {
+func (t tuiImpl) ShowParameterForm(parameters []model.Parameter, values []model.ParameterValue, okButton OkButton) ([]string, bool) {
 	if len(parameters) == 0 {
 		return []string{}, true
 	}
 
 	return form.Show(parameters,
+		values,
 		string(okButton),
 		form.WithStyler(t.styler),
 		form.WithIn(t.stdio.In),

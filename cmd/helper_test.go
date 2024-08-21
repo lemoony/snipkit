@@ -6,6 +6,8 @@ import (
 	"runtime"
 	"testing"
 
+	"github.com/atotto/clipboard"
+	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -112,13 +114,12 @@ func runTerminalTest(t *testing.T, args []string, setup setup, hasError bool, te
 	termtest.RunTerminalTest(t, test, func(stdio termutil.Stdio) {
 		prevIn, prevOut, prevErr := rootCmd.InOrStdin(), rootCmd.OutOrStdout(), rootCmd.ErrOrStderr()
 		defer func() {
-			rootCmd.ResetFlags()
+			// rootCmd.ResetFlags()
 			rootCmd.SetIn(prevIn)
 			rootCmd.SetOut(prevOut)
 			rootCmd.SetErr(prevErr)
 
 			for i := range rootCmd.Commands() {
-				rootCmd.Commands()[i].ResetFlags()
 				//nolint:staticcheck // required for testing since cobra will use an old context instead
 				rootCmd.Commands()[i].SetContext(nil)
 			}
@@ -146,4 +147,20 @@ func testProviderForManager(manager managers.Manager) managers.Provider {
 	provider := mocks.Provider{}
 	provider.On("CreateManager", mock.Anything, mock.Anything).Return([]managers.Manager{manager}, nil)
 	return &provider
+}
+
+func resetCommand(cmd *cobra.Command) {
+	cmd.SetContext(nil) //nolint:staticcheck // allow nil as context in order to reset
+	cmd.SetArgs(nil)
+}
+
+func assertClipboardContent(t *testing.T, expected string) {
+	t.Helper()
+	if runtime.GOOS != "linux" || os.Getenv("CI") != "true" {
+		if content, err := clipboard.ReadAll(); err != nil {
+			assert.NoError(t, err)
+		} else {
+			assert.Equal(t, expected, content)
+		}
+	}
 }

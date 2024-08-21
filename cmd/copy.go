@@ -13,7 +13,7 @@ var copyCmd = &cobra.Command{
 	Long:    `Copies the selected snippet to the clipboard for manual execution.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		app := getAppFromContext(cmd.Context())
-		if snippet, ok := app.LookupAndCreatePrintableSnippet(); ok {
+		if ok, snippet := app.LookupAndCreatePrintableSnippet(); ok {
 			copyToClipboard(snippet)
 		}
 	},

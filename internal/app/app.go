@@ -16,6 +16,8 @@ import (
 
 var ErrNoSnippetsAvailable = errors.New("No snippets are available.")
 
+var ErrSnippetIDNotFound = errors.New("Snippet with ID not found.")
+
 type ErrMigrateConfig struct {
 	currentVersion string
 	latestVersion  string
@@ -31,9 +33,12 @@ func (e ErrMigrateConfig) Is(target error) bool {
 }
 
 type App interface {
-	LookupSnippet() model.Snippet
-	LookupAndCreatePrintableSnippet() (string, bool)
+	LookupSnippet() (bool, model.Snippet)
+	LookupAndCreatePrintableSnippet() (bool, string)
+	LookupSnippetArgs() (bool, string, []model.ParameterValue)
+	FindSnippetAndPrint(string, []model.ParameterValue) (bool, string)
 	LookupAndExecuteSnippet(bool, bool)
+	FindScriptAndExecuteWithParameters(string, []model.ParameterValue, bool, bool)
 	ExportSnippets([]ExportField, ExportFormat) string
 	Info()
 	AddManager()

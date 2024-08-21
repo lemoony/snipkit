@@ -11,7 +11,7 @@ var browseCmd = &cobra.Command{
 in a safe way in case executing some scripts by accident would have undesirable effects.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		app := getAppFromContext(cmd.Context())
-		_ = app.LookupSnippet()
+		_, _ = app.LookupSnippet()
 	},
 }
 
