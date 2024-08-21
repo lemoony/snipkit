@@ -37,11 +37,11 @@ func Test_Print_WithArgsFlags(t *testing.T) {
 	defer resetCommand(printCmd)
 
 	app := mocks.App{}
-	app.On("LookupAndPrintSnippetArgs").
+	app.On("LookupSnippetArgs").
 		Return(true, "foo-id", []model.ParameterValue{{Key: "Key1", Value: "Val1"}})
 
 	runExecuteTest(t, []string{"print", "--args", "--copy"}, withApp(&app))
 
-	app.AssertNumberOfCalls(t, "LookupAndPrintSnippetArgs", 1)
-	assertClipboardContent(t, "snipkit --id foo-id --param Key1=Val1")
+	app.AssertNumberOfCalls(t, "LookupSnippetArgs", 1)
+	assertClipboardContent(t, "snipkit exec --id foo-id --param Key1=Val1")
 }

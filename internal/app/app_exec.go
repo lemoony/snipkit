@@ -18,14 +18,11 @@ import (
 const fallbackShell = "/bin/bash"
 
 func (a *appImpl) LookupAndExecuteSnippet(confirm, print bool) {
-	snippet := a.LookupSnippet()
-	if snippet == nil {
-		return
-	}
-
-	parameters := snippet.GetParameters()
-	if parameterValues, ok := a.tui.ShowParameterForm(parameters, nil, ui.OkButtonExecute); ok {
-		a.executeSnippet(confirm, print, snippet, parameterValues)
+	if ok, snippet := a.LookupSnippet(); ok {
+		parameters := snippet.GetParameters()
+		if parameterValues, paramOk := a.tui.ShowParameterForm(parameters, nil, ui.OkButtonExecute); paramOk {
+			a.executeSnippet(confirm, print, snippet, parameterValues)
+		}
 	}
 }
 

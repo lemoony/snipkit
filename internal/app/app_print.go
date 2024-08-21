@@ -6,30 +6,23 @@ import (
 )
 
 func (a *appImpl) LookupAndCreatePrintableSnippet() (bool, string) {
-	snippet := a.LookupSnippet()
-	if snippet == nil {
-		return false, ""
-	}
-
-	parameters := snippet.GetParameters()
-	if parameterValues, ok := a.tui.ShowParameterForm(parameters, nil, ui.OkButtonPrint); ok {
-		return true, snippet.Format(parameterValues, formatOptions(a.config.Script))
+	if ok, snippet := a.LookupSnippet(); ok {
+		parameters := snippet.GetParameters()
+		if parameterValues, paramOk := a.tui.ShowParameterForm(parameters, nil, ui.OkButtonPrint); paramOk {
+			return true, snippet.Format(parameterValues, formatOptions(a.config.Script))
+		}
 	}
 
 	return false, ""
 }
 
-func (a *appImpl) LookupAndPrintSnippetArgs() (bool, string, []model.ParameterValue) {
-	snippet := a.LookupSnippet()
-	if snippet == nil {
-		return false, "", nil
+func (a *appImpl) LookupSnippetArgs() (bool, string, []model.ParameterValue) {
+	if ok, snippet := a.LookupSnippet(); ok {
+		parameters := snippet.GetParameters()
+		if parameterValues, paramOk := a.tui.ShowParameterForm(parameters, nil, ui.OkButtonPrint); paramOk {
+			return true, snippet.GetID(), matchParameterToValues(parameters, parameterValues)
+		}
 	}
-
-	parameters := snippet.GetParameters()
-	if parameterValues, ok := a.tui.ShowParameterForm(parameters, nil, ui.OkButtonPrint); ok {
-		return true, snippet.GetID(), matchParameterToValues(parameters, parameterValues)
-	}
-
 	return false, "", nil
 }
 

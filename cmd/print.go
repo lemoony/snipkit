@@ -25,11 +25,11 @@ var printCmd = &cobra.Command{
 		app := getAppFromContextWith(cmd.Context(), os.Stderr, true)
 
 		if printCmdArgsFlag {
-			if ok, snippetID, paramValues := app.LookupAndPrintSnippetArgs(); ok {
+			if ok, snippetID, paramValues := app.LookupSnippetArgs(); ok {
 
 				const whitespace = " "
 
-				cmd := "snipkit"
+				cmd := "snipkit exec"
 				cmd += whitespace
 				cmd += "--id " + snippetID
 

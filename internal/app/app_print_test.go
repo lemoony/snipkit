@@ -74,3 +74,23 @@ func Test_FindSnippetAndPrint_MissingParameters(t *testing.T) {
 	assert.True(t, ok)
 	assert.Equal(t, expectedPrintOutput, s)
 }
+
+func Test_LookupAndPrintSnippetArgs(t *testing.T) {
+	snippets := []model.Snippet{
+		testutil.TestSnippet{ID: "uuid-x", Title: "title-2", Language: model.LanguageBash, Tags: []string{}, Content: testSnippetContent},
+	}
+
+	tui := uiMocks.TUI{}
+	tui.On(mockutil.ApplyConfig, mock.Anything, mock.Anything).Return()
+	tui.On("ShowLookup", mock.Anything, mock.Anything).Return(0)
+	tui.On("ShowParameterForm", mock.Anything, mock.Anything, mock.Anything).Return([]string{"foo-value"}, true)
+
+	app := NewApp(
+		WithTUI(&tui), WithConfig(configtest.NewTestConfig().Config), withManagerSnippets(snippets),
+	)
+
+	ok, id, parameterValues := app.LookupSnippetArgs()
+	assert.True(t, ok)
+	assert.Equal(t, id, "uuid-x")
+	assert.Equal(t, parameterValues, []model.ParameterValue{{Key: "VAR1", Value: "foo-value"}})
+}
