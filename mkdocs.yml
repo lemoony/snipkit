@@ -36,6 +36,7 @@ nav:
     - Overview: 'getting-started/overview.md'
     - Parameters: 'getting-started/parameters.md'
     - Power Setup: 'getting-started/power-setup.md'
+    - Fzf: 'getting-started/fzf.md'
   - Configuration:
       - Overview: 'configuration/overview.md'
       - Themes: 'configuration/themes.md'
