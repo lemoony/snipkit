@@ -1,0 +1,1159 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="SnipKit helps you to execute scripts saved in your favorite snippets manager without even leaving the terminal.">
+      
+      
+        <meta name="author" content="lemoony">
+      
+      
+        <link rel="canonical" href="https://lyrahgames.github.io/snipkit/v1.5.0/getting-started/overview/">
+      
+      
+        <link rel="prev" href="../..">
+      
+      
+        <link rel="next" href="../parameters/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.33">
+    
+    
+      
+        <title>Overview - SnipKit Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.3cba04c6.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#overview" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SnipKit Documentation" class="md-header__button md-logo" aria-label="SnipKit Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SnipKit Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Overview
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/lemoony/snipkit" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    lemoony/snipkit
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="./" class="md-tabs__link">
+          
+  
+  Getting started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../configuration/overview/" class="md-tabs__link">
+          
+  
+  Configuration
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../managers/overview/" class="md-tabs__link">
+          
+  
+  Managers
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SnipKit Documentation" class="md-nav__button md-logo" aria-label="SnipKit Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    SnipKit Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/lemoony/snipkit" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    lemoony/snipkit
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Getting started
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Getting started
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Overview
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Overview
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      Usage
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#init-a-config-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      Init a config file
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#snippet-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      Snippet Commands
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Snippet Commands">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#execute-snippets" class="md-nav__link">
+    <span class="md-ellipsis">
+      Execute snippets
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#print-snippets" class="md-nav__link">
+    <span class="md-ellipsis">
+      Print snippets
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#browse-snippets" class="md-nav__link">
+    <span class="md-ellipsis">
+      Browse snippets
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#copy-snippet-to-clipboard" class="md-nav__link">
+    <span class="md-ellipsis">
+      Copy snippet to clipboard
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#execute-snippet-by-id" class="md-nav__link">
+    <span class="md-ellipsis">
+      Execute snippet by ID
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#export-snippets" class="md-nav__link">
+    <span class="md-ellipsis">
+      Export snippets
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../parameters/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Parameters
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../power-setup/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Power Setup
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../fzf/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Fzf
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Configuration
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Configuration
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../configuration/overview/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Overview
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../configuration/themes/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Themes
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Managers
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Managers
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../managers/overview/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Overview
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../managers/fslibrary/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    File System Library
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../managers/githubgist/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    GitHub Gist
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../managers/snippetslab/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    SnippetsLab
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../managers/pictarinesnip/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Snip
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../managers/pet/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Pet
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      Usage
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#init-a-config-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      Init a config file
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#snippet-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      Snippet Commands
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Snippet Commands">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#execute-snippets" class="md-nav__link">
+    <span class="md-ellipsis">
+      Execute snippets
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#print-snippets" class="md-nav__link">
+    <span class="md-ellipsis">
+      Print snippets
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#browse-snippets" class="md-nav__link">
+    <span class="md-ellipsis">
+      Browse snippets
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#copy-snippet-to-clipboard" class="md-nav__link">
+    <span class="md-ellipsis">
+      Copy snippet to clipboard
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#execute-snippet-by-id" class="md-nav__link">
+    <span class="md-ellipsis">
+      Execute snippet by ID
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#export-snippets" class="md-nav__link">
+    <span class="md-ellipsis">
+      Export snippets
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="overview">Overview</h1>
+<h2 id="usage">Usage</h2>
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>snipkit<span class="w"> </span>-h
+Snipkit<span class="w"> </span>helps<span class="w"> </span>you<span class="w"> </span>to<span class="w"> </span>execute<span class="w"> </span>scripts<span class="w"> </span>saved<span class="w"> </span><span class="k">in</span><span class="w"> </span>your<span class="w"> </span>favorite<span class="w"> </span>snippets<span class="w"> </span>manager<span class="w"> </span>without<span class="w"> </span>even<span class="w"> </span>leaving<span class="w"> </span>the<span class="w"> </span>terminal.
+
+Usage:
+<span class="w">  </span>snipkit<span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
+<span class="w">  </span>snipkit<span class="w"> </span><span class="o">[</span>command<span class="o">]</span>
+
+Available<span class="w"> </span>Commands:
+<span class="w">  </span>browse<span class="w">      </span>Browse<span class="w"> </span>all<span class="w"> </span>snippets<span class="w"> </span>without<span class="w"> </span>executing<span class="w"> </span>them
+<span class="w">  </span>completion<span class="w">  </span>Generate<span class="w"> </span>the<span class="w"> </span>autocompletion<span class="w"> </span>script<span class="w"> </span><span class="k">for</span><span class="w"> </span>the<span class="w"> </span>specified<span class="w"> </span>shell
+<span class="w">  </span>config<span class="w">      </span>Manage<span class="w"> </span>your<span class="w"> </span>snipkit<span class="w"> </span>configuration<span class="w"> </span>file
+<span class="w">  </span>copy<span class="w">        </span>Copies<span class="w"> </span>the<span class="w"> </span>snippet<span class="w"> </span>to<span class="w"> </span>the<span class="w"> </span>clipboard
+<span class="w">  </span><span class="nb">exec</span><span class="w">        </span>Execute<span class="w"> </span>a<span class="w"> </span>snippet<span class="w"> </span>directly<span class="w"> </span>from<span class="w"> </span>the<span class="w"> </span>terminal
+<span class="w">  </span><span class="nb">export</span><span class="w">      </span>Exports<span class="w"> </span>snippets<span class="w"> </span>on<span class="w"> </span>stdout
+<span class="w">  </span><span class="nb">help</span><span class="w">        </span>Help<span class="w"> </span>about<span class="w"> </span>any<span class="w"> </span><span class="nb">command</span>
+<span class="w">  </span>info<span class="w">        </span>Provides<span class="w"> </span>useful<span class="w"> </span>information<span class="w"> </span>about<span class="w"> </span>the<span class="w"> </span>snipkit<span class="w"> </span>configuration
+<span class="w">  </span>manager<span class="w">     </span>Manage<span class="w"> </span>the<span class="w"> </span>snippet<span class="w"> </span>managers<span class="w"> </span>snipkit<span class="w"> </span>connects<span class="w"> </span>to
+<span class="w">  </span>print<span class="w">       </span>Prints<span class="w"> </span>the<span class="w"> </span>snippet<span class="w"> </span>on<span class="w"> </span>stdout
+<span class="w">  </span>sync<span class="w">        </span>Synchronizes<span class="w"> </span>all<span class="w"> </span>snippet<span class="w"> </span>managers
+
+
+Flags:
+<span class="w">  </span>-c,<span class="w"> </span>--config<span class="w"> </span>string<span class="w">      </span>config<span class="w"> </span>file<span class="w"> </span><span class="o">(</span>default<span class="w"> </span><span class="s2">&quot;/Users/pse/Library/Application Support/snipkit/config.yaml&quot;</span><span class="o">)</span>
+<span class="w">  </span>-h,<span class="w"> </span>--help<span class="w">               </span><span class="nb">help</span><span class="w"> </span><span class="k">for</span><span class="w"> </span>snipkit
+<span class="w">  </span>-l,<span class="w"> </span>--log-level<span class="w"> </span>string<span class="w">   </span>log<span class="w"> </span>level<span class="w"> </span>used<span class="w"> </span><span class="k">for</span><span class="w"> </span>debugging<span class="w"> </span>problems<span class="w"> </span><span class="o">(</span>supported<span class="w"> </span>values:<span class="w"> </span>trace,debug,info,warn,error,fatal,panic<span class="o">)</span><span class="w"> </span><span class="o">(</span>default<span class="w"> </span><span class="s2">&quot;panic&quot;</span><span class="o">)</span>
+<span class="w">  </span>-v,<span class="w"> </span>--version<span class="w">            </span>version<span class="w"> </span><span class="k">for</span><span class="w"> </span>snipkit
+
+Use<span class="w"> </span><span class="s2">&quot;snipkit [command] --help&quot;</span><span class="w"> </span><span class="k">for</span><span class="w"> </span>more<span class="w"> </span>information<span class="w"> </span>about<span class="w"> </span>a<span class="w"> </span>command.
+</code></pre></div>
+<h2 id="init-a-config-file">Init a config file</h2>
+<p>Upon first usage, you have to create a config file.</p>
+<div class="highlight"><span class="filename">Create a new config file</span><pre><span></span><code>snipkit<span class="w"> </span>config<span class="w"> </span>init
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Edit the config file manually</p>
+<p>SnipKit has a lot more configuration options. Please see <a href="../../configuration/overview/">Configuration</a> if you encounter problems or want
+to modify the behavior.</p>
+</div>
+<p>As of now, no external snippet manager is configured.</p>
+<div class="highlight"><span class="filename">Add an external snippet manager</span><pre><span></span><code>snipkit<span class="w"> </span>manager<span class="w"> </span>add
+</code></pre></div>
+<p>You will be presented with a list of supported managers. Pick the one you want to use. After that, you should be ready to go.</p>
+<div class="admonition tip">
+<p class="admonition-title">Different manager need different configuration</p>
+<p>Every manager has unique configuration options. Have a look at <a href="../../managers/overview/">Managers</a> for more information.</p>
+</div>
+<h2 id="snippet-commands">Snippet Commands</h2>
+<h4 id="execute-snippets">Execute snippets</h4>
+<div class="highlight"><span class="filename">Execute a snippet</span><pre><span></span><code>snipkit<span class="w"> </span><span class="nb">exec</span>
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Confirm commands</p>
+<p>If you want to confirm a command before execution (with all parameters being resolved) add the 
+flag <code>--confirm</code>:
+<div class="highlight"><pre><span></span><code>snipkit<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>--confirm
+</code></pre></div>
+Snpkit will print the command on stdout and ask you to explicitly confirm its execution.</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Print snippet on stdout</p>
+<p>If you want to print the command that is executed add the flag <code>-p</code> or <code>--print</code>.</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Execute a snippet directly by ID</p>
+<p>A snippet can be executed directly without selecting it via the UI. See <a href="#execute-snippet-by-id">Execute snippet by ID</a></p>
+</div>
+<h4 id="print-snippets">Print snippets</h4>
+<p>You can print snippets to stdout without executing them.</p>
+<div class="highlight"><span class="filename">Print a snippet</span><pre><span></span><code>snipkit<span class="w"> </span>print
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Print and copy snippet</p>
+<p>Use <code>snipkit print --copy</code> to print the snippet and copy it to the clipboard at the same time.</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Print snippet by ID</p>
+<p>The print command also supports the <code>id</code> and <code>param</code> flags. See <a href="#execute-snippet-by-id">Execute snippet by ID</a>. </p>
+</div>
+<h4 id="browse-snippets">Browse snippets</h4>
+<p>You can browse all available snippets without executing or printing them.</p>
+<div class="highlight"><span class="filename">Browse all snippets</span><pre><span></span><code>snipkit<span class="w"> </span>browse
+</code></pre></div>
+<h4 id="copy-snippet-to-clipboard">Copy snippet to clipboard</h4>
+<p>You can copy a snippet to the clipboard in two ways:</p>
+<div class="highlight"><span class="filename">Copy to clipboard</span><pre><span></span><code>snipkit<span class="w"> </span>copy<span class="w"> </span><span class="c1"># Copies the snippet directly to the clipboard without printing</span>
+snipkit<span class="w"> </span>print<span class="w"> </span>--copy<span class="w"> </span><span class="c1"># Prints the snippet on stdout and, additionally, copies it to the clipboard</span>
+</code></pre></div>
+<h4 id="execute-snippet-by-id">Execute snippet by ID</h4>
+<p>SnipKit allows you to execute a snippet directly by providing the snippet ID and, if required, parameter values via the <code>id</code> and <code>param</code> flag, e.g.:</p>
+<div class="highlight"><pre><span></span><code>snipkit<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>--id<span class="w"> </span><span class="nv">c3BsIzFBMUM5RDI2LTJCMDYtNDk5Mi1BRjA0LTZGREQ0RkNCQUU2MQ</span><span class="o">==</span><span class="w"> </span>--param<span class="w"> </span><span class="nv">VAR1</span><span class="o">=</span>example-value<span class="w"> </span>--param<span class="w"> </span><span class="nv">VAR2</span><span class="o">=</span><span class="s2">&quot;other value&quot;</span>
+</code></pre></div>
+<p>Use <code>snipkit print --args</code> to print the snippet ID and all parameter flags instead of the snippet itself (can be combined with the <code>--copy</code> flag).</p>
+<h4 id="export-snippets">Export snippets</h4>
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>snipkit<span class="w"> </span><span class="nb">export</span><span class="w"> </span>-h
+
+Exports<span class="w"> </span>all<span class="w"> </span>snippets<span class="w"> </span>on<span class="w"> </span>stdout<span class="w"> </span>as<span class="w"> </span>JSON<span class="w"> </span>including<span class="w"> </span>parsed<span class="w"> </span>meta<span class="w"> </span>information<span class="w"> </span>like<span class="w"> </span>parameters.
+
+Usage:
+<span class="w">  </span>snipkit<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="o">[</span>flags<span class="o">]</span>
+
+Flags:
+<span class="w">  </span>-f,<span class="w"> </span>--fields<span class="w"> </span>strings<span class="w">   </span>Fields<span class="w"> </span>to<span class="w"> </span>be<span class="w"> </span>exported<span class="w"> </span><span class="o">(</span>default<span class="w"> </span><span class="o">[</span>id,title,content,parameters<span class="o">])</span>
+<span class="w">  </span>-o,<span class="w"> </span>--output<span class="w"> </span>string<span class="w">    </span>Output<span class="w"> </span>format.<span class="w"> </span>One<span class="w"> </span>of:<span class="w"> </span>json,json-pretty,xml<span class="w"> </span><span class="o">(</span>default<span class="w"> </span><span class="s2">&quot;json&quot;</span><span class="o">)</span>
+</code></pre></div>
+<p>The number of exported fields can be limited with the <code>--fields</code> flag. For example <code>snipkit export --fields=title,content -o json-pretty</code> results in an export like</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;snippets&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;List files in directory&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;content&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ls -l&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Check system uptime&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;content&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;uptime&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2023 lemoony
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections"], "search": "../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.af256bd8.min.js"></script>
+      
+    
+  </body>
+</html>
