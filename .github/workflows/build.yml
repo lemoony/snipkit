@@ -16,7 +16,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
-          go-version: '1.22'
+          go-version: '1.23'
       - name: Install clipboard utilities
         run: sudo apt-get update && sudo apt-get install -y xsel wl-clipboard
       - name: Build
@@ -40,7 +40,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
-          go-version: '1.22'
+          go-version: '1.23'
       - name: Build
         run: make ci
       - name: Upload coverage to Codecov
@@ -60,7 +60,7 @@ jobs:
 
       - uses: actions/setup-go@v5
         with:
-          go-version: '1.22'
+          go-version: '1.23'
 
       - name: Release test
         run: make build

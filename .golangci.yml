@@ -44,7 +44,7 @@ linters:
     - unused
     - bodyclose
     - dupl
-    - exportloopref
+    - copyloopvar
     - funlen
     - gci
     - gocognit

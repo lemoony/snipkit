@@ -15,7 +15,7 @@ jobs:
 
       - uses: actions/setup-go@v5
         with:
-          go-version: '1.22'
+          go-version: '1.23'
 
       - name: "Docker login"
         run: docker login docker.pkg.github.com -u docker -p ${{ secrets.GITHUB_TOKEN }}
