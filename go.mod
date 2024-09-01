@@ -14,7 +14,7 @@ require (
 	github.com/charmbracelet/lipgloss v0.12.1
 	github.com/cli/oauth v1.0.1
 	github.com/corbym/gocrest v1.1.1
-	github.com/creack/pty v1.1.21
+	github.com/creack/pty v1.1.23
 	github.com/gdamore/tcell/v2 v2.7.4
 	github.com/hinshun/vt10x v0.0.0-20220301184237-5011da428d02
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51
