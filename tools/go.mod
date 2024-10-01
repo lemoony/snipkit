@@ -3,7 +3,7 @@ module github.com/lemoony/snipkit/tools
 go 1.23
 
 require (
-	github.com/daixiang0/gci v0.13.4
+	github.com/daixiang0/gci v0.13.5
 	github.com/golangci/golangci-lint v1.60.3
 	github.com/goreleaser/goreleaser v1.26.2
 	github.com/vektra/mockery/v2 v2.44.1
