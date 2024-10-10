@@ -1,0 +1,131 @@
+package spinner
+
+import (
+	"fmt"
+	"os"
+
+	"github.com/charmbracelet/bubbles/help"
+	"github.com/charmbracelet/bubbles/key"
+	"github.com/charmbracelet/bubbles/spinner"
+	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
+)
+
+type errMsg error
+
+type stopMsg struct{}
+
+type model struct {
+	spinner spinner.Model
+	keyMap  KeyMap
+	help    help.Model
+
+	quitting bool
+	text     string
+	err      error
+	stopChan chan bool
+}
+
+// KeyMap defines keybindings. It satisfies to the help.KeyMap interface, which
+// is used to render the menu menu.
+type KeyMap struct {
+	// The quit keybinding. This won't be caught when filtering.
+	Quit key.Binding
+}
+
+func initialModel(text string, stopChan chan bool) model {
+	s := spinner.New()
+	s.Spinner = spinner.Dot
+	s.Style = lipgloss.NewStyle().Foreground(lipgloss.Color("205"))
+	return model{
+		spinner:  s,
+		text:     text,
+		stopChan: stopChan,
+		keyMap: KeyMap{
+			Quit: key.NewBinding(
+				key.WithKeys("esc", "ctrl+c"),
+				key.WithHelp("esc", "quit"),
+			),
+		},
+		help: help.New(),
+	}
+}
+
+func (m *model) Init() tea.Cmd {
+	// Start listening for stop signal
+	return tea.Batch(m.spinner.Tick, waitForStop(m.stopChan))
+}
+
+func waitForStop(stopChan chan bool) tea.Cmd {
+	return func() tea.Msg {
+		<-stopChan // Wait for stop signal
+		return stopMsg{}
+	}
+}
+
+func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		switch msg.String() {
+		case "q", "esc", "ctrl+c":
+			m.quitting = true
+			return m, tea.Quit
+		default:
+			return m, nil
+		}
+
+	case stopMsg:
+		// Handle stop signal
+		m.quitting = true
+		return m, tea.Quit
+
+	case errMsg:
+		m.err = msg
+		return m, nil
+
+	default:
+		var cmd tea.Cmd
+		m.spinner, cmd = m.spinner.Update(msg)
+		return m, cmd
+	}
+}
+
+func (m *model) View() string {
+	if m.err != nil {
+		return m.err.Error()
+	}
+	var str string
+	if !m.quitting {
+		str = fmt.Sprintf(
+			"%s%s\n\n%s",
+			m.spinner.View(),
+			m.text,
+			m.help.View(m),
+		)
+	}
+	return str
+}
+
+// FullHelp returns bindings to show the full help view. It's part of the
+// help.KeyMap interface.
+func (m *model) FullHelp() [][]key.Binding {
+	return [][]key.Binding{}
+}
+
+// ShortHelp returns bindings to show in the abbreviated help view. It's part
+// of the help.KeyMap interface.
+func (m *model) ShortHelp() []key.Binding {
+	h := []key.Binding{
+		m.keyMap.Quit,
+	}
+	return h
+}
+
+func ShowSpinner(text string, stopChan chan bool) {
+	m := initialModel(text, stopChan)
+	p := tea.NewProgram(&m)
+	if _, err := p.Run(); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+}
