@@ -18,6 +18,8 @@ import (
 	"github.com/lemoony/snipkit/internal/ui/confirm"
 	"github.com/lemoony/snipkit/internal/ui/form"
 	"github.com/lemoony/snipkit/internal/ui/picker"
+	"github.com/lemoony/snipkit/internal/ui/prompt"
+	"github.com/lemoony/snipkit/internal/ui/spinner"
 	"github.com/lemoony/snipkit/internal/ui/style"
 	"github.com/lemoony/snipkit/internal/ui/sync"
 	"github.com/lemoony/snipkit/internal/ui/uimsg"
@@ -73,6 +75,8 @@ type TUI interface {
 	ShowParameterForm(parameters []model.Parameter, values []model.ParameterValue, okButton OkButton) ([]string, bool)
 	ShowPicker(items []picker.Item, options ...tea.ProgramOption) (int, bool)
 	ShowSync() sync.Screen
+	ShowAiPrompt() (bool, string)
+	ShowSpinner(string, chan bool)
 }
 
 type tuiImpl struct {
@@ -184,6 +188,14 @@ func (t tuiImpl) ShowSync() sync.Screen {
 		sync.WithIn(t.stdio.In),
 		sync.WithStyler(t.styler),
 	)
+}
+
+func (t tuiImpl) ShowAiPrompt() (bool, string) {
+	return prompt.ShowPrompt()
+}
+
+func (t tuiImpl) ShowSpinner(text string, stop chan bool) {
+	spinner.ShowSpinner(text, stop)
 }
 
 func getEditor(preferred string) string {
