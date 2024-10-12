@@ -23,5 +23,16 @@ config:
     execConfirm: false
     # If set to true, the executed command is always printed on stdout (same functionality as providing flag -p/--print).
     execPrint: false
-  assistant: {}
+  assistant:
+    openai:
+      # If set to false, OpenAI will not be used as an AI assistant.
+      enabled: false
+      # OpenAI API endpoint.
+      endpoint: https://api.openai.com
+      # OpenAI API version - currently ony v1 is supported.
+      version: v1
+      # OpenAI Model to be used (e.g., openai/gpt-4o)
+      model: openai/gpt-4o
+      # The name of the environment variable holding the OpenAI API key. If empty, SnipKit will ask for the API key and cache it.
+      apiKeyEnv: ""
   manager: {}
