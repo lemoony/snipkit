@@ -18,7 +18,7 @@ func (a *appImpl) CreateSnippetWithAI() {
 		// Run the spinner in a separate goroutine
 		go a.tui.ShowSpinner(text, stopChan)
 
-		asst := assistant.NewAssistant(a.system, a.config.Assistant, a.cache)
+		asst := assistant.NewBuilder(a.system, a.config.Assistant, a.cache)
 
 		response := asst.Query(text)
 

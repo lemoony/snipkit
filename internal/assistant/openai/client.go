@@ -31,10 +31,7 @@ func NewClient(options ...Option) (*Client, error) {
 }
 
 func (c *Client) Query(prompt string) string {
-	apiKey := os.Getenv("SNIPKIT_OPENAI_API_KEY")
-	if apiKey == "" {
-		panic("Please set the OPENAI_API_KEY environment variable.")
-	}
+	apiKey := c.apiKey()
 
 	systemMessage := Message{Role: "system", Content: prompts.DefaultPrompt}
 	userMessage := Message{Role: "user", Content: prompt}
@@ -84,4 +81,15 @@ func (c *Client) Query(prompt string) string {
 		return openAIResp.Choices[0].Message.Content
 	}
 	panic(errors.New("No response from OpenAI API."))
+}
+
+func (c *Client) apiKey() string {
+	if apiKeyEnv := c.config.APIKeyEnv; len(apiKeyEnv) > 0 {
+		if apiKey := os.Getenv("SNIPKIT_OPENAI_API_KEY"); len(apiKey) > 0 {
+			return apiKey
+		}
+		panic(errors.Errorf("The environment variable %s defined by apiKeyEnv is empty", apiKeyEnv))
+	}
+
+	panic("TODO. Not implemented yet.")
 }

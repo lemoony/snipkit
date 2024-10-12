@@ -31,10 +31,11 @@ func Test_serializeToYamlWithComment(t *testing.T) {
 
 	testConfig.Config.Assistant = assistant.Config{
 		OpenAI: openai.Config{
-			Enabled:  true,
-			Version:  "v1",
-			Endpoint: "test.endpoint.com",
-			Model:    "test/model",
+			Enabled:   true,
+			Version:   "v1",
+			Endpoint:  "test.endpoint.com",
+			Model:     "test/model",
+			APIKeyEnv: "foo-key",
 		},
 	}
 

@@ -3,6 +3,8 @@ package config
 import (
 	"emperror.dev/errors"
 	"gopkg.in/yaml.v3"
+
+	"github.com/lemoony/snipkit/internal/assistant/openai"
 )
 
 const (
@@ -23,6 +25,8 @@ func Migrate(old []byte) []byte {
 
 	config.Version = VersionTo
 	config.Config.Assistant = make(map[string]interface{})
+
+	config.Config.Assistant["openai"] = openai.AutoDiscoveryConfig()
 
 	configBytes, err := yaml.Marshal(config)
 	if err != nil {
