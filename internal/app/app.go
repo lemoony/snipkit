@@ -96,10 +96,13 @@ func WithCheckNeedsConfigMigration(checkNeedsConfigMigration bool) Option {
 func NewApp(options ...Option) App {
 	system := system.NewSystem()
 
+	appCache := cache.New(system)
+
 	app := &appImpl{
 		system:                    system,
 		tui:                       ui.NewTUI(),
-		provider:                  managers.NewBuilder(cache.New(system)),
+		provider:                  managers.NewBuilder(appCache),
+		cache:                     appCache,
 		checkNeedsConfigMigration: true,
 	}
 
@@ -134,6 +137,7 @@ type appImpl struct {
 	system   *system.System
 	config   *config.Config
 	tui      ui.TUI
+	cache    cache.Cache
 
 	configService             config.Service
 	provider                  managers.Provider

@@ -1,18 +1,19 @@
-package fslibrary
+package ai
 
 import (
 	"path/filepath"
 
+	"github.com/lemoony/snipkit/internal/managers/fslibrary"
 	"github.com/lemoony/snipkit/internal/model"
 	"github.com/lemoony/snipkit/internal/parser"
 )
 
 type snippetImpl struct {
-	id          string
-	path        string
-	tags        []string
-	titleFunc   func() string
-	contentFunc func() string
+	id        string
+	path      string
+	content   string
+	tags      []string
+	titleFunc func() string
 }
 
 func (s snippetImpl) GetID() string {
@@ -28,11 +29,11 @@ func (s snippetImpl) GetTags() []string {
 }
 
 func (s snippetImpl) GetContent() string {
-	return s.contentFunc()
+	return s.content
 }
 
 func (s snippetImpl) GetLanguage() model.Language {
-	return LanguageForSuffix(filepath.Ext(s.path))
+	return fslibrary.LanguageForSuffix(filepath.Ext(s.path))
 }
 
 func (s snippetImpl) GetParameters() []model.Parameter {

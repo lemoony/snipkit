@@ -1,6 +1,7 @@
 package config
 
 import (
+	"github.com/lemoony/snipkit/internal/ai"
 	"github.com/lemoony/snipkit/internal/managers"
 	"github.com/lemoony/snipkit/internal/ui"
 )
@@ -23,6 +24,7 @@ type Config struct {
 	DefaultRootCommand string          `yaml:"defaultRootCommand" mapstructure:"defaultRootCommand" head_comment:"The command which should run if you don't provide any subcommand." line_comment:"If not set, the help text will be shown."`
 	FuzzySearch        bool            `yaml:"fuzzySearch" mapstructure:"fuzzySearch" head_comment:"Enable fuzzy searching for snippet titles."`
 	Script             ScriptConfig    `yaml:"scripts" mapstructure:"scripts" head_comment:"Options regarding script handling"`
+	Ai                 ai.Config       `yaml:"ai" mapstructure:"ai" head_comment:"Configure an AI assistant"`
 	Manager            managers.Config `yaml:"manager" mapstructure:"manager"`
 }
 
