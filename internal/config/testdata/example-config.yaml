@@ -1,4 +1,4 @@
-version: 1.1.1
+version: 1.1.2
 config:
   style:
     # The theme defines the terminal colors used by Snipkit.
@@ -23,6 +23,16 @@ config:
     execConfirm: false
     # If set to true, the executed command is always printed on stdout (same functionality as providing flag -p/--print).
     execPrint: false
+  ai:
+    openai:
+      # If set to false, the files specified via libraryPath will not be provided to you.
+      enabled: true
+      # OpenAI API endpoint.
+      endpoint: test.endpoint.com
+      # OpenAI API version - currently ony v1 is supported.
+      version: v1
+      # OpenAI Model to be used (e.g., openai/gpt-4o)
+      model: test/model
   manager:
     snippetsLab:
       # Set to true if you want to use SnippetsLab.

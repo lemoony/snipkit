@@ -16,7 +16,7 @@ func Test_Migrate(t *testing.T) {
 	}{
 		{
 			from: testdata.ConfigV100,
-			to:   testdata.ConfigV111,
+			to:   testdata.ConfigV112,
 		},
 	}
 

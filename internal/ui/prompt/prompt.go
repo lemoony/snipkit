@@ -43,8 +43,6 @@ func initialModel() model {
 	ti := textinput.New()
 	ti.Placeholder = "What do you want the script to do?"
 	ti.Focus()
-	ti.CharLimit = 156
-	ti.Width = len(ti.Placeholder)
 
 	return model{
 		textInput: ti,

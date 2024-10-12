@@ -5,6 +5,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	"github.com/lemoony/snipkit/internal/ai"
+	"github.com/lemoony/snipkit/internal/ai/openai"
 	"github.com/lemoony/snipkit/internal/config/testdata"
 	"github.com/lemoony/snipkit/internal/managers/fslibrary"
 	"github.com/lemoony/snipkit/internal/managers/githubgist"
@@ -26,6 +28,15 @@ func Test_serializeToYamlWithComment(t *testing.T) {
 	testConfig.Config.Style.HideKeyMap = true
 
 	testConfig.Config.FuzzySearch = true
+
+	testConfig.Config.Ai = ai.Config{
+		OpenAI: openai.Config{
+			Enabled:  true,
+			Version:  "v1",
+			Endpoint: "test.endpoint.com",
+			Model:    "test/model",
+		},
+	}
 
 	testConfig.Config.Manager.SnippetsLab = &snippetslab.Config{
 		Enabled: true, LibraryPath: "/path/to/lib", IncludeTags: []string{"snipkit", "othertag"},

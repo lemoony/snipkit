@@ -176,7 +176,7 @@ func (m *Manager) getSnippetName(filePath string) string {
 	return getSnippetName(m.system, filePath)
 }
 
-func languageForSuffix(suffix string) model.Language {
+func LanguageForSuffix(suffix string) model.Language {
 	if e, ok := suffixLanguageMap[suffix]; ok {
 		return e
 	}

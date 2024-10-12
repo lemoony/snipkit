@@ -65,7 +65,7 @@ func Test_NewAppNeedsConfigMigration(t *testing.T) {
 
 	assert.Equal(t, config.Version, err.latestVersion)
 	assert.Equal(t, "1.1.0", err.currentVersion)
-	assert.Contains(t, err.Error(), "to migrate the config file from version 1.1.0 to 1.1.1.")
+	assert.Contains(t, err.Error(), "to migrate the config file from version 1.1.0 to 1.1.2.")
 }
 
 func Test_NewAppNoManagers(t *testing.T) {

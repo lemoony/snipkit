@@ -1,6 +1,15 @@
 package app
 
-import "time"
+import (
+	"os"
+	"time"
+
+	"emperror.dev/errors"
+
+	"github.com/lemoony/snipkit/internal/ai"
+	"github.com/lemoony/snipkit/internal/tmpdir"
+	"github.com/lemoony/snipkit/internal/ui"
+)
 
 func (a *appImpl) CreateSnippetWithAI() {
 	if ok, text := a.tui.ShowAiPrompt(); ok {
@@ -9,13 +18,31 @@ func (a *appImpl) CreateSnippetWithAI() {
 		// Run the spinner in a separate goroutine
 		go a.tui.ShowSpinner(text, stopChan)
 
-		// Simulate doing some work in the main goroutine
-		time.Sleep(2 * time.Second)
+		assistant := ai.NewAssistant(a.system, a.config.Ai, a.cache)
+
+		response := assistant.Query(text)
 
 		// Send stop signal to stop the spinner
 		stopChan <- true
 
 		//nolint:mnd // Wait briefly to ensure spinner quits cleanly
 		time.Sleep(100 * time.Millisecond)
+
+		tmpDirSvc := tmpdir.New(a.system)
+		defer tmpDirSvc.ClearFiles()
+
+		if fileOk, filePath := tmpDirSvc.CreateTempFile([]byte(response)); fileOk {
+			a.tui.OpenEditor(filePath, a.config.Editor)
+			//nolint:gosec // ignore potential file inclusion via variable
+			if updatedContents, err := os.ReadFile(filePath); err != nil {
+				panic(errors.Wrapf(err, "failed to read temporary file"))
+			} else {
+				snippet := ai.PrepareSnippet(string(updatedContents))
+				parameters := snippet.GetParameters()
+				if parameterValues, paramOk := a.tui.ShowParameterForm(parameters, nil, ui.OkButtonExecute); paramOk {
+					a.executeSnippet(false, false, snippet, parameterValues)
+				}
+			}
+		}
 	}
 }
