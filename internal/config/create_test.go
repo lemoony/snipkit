@@ -5,8 +5,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/lemoony/snipkit/internal/ai"
-	"github.com/lemoony/snipkit/internal/ai/openai"
+	"github.com/lemoony/snipkit/internal/assistant"
+	"github.com/lemoony/snipkit/internal/assistant/openai"
 	"github.com/lemoony/snipkit/internal/config/testdata"
 	"github.com/lemoony/snipkit/internal/managers/fslibrary"
 	"github.com/lemoony/snipkit/internal/managers/githubgist"
@@ -29,7 +29,7 @@ func Test_serializeToYamlWithComment(t *testing.T) {
 
 	testConfig.Config.FuzzySearch = true
 
-	testConfig.Config.Ai = ai.Config{
+	testConfig.Config.Assistant = assistant.Config{
 		OpenAI: openai.Config{
 			Enabled:  true,
 			Version:  "v1",

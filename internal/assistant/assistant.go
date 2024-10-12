@@ -1,11 +1,11 @@
-package ai
+package assistant
 
 import (
 	"regexp"
 
 	"emperror.dev/errors"
 
-	"github.com/lemoony/snipkit/internal/ai/openai"
+	"github.com/lemoony/snipkit/internal/assistant/openai"
 	"github.com/lemoony/snipkit/internal/cache"
 	"github.com/lemoony/snipkit/internal/model"
 	"github.com/lemoony/snipkit/internal/utils/system"

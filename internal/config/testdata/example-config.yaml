@@ -23,7 +23,7 @@ config:
     execConfirm: false
     # If set to true, the executed command is always printed on stdout (same functionality as providing flag -p/--print).
     execPrint: false
-  ai:
+  assistant:
     openai:
       # If set to false, the files specified via libraryPath will not be provided to you.
       enabled: true
