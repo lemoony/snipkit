@@ -22,7 +22,7 @@ func Migrate(old []byte) []byte {
 	}
 
 	config.Version = VersionTo
-	config.Config.Ai = make(map[string]interface{})
+	config.Config.Assistant = make(map[string]interface{})
 
 	configBytes, err := yaml.Marshal(config)
 	if err != nil {
@@ -42,6 +42,6 @@ type configV112 struct {
 	DefaultRootCommand string                 `yaml:"defaultRootCommand"`
 	FuzzySearch        bool                   `yaml:"fuzzySearch"`
 	Script             map[string]interface{} `yaml:"scripts"`
-	Ai                 map[string]interface{} `yaml:"ai"`
+	Assistant          map[string]interface{} `yaml:"assistant"`
 	Manager            map[string]interface{} `yaml:"manager"`
 }

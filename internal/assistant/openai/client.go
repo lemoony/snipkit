@@ -11,7 +11,7 @@ import (
 
 	"emperror.dev/errors"
 
-	"github.com/lemoony/snipkit/internal/ai/prompts"
+	"github.com/lemoony/snipkit/internal/assistant/prompts"
 	"github.com/lemoony/snipkit/internal/cache"
 	"github.com/lemoony/snipkit/internal/utils/system"
 )

@@ -6,7 +6,7 @@ import (
 
 	"emperror.dev/errors"
 
-	"github.com/lemoony/snipkit/internal/ai"
+	"github.com/lemoony/snipkit/internal/assistant"
 	"github.com/lemoony/snipkit/internal/tmpdir"
 	"github.com/lemoony/snipkit/internal/ui"
 )
@@ -18,9 +18,9 @@ func (a *appImpl) CreateSnippetWithAI() {
 		// Run the spinner in a separate goroutine
 		go a.tui.ShowSpinner(text, stopChan)
 
-		assistant := ai.NewAssistant(a.system, a.config.Ai, a.cache)
+		asst := assistant.NewAssistant(a.system, a.config.Assistant, a.cache)
 
-		response := assistant.Query(text)
+		response := asst.Query(text)
 
 		// Send stop signal to stop the spinner
 		stopChan <- true
@@ -37,7 +37,7 @@ func (a *appImpl) CreateSnippetWithAI() {
 			if updatedContents, err := os.ReadFile(filePath); err != nil {
 				panic(errors.Wrapf(err, "failed to read temporary file"))
 			} else {
-				snippet := ai.PrepareSnippet(string(updatedContents))
+				snippet := assistant.PrepareSnippet(string(updatedContents))
 				parameters := snippet.GetParameters()
 				if parameterValues, paramOk := a.tui.ShowParameterForm(parameters, nil, ui.OkButtonExecute); paramOk {
 					a.executeSnippet(false, false, snippet, parameterValues)

@@ -1,7 +1,7 @@
-package ai
+package assistant
 
 import (
-	"github.com/lemoony/snipkit/internal/ai/openai"
+	"github.com/lemoony/snipkit/internal/assistant/openai"
 )
 
 type Config struct {
