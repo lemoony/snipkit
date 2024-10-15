@@ -12,13 +12,13 @@ import (
 )
 
 func (a *appImpl) CreateSnippetWithAI() {
-	if ok, text := a.tui.ShowAiPrompt(); ok {
+	asst := assistant.NewBuilder(a.system, a.config.Assistant, a.cache)
+
+	if ok, text := a.tui.ShowPrompt("What do you want the script to do?"); ok {
 		stopChan := make(chan bool)
 
 		// Run the spinner in a separate goroutine
 		go a.tui.ShowSpinner(text, stopChan)
-
-		asst := assistant.NewBuilder(a.system, a.config.Assistant, a.cache)
 
 		response := asst.Query(text)
 

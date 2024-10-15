@@ -1,7 +1,6 @@
 package openai
 
 import (
-	"github.com/lemoony/snipkit/internal/cache"
 	"github.com/lemoony/snipkit/internal/utils/system"
 )
 
@@ -27,11 +26,5 @@ func WithSystem(system *system.System) Option {
 func WithConfig(config Config) Option {
 	return optionFunc(func(client *Client) {
 		client.config = config
-	})
-}
-
-func WithCache(cache cache.Cache) Option {
-	return optionFunc(func(client *Client) {
-		client.cache = cache
 	})
 }
