@@ -75,7 +75,7 @@ type TUI interface {
 	ShowParameterForm(parameters []model.Parameter, values []model.ParameterValue, okButton OkButton) ([]string, bool)
 	ShowPicker(items []picker.Item, options ...tea.ProgramOption) (int, bool)
 	ShowSync() sync.Screen
-	ShowAiPrompt() (bool, string)
+	ShowPrompt(placeholder string) (bool, string)
 	ShowSpinner(string, chan bool)
 }
 
@@ -190,8 +190,8 @@ func (t tuiImpl) ShowSync() sync.Screen {
 	)
 }
 
-func (t tuiImpl) ShowAiPrompt() (bool, string) {
-	return prompt.ShowPrompt()
+func (t tuiImpl) ShowPrompt(placeholder string) (bool, string) {
+	return prompt.ShowPrompt(placeholder)
 }
 
 func (t tuiImpl) ShowSpinner(text string, stop chan bool) {

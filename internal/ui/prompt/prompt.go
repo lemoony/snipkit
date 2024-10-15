@@ -9,8 +9,8 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-func ShowPrompt() (bool, string) {
-	model := initialModel()
+func ShowPrompt(placeholder string) (bool, string) {
+	model := initialModel(placeholder)
 	p := tea.NewProgram(&model)
 	if _, err := p.Run(); err != nil {
 		return false, ""
@@ -39,9 +39,9 @@ type model struct {
 	quitting bool
 }
 
-func initialModel() model {
+func initialModel(placeholder string) model {
 	ti := textinput.New()
-	ti.Placeholder = "What do you want the script to do?"
+	ti.Placeholder = placeholder
 	ti.Focus()
 
 	return model{
