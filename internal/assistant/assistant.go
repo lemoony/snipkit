@@ -4,6 +4,7 @@ import (
 	"emperror.dev/errors"
 
 	assistErrors "github.com/lemoony/snipkit/internal/assistant/errors"
+	"github.com/lemoony/snipkit/internal/assistant/gemini"
 	"github.com/lemoony/snipkit/internal/assistant/openai"
 	"github.com/lemoony/snipkit/internal/cache"
 	"github.com/lemoony/snipkit/internal/model"
@@ -32,8 +33,7 @@ func (a assistantImpl) Query(prompt string) string {
 	}
 
 	response, err := client.Query(prompt)
-	if errors.Is(err, assistErrors.ErrorNoOrInvalidAPIKey) {
-	} else if err != nil {
+	if err != nil {
 		panic(err)
 	}
 	return extractBashScript(response)
@@ -44,8 +44,13 @@ func (a assistantImpl) AutoConfig(key model.AssistantKey, s *system.System) Conf
 }
 
 func (a assistantImpl) getClient() (Client, error) {
-	if a.config.OpenAI.Enabled {
+	switch {
+	case a.config.OpenAI.Enabled && a.config.Gemini.Enabled:
+		panic(errors.New("More than one assistant is enabled."))
+	case a.config.OpenAI.Enabled:
 		return openai.NewClient(openai.WithConfig(a.config.OpenAI))
+	case a.config.Gemini.Enabled:
+		return gemini.NewClient(gemini.WithConfig(a.config.Gemini))
 	}
 	return nil, assistErrors.ErrorNoClientConfiguredOrEnabled
 }
