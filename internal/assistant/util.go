@@ -3,8 +3,6 @@ package assistant
 import (
 	"regexp"
 
-	"emperror.dev/errors"
-
 	"github.com/lemoony/snipkit/internal/model"
 	"github.com/lemoony/snipkit/internal/utils/titleheader"
 )
@@ -32,11 +30,11 @@ func extractBashScript(text string) string {
 	// Find all matches of bash/sh code blocks
 	matches := re.FindAllStringSubmatch(text, -1)
 
-	for _, match := range matches {
-		if len(match) >= markdownScriptParts {
-			return match[2]
-		}
+	if len(matches) > 0 {
+		// Return the first matched code block
+		return matches[0][2]
 	}
 
-	panic(errors.Errorf("Invalid response from AI provider: %s", text))
+	// If no markdown code block is found, assume the text is a bash script
+	return text
 }
