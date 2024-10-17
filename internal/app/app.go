@@ -40,7 +40,7 @@ type App interface {
 	LookupAndExecuteSnippet(bool, bool)
 	FindScriptAndExecuteWithParameters(string, []model.ParameterValue, bool, bool)
 	ExportSnippets([]ExportField, ExportFormat) string
-	CreateSnippetWithAI()
+	GenerateSnippetWithAssistant()
 	EnableAssistant()
 	Info()
 	AddManager()

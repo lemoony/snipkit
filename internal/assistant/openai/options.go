@@ -1,9 +1,5 @@
 package openai
 
-import (
-	"github.com/lemoony/snipkit/internal/utils/system"
-)
-
 // Option configures a Manager.
 type Option interface {
 	apply(client *Client)
@@ -14,13 +10,6 @@ type optionFunc func(client *Client)
 
 func (f optionFunc) apply(client *Client) {
 	f(client)
-}
-
-// WithSystem sets the utils.System instance to be used by Manager.
-func WithSystem(system *system.System) Option {
-	return optionFunc(func(client *Client) {
-		client.system = system
-	})
 }
 
 func WithConfig(config Config) Option {

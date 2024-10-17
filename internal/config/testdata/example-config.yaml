@@ -1,4 +1,4 @@
-version: 1.1.2
+version: 1.2.0
 config:
   style:
     # The theme defines the terminal colors used by Snipkit.
@@ -29,11 +29,9 @@ config:
       enabled: true
       # OpenAI API endpoint.
       endpoint: test.endpoint.com
-      # OpenAI API version - currently ony v1 is supported.
-      version: v1
       # OpenAI Model to be used (e.g., openai/gpt-4o)
       model: test/model
-      # The name of the environment variable holding the OpenAI API key. If empty, SnipKit will ask for the API key and cache it.
+      # The name of the environment variable holding the OpenAI API key.
       apiKeyEnv: foo-key
   manager:
     snippetsLab:

@@ -12,10 +12,7 @@ import (
 	"emperror.dev/errors"
 
 	"github.com/lemoony/snipkit/internal/assistant/prompts"
-	"github.com/lemoony/snipkit/internal/model"
 )
-
-const Key = model.AssistantKey("gemini")
 
 type Client struct {
 	config Config
@@ -51,7 +48,7 @@ func (c *Client) Query(prompt string) (string, error) {
 	req, err := http.NewRequestWithContext(
 		context.Background(),
 		"POST",
-		fmt.Sprintf("%s/%s/models/%s:generateContent?key=%s", c.config.Endpoint, c.config.Version, c.config.Model, apiKey),
+		fmt.Sprintf("%s/v1beta/models/%s:generateContent?key=%s", c.config.Endpoint, c.config.Model, apiKey),
 		bytes.NewBuffer(jsonBody),
 	)
 	if err != nil {
@@ -99,13 +96,4 @@ func (c *Client) apiKey() (string, error) {
 	}
 
 	return "", errors.Errorf("No environment variable specified for property 'apiKeyEnv' in config")
-}
-
-func Description(config *Config) model.AssistantDescription {
-	return model.AssistantDescription{
-		Key:         Key,
-		Name:        "Gemini",
-		Description: "Use Google Gemini as an assistant AI",
-		Enabled:     config != nil && config.Enabled,
-	}
 }

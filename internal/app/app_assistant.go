@@ -15,7 +15,7 @@ import (
 	"github.com/lemoony/snipkit/internal/ui/uimsg"
 )
 
-func (a *appImpl) CreateSnippetWithAI() {
+func (a *appImpl) GenerateSnippetWithAssistant() {
 	asst := assistant.NewBuilder(a.system, a.config.Assistant, a.cache)
 
 	if ok, text := a.tui.ShowPrompt("What do you want the script to do?"); ok {
@@ -52,10 +52,9 @@ func (a *appImpl) CreateSnippetWithAI() {
 }
 
 func (a *appImpl) EnableAssistant() {
-	assistant := assistant.NewBuilder(a.system, a.config.Assistant, a.cache)
+	asst := assistant.NewBuilder(a.system, a.config.Assistant, a.cache)
 
-	assistantDescriptions := assistant.AssistantDescriptions(a.config.Assistant)
-
+	assistantDescriptions := asst.AssistantDescriptions(a.config.Assistant)
 	listItems := make([]picker.Item, len(assistantDescriptions))
 	var selected *picker.Item
 	for i := range assistantDescriptions {
@@ -65,16 +64,16 @@ func (a *appImpl) EnableAssistant() {
 		}
 	}
 
-	if selectedIndex, ok := a.tui.ShowPicker("Which assistant AI do you want to enable?", listItems, selected); ok {
+	if selectedIndex, ok := a.tui.ShowPicker("Which AI provider for the assistant do you want to use?", listItems, selected); ok {
 		assistantDescription := assistantDescriptions[selectedIndex]
-		assistant.AutoConfig(assistantDescription.Key, a.system)
-		cfg := assistant.AutoConfig(assistantDescription.Key, a.system)
+		asst.AutoConfig(assistantDescription.Key, a.system)
+		cfg := asst.AutoConfig(assistantDescription.Key, a.system)
 		configBytes := config.SerializeToYamlWithComment(cfg)
 		configStr := strings.TrimSpace(string(configBytes))
 		confirmed := a.tui.Confirmation(uimsg.ManagerConfigAddConfirm(configStr))
 		if confirmed {
 			a.configService.UpdateAssistantConfig(cfg)
 		}
-		a.tui.Print(uimsg.ManagerAddConfigResult(confirmed, a.configService.ConfigFilePath()))
+		a.tui.Print(uimsg.AssistantUpdateConfigResult(confirmed, a.configService.ConfigFilePath()))
 	}
 }
