@@ -25,7 +25,6 @@ login ${PW}
 git ls-files "${FILE}" | xargs wc -l
 ```
 
-
 Usage:
 - Name: Displayed as the parameter's name in SnipKit (if not provided, the variable name is used as the default.)
 - Description: Used as a placeholder in the input field if left empty (optional).

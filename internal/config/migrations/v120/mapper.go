@@ -7,7 +7,7 @@ import (
 
 const (
 	VersionFrom = "1.1.1"
-	VersionTo   = "1.1.2"
+	VersionTo   = "1.2.0"
 )
 
 func Migrate(old []byte) []byte {
@@ -18,7 +18,7 @@ func Migrate(old []byte) []byte {
 	}
 
 	if config.Version != VersionFrom {
-		panic(errors.Errorf("Invalid version for migration to v1.1.2: %s", config.Version))
+		panic(errors.Errorf("Invalid version for migration to v1.2.0: %s", config.Version))
 	}
 
 	config.Version = VersionTo

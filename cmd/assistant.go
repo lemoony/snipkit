@@ -10,22 +10,21 @@ var assistantCmd = &cobra.Command{
 	Long:  `SnipKit assistant generates a script by means of AI and allows to execute it directly.`,
 }
 
-var startCmd = &cobra.Command{
-	Use:     "start",
+var generateCmd = &cobra.Command{
+	Use:     "generate",
 	Short:   "Generate a script based on a user prompt.",
 	Long:    `Generate a script based on a user prompt and either copy it to the clipboard or execute it directly.`,
-	Aliases: []string{"ai"},
+	Aliases: []string{"ai", "create"},
 	Run: func(cmd *cobra.Command, args []string) {
-		app := getAppFromContext(cmd.Context())
-		app.CreateSnippetWithAI()
+		getAppFromContext(cmd.Context()).GenerateSnippetWithAssistant()
 	},
 }
 
-var enableCmd = &cobra.Command{
-	Use:     "enable",
-	Short:   "Enables a specific assistant provider.",
+var choose = &cobra.Command{
+	Use:     "choose",
+	Short:   "Choose a specific assistant provider.",
 	Long:    `Enables a specific assistant provider (LLM) by modifying the SnipKit config.`,
-	Aliases: []string{"ai"},
+	Aliases: []string{"switch", "enable"},
 	Run: func(cmd *cobra.Command, args []string) {
 		getAppFromContext(cmd.Context()).EnableAssistant()
 	},
@@ -33,6 +32,6 @@ var enableCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(assistantCmd)
-	assistantCmd.AddCommand(startCmd)
-	assistantCmd.AddCommand(enableCmd)
+	assistantCmd.AddCommand(generateCmd)
+	assistantCmd.AddCommand(choose)
 }

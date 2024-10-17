@@ -67,11 +67,11 @@ func (a assistantImpl) AutoConfig(key model.AssistantKey, s *system.System) Conf
 
 func (a assistantImpl) getClient() (Client, error) {
 	switch {
-	case a.config.OpenAI.Enabled && a.config.Gemini.Enabled:
-		panic(errors.New("More than one assistant is enabled."))
-	case a.config.OpenAI.Enabled:
+	case a.config.moreThanOneEnabled():
+		panic(errors.New("Invalid config: more than one assistant is enabled."))
+	case a.config.OpenAI != nil && a.config.OpenAI.Enabled:
 		return openai.NewClient(openai.WithConfig(*a.config.OpenAI))
-	case a.config.Gemini.Enabled:
+	case a.config.Gemini != nil && a.config.Gemini.Enabled:
 		return gemini.NewClient(gemini.WithConfig(*a.config.Gemini))
 	}
 	return nil, assistErrors.ErrorNoClientConfiguredOrEnabled
