@@ -73,7 +73,7 @@ type TUI interface {
 	OpenEditor(path string, preferredEditor string)
 	ShowLookup(snippets []model.Snippet, fuzzySearch bool) int
 	ShowParameterForm(parameters []model.Parameter, values []model.ParameterValue, okButton OkButton) ([]string, bool)
-	ShowPicker(items []picker.Item, options ...tea.ProgramOption) (int, bool)
+	ShowPicker(title string, items []picker.Item, selectedItem *picker.Item, options ...tea.ProgramOption) (int, bool)
 	ShowSync() sync.Screen
 	ShowPrompt(placeholder string) (bool, string)
 	ShowSpinner(string, chan bool)
@@ -172,13 +172,16 @@ func (t tuiImpl) OpenEditor(path string, preferredEditor string) {
 	}
 }
 
-func (t tuiImpl) ShowPicker(items []picker.Item, options ...tea.ProgramOption) (int, bool) {
-	return picker.ShowPicker(items, &t.styler, append(
-		[]tea.ProgramOption{
-			tea.WithInput(t.stdio.In),
-			tea.WithOutput(t.stdio.Out),
-		},
-		options...)...,
+func (t tuiImpl) ShowPicker(title string, items []picker.Item, selected *picker.Item, options ...tea.ProgramOption) (int, bool) {
+	return picker.ShowPicker(
+		title,
+		items, selected, &t.styler,
+		append(
+			[]tea.ProgramOption{
+				tea.WithInput(t.stdio.In),
+				tea.WithOutput(t.stdio.Out),
+			},
+			options...)...,
 	)
 }
 

@@ -9,9 +9,15 @@ type Config struct {
 }
 
 // AutoDiscoveryConfig is directly used by migrate so duplicate this function if the config changes.
-func AutoDiscoveryConfig() *Config {
-	return &Config{
-		Enabled:   false,
+func AutoDiscoveryConfig(config *Config) Config {
+	if config != nil {
+		result := *config
+		result.Enabled = true
+		return result
+	}
+
+	return Config{
+		Enabled:   true,
 		Endpoint:  "https://generativelanguage.googleapis.com",
 		Version:   "v1beta",
 		Model:     "gemini-1.5-flash",

@@ -14,6 +14,7 @@ import (
 type Assistant interface {
 	Query(string) string
 	AutoConfig(model.AssistantKey, *system.System) Config
+	AssistantDescriptions(config Config) []model.AssistantDescription
 }
 
 type assistantImpl struct {
@@ -39,8 +40,29 @@ func (a assistantImpl) Query(prompt string) string {
 	return extractBashScript(response)
 }
 
+func (a assistantImpl) AssistantDescriptions(config Config) []model.AssistantDescription {
+	return []model.AssistantDescription{
+		openai.Description(config.OpenAI),
+		gemini.Description(config.Gemini),
+	}
+}
+
 func (a assistantImpl) AutoConfig(key model.AssistantKey, s *system.System) Config {
-	return Config{}
+	result := a.config
+	if key == openai.Key {
+		updated := openai.AutoDiscoveryConfig(a.config.OpenAI)
+		result.OpenAI = &updated
+		if result.Gemini != nil {
+			result.Gemini.Enabled = false
+		}
+	} else if key == gemini.Key {
+		updated := gemini.AutoDiscoveryConfig(a.config.Gemini)
+		result.Gemini = &updated
+		if result.OpenAI != nil {
+			result.OpenAI.Enabled = false
+		}
+	}
+	return result
 }
 
 func (a assistantImpl) getClient() (Client, error) {
@@ -48,9 +70,9 @@ func (a assistantImpl) getClient() (Client, error) {
 	case a.config.OpenAI.Enabled && a.config.Gemini.Enabled:
 		panic(errors.New("More than one assistant is enabled."))
 	case a.config.OpenAI.Enabled:
-		return openai.NewClient(openai.WithConfig(a.config.OpenAI))
+		return openai.NewClient(openai.WithConfig(*a.config.OpenAI))
 	case a.config.Gemini.Enabled:
-		return gemini.NewClient(gemini.WithConfig(a.config.Gemini))
+		return gemini.NewClient(gemini.WithConfig(*a.config.Gemini))
 	}
 	return nil, assistErrors.ErrorNoClientConfiguredOrEnabled
 }

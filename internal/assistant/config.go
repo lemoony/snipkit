@@ -6,6 +6,6 @@ import (
 )
 
 type Config struct {
-	OpenAI openai.Config `yaml:"openai,omitempty" mapstructure:"openai"`
-	Gemini gemini.Config `yaml:"gemini,omitempty" mapstructure:"gemini"`
+	OpenAI *openai.Config `yaml:"openai,omitempty" mapstructure:"openai"`
+	Gemini *gemini.Config `yaml:"gemini,omitempty" mapstructure:"gemini"`
 }

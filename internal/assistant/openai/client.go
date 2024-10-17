@@ -12,8 +12,11 @@ import (
 	"emperror.dev/errors"
 
 	"github.com/lemoony/snipkit/internal/assistant/prompts"
+	"github.com/lemoony/snipkit/internal/model"
 	"github.com/lemoony/snipkit/internal/utils/system"
 )
+
+const Key = model.AssistantKey("openai")
 
 type Client struct {
 	system *system.System
@@ -94,4 +97,13 @@ func (c *Client) apiKey() (string, error) {
 	}
 
 	return "", errors.Errorf("No environment variable specified for property 'apiKeyEnv' in config")
+}
+
+func Description(config *Config) model.AssistantDescription {
+	return model.AssistantDescription{
+		Key:         Key,
+		Name:        "OpenAI",
+		Description: "Use OpenAI as an assistant AI",
+		Enabled:     config != nil && config.Enabled,
+	}
 }
