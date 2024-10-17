@@ -12,7 +12,10 @@ import (
 	"emperror.dev/errors"
 
 	"github.com/lemoony/snipkit/internal/assistant/prompts"
+	"github.com/lemoony/snipkit/internal/model"
 )
+
+const Key = model.AssistantKey("gemini")
 
 type Client struct {
 	config Config
@@ -96,4 +99,13 @@ func (c *Client) apiKey() (string, error) {
 	}
 
 	return "", errors.Errorf("No environment variable specified for property 'apiKeyEnv' in config")
+}
+
+func Description(config *Config) model.AssistantDescription {
+	return model.AssistantDescription{
+		Key:         Key,
+		Name:        "Gemini",
+		Description: "Use Google Gemini as an assistant AI",
+		Enabled:     config != nil && config.Enabled,
+	}
 }

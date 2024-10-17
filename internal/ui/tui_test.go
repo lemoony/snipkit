@@ -196,18 +196,22 @@ func Test_ShowSync(t *testing.T) {
 
 func Test_ShowPicker(t *testing.T) {
 	termtest.RunTerminalTest(t, func(c *termtest.Console) {
-		c.ExpectString("Which snippet manager should be added to your configuration")
+		c.ExpectString("Which item to choose?")
 		c.SendKey(termtest.KeyDown)
 		c.SendKey(termtest.KeyDown)
 		c.SendKey(termtest.KeyUp)
 		c.SendKey(termtest.KeyEnter)
 	}, func(stdio termutil.Stdio) {
 		term := NewTUI(WithStdio(stdio))
-		index, ok := term.ShowPicker([]picker.Item{
-			picker.NewItem("title1", "desc1"),
-			picker.NewItem("title2", "desc2"),
-			picker.NewItem("title3", "desc3"),
-		})
+		index, ok := term.ShowPicker(
+			"Which item to choose?",
+			[]picker.Item{
+				picker.NewItem("title1", "desc1"),
+				picker.NewItem("title2", "desc2"),
+				picker.NewItem("title3", "desc3"),
+			},
+			nil,
+		)
 		assert.Equal(t, 1, index)
 		assert.True(t, ok)
 	})

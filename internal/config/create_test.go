@@ -30,7 +30,7 @@ func Test_serializeToYamlWithComment(t *testing.T) {
 	testConfig.Config.FuzzySearch = true
 
 	testConfig.Config.Assistant = assistant.Config{
-		OpenAI: openai.Config{
+		OpenAI: &openai.Config{
 			Enabled:   true,
 			Version:   "v1",
 			Endpoint:  "test.endpoint.com",

@@ -1,6 +1,8 @@
 package picker
 
 import (
+	"slices"
+
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -21,7 +23,9 @@ func NewItem(title, desc string) Item {
 	return Item{title: title, desc: desc}
 }
 
-func (i Item) Title() string       { return i.title }
+func (i Item) Title() string {
+	return i.title
+}
 func (i Item) Description() string { return i.desc }
 func (i Item) FilterValue() string { return i.title }
 
@@ -61,26 +65,28 @@ func (m *model) View() string {
 	return docStyle.Render(m.list.View())
 }
 
-func ShowPicker(items []Item, styler *style.Style, options ...tea.ProgramOption) (int, bool) {
+func ShowPicker(title string, items []Item, selectedItem *Item, styler *style.Style, options ...tea.ProgramOption) (int, bool) {
 	listItems := make([]list.Item, len(items))
 	for i := range items {
 		listItems[i] = list.Item(items[i])
 	}
 
 	m := model{list: list.New(listItems, list.NewDefaultDelegate(), 0, 0)}
-	m.list.Title = "Which snippet manager should be added to your configuration"
+	m.list.Title = title
 	m.list.SetDelegate(delegate)
 	m.list.SetShowStatusBar(false)
 	m.list.SetFilteringEnabled(false)
-
 	m.list.KeyMap.AcceptWhileFiltering.SetEnabled(true)
 	m.list.KeyMap.AcceptWhileFiltering.SetHelp("↵", "apply")
 	m.list.KeyMap.ShowFullHelp.SetEnabled(false)
-
 	m.list.Styles.Title.
 		Background(styler.TitleColor().Value()).
 		Foreground(styler.TitleContrastColor().Value()).
 		Italic(true).Bold(true)
+
+	if selectedItem != nil {
+		m.list.Select(slices.Index(items, *selectedItem))
+	}
 
 	delegate.SetSpacing(1)
 

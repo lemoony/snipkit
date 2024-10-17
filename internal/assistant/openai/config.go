@@ -9,8 +9,14 @@ type Config struct {
 }
 
 // AutoDiscoveryConfig is directly used by migrate so duplicate this function if the config changes.
-func AutoDiscoveryConfig() *Config {
-	return &Config{
+func AutoDiscoveryConfig(config *Config) Config {
+	if config != nil {
+		result := *config
+		result.Enabled = true
+		return result
+	}
+
+	return Config{
 		Enabled:   false,
 		Endpoint:  "https://api.openai.com",
 		Version:   "v1",

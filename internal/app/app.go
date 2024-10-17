@@ -41,6 +41,7 @@ type App interface {
 	FindScriptAndExecuteWithParameters(string, []model.ParameterValue, bool, bool)
 	ExportSnippets([]ExportField, ExportFormat) string
 	CreateSnippetWithAI()
+	EnableAssistant()
 	Info()
 	AddManager()
 	SyncManager()
