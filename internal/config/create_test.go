@@ -15,6 +15,7 @@ import (
 	"github.com/lemoony/snipkit/internal/managers/snippetslab"
 )
 
+//nolint:funlen // test function for yaml config is allowed to be too long
 func Test_serializeToYamlWithComment(t *testing.T) {
 	var testConfig VersionWrapper
 	testConfig.Version = Version
@@ -30,6 +31,7 @@ func Test_serializeToYamlWithComment(t *testing.T) {
 	testConfig.Config.FuzzySearch = true
 
 	testConfig.Config.Assistant = assistant.Config{
+		SaveMode: assistant.SaveModeNever,
 		OpenAI: &openai.Config{
 			Enabled:   true,
 			Endpoint:  "test.endpoint.com",
@@ -65,11 +67,12 @@ func Test_serializeToYamlWithComment(t *testing.T) {
 		},
 	}
 	testConfig.Config.Manager.FsLibrary = &fslibrary.Config{
-		Enabled:            true,
-		LibraryPath:        []string{"/path/to/file/system/library"},
-		SuffixRegex:        []string{".sh"},
-		LazyOpen:           true,
-		HideTitleInPreview: true,
+		Enabled:                   true,
+		LibraryPath:               []string{"/path/to/file/system/library"},
+		AssistantLibraryPathIndex: 0,
+		SuffixRegex:               []string{".sh"},
+		LazyOpen:                  true,
+		HideTitleInPreview:        true,
 	}
 
 	expectedConfigBytes := testdata.ConfigBytes(t, testdata.Example)

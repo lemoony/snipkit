@@ -22,7 +22,7 @@ func PrepareSnippet(content string) model.Snippet {
 	}
 }
 
-func extractBashScript(text string) string {
+func extractBashScript(text string) (string, string) {
 	// Regex pattern to match bash script blocks in markdown
 	pattern := "```(bash|sh)\\s+([\\s\\S]*?)```"
 	re := regexp.MustCompile(pattern)
@@ -30,11 +30,28 @@ func extractBashScript(text string) string {
 	// Find all matches of bash/sh code blocks
 	matches := re.FindAllStringSubmatch(text, -1)
 
+	var script string
+	var filename string
+
 	if len(matches) > 0 {
-		// Return the first matched code block
-		return matches[0][2]
+		// Extract the first matched bash/sh script block
+		script = matches[0][2]
+	} else {
+		// If no markdown code block is found, assume the text is a bash script
+		script = text
 	}
 
-	// If no markdown code block is found, assume the text is a bash script
-	return text
+	// Step 1: Remove the line starting with "# Filename:"
+	// Use regular expressions to match and remove the entire line starting with "# Filename:"
+	filenameLineRe := regexp.MustCompile(`(?m)^# Filename:\s*(\S+)\s*\n`)
+	// Extract the filename if it exists
+	filenameMatch := filenameLineRe.FindStringSubmatch(script)
+	if len(filenameMatch) > 1 {
+		filename = filenameMatch[1] // Extracted filename
+	}
+
+	// Remove the "# Filename:" line from the script
+	scriptWithoutFilename := filenameLineRe.ReplaceAllString(script, "")
+
+	return scriptWithoutFilename, filename
 }

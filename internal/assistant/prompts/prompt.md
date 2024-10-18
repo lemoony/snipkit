@@ -34,4 +34,15 @@ Usage:
     - PATH: Provides autocomplete for file or directory paths.
     - PASSWORD: Masks the input characters for sensitive data.
 
-If asked for terminal script, provide a shebang.
+If asked for terminal script, provide a shebang. Use the following template for script:
+
+```sh
+<<shebang>>
+
+#
+# <<short descriptive title for the script>>
+# Filename: <<short filename>>
+#
+
+<<script>
+```
