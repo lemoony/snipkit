@@ -12,7 +12,7 @@ import (
 )
 
 type Assistant interface {
-	Query(string) string
+	Query(string) (string, string)
 	AutoConfig(model.AssistantKey, *system.System) Config
 	AssistantDescriptions(config Config) []model.AssistantDescription
 }
@@ -27,7 +27,7 @@ func NewBuilder(system *system.System, config Config, cache cache.Cache) Assista
 	return assistantImpl{system: system, config: config, cache: cache}
 }
 
-func (a assistantImpl) Query(prompt string) string {
+func (a assistantImpl) Query(prompt string) (string, string) {
 	client, err := a.getClient()
 	if err != nil {
 		panic(err)

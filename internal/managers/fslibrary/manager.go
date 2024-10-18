@@ -66,6 +66,16 @@ func (m Manager) Key() model.ManagerKey {
 	return Key
 }
 
+func (m Manager) SaveAssistantSnippet(filename string, contents []byte) {
+	dirPath := m.config.LibraryPath[m.config.AssistantLibraryPathIndex]
+	if file, err := filepath.Abs(filepath.Join(dirPath, filename)); err == nil {
+		m.system.CreatePath(file)
+		m.system.WriteFile(file, contents)
+	} else {
+		panic(err)
+	}
+}
+
 func (m Manager) Info() []model.InfoLine {
 	var lines []model.InfoLine
 

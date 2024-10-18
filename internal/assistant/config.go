@@ -5,9 +5,17 @@ import (
 	"github.com/lemoony/snipkit/internal/assistant/openai"
 )
 
+type SaveMode string
+
+const (
+	SaveModeNever     = SaveMode("NEVER")
+	SaveModeFsLibrary = SaveMode("FS_LIBRARY")
+)
+
 type Config struct {
-	OpenAI *openai.Config `yaml:"openai,omitempty" mapstructure:"openai"`
-	Gemini *gemini.Config `yaml:"gemini,omitempty" mapstructure:"gemini"`
+	SaveMode SaveMode       `yaml:"saveMode" mapstructure:"saveMode" head_comment:"Defines if you want to save the snippets created by the assistant. Possible values: NEVER | FS_LIBRARY"`
+	OpenAI   *openai.Config `yaml:"openai,omitempty" mapstructure:"openai"`
+	Gemini   *gemini.Config `yaml:"gemini,omitempty" mapstructure:"gemini"`
 }
 
 func (c Config) moreThanOneEnabled() bool {

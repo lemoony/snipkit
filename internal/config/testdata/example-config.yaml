@@ -24,6 +24,8 @@ config:
     # If set to true, the executed command is always printed on stdout (same functionality as providing flag -p/--print).
     execPrint: false
   assistant:
+    # Defines if you want to save the snippets created by the assistant. Possible values: NEVER | FS_LIBRARY
+    saveMode: NEVER
     openai:
       # If set to false, OpenAI will not be used as an AI assistant.
       enabled: true
@@ -85,9 +87,11 @@ config:
     fsLibrary:
       # If set to false, the files specified via libraryPath will not be provided to you.
       enabled: true
-      # Paths directories that hold snippets files. Each file must hold one snippet only.
+      # Paths directories that hold snippets files (use absolute paths!). Each file must hold one snippet only.
       libraryPath:
         - /path/to/file/system/library
+      # Index of library path where to store snippets created by the assistant.
+      assistantLibraryPathIndex: 0
       # Only files with endings which match one of the listed suffixes will be considered.
       suffixRegex:
         - .sh

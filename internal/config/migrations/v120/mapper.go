@@ -22,7 +22,9 @@ func Migrate(old []byte) []byte {
 	}
 
 	config.Version = VersionTo
-	config.Config.Assistant = make(map[string]interface{})
+	config.Config.Assistant = map[string]interface{}{
+		"saveMode": "NEVER",
+	}
 
 	configBytes, err := yaml.Marshal(config)
 	if err != nil {

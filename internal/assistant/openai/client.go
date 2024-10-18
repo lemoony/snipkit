@@ -12,6 +12,7 @@ import (
 	"emperror.dev/errors"
 
 	"github.com/lemoony/snipkit/internal/assistant/prompts"
+	jsonutil "github.com/lemoony/snipkit/internal/utils/json"
 )
 
 type Client struct {
@@ -68,7 +69,7 @@ func (c *Client) Query(prompt string) (string, error) {
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return "", errors.Errorf("Error: received status code %d - Body: %s", resp.StatusCode, string(body))
+		return "", errors.Errorf("Error: received status code %d - Body: %s", resp.StatusCode, jsonutil.CompactJSON(body))
 	}
 
 	var openAIResp Response

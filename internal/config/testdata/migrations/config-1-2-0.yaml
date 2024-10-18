@@ -23,5 +23,7 @@ config:
     execConfirm: false
     # If set to true, the executed command is always printed on stdout (same functionality as providing flag -p/--print).
     execPrint: false
-  assistant: {}
+  assistant:
+    # Defines if you want to save the snippets created by the assistant. Possible values: NEVER | FS_LIBRARY
+    saveMode: NEVER
   manager: {}
