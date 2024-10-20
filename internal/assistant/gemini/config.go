@@ -15,7 +15,7 @@ func AutoDiscoveryConfig(config *Config) Config {
 	}
 
 	return Config{
-		Enabled:   true,
+		Enabled:   false,
 		Endpoint:  "https://generativelanguage.googleapis.com",
 		Model:     "gemini-1.5-flash",
 		APIKeyEnv: "SNIPKIT_GEMINI_API_KEY",

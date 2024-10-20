@@ -12,15 +12,19 @@ import (
 	"emperror.dev/errors"
 
 	"github.com/lemoony/snipkit/internal/assistant/prompts"
+	"github.com/lemoony/snipkit/internal/utils/httputil"
 	jsonutil "github.com/lemoony/snipkit/internal/utils/json"
 )
 
 type Client struct {
-	config Config
+	config     Config
+	httpClient httputil.HTTPClient
 }
 
 func NewClient(options ...Option) (*Client, error) {
-	manager := &Client{}
+	manager := &Client{
+		httpClient: &http.Client{},
+	}
 	for _, o := range options {
 		o.apply(manager)
 	}
@@ -46,7 +50,6 @@ func (c *Client) Query(prompt string) (string, error) {
 		return "", errors.Wrap(err, "Error marshaling request body")
 	}
 
-	client := &http.Client{}
 	req, err := http.NewRequestWithContext(context.Background(), "POST", fmt.Sprintf("%s/v1/chat/completions", c.config.Endpoint), bytes.NewBuffer(jsonBody))
 	if err != nil {
 		return "", errors.Wrap(err, "Error creating request")
@@ -55,7 +58,7 @@ func (c *Client) Query(prompt string) (string, error) {
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+apiKey)
 
-	resp, err := client.Do(req)
+	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return "", errors.Wrap(err, "Error making request")
 	}
