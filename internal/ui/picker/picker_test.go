@@ -19,11 +19,11 @@ func Test_ShowPicker(t *testing.T) {
 		c.SendKey(termtest.KeyUp)
 		c.SendKey(termtest.KeyEnter)
 	}, func(stdio termutil.Stdio) {
-		index, ok := ShowPicker([]Item{
+		index, ok := ShowPicker("Which snippet manager should be added to your configuration", []Item{
 			NewItem("title1", "desc1"),
 			NewItem("title2", "desc2"),
 			NewItem("title3", "desc3"),
-		}, style.NoopStyle, tea.WithInput(stdio.In), tea.WithOutput(stdio.Out))
+		}, nil, style.NoopStyle, tea.WithInput(stdio.In), tea.WithOutput(stdio.Out))
 		assert.Equal(t, 1, index)
 		assert.True(t, ok)
 	})
@@ -45,9 +45,8 @@ func Test_ShowPicker_Cancel(t *testing.T) {
 				c.ExpectString("Which snippet manager should be added to your configuration")
 				c.SendKey(tt.key)
 			}, func(stdio termutil.Stdio) {
-				index, ok := ShowPicker([]Item{
-					NewItem("title1", "desc1"),
-				}, style.NoopStyle, tea.WithInput(stdio.In), tea.WithOutput(stdio.Out))
+				index, ok := ShowPicker("Which snippet manager should be added to your configuration",
+					[]Item{NewItem("title1", "desc1")}, nil, style.NoopStyle, tea.WithInput(stdio.In), tea.WithOutput(stdio.Out))
 				assert.Equal(t, -1, index)
 				assert.False(t, ok)
 			})

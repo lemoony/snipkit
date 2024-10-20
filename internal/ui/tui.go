@@ -18,6 +18,8 @@ import (
 	"github.com/lemoony/snipkit/internal/ui/confirm"
 	"github.com/lemoony/snipkit/internal/ui/form"
 	"github.com/lemoony/snipkit/internal/ui/picker"
+	"github.com/lemoony/snipkit/internal/ui/prompt"
+	"github.com/lemoony/snipkit/internal/ui/spinner"
 	"github.com/lemoony/snipkit/internal/ui/style"
 	"github.com/lemoony/snipkit/internal/ui/sync"
 	"github.com/lemoony/snipkit/internal/ui/uimsg"
@@ -71,8 +73,10 @@ type TUI interface {
 	OpenEditor(path string, preferredEditor string)
 	ShowLookup(snippets []model.Snippet, fuzzySearch bool) int
 	ShowParameterForm(parameters []model.Parameter, values []model.ParameterValue, okButton OkButton) ([]string, bool)
-	ShowPicker(items []picker.Item, options ...tea.ProgramOption) (int, bool)
+	ShowPicker(title string, items []picker.Item, selectedItem *picker.Item, options ...tea.ProgramOption) (int, bool)
 	ShowSync() sync.Screen
+	ShowPrompt(placeholder string) (bool, string)
+	ShowSpinner(string, chan bool)
 }
 
 type tuiImpl struct {
@@ -168,13 +172,16 @@ func (t tuiImpl) OpenEditor(path string, preferredEditor string) {
 	}
 }
 
-func (t tuiImpl) ShowPicker(items []picker.Item, options ...tea.ProgramOption) (int, bool) {
-	return picker.ShowPicker(items, &t.styler, append(
-		[]tea.ProgramOption{
-			tea.WithInput(t.stdio.In),
-			tea.WithOutput(t.stdio.Out),
-		},
-		options...)...,
+func (t tuiImpl) ShowPicker(title string, items []picker.Item, selected *picker.Item, options ...tea.ProgramOption) (int, bool) {
+	return picker.ShowPicker(
+		title,
+		items, selected, &t.styler,
+		append(
+			[]tea.ProgramOption{
+				tea.WithInput(t.stdio.In),
+				tea.WithOutput(t.stdio.Out),
+			},
+			options...)...,
 	)
 }
 
@@ -184,6 +191,14 @@ func (t tuiImpl) ShowSync() sync.Screen {
 		sync.WithIn(t.stdio.In),
 		sync.WithStyler(t.styler),
 	)
+}
+
+func (t tuiImpl) ShowPrompt(placeholder string) (bool, string) {
+	return prompt.ShowPrompt(placeholder)
+}
+
+func (t tuiImpl) ShowSpinner(text string, stop chan bool) {
+	spinner.ShowSpinner(text, stop)
 }
 
 func getEditor(preferred string) string {

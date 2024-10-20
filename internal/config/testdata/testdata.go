@@ -18,7 +18,8 @@ const (
 	ConfigV100 = ConfigVersion("1.0.0")
 	ConfigV110 = ConfigVersion("1.1.0")
 	ConfigV111 = ConfigVersion("1.1.1")
-	Latest     = ConfigV111
+	ConfigV120 = ConfigVersion("1.2.0")
+	Latest     = ConfigV120
 
 	Example = ConfigVersion("example-config.yaml")
 )

@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/viper"
 	"gopkg.in/yaml.v3"
 
+	"github.com/lemoony/snipkit/internal/assistant"
 	"github.com/lemoony/snipkit/internal/config/migrations"
 	"github.com/lemoony/snipkit/internal/managers"
 	"github.com/lemoony/snipkit/internal/model"
@@ -41,6 +42,7 @@ type Service interface {
 	LoadConfig() (Config, error)
 	Edit()
 	Clean()
+	UpdateAssistantConfig(config assistant.Config)
 	UpdateManagerConfig(config managers.Config)
 	NeedsMigration() (bool, string)
 	Migrate()
@@ -145,6 +147,23 @@ func (s *serviceImpl) Clean() {
 
 func (s *serviceImpl) ConfigFilePath() string {
 	return s.v.ConfigFileUsed()
+}
+
+func (s *serviceImpl) UpdateAssistantConfig(assistantConfig assistant.Config) {
+	config, err := s.LoadConfig()
+	if err != nil {
+		panic(errors.Wrapf(ErrInvalidConfig, "failed to load config: %s", err.Error()))
+	}
+
+	if cfg := assistantConfig.OpenAI; cfg != nil {
+		config.Assistant.OpenAI = cfg
+	}
+	if cfg := assistantConfig.Gemini; cfg != nil {
+		config.Assistant.Gemini = cfg
+	}
+
+	bytes := SerializeToYamlWithComment(wrap(config))
+	s.system.WriteFile(s.ConfigFilePath(), bytes)
 }
 
 func (s *serviceImpl) UpdateManagerConfig(managerConfig managers.Config) {

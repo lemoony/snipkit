@@ -88,6 +88,10 @@ func (m *Manager) Sync(model.SyncEventChannel) {
 	// do nothing
 }
 
+func (m Manager) SaveAssistantSnippet(filename string, contents []byte) {
+	panic("Not implemented")
+}
+
 func (m *Manager) GetSnippets() []model.Snippet {
 	validTagUUIDs, hasTags := m.getValidTagUUIDs()
 

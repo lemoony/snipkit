@@ -32,7 +32,7 @@ func (s snippetImpl) GetContent() string {
 }
 
 func (s snippetImpl) GetLanguage() model.Language {
-	return languageForSuffix(filepath.Ext(s.path))
+	return LanguageForSuffix(filepath.Ext(s.path))
 }
 
 func (s snippetImpl) GetParameters() []model.Parameter {
