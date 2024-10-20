@@ -18,7 +18,6 @@ require (
 	github.com/gdamore/tcell/v2 v2.7.4
 	github.com/hinshun/vt10x v0.0.0-20220301184237-5011da428d02
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51
-	github.com/matoous/go-nanoid v1.5.1
 	github.com/mattn/go-runewidth v0.0.16
 	github.com/muesli/reflow v0.3.0
 	github.com/muesli/termenv v0.15.2

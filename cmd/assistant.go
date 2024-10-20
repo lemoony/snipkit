@@ -32,6 +32,7 @@ var choose = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(assistantCmd)
+	rootCmd.AddCommand(generateCmd)
 	assistantCmd.AddCommand(generateCmd)
 	assistantCmd.AddCommand(choose)
 }

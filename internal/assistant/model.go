@@ -1,9 +1,6 @@
 package assistant
 
 import (
-	"path/filepath"
-
-	"github.com/lemoony/snipkit/internal/managers/fslibrary"
 	"github.com/lemoony/snipkit/internal/model"
 	"github.com/lemoony/snipkit/internal/parser"
 )
@@ -33,7 +30,7 @@ func (s snippetImpl) GetContent() string {
 }
 
 func (s snippetImpl) GetLanguage() model.Language {
-	return fslibrary.LanguageForSuffix(filepath.Ext(s.path))
+	return model.LanguageBash
 }
 
 func (s snippetImpl) GetParameters() []model.Parameter {

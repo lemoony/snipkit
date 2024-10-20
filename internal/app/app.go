@@ -4,6 +4,7 @@ import (
 	"emperror.dev/errors"
 	"github.com/phuslu/log"
 
+	"github.com/lemoony/snipkit/internal/assistant"
 	"github.com/lemoony/snipkit/internal/cache"
 	"github.com/lemoony/snipkit/internal/config"
 	"github.com/lemoony/snipkit/internal/managers"
@@ -73,6 +74,13 @@ func WithProvider(builder managers.Provider) Option {
 	})
 }
 
+// WithAssistantProviderFunc sets the assistant provider.
+func WithAssistantProviderFunc(providerFunc func(c assistant.Config) assistant.Assistant) Option {
+	return optionFunc(func(a *appImpl) {
+		a.assistantProviderFunc = providerFunc
+	})
+}
+
 // WithConfig sets the config for the App.
 func WithConfig(config config.Config) Option {
 	return optionFunc(func(a *appImpl) {
@@ -100,9 +108,12 @@ func NewApp(options ...Option) App {
 	appCache := cache.New(system)
 
 	app := &appImpl{
-		system:                    system,
-		tui:                       ui.NewTUI(),
-		provider:                  managers.NewBuilder(appCache),
+		system:   system,
+		tui:      ui.NewTUI(),
+		provider: managers.NewBuilder(appCache),
+		assistantProviderFunc: func(config assistant.Config) assistant.Assistant {
+			return assistant.NewBuilder(system, config, appCache)
+		},
 		cache:                     appCache,
 		checkNeedsConfigMigration: true,
 	}
@@ -142,6 +153,7 @@ type appImpl struct {
 
 	configService             config.Service
 	provider                  managers.Provider
+	assistantProviderFunc     func(assistant.Config) assistant.Assistant
 	checkNeedsConfigMigration bool
 }
 
