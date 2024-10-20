@@ -115,8 +115,7 @@ func (a *appImpl) EnableAssistant() {
 
 	if selectedIndex, ok := a.tui.ShowPicker("Which AI provider for the assistant do you want to use?", listItems, selected); ok {
 		assistantDescription := assistantDescriptions[selectedIndex]
-		asst.AutoConfig(assistantDescription.Key, a.system)
-		cfg := asst.AutoConfig(assistantDescription.Key, a.system)
+		cfg := asst.AutoConfig(assistantDescription.Key)
 		configBytes := config.SerializeToYamlWithComment(cfg)
 		configStr := strings.TrimSpace(string(configBytes))
 		confirmed := a.tui.Confirmation(uimsg.ManagerConfigAddConfirm(configStr))
