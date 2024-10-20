@@ -1,9 +1,6 @@
 package assistant
 
 import (
-	"emperror.dev/errors"
-
-	assistErrors "github.com/lemoony/snipkit/internal/assistant/errors"
 	"github.com/lemoony/snipkit/internal/assistant/gemini"
 	"github.com/lemoony/snipkit/internal/assistant/openai"
 	"github.com/lemoony/snipkit/internal/cache"
@@ -13,7 +10,7 @@ import (
 
 type Assistant interface {
 	Query(string) (string, string)
-	AutoConfig(model.AssistantKey, *system.System) Config
+	AutoConfig(model.AssistantKey) Config
 	AssistantDescriptions(config Config) []model.AssistantDescription
 }
 
@@ -21,15 +18,19 @@ type assistantImpl struct {
 	system   *system.System
 	config   Config
 	cache    cache.Cache
-	provider ClientProvider //nolint:unused //WIP
+	provider ClientProvider
 }
 
-func NewBuilder(system *system.System, config Config, cache cache.Cache) Assistant {
-	return assistantImpl{system: system, config: config, cache: cache}
+func NewBuilder(system *system.System, config Config, cache cache.Cache, options ...Option) Assistant {
+	asst := assistantImpl{system: system, config: config, cache: cache, provider: clientProviderImpl{}}
+	for _, o := range options {
+		o.apply(&asst)
+	}
+	return asst
 }
 
 func (a assistantImpl) Query(prompt string) (string, string) {
-	client, err := a.getClient()
+	client, err := a.provider.GetClient(a.config)
 	if err != nil {
 		panic(err)
 	}
@@ -48,7 +49,7 @@ func (a assistantImpl) AssistantDescriptions(config Config) []model.AssistantDes
 	}
 }
 
-func (a assistantImpl) AutoConfig(key model.AssistantKey, s *system.System) Config {
+func (a assistantImpl) AutoConfig(key model.AssistantKey) Config {
 	result := a.config
 	if key == openai.Key {
 		updated := openai.AutoDiscoveryConfig(a.config.OpenAI)
@@ -64,16 +65,4 @@ func (a assistantImpl) AutoConfig(key model.AssistantKey, s *system.System) Conf
 		}
 	}
 	return result
-}
-
-func (a assistantImpl) getClient() (Client, error) {
-	switch {
-	case a.config.moreThanOneEnabled():
-		panic(errors.New("Invalid config: more than one assistant is enabled."))
-	case a.config.OpenAI != nil && a.config.OpenAI.Enabled:
-		return openai.NewClient(openai.WithConfig(*a.config.OpenAI))
-	case a.config.Gemini != nil && a.config.Gemini.Enabled:
-		return gemini.NewClient(gemini.WithConfig(*a.config.Gemini))
-	}
-	return nil, assistErrors.ErrorNoClientConfiguredOrEnabled
 }
