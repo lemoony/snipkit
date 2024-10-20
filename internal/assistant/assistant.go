@@ -18,9 +18,10 @@ type Assistant interface {
 }
 
 type assistantImpl struct {
-	system *system.System
-	config Config
-	cache  cache.Cache
+	system   *system.System
+	config   Config
+	cache    cache.Cache
+	provider ClientProvider //nolint:unused //WIP
 }
 
 func NewBuilder(system *system.System, config Config, cache cache.Cache) Assistant {

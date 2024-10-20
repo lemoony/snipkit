@@ -1,25 +1,42 @@
 package assistant
 
 import (
+	"crypto/rand"
+	"fmt"
 	"regexp"
+	"time"
 
 	"github.com/lemoony/snipkit/internal/model"
 	"github.com/lemoony/snipkit/internal/utils/titleheader"
 )
 
-func PrepareSnippet(content string) model.Snippet {
+func PrepareSnippet(content []byte) model.Snippet {
+	contentStr := string(content)
 	return snippetImpl{
 		id:      "",
 		path:    "",
 		tags:    []string{},
-		content: content,
+		content: contentStr,
 		titleFunc: func() string {
-			if title, ok := titleheader.ParseTitleFromHeader(content); ok {
+			if title, ok := titleheader.ParseTitleFromHeader(contentStr); ok {
 				return title
 			}
 			return ""
 		},
 	}
+}
+
+func RandomScriptFilename() string {
+	const randomNumberLength = 5
+	timestamp := time.Now().Format("20060102_150405")
+	randomBytes := make([]byte, randomNumberLength)
+	_, err := rand.Read(randomBytes)
+	if err != nil {
+		panic(err)
+	}
+
+	randomString := fmt.Sprintf("%x", randomBytes)
+	return fmt.Sprintf("%s_%s.sh", timestamp, randomString)
 }
 
 func extractBashScript(text string) (string, string) {

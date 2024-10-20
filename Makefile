@@ -28,6 +28,8 @@ generate: mocks ## go generate
 mocks: ## go generate
 	$(call print-target)
 	mockery --name='App' --output="./mocks/app" --dir="./internal/app"
+	mockery --name='Assistant' --output="./mocks/assistant" --dir="./internal/assistant"
+	mockery --name='Client' --output="./mocks/assistant" --dir="./internal/assistant"
 	mockery --name='Service' --output="./mocks/config" --structname="ConfigService"  --dir="./internal/config"
 	mockery --name='Provider' --output="./mocks/managers"  --dir="./internal/managers"
 	mockery --name='Manager' --output="./mocks/managers" --dir="./internal/managers"

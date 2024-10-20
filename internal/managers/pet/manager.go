@@ -92,3 +92,7 @@ func (m *Manager) GetSnippets() []model.Snippet {
 	}
 	return result
 }
+
+func (m Manager) SaveAssistantSnippet(filename string, contents []byte) {
+	panic("Not implemented")
+}

@@ -129,6 +129,10 @@ func (m *Manager) Sync(events model.SyncEventChannel) {
 	log.Trace().Msg("github gist sync finished")
 }
 
+func (m Manager) SaveAssistantSnippet(filename string, contents []byte) {
+	panic("Not implemented")
+}
+
 func (m *Manager) authToken(cfg GistConfig, lines []model.SyncLine, events model.SyncEventChannel) (string, error) {
 	switch cfg.AuthenticationMethod {
 	case AuthMethodNone:

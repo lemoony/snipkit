@@ -4,6 +4,10 @@ import (
 	"fmt"
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+
+	"github.com/lemoony/snipkit/internal/model"
 )
 
 func Test_extractBashScript(t *testing.T) {
@@ -52,4 +56,25 @@ echo "foo"`,
 
 func wrapInMarkdown(input string) string {
 	return fmt.Sprintf("```sh\n%s\n```", input)
+}
+
+func Test_RandomScriptFilename(t *testing.T) {
+	assert.NotEmpty(t, RandomScriptFilename())
+}
+
+func TestPrepareSnippet(t *testing.T) {
+	content := `#!/bin/sh
+#
+# Simple script
+#
+# ${FOO} Name: Foo
+echo ${FOO}`
+
+	snippet := PrepareSnippet([]byte(content))
+
+	assert.Equal(t, "Simple script", snippet.GetTitle())
+	assert.Equal(t, model.LanguageBash, snippet.GetLanguage())
+	assert.Equal(t, content, snippet.GetContent())
+	assert.Len(t, snippet.GetParameters(), 1)
+	assert.Equal(t, "Foo", snippet.GetParameters()[0].Name)
 }
