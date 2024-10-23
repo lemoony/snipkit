@@ -20,7 +20,11 @@ func (a *appImpl) AddManager() {
 		listItems[i] = picker.NewItem(managerDescriptions[i].Name, managerDescriptions[i].Description)
 	}
 
-	if index, ok := a.tui.ShowPicker(listItems); ok {
+	if index, ok := a.tui.ShowPicker(
+		"Which snippet manager should be added to your configuration",
+		listItems,
+		nil,
+	); ok {
 		managerDescription := managerDescriptions[index]
 		cfg := a.provider.AutoConfig(managerDescription.Key, a.system)
 		configBytes := config.SerializeToYamlWithComment(cfg)

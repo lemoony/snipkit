@@ -4,6 +4,7 @@ import (
 	"emperror.dev/errors"
 	"github.com/phuslu/log"
 
+	"github.com/lemoony/snipkit/internal/assistant"
 	"github.com/lemoony/snipkit/internal/cache"
 	"github.com/lemoony/snipkit/internal/config"
 	"github.com/lemoony/snipkit/internal/managers"
@@ -40,6 +41,8 @@ type App interface {
 	LookupAndExecuteSnippet(bool, bool)
 	FindScriptAndExecuteWithParameters(string, []model.ParameterValue, bool, bool)
 	ExportSnippets([]ExportField, ExportFormat) string
+	GenerateSnippetWithAssistant()
+	EnableAssistant()
 	Info()
 	AddManager()
 	SyncManager()
@@ -71,6 +74,13 @@ func WithProvider(builder managers.Provider) Option {
 	})
 }
 
+// WithAssistantProviderFunc sets the assistant provider.
+func WithAssistantProviderFunc(providerFunc func(c assistant.Config) assistant.Assistant) Option {
+	return optionFunc(func(a *appImpl) {
+		a.assistantProviderFunc = providerFunc
+	})
+}
+
 // WithConfig sets the config for the App.
 func WithConfig(config config.Config) Option {
 	return optionFunc(func(a *appImpl) {
@@ -95,10 +105,16 @@ func WithCheckNeedsConfigMigration(checkNeedsConfigMigration bool) Option {
 func NewApp(options ...Option) App {
 	system := system.NewSystem()
 
+	appCache := cache.New(system)
+
 	app := &appImpl{
-		system:                    system,
-		tui:                       ui.NewTUI(),
-		provider:                  managers.NewBuilder(cache.New(system)),
+		system:   system,
+		tui:      ui.NewTUI(),
+		provider: managers.NewBuilder(appCache),
+		assistantProviderFunc: func(config assistant.Config) assistant.Assistant {
+			return assistant.NewBuilder(system, config, appCache)
+		},
+		cache:                     appCache,
 		checkNeedsConfigMigration: true,
 	}
 
@@ -133,9 +149,11 @@ type appImpl struct {
 	system   *system.System
 	config   *config.Config
 	tui      ui.TUI
+	cache    cache.Cache
 
 	configService             config.Service
 	provider                  managers.Provider
+	assistantProviderFunc     func(assistant.Config) assistant.Assistant
 	checkNeedsConfigMigration bool
 }
 

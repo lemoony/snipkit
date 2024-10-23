@@ -10,6 +10,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/yaml.v3"
 
+	"github.com/lemoony/snipkit/internal/assistant"
+	"github.com/lemoony/snipkit/internal/assistant/openai"
 	"github.com/lemoony/snipkit/internal/config"
 	"github.com/lemoony/snipkit/internal/managers"
 	"github.com/lemoony/snipkit/internal/managers/fslibrary"
@@ -67,6 +69,12 @@ func NewTestConfig() config.VersionWrapper {
 		Config: config.Config{
 			Editor: "test-editor",
 			Style:  ui.DefaultConfig(),
+			Assistant: assistant.Config{
+				SaveMode: assistant.SaveModeFsLibrary,
+				OpenAI: &openai.Config{
+					Enabled: true,
+				},
+			},
 			Manager: managers.Config{
 				SnippetsLab: &snippetslab.Config{
 					Enabled: false,
