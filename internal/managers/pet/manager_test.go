@@ -72,3 +72,9 @@ func Test_GetSnippets(t *testing.T) {
 		})
 	}
 }
+
+func Test_SaveAssistantSnippet(t *testing.T) {
+	assert.PanicsWithError(t, "Not implemented", func() {
+		Manager{}.SaveAssistantSnippet("foo.sh", []byte("dummy content"))
+	})
+}

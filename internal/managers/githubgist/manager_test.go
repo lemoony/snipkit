@@ -365,6 +365,12 @@ func Test_Sync_ifNoneMatch_forSingleFile(t *testing.T) {
 	cacheMock.AssertCalled(t, "PutData", storeKey, updatedStore.serialize())
 }
 
+func Test_SaveAssistantSnippet(t *testing.T) {
+	assert.PanicsWithError(t, "Not implemented", func() {
+		Manager{}.SaveAssistantSnippet("foo.sh", []byte("dummy content"))
+	})
+}
+
 func readTestdata(t *testing.T, path string) string {
 	t.Helper()
 	contents, err := os.ReadFile(path)

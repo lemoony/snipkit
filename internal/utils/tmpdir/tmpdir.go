@@ -2,8 +2,9 @@ package tmpdir
 
 import (
 	"fmt"
-	"os"
 	"sync"
+
+	"github.com/spf13/afero"
 
 	"github.com/lemoony/snipkit/internal/utils/system"
 )
@@ -16,7 +17,6 @@ type TmpDir interface {
 type tmpDirImpl struct {
 	system  *system.System
 	dirPath string
-	files   []string
 	mutex   sync.Mutex
 }
 
@@ -32,11 +32,12 @@ func (t *tmpDirImpl) CreateTempFile(contents []byte) (bool, string) {
 	}
 
 	// Create a temporary file inside the directory
-	tempFile, err := os.CreateTemp(t.dirPath, "tmpfile_*.txt")
+	tempFile, err := afero.TempFile(t.system.Fs, t.dirPath, "tmpfile_*.txt")
 	if err != nil {
 		return false, ""
 	}
-	defer func(tempFile *os.File) {
+
+	defer func(tempFile afero.File) {
 		_ = tempFile.Close()
 	}(tempFile)
 
@@ -45,7 +46,6 @@ func (t *tmpDirImpl) CreateTempFile(contents []byte) (bool, string) {
 		return false, ""
 	}
 
-	t.files = append(t.files, tempFile.Name())
 	return true, tempFile.Name()
 }
 
@@ -53,17 +53,13 @@ func (t *tmpDirImpl) CreateTempFile(contents []byte) (bool, string) {
 func (t *tmpDirImpl) ClearFiles() {
 	t.mutex.Lock()
 	defer t.mutex.Unlock()
-
-	for _, filePath := range t.files {
-		_ = os.Remove(filePath) // Ignore error to continue clearing other files
-	}
-	t.files = nil
+	t.system.RemoveAll(t.dirPath)
 }
 
 // ensureTempDir creates the temporary directory if it does not already exist.
 func (t *tmpDirImpl) ensureTempDir() error {
 	if t.dirPath == "" {
-		dir, err := os.MkdirTemp("", "tmpdir_*")
+		dir, err := afero.TempDir(t.system.Fs, "", "snipkit_tmpdir")
 		if err != nil {
 			return fmt.Errorf("failed to create temporary directory: %v", err)
 		}
@@ -73,8 +69,5 @@ func (t *tmpDirImpl) ensureTempDir() error {
 }
 
 func New(s *system.System) TmpDir {
-	return &tmpDirImpl{
-		system: s,
-		files:  []string{},
-	}
+	return &tmpDirImpl{system: s}
 }

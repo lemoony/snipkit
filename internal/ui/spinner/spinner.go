@@ -121,9 +121,10 @@ func (m *model) ShortHelp() []key.Binding {
 	return h
 }
 
-func ShowSpinner(text string, stopChan chan bool) {
+func ShowSpinner(text string, stopChan chan bool, teaOptions ...tea.ProgramOption) {
 	m := initialModel(text, stopChan)
-	p := tea.NewProgram(&m)
+	p := tea.NewProgram(&m, teaOptions...)
+
 	if _, err := p.Run(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)

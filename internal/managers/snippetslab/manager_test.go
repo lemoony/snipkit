@@ -95,3 +95,9 @@ func Test_Sync(t *testing.T) {
 	manager.Sync(events)
 	close(events)
 }
+
+func Test_SaveAssistantSnippet(t *testing.T) {
+	assert.PanicsWithError(t, "Not implemented", func() {
+		Manager{}.SaveAssistantSnippet("foo.sh", []byte("dummy content"))
+	})
+}

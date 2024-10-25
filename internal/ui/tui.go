@@ -194,11 +194,11 @@ func (t tuiImpl) ShowSync() sync.Screen {
 }
 
 func (t tuiImpl) ShowPrompt(placeholder string) (bool, string) {
-	return prompt.ShowPrompt(placeholder)
+	return prompt.ShowPrompt(placeholder, tea.WithInput(t.stdio.In), tea.WithOutput(t.stdio.Out))
 }
 
 func (t tuiImpl) ShowSpinner(text string, stop chan bool) {
-	spinner.ShowSpinner(text, stop)
+	spinner.ShowSpinner(text, stop, tea.WithInput(t.stdio.In), tea.WithOutput(t.stdio.Out))
 }
 
 func getEditor(preferred string) string {

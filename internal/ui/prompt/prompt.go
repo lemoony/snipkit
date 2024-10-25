@@ -9,13 +9,13 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-func ShowPrompt(placeholder string) (bool, string) {
-	model := initialModel(placeholder)
-	p := tea.NewProgram(&model)
+func ShowPrompt(placeholder string, teaOptions ...tea.ProgramOption) (bool, string) {
+	m := initialModel(placeholder)
+	p := tea.NewProgram(&m, teaOptions...)
 	if _, err := p.Run(); err != nil {
-		return false, ""
+		return true, ""
 	}
-	return true, model.value
+	return m.success, m.value
 }
 
 type (
@@ -37,6 +37,7 @@ type model struct {
 	err      error
 	value    string
 	quitting bool
+	success  bool
 }
 
 func initialModel(placeholder string) model {
@@ -67,9 +68,14 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.Type {
-		case tea.KeyEnter, tea.KeyCtrlC, tea.KeyEsc:
+		case tea.KeyCtrlC, tea.KeyEsc:
+			m.quitting = true
+			m.success = false
+			return m, tea.Quit
+		case tea.KeyEnter:
 			m.value = m.textInput.Value()
 			m.quitting = true
+			m.success = true
 			return m, tea.Quit
 		}
 

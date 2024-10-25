@@ -217,6 +217,34 @@ func Test_ShowPicker(t *testing.T) {
 	})
 }
 
+func Test_ShowSpinner(t *testing.T) {
+	termtest.RunTerminalTest(t, func(c *termtest.Console) {
+		c.ExpectString("Waiting...")
+		c.SendKey(termtest.KeyStrC)
+	}, func(stdio termutil.Stdio) {
+		term := NewTUI(WithStdio(stdio))
+		term.ShowSpinner(
+			"Waiting...",
+			make(chan bool),
+		)
+	})
+}
+
+func Test_ShowPrompt(t *testing.T) {
+	termtest.RunTerminalTest(t, func(c *termtest.Console) {
+		c.ExpectString("placeholder")
+		c.Send("foo")
+		c.SendKey(termtest.KeyEnter)
+	}, func(stdio termutil.Stdio) {
+		term := NewTUI(WithStdio(stdio))
+		ok, text := term.ShowPrompt(
+			"placeholder",
+		)
+		assert.True(t, ok)
+		assert.Equal(t, "foo", text)
+	})
+}
+
 func getPreviewContents(screen tcell.SimulationScreen) string {
 	contents, w, h := screen.GetContents()
 

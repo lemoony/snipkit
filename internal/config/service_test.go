@@ -1,3 +1,4 @@
+//nolint:dupl // tests are allowed to duplicate some code
 package config
 
 import (
@@ -12,6 +13,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
+	"github.com/lemoony/snipkit/internal/assistant"
+	"github.com/lemoony/snipkit/internal/assistant/gemini"
+	"github.com/lemoony/snipkit/internal/assistant/openai"
 	"github.com/lemoony/snipkit/internal/config/testdata"
 	"github.com/lemoony/snipkit/internal/managers"
 	"github.com/lemoony/snipkit/internal/managers/fslibrary"
@@ -277,6 +281,64 @@ func Test_ConfigFilePath(t *testing.T) {
 	s := NewService(WithSystem(system), WithViper(v))
 
 	assert.Equal(t, cfgFilePath, s.ConfigFilePath())
+}
+
+func Test_serviceImpl_UpdateAssistantConfig(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name          string
+		input         assistant.Config
+		initialConfig Config
+		assert        func(cfg Config)
+	}{
+		{
+			name:  "update openai from nil to enabled",
+			input: assistant.Config{OpenAI: &openai.Config{Enabled: true}},
+			assert: func(cfg Config) {
+				assert.NotNil(t, cfg.Assistant.OpenAI)
+				assert.True(t, cfg.Assistant.OpenAI.Enabled)
+			},
+		},
+		{
+			name:  "update gemini from nil to enabled",
+			input: assistant.Config{Gemini: &gemini.Config{Enabled: true}},
+			assert: func(cfg Config) {
+				assert.NotNil(t, cfg.Assistant.Gemini)
+				assert.True(t, cfg.Assistant.Gemini.Enabled)
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			cfgPath := filepath.Join(t.TempDir(), "cfg.yaml")
+			s := testutil.NewTestSystem()
+
+			v := viper.New()
+			v.SetConfigFile(cfgPath)
+			v.SetFs(s.Fs)
+
+			createConfigFile(s, v)
+			service := NewService(WithSystem(s), WithViper(v))
+			if cfg, err := service.LoadConfig(); err != nil {
+				assert.NoError(t, err)
+			} else {
+				assert.Nil(t, cfg.Manager.SnippetsLab)
+				assert.Nil(t, cfg.Manager.PictarineSnip)
+				assert.Nil(t, cfg.Manager.FsLibrary)
+			}
+
+			service.UpdateAssistantConfig(tt.input)
+
+			// create new service instance so that old config isn't cached anymore
+			service = NewService(WithSystem(s), WithViper(v))
+			cfg, err := service.LoadConfig()
+			assert.NoError(t, err)
+			tt.assert(cfg)
+		})
+	}
 }
 
 func Test_UpdateManagerConfig(t *testing.T) {

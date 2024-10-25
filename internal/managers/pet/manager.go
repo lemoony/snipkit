@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 
+	"emperror.dev/errors"
+
 	"github.com/lemoony/snipkit/internal/model"
 	"github.com/lemoony/snipkit/internal/utils/stringutil"
 	"github.com/lemoony/snipkit/internal/utils/system"
@@ -94,5 +96,5 @@ func (m *Manager) GetSnippets() []model.Snippet {
 }
 
 func (m Manager) SaveAssistantSnippet(filename string, contents []byte) {
-	panic("Not implemented")
+	panic(errors.New("Not implemented"))
 }
