@@ -38,6 +38,16 @@ config:
 !!! note
     Maximal one AI provider can be set to `enabled: true`. If all providers are set to `enabled: false` the assistant won't work.
 
+## Generate scripts
+
+```sh title="Generate a script"
+snipkit assistant generate
+```
+
+```sh title="Root-level command for convience"
+snipkit ai
+```
+
 ## Save generate snippets
 
 SnipKit supports saving any generated snippets to your [File System Library][fslibrary].
@@ -55,4 +65,3 @@ config:
     The [File System Library manager][fslibrary] must be enabled.
 
 [fslibrary]: ../managers/fslibrary.md
-]()
