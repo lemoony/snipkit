@@ -59,7 +59,7 @@ echo ${FOO_KEY}
 		}),
 	)
 
-	app.GenerateSnippetWithAssistant()
+	app.GenerateSnippetWithAssistant("", 0)
 
 	fsLibManager.AssertCalled(t, mockutil.SaveAssistantSnippet, "foo-script.sh", []byte(exampleScript))
 }

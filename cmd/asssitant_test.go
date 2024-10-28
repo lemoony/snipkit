@@ -3,6 +3,8 @@ package cmd
 import (
 	"testing"
 
+	"github.com/stretchr/testify/mock"
+
 	mocks "github.com/lemoony/snipkit/mocks/app"
 )
 
@@ -10,7 +12,7 @@ func Test_Assistant_GenerateCmd(t *testing.T) {
 	defer resetCommand(execCmd)
 
 	app := mocks.App{}
-	app.On("GenerateSnippetWithAssistant").Return(nil)
+	app.On("GenerateSnippetWithAssistant", "", mock.Anything).Return(nil)
 
 	runExecuteTest(t, []string{"assistant", "generate"}, withApp(&app))
 

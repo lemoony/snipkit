@@ -1,7 +1,14 @@
 package cmd
 
 import (
+	"time"
+
 	"github.com/spf13/cobra"
+)
+
+var (
+	assistantDemoScriptFlag string
+	assistantDemoWaitFlag   int
 )
 
 var assistantCmd = &cobra.Command{
@@ -16,7 +23,7 @@ var generateCmd = &cobra.Command{
 	Long:    `Generate a script based on a user prompt and either copy it to the clipboard or execute it directly.`,
 	Aliases: []string{"ai", "create"},
 	Run: func(cmd *cobra.Command, args []string) {
-		getAppFromContext(cmd.Context()).GenerateSnippetWithAssistant()
+		getAppFromContext(cmd.Context()).GenerateSnippetWithAssistant(assistantDemoScriptFlag, time.Duration(assistantDemoWaitFlag)*time.Second)
 	},
 }
 

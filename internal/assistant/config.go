@@ -1,7 +1,5 @@
 package assistant
 
-import "C"
-
 import (
 	"emperror.dev/errors"
 

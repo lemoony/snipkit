@@ -25,7 +25,7 @@ const (
 	saveNo  = "no"
 )
 
-func (a *appImpl) GenerateSnippetWithAssistant() {
+func (a *appImpl) GenerateSnippetWithAssistant(demoScriptPath string, demoQueryDuration time.Duration) {
 	asst := a.assistantProviderFunc(a.config.Assistant)
 
 	if ok, text := a.tui.ShowPrompt("What do you want the script to do?"); ok {
@@ -34,7 +34,15 @@ func (a *appImpl) GenerateSnippetWithAssistant() {
 		// Run the spinner in a separate goroutine
 		go a.tui.ShowSpinner(text, stopChan)
 
-		script, filename := asst.Query(text)
+		var script, filename string
+		if demoScriptPath != "" {
+			demoScript := a.system.ReadFile(demoScriptPath)
+			script = string(demoScript)
+			filename = "demo.sh"
+			time.Sleep(demoQueryDuration)
+		} else {
+			script, filename = asst.Query(text)
+		}
 
 		// Send stop signal to stop the spinner
 		stopChan <- true

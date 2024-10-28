@@ -1,9 +1,6 @@
 package prompt
 
 import (
-	"fmt"
-
-	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
@@ -32,7 +29,6 @@ type KeyMap struct {
 type model struct {
 	textInput textinput.Model
 	keyMap    KeyMap
-	help      help.Model
 
 	err      error
 	value    string
@@ -43,6 +39,7 @@ type model struct {
 func initialModel(placeholder string) model {
 	ti := textinput.New()
 	ti.Placeholder = placeholder
+	ti.Prompt = "? "
 	ti.Focus()
 
 	return model{
@@ -54,7 +51,6 @@ func initialModel(placeholder string) model {
 				key.WithHelp("esc", "quit"),
 			),
 		},
-		help: help.New(),
 	}
 }
 
@@ -89,29 +85,10 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-// FullHelp returns bindings to show the full help view. It's part of the
-// help.KeyMap interface.
-func (m *model) FullHelp() [][]key.Binding {
-	return [][]key.Binding{}
-}
-
-// ShortHelp returns bindings to show in the abbreviated help view. It's part
-// of the help.KeyMap interface.
-func (m *model) ShortHelp() []key.Binding {
-	h := []key.Binding{
-		m.keyMap.Quit,
-	}
-	return h
-}
-
 func (m *model) View() string {
 	if m.quitting {
 		return m.textInput.View()
 	}
 
-	return fmt.Sprintf(
-		"%s\n\n%s",
-		m.textInput.View(),
-		m.help.View(m),
-	) + "\n"
+	return m.textInput.View()
 }

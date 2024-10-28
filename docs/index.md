@@ -17,6 +17,8 @@ them more easily:
 
 * Execute them with parameters. Define default values or a list of pre-defined values to pick from.
 
+* Use SnipKit Assistant to generate scripts with the help of AI.
+
 * Customize SnipKit with a theme to match the look of your terminal.
 
 [Getting started](./getting-started/overview.md){ .md-button .md-button--primary }

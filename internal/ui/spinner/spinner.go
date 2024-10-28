@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
@@ -18,7 +17,6 @@ type stopMsg struct{}
 type model struct {
 	spinner spinner.Model
 	keyMap  KeyMap
-	help    help.Model
 
 	quitting bool
 	text     string
@@ -47,7 +45,6 @@ func initialModel(text string, stopChan chan bool) model {
 				key.WithHelp("esc", "quit"),
 			),
 		},
-		help: help.New(),
 	}
 }
 
@@ -96,29 +93,9 @@ func (m *model) View() string {
 	}
 	var str string
 	if !m.quitting {
-		str = fmt.Sprintf(
-			"%s%s\n\n%s",
-			m.spinner.View(),
-			m.text,
-			m.help.View(m),
-		)
+		str = fmt.Sprintf("%s%s", m.spinner.View(), m.text)
 	}
 	return str
-}
-
-// FullHelp returns bindings to show the full help view. It's part of the
-// help.KeyMap interface.
-func (m *model) FullHelp() [][]key.Binding {
-	return [][]key.Binding{}
-}
-
-// ShortHelp returns bindings to show in the abbreviated help view. It's part
-// of the help.KeyMap interface.
-func (m *model) ShortHelp() []key.Binding {
-	h := []key.Binding{
-		m.keyMap.Quit,
-	}
-	return h
 }
 
 func ShowSpinner(text string, stopChan chan bool, teaOptions ...tea.ProgramOption) {

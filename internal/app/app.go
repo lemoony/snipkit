@@ -1,6 +1,8 @@
 package app
 
 import (
+	"time"
+
 	"emperror.dev/errors"
 	"github.com/phuslu/log"
 
@@ -41,7 +43,7 @@ type App interface {
 	LookupAndExecuteSnippet(bool, bool)
 	FindScriptAndExecuteWithParameters(string, []model.ParameterValue, bool, bool)
 	ExportSnippets([]ExportField, ExportFormat) string
-	GenerateSnippetWithAssistant()
+	GenerateSnippetWithAssistant(string, time.Duration)
 	EnableAssistant()
 	Info()
 	AddManager()

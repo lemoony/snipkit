@@ -47,3 +47,8 @@ nav:
     - SnippetsLab: 'managers/snippetslab.md'
     - Snip: 'managers/pictarinesnip.md'
     - Pet: 'managers/pet.md'
+  - Assistant:
+    - Overview: 'assistant/index.md'
+    - OpenAI: 'assistant/openai.md'
+    - Gemini: 'assistant/gemini.md'
+

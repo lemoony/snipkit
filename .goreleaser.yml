@@ -8,6 +8,8 @@ builds:
       - CGO_ENABLED=0
     goos: [ darwin ]
     goarch: [ amd64, arm64 ]
+    flags:
+      - "-tags={{ if index .Env \"BUILD_TAGS\"  }}{{ .Env.BUILD_TAGS }}{{ else }}\"\"{{ end }}"
   - id: linux
     env:
       - CGO_ENABLED=0
