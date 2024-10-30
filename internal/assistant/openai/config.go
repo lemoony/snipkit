@@ -18,6 +18,6 @@ func AutoDiscoveryConfig(config *Config) Config {
 		Enabled:   true,
 		Endpoint:  "https://api.openai.com",
 		Model:     "openai/gpt-4o",
-		APIKeyEnv: "SNIPKIT_OPENAPI_APIKEY",
+		APIKeyEnv: "SNIPKIT_OPENAI_API_KEY",
 	}
 }

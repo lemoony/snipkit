@@ -156,7 +156,8 @@ func Test_Info(t *testing.T) {
 
 	assert.Equal(t, "Config path", infos[0].Key)
 	assert.Equal(t, "SNIPKIT_HOME", infos[1].Key)
-	assert.Equal(t, "Theme", infos[2].Key)
+	assert.Equal(t, "Assistant", infos[2].Key)
+	assert.Equal(t, "Theme", infos[3].Key)
 }
 
 func Test_Edit(t *testing.T) {

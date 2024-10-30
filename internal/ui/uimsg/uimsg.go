@@ -40,6 +40,7 @@ const (
 	managerAddConfigResult  = "manager_add_config_result.gotmpl"
 	managerOAuthDeviceFlow  = "manager_oauth_device_flow.gotmpl"
 
+	assistantNoneEnabled        = "assistant_none_enabled.gotmpl"
 	assistantUpdateConfigResult = "assistant_update_config_result.gotmpl"
 
 	snippetWidthMargin = 10
@@ -195,6 +196,10 @@ func ManagerOauthDeviceFlow(host string, code string) Printable {
 		template: managerOAuthDeviceFlow,
 		data:     map[string]interface{}{"host": host, "code": code},
 	}
+}
+
+func AssistantNoneEnabled() Printable {
+	return Printable{template: assistantNoneEnabled}
 }
 
 func AssistantUpdateConfigResult(confirmed bool, cfgPath string) Printable {

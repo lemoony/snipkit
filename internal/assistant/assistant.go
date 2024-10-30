@@ -1,23 +1,28 @@
 package assistant
 
 import (
+	"emperror.dev/errors"
+
 	"github.com/lemoony/snipkit/internal/assistant/gemini"
 	"github.com/lemoony/snipkit/internal/assistant/openai"
 	"github.com/lemoony/snipkit/internal/cache"
 	"github.com/lemoony/snipkit/internal/model"
+	"github.com/lemoony/snipkit/internal/ui/uimsg"
 	"github.com/lemoony/snipkit/internal/utils/system"
 )
 
 type Assistant interface {
 	Query(string) (string, string)
+	ValidateConfig() (bool, uimsg.Printable)
 	AutoConfig(model.AssistantKey) Config
 	AssistantDescriptions(config Config) []model.AssistantDescription
 }
 
 type assistantImpl struct {
-	system   *system.System
-	config   Config
-	cache    cache.Cache
+	system *system.System
+	config Config
+	cache  cache.Cache
+
 	provider ClientProvider
 }
 
@@ -27,6 +32,15 @@ func NewBuilder(system *system.System, config Config, cache cache.Cache, options
 		o.apply(&asst)
 	}
 	return asst
+}
+
+func (a assistantImpl) ValidateConfig() (bool, uimsg.Printable) {
+	if _, err := a.provider.GetClient(a.config); errors.Is(err, ErrorNoAssistantEnabled) {
+		return false, uimsg.AssistantNoneEnabled()
+	} else if err != nil {
+		panic(err)
+	}
+	return true, uimsg.Printable{}
 }
 
 func (a assistantImpl) Query(prompt string) (string, string) {

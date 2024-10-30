@@ -14,7 +14,7 @@ type ClientProvider interface {
 type clientProviderImpl struct{}
 
 func (p clientProviderImpl) GetClient(config Config) (Client, error) {
-	key, err := config.clientKey()
+	key, err := config.ClientKey()
 	if err != nil {
 		return nil, err
 	}

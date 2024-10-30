@@ -27,6 +27,9 @@ const (
 
 func (a *appImpl) GenerateSnippetWithAssistant(demoScriptPath string, demoQueryDuration time.Duration) {
 	asst := a.assistantProviderFunc(a.config.Assistant)
+	if valid, msg := asst.ValidateConfig(); !valid {
+		a.tui.PrintAndExit(msg, -1)
+	}
 
 	if ok, text := a.tui.ShowPrompt("What do you want the script to do?"); ok {
 		stopChan := make(chan bool)

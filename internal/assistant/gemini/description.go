@@ -2,7 +2,7 @@ package gemini
 
 import "github.com/lemoony/snipkit/internal/model"
 
-const Key = model.AssistantKey("gemini")
+const Key = model.AssistantKey("Gemini")
 
 func Description(config *Config) model.AssistantDescription {
 	return model.AssistantDescription{

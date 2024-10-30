@@ -249,6 +249,7 @@ func (s *serviceImpl) Info() []model.InfoLine {
 	result := []model.InfoLine{
 		{Key: "Config path", Value: s.ConfigFilePath()},
 		{Key: "SNIPKIT_HOME", Value: stringutil.StringOrDefault(s.system.HomeEnvValue(), "Not set")},
+		{Key: "Assistant", Value: s.assistantEnabled()},
 	}
 
 	cfg, err := s.LoadConfig()
@@ -269,4 +270,12 @@ func (s *serviceImpl) updateConfigToLatest() VersionWrapper {
 	}
 
 	return result
+}
+
+func (s *serviceImpl) assistantEnabled() string {
+	if key, err := s.config.Assistant.ClientKey(); err != nil {
+		return err.Error()
+	} else {
+		return string(key)
+	}
 }

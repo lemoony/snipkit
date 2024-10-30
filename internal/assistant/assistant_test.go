@@ -10,6 +10,7 @@ import (
 	"github.com/lemoony/snipkit/internal/assistant/openai"
 	"github.com/lemoony/snipkit/internal/cache"
 	"github.com/lemoony/snipkit/internal/model"
+	"github.com/lemoony/snipkit/internal/ui/uimsg"
 	"github.com/lemoony/snipkit/internal/utils/testutil"
 	assistantMocks "github.com/lemoony/snipkit/mocks/assistant/client"
 )
@@ -65,6 +66,40 @@ func Test_AssistantDescriptions(t *testing.T) {
 	assert.False(t, descriptions[0].Enabled)
 	assert.Equal(t, gemini.Key, descriptions[1].Key)
 	assert.True(t, descriptions[1].Enabled)
+}
+
+func Test_ValidateConfig(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name          string
+		config        Config
+		expectedValid bool
+		panics        bool
+	}{
+		{"not valid", Config{}, false, false},
+		{"more than one expected", Config{OpenAI: &openai.Config{Enabled: true}, Gemini: &gemini.Config{Enabled: true}}, false, true},
+		{"valid", Config{OpenAI: &openai.Config{Enabled: true}}, true, false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			asst := assistantImpl{config: tt.config, provider: clientProviderImpl{}}
+
+			if tt.panics {
+				assert.Panics(t, func() {
+					_, _ = asst.ValidateConfig()
+				})
+			} else {
+				valid, msg := asst.ValidateConfig()
+				assert.Equal(t, tt.expectedValid, valid)
+				if !tt.expectedValid {
+					assert.Equal(t, msg, uimsg.AssistantNoneEnabled())
+				}
+			}
+		})
+	}
 }
 
 func Test_AutoConfig(t *testing.T) {

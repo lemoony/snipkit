@@ -2,7 +2,7 @@ package openai
 
 import "github.com/lemoony/snipkit/internal/model"
 
-const Key = model.AssistantKey("openai")
+const Key = model.AssistantKey("Openai")
 
 func Description(config *Config) model.AssistantDescription {
 	return model.AssistantDescription{

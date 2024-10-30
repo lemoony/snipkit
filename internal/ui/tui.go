@@ -67,6 +67,7 @@ func WithScreen(screen tcell.Screen) TUIOption {
 type TUI interface {
 	ApplyConfig(cfg Config, system *system.System)
 	Print(m uimsg.Printable)
+	PrintAndExit(uimsg.Printable, int)
 	PrintMessage(message string)
 	PrintError(message string)
 	Confirmation(confirm uimsg.Confirm, options ...confirm.Option) bool
@@ -113,6 +114,11 @@ func (t *tuiImpl) ApplyConfig(cfg Config, system *system.System) {
 
 func (t tuiImpl) Print(p uimsg.Printable) {
 	_, _ = fmt.Fprintln(t.stdio.Out, p.RenderWith(&t.styler))
+}
+
+func (t tuiImpl) PrintAndExit(p uimsg.Printable, code int) {
+	t.Print(p)
+	os.Exit(code)
 }
 
 func (t tuiImpl) PrintMessage(msg string) {

@@ -41,6 +41,7 @@ func (c *Client) Query(prompt string) (string, error) {
 		Contents:          Content{Parts: TextPart{Text: prompt}},
 		SafetySettings: []SafetySetting{
 			{Category: "HARM_CATEGORY_DANGEROUS_CONTENT", Threshold: "BLOCK_NONE"},
+			{Category: "HARM_CATEGORY_HARASSMENT", Threshold: "BLOCK_NONE"},
 		},
 	}
 

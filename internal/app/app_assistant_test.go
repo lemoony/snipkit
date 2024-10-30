@@ -42,6 +42,7 @@ echo ${FOO_KEY}
 
 	assistantMock := assistantMocks.Assistant{}
 	assistantMock.On("Query", mock.Anything).Return(exampleScript, "foo-script.sh")
+	assistantMock.On("ValidateConfig").Return(true, uimsg.Printable{})
 
 	fsLibManager := managerMocks.Manager{}
 	fsLibManager.On("Key").Return(fslibrary.Key)

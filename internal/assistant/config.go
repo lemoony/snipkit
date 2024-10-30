@@ -17,6 +17,8 @@ const (
 	noopKey = model.AssistantKey("noop")
 )
 
+var ErrorNoAssistantEnabled = errors.New("No assistant configured or enabled")
+
 type Config struct {
 	SaveMode SaveMode       `yaml:"saveMode" mapstructure:"saveMode" head_comment:"Defines if you want to save the snippets created by the assistant. Possible values: NEVER | FS_LIBRARY"`
 	OpenAI   *openai.Config `yaml:"openai,omitempty" mapstructure:"openai"`
@@ -29,15 +31,15 @@ func (c Config) moreThanOneEnabled() bool {
 	return openAIEnabled && geminiEnabled
 }
 
-func (c Config) clientKey() (model.AssistantKey, error) {
+func (c Config) ClientKey() (model.AssistantKey, error) {
 	switch {
 	case c.moreThanOneEnabled():
-		return noopKey, errors.New("Invalid config: more than one assistant is enabled.")
+		return noopKey, errors.New("Invalid config - more than one assistant is enabled")
 	case c.OpenAI != nil && c.OpenAI.Enabled:
 		return openai.Key, nil
 	case c.Gemini != nil && c.Gemini.Enabled:
 		return gemini.Key, nil
 	default:
-		return noopKey, errors.New("No assistant enabled.")
+		return noopKey, ErrorNoAssistantEnabled
 	}
 }
