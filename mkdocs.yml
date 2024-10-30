@@ -8,7 +8,7 @@ site_description: >-
 repo_name: lemoony/snipkit
 repo_url: https://github.com/lemoony/snipkit
 
-copyright: Copyright &copy; 2023 lemoony
+copyright: Copyright &copy; 2024 lemoony
 
 theme:
   name: material

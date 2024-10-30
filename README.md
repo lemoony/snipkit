@@ -49,11 +49,13 @@
 
 Inspired by [Pet](https://github.com/knqyf263/pet).
 
-### SnipKit Assistant
+### SnipKit Assistant (BETA)  🤖
 
 SnipKit Assistant lets you generate parameterized scripts based on a prompt directly from the command line:
 
 <img alt="Demo" src="./docs/images/assistant.gif" />
+
+> ⚠️ SnipKit Assistant is currently in beta for OpenAI and Gemini. A couple of improvements are already in the pipeline...
 
 ### Parameters
 

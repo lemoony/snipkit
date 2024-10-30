@@ -2,12 +2,15 @@
 
 The assistant helps you to write SnipKit snippets with the help auf AI.
 
+!!! warning
+    SnipKit Assistant is currently in beta for OpenAI and Gemini. A couple of improvements are already in the pipeline so stay tuned!
+
 ![Assistant Demo](../images/assistant.gif)
 
 ## Supported AI providers
 
 - OpenAI 
-- Gemimi 
+- Gemini
 
 ## Configuration
 
@@ -35,7 +38,7 @@ config:
       # ....
 ```
 
-!!! note
+!!! warning
     Maximal one AI provider can be set to `enabled: true`. If all providers are set to `enabled: false` the assistant won't work.
 
 ## Generate scripts
@@ -48,7 +51,9 @@ snipkit assistant generate
 snipkit ai
 ```
 
-## Save generate snippets
+SnipKit shows you the generated script in the link:../configuration/overview.md#editor[configured editor] so that you can review and, optionally, modify it. It will be executed once you close the editor.
+
+## Save generated snippets
 
 SnipKit supports saving any generated snippets to your [File System Library][fslibrary].
 
