@@ -367,7 +367,7 @@ func Test_Sync_ifNoneMatch_forSingleFile(t *testing.T) {
 
 func Test_SaveAssistantSnippet(t *testing.T) {
 	assert.PanicsWithError(t, "Not implemented", func() {
-		Manager{}.SaveAssistantSnippet("foo.sh", []byte("dummy content"))
+		Manager{}.SaveAssistantSnippet("", "foo.sh", []byte("dummy content"))
 	})
 }
 

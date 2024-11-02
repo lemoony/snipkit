@@ -11,11 +11,12 @@ import (
 	"github.com/lemoony/snipkit/internal/managers/pictarinesnip"
 	"github.com/lemoony/snipkit/internal/managers/snippetslab"
 	"github.com/lemoony/snipkit/internal/model"
+	"github.com/lemoony/snipkit/internal/ui"
 	"github.com/lemoony/snipkit/internal/utils/system"
 )
 
 type Provider interface {
-	CreateManager(system system.System, config Config) []Manager
+	CreateManager(system system.System, config Config, printer ui.MessagePrinter) []Manager
 	ManagerDescriptions(config Config) []model.ManagerDescription
 	AutoConfig(key model.ManagerKey, s *system.System) Config
 }
@@ -28,7 +29,7 @@ func NewBuilder(cache cache.Cache) Provider {
 	return providerImpl{cache: cache}
 }
 
-func (p providerImpl) CreateManager(system system.System, config Config) []Manager {
+func (p providerImpl) CreateManager(system system.System, config Config, printer ui.MessagePrinter) []Manager {
 	var managers []Manager
 
 	if manager := createSnippetsLab(system, config); manager != nil {
@@ -46,7 +47,7 @@ func (p providerImpl) CreateManager(system system.System, config Config) []Manag
 	if manager := createGitHubGist(system, config, p.cache); manager != nil {
 		managers = append(managers, manager)
 	}
-	if manager := createFSLibrary(system, config); manager != nil {
+	if manager := createFSLibrary(system, config, printer); manager != nil {
 		managers = append(managers, manager)
 	}
 
@@ -161,11 +162,15 @@ func createGitHubGist(system system.System, config Config, cache cache.Cache) Ma
 	return manager
 }
 
-func createFSLibrary(system system.System, config Config) Manager {
+func createFSLibrary(system system.System, config Config, printer ui.MessagePrinter) Manager {
 	if config.FsLibrary == nil || !config.FsLibrary.Enabled {
 		return nil
 	}
-	manager, err := fslibrary.NewManager(fslibrary.WithSystem(&system), fslibrary.WithConfig(*config.FsLibrary))
+	manager, err := fslibrary.NewManager(
+		fslibrary.WithSystem(&system),
+		fslibrary.WithConfig(*config.FsLibrary),
+		fslibrary.WithPrinter(printer),
+	)
 	if err != nil {
 		panic(err)
 	}

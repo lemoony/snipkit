@@ -2,15 +2,11 @@ package gemini
 
 type Request struct {
 	SystemInstruction Instruction     `json:"system_instruction"`
-	Contents          Content         `json:"contents"`
+	Contents          []ContentParts  `json:"contents"`
 	SafetySettings    []SafetySetting `json:"safetySettings"`
 }
 
 type Instruction struct {
-	Parts TextPart `json:"parts"`
-}
-
-type Content struct {
 	Parts TextPart `json:"parts"`
 }
 
@@ -28,6 +24,7 @@ type Candidate struct {
 }
 
 type ContentParts struct {
+	Role  string     `json:"role"`
 	Parts []TextPart `json:"parts"`
 }
 

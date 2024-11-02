@@ -10,6 +10,7 @@ import (
 	"github.com/lemoony/snipkit/internal/config/configtest"
 	"github.com/lemoony/snipkit/internal/managers"
 	"github.com/lemoony/snipkit/internal/managers/fslibrary"
+	"github.com/lemoony/snipkit/internal/ui/assistant/wizard"
 	"github.com/lemoony/snipkit/internal/ui/picker"
 	"github.com/lemoony/snipkit/internal/ui/uimsg"
 	"github.com/lemoony/snipkit/internal/utils/testutil/mockutil"
@@ -19,21 +20,26 @@ import (
 	uiMocks "github.com/lemoony/snipkit/mocks/ui"
 )
 
-func Test_App_GenerateSnippetWithAssistant(t *testing.T) {
+func Test_App_GenerateSnippetWithAssistant_SaveExit(t *testing.T) {
+	const exampleFile = "echo-foo.sh"
 	const exampleScript = `
 #!/bin/bash
+#
+# Echo foo
+#
 # ${PARAM} Key: FOO_KEY
 echo ${FOO_KEY}
 `
 
 	tui := uiMocks.TUI{}
 	tui.On(mockutil.ApplyConfig, mock.Anything, mock.Anything).Return()
-	tui.On(mockutil.ShowPrompt, mock.Anything).Return(true, "foo prompt")
-	tui.On(mockutil.ShowSpinner, "foo prompt", mock.AnythingOfType("chan bool")).Return().Run(func(args mock.Arguments) {
+	tui.On(mockutil.ShowAssistantPrompt, []string{}).Return(true, "foo prompt")
+	tui.On(mockutil.ShowAssistantWizard, mock.Anything).Return(wizard.Result{SelectedOption: wizard.OptionSaveExit, Filename: exampleFile})
+	tui.On(mockutil.ShowSpinner, "Please wait, generating script...", mock.AnythingOfType("chan bool")).Return().Run(func(args mock.Arguments) {
 		go func() { <-(args[1].(chan bool)) }()
 	})
 	tui.On(mockutil.OpenEditor, mock.Anything, mock.Anything).Return()
-	tui.On(mockutil.ShowParameterForm, mock.Anything, mock.Anything, mock.Anything).Return([]string{"hello world", saveYes}, true)
+	tui.On(mockutil.ShowParameterForm, mock.Anything, mock.Anything, mock.Anything).Return([]string{"hello world"}, true)
 
 	cfg := configtest.NewTestConfig().Config
 	cfgService := configMocks.ConfigService{}
@@ -41,15 +47,15 @@ echo ${FOO_KEY}
 	cfgService.On("NeedsMigration").Return(false, "")
 
 	assistantMock := assistantMocks.Assistant{}
-	assistantMock.On("Query", mock.Anything).Return(exampleScript, "foo-script.sh")
-	assistantMock.On("ValidateConfig").Return(true, uimsg.Printable{})
+	assistantMock.On("Query", mock.Anything).Return(exampleScript, exampleFile)
+	assistantMock.On("Initialize").Return(true, uimsg.Printable{})
 
 	fsLibManager := managerMocks.Manager{}
 	fsLibManager.On("Key").Return(fslibrary.Key)
-	fsLibManager.On(mockutil.SaveAssistantSnippet, mock.Anything, mock.Anything).Return("/path", "foo-script.sh")
+	fsLibManager.On(mockutil.SaveAssistantSnippet, mock.Anything, mock.Anything, mock.Anything).Return("/path", exampleFile)
 
 	provider := managerMocks.Provider{}
-	provider.On("CreateManager", mock.Anything, mock.Anything).Return([]managers.Manager{&fsLibManager}, nil)
+	provider.On("CreateManager", mock.Anything, mock.Anything, &tui).Return([]managers.Manager{&fsLibManager}, nil)
 
 	app := NewApp(
 		WithTUI(&tui),
@@ -62,7 +68,47 @@ echo ${FOO_KEY}
 
 	app.GenerateSnippetWithAssistant("", 0)
 
-	fsLibManager.AssertCalled(t, mockutil.SaveAssistantSnippet, "foo-script.sh", []byte(exampleScript))
+	fsLibManager.AssertCalled(t, mockutil.SaveAssistantSnippet, "Echo foo", exampleFile, []byte(exampleScript))
+}
+
+func Test_App_GenerateSnippetWithAssistant_TweakPrompt_DontSave(t *testing.T) {
+	const prompt1 = "prompt 1"
+	const prompt2 = "The result of the command was: \n\n\nprompt 2"
+	const exampleFile1 = "echo-foo-1.sh"
+	const exampleFile2 = "echo-foo-2.sh"
+	const exampleScript1 = `#!/bin/bash echo one`
+	const exampleScript2 = `#!/bin/bash echo two`
+
+	tui := uiMocks.TUI{}
+	tui.On(mockutil.ApplyConfig, mock.Anything, mock.Anything).Return()
+	tui.On(mockutil.ShowAssistantPrompt, []string{}).Return(true, prompt1)
+	tui.On(mockutil.ShowAssistantPrompt, []string{prompt1}).Return(true, prompt2)
+	tui.On(mockutil.ShowAssistantWizard, wizard.Config{ProposedFilename: exampleFile1}).Return(wizard.Result{SelectedOption: wizard.OptionTryAgain})
+	tui.On(mockutil.ShowAssistantWizard, wizard.Config{ProposedFilename: exampleFile2}).Return(wizard.Result{SelectedOption: wizard.OptionDontSaveExit})
+	tui.On(mockutil.ShowSpinner, "Please wait, generating script...", mock.AnythingOfType("chan bool")).Return().Run(func(args mock.Arguments) {
+		go func() { <-(args[1].(chan bool)) }()
+	})
+	tui.On(mockutil.OpenEditor, mock.Anything, mock.Anything).Return()
+
+	cfg := configtest.NewTestConfig().Config
+	cfgService := configMocks.ConfigService{}
+	cfgService.On("LoadConfig").Return(cfg, nil)
+	cfgService.On("NeedsMigration").Return(false, "")
+
+	assistantMock := assistantMocks.Assistant{}
+	assistantMock.On(mockutil.Query, prompt1).Return(exampleScript1, exampleFile1)
+	assistantMock.On(mockutil.Query, mock.Anything).Return(exampleScript2, exampleFile2)
+	assistantMock.On(mockutil.ValidateConfig).Return(true, uimsg.Printable{})
+
+	app := NewApp(
+		WithTUI(&tui),
+		WithConfigService(&cfgService),
+		WithAssistantProviderFunc(func(config assistant.Config) assistant.Assistant {
+			return &assistantMock
+		}),
+	)
+
+	app.GenerateSnippetWithAssistant("", 0)
 }
 
 func Test_App_EnableAssistant(t *testing.T) {

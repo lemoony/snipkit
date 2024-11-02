@@ -84,7 +84,7 @@ func (m *Manager) GetSnippets() []model.Snippet {
 	return parseLibrary(m.config.LibraryPath, m.system, &tags)
 }
 
-func (m Manager) SaveAssistantSnippet(filename string, contents []byte) {
+func (m Manager) SaveAssistantSnippet(snippetTitle string, filename string, contents []byte) {
 	panic(errors.New("Not implemented"))
 }
 

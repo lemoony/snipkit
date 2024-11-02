@@ -12,6 +12,7 @@ import (
 	"github.com/lemoony/snipkit/internal/model"
 	"github.com/lemoony/snipkit/internal/ui/uimsg"
 	"github.com/lemoony/snipkit/internal/utils/testutil"
+	"github.com/lemoony/snipkit/internal/utils/testutil/mockutil"
 	assistantMocks "github.com/lemoony/snipkit/mocks/assistant/client"
 )
 
@@ -31,7 +32,7 @@ func Test_AssistantImpl_Query(t *testing.T) {
 	}
 
 	clientMock := assistantMocks.NewClient(t)
-	clientMock.On("Query", mock.Anything).Return(`#!/bin/sh
+	clientMock.On(mockutil.Query, mock.Anything).Return(`#!/bin/sh
 #
 # Simple script
 # Filename: simple-script.sh
@@ -42,15 +43,17 @@ echo "foo"`, nil)
 	providerMock.On("GetClient", mock.Anything).Return(clientMock, nil)
 
 	assistant := NewBuilder(sys, cfg, cache.New(sys), withClientProvider(&providerMock))
+	if ok, _ := assistant.Initialize(); !ok {
+		assert.Fail(t, "assistant failed to initialize")
+	}
 
-	// Assuming that the openai.NewClient and gemini.NewClient are mocked to return test clients.
-	result1, result2 := assistant.Query("test prompt")
+	script, filename := assistant.Query("test prompt")
 	assert.Equal(t, `#!/bin/sh
 #
 # Simple script
 #
-echo "foo"`, result1)
-	assert.Equal(t, "simple-script.sh", result2)
+echo "foo"`, script)
+	assert.Equal(t, "simple-script.sh", filename)
 }
 
 func Test_AssistantDescriptions(t *testing.T) {
@@ -89,10 +92,10 @@ func Test_ValidateConfig(t *testing.T) {
 
 			if tt.panics {
 				assert.Panics(t, func() {
-					_, _ = asst.ValidateConfig()
+					_, _ = asst.Initialize()
 				})
 			} else {
-				valid, msg := asst.ValidateConfig()
+				valid, msg := asst.Initialize()
 				assert.Equal(t, tt.expectedValid, valid)
 				if !tt.expectedValid {
 					assert.Equal(t, msg, uimsg.AssistantNoneEnabled())

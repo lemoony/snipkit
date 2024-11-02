@@ -90,7 +90,7 @@ func (m *Manager) Sync(model.SyncEventChannel) {
 	// do nothing
 }
 
-func (m Manager) SaveAssistantSnippet(filename string, contents []byte) {
+func (m Manager) SaveAssistantSnippet(snippetTitle string, filename string, contents []byte) {
 	panic(errors.New("Not implemented"))
 }
 

@@ -1,7 +1,9 @@
 package termtest
 
 import (
+	"bytes"
 	"fmt"
+	"strings"
 	"testing"
 	"time"
 
@@ -30,6 +32,30 @@ const (
 	defaultTestTimeout   = time.Second * 5
 )
 
+// AnsiStringMatcher fulfills the Matcher interface to match strings against a given
+// bytes.Buffer.
+type AnsiStringMatcher struct {
+	str string
+}
+
+func (sm *AnsiStringMatcher) Match(v interface{}) bool {
+	buf, ok := v.(*bytes.Buffer)
+	if !ok {
+		return false
+	}
+
+	cleanedBufStr := buf.String()
+	// cleanedBufStr := ansi.Strip(buf.String())
+	if strings.Contains(cleanedBufStr, "Snip") {
+		fmt.Print("x")
+	}
+	return strings.Contains(cleanedBufStr, sm.str)
+}
+
+func (sm *AnsiStringMatcher) Criteria() interface{} {
+	return sm.str
+}
+
 func (k Key) Str() string {
 	return string(k)
 }
@@ -40,8 +66,20 @@ type Console struct {
 }
 
 func (c *Console) ExpectString(val string) {
+	// _, err := c.c.Expect(AnsiString(val))
 	_, err := c.c.ExpectString(val)
 	assert.NoError(c.t, err)
+}
+
+func AnsiString(strs ...string) expect.ExpectOpt {
+	return func(opts *expect.ExpectOpts) error {
+		for _, str := range strs {
+			opts.Matchers = append(opts.Matchers, &AnsiStringMatcher{
+				str: str,
+			})
+		}
+		return nil
+	}
 }
 
 func (c *Console) SendKey(val Key) {

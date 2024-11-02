@@ -85,7 +85,7 @@ func Test_NewAppNoManagers(t *testing.T) {
 	tui.On(mockutil.ApplyConfig, mock.AnythingOfType("ui.Config"), mock.Anything).Return()
 
 	provider := managerMocks.Provider{}
-	provider.On("CreateManager", mock.Anything, mock.Anything).Return([]managers.Manager{}, nil)
+	provider.On("CreateManager", mock.Anything, mock.Anything, mock.Anything).Return([]managers.Manager{}, nil)
 
 	app := NewApp(
 		WithConfigService(config.NewService(config.WithViper(v))),

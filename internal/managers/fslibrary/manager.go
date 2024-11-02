@@ -10,6 +10,8 @@ import (
 	"github.com/spf13/afero"
 
 	"github.com/lemoony/snipkit/internal/model"
+	"github.com/lemoony/snipkit/internal/ui"
+	"github.com/lemoony/snipkit/internal/ui/uimsg"
 	"github.com/lemoony/snipkit/internal/utils/idutil"
 	"github.com/lemoony/snipkit/internal/utils/system"
 )
@@ -26,6 +28,7 @@ type Manager struct {
 	system      *system.System
 	config      Config
 	suffixRegex []*regexp.Regexp
+	printer     ui.MessagePrinter
 }
 
 // Option configures a Manager.
@@ -53,6 +56,12 @@ func WithConfig(config Config) Option {
 	})
 }
 
+func WithPrinter(printer ui.MessagePrinter) Option {
+	return optionFunc(func(p *Manager) {
+		p.printer = printer
+	})
+}
+
 func NewManager(options ...Option) (*Manager, error) {
 	manager := &Manager{}
 	for _, o := range options {
@@ -66,11 +75,12 @@ func (m Manager) Key() model.ManagerKey {
 	return Key
 }
 
-func (m Manager) SaveAssistantSnippet(filename string, contents []byte) {
+func (m Manager) SaveAssistantSnippet(snippetTitle string, filename string, contents []byte) {
 	dirPath := m.config.LibraryPath[m.config.AssistantLibraryPathIndex]
 	if file, err := filepath.Abs(filepath.Join(dirPath, filename)); err == nil {
 		m.system.CreatePath(file)
 		m.system.WriteFile(file, contents)
+		m.printer.Print(uimsg.AssistantSnippetSaved(snippetTitle, file))
 	} else {
 		panic(err)
 	}

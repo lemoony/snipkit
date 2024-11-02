@@ -15,10 +15,11 @@ import (
 	"github.com/spf13/afero"
 
 	"github.com/lemoony/snipkit/internal/model"
+	"github.com/lemoony/snipkit/internal/ui/assistant/prompt"
+	"github.com/lemoony/snipkit/internal/ui/assistant/wizard"
 	"github.com/lemoony/snipkit/internal/ui/confirm"
 	"github.com/lemoony/snipkit/internal/ui/form"
 	"github.com/lemoony/snipkit/internal/ui/picker"
-	"github.com/lemoony/snipkit/internal/ui/prompt"
 	"github.com/lemoony/snipkit/internal/ui/spinner"
 	"github.com/lemoony/snipkit/internal/ui/style"
 	"github.com/lemoony/snipkit/internal/ui/sync"
@@ -76,7 +77,8 @@ type TUI interface {
 	ShowParameterForm(parameters []model.Parameter, values []model.ParameterValue, okButton OkButton) ([]string, bool)
 	ShowPicker(title string, items []picker.Item, selectedItem *picker.Item, options ...tea.ProgramOption) (int, bool)
 	ShowSync() sync.Screen
-	ShowPrompt(placeholder string) (bool, string)
+	ShowAssistantPrompt([]string) (bool, string)
+	ShowAssistantWizard(config wizard.Config) wizard.Result
 	ShowSpinner(string, chan bool)
 }
 
@@ -199,8 +201,12 @@ func (t tuiImpl) ShowSync() sync.Screen {
 	)
 }
 
-func (t tuiImpl) ShowPrompt(placeholder string) (bool, string) {
-	return prompt.ShowPrompt(placeholder, tea.WithInput(t.stdio.In), tea.WithOutput(t.stdio.Out))
+func (t tuiImpl) ShowAssistantPrompt(history []string) (bool, string) {
+	return prompt.ShowPrompt(prompt.Config{History: history}, tea.WithInput(t.stdio.In), tea.WithOutput(t.stdio.Out))
+}
+
+func (t tuiImpl) ShowAssistantWizard(config wizard.Config) wizard.Result {
+	return wizard.ShowAssistantWizard(config)
 }
 
 func (t tuiImpl) ShowSpinner(text string, stop chan bool) {

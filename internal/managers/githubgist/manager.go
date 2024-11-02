@@ -129,7 +129,7 @@ func (m *Manager) Sync(events model.SyncEventChannel) {
 	log.Trace().Msg("github gist sync finished")
 }
 
-func (m Manager) SaveAssistantSnippet(filename string, contents []byte) {
+func (m Manager) SaveAssistantSnippet(snippetTitle string, filename string, contents []byte) {
 	panic(errors.New("Not implemented"))
 }
 

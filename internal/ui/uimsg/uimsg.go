@@ -42,6 +42,7 @@ const (
 
 	assistantNoneEnabled        = "assistant_none_enabled.gotmpl"
 	assistantUpdateConfigResult = "assistant_update_config_result.gotmpl"
+	assistantSnippetSaved       = "assistant_snippet_saved.gotmpl"
 
 	snippetWidthMargin = 10
 )
@@ -206,6 +207,13 @@ func AssistantUpdateConfigResult(confirmed bool, cfgPath string) Printable {
 	return Printable{
 		template: assistantUpdateConfigResult,
 		data:     map[string]interface{}{"confirmed": confirmed, "cfgPath": cfgPath},
+	}
+}
+
+func AssistantSnippetSaved(title, path string) Printable {
+	return Printable{
+		template: assistantSnippetSaved,
+		data:     map[string]interface{}{"snippetTitle": title, "snippetPath": path},
 	}
 }
 

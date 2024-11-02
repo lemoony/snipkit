@@ -12,8 +12,8 @@ import (
 )
 
 type Assistant interface {
+	Initialize() (bool, uimsg.Printable)
 	Query(string) (string, string)
-	ValidateConfig() (bool, uimsg.Printable)
 	AutoConfig(model.AssistantKey) Config
 	AssistantDescriptions(config Config) []model.AssistantDescription
 }
@@ -23,6 +23,7 @@ type assistantImpl struct {
 	config Config
 	cache  cache.Cache
 
+	client   Client
 	provider ClientProvider
 }
 
@@ -31,39 +32,36 @@ func NewBuilder(system *system.System, config Config, cache cache.Cache, options
 	for _, o := range options {
 		o.apply(&asst)
 	}
-	return asst
+	return &asst
 }
 
-func (a assistantImpl) ValidateConfig() (bool, uimsg.Printable) {
-	if _, err := a.provider.GetClient(a.config); errors.Is(err, ErrorNoAssistantEnabled) {
+func (a *assistantImpl) Initialize() (bool, uimsg.Printable) {
+	if c, err := a.provider.GetClient(a.config); errors.Is(err, ErrorNoAssistantEnabled) {
 		return false, uimsg.AssistantNoneEnabled()
 	} else if err != nil {
 		panic(err)
+	} else {
+		a.client = c
 	}
 	return true, uimsg.Printable{}
 }
 
-func (a assistantImpl) Query(prompt string) (string, string) {
-	client, err := a.provider.GetClient(a.config)
-	if err != nil {
-		panic(err)
-	}
-
-	response, err := client.Query(prompt)
+func (a *assistantImpl) Query(prompt string) (string, string) {
+	response, err := a.client.Query(prompt)
 	if err != nil {
 		panic(err)
 	}
 	return extractBashScript(response)
 }
 
-func (a assistantImpl) AssistantDescriptions(config Config) []model.AssistantDescription {
+func (a *assistantImpl) AssistantDescriptions(config Config) []model.AssistantDescription {
 	return []model.AssistantDescription{
 		openai.Description(config.OpenAI),
 		gemini.Description(config.Gemini),
 	}
 }
 
-func (a assistantImpl) AutoConfig(key model.AssistantKey) Config {
+func (a *assistantImpl) AutoConfig(key model.AssistantKey) Config {
 	result := a.config
 	if key == openai.Key {
 		updated := openai.AutoDiscoveryConfig(a.config.OpenAI)

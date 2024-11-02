@@ -1,6 +1,8 @@
 package app
 
 import (
+	"bytes"
+	"io"
 	"os"
 	"os/exec"
 	"strings"
@@ -16,6 +18,11 @@ import (
 )
 
 const fallbackShell = "/bin/bash"
+
+type capturedOutput struct {
+	stdout string
+	stderr string
+}
 
 func (a *appImpl) LookupAndExecuteSnippet(confirm, print bool) {
 	if ok, snippet := a.LookupSnippet(); ok {
@@ -60,11 +67,11 @@ func matchParameters(paramValues []model.ParameterValue, snippetParameters []mod
 	return found == len(snippetParameters), result
 }
 
-func (a *appImpl) executeSnippet(confirm bool, print bool, snippet model.Snippet, parameterValues []string) {
+func (a *appImpl) executeSnippet(confirm bool, print bool, snippet model.Snippet, parameterValues []string) (bool, *capturedOutput) {
 	script := snippet.Format(parameterValues, formatOptions(a.config.Script))
 
 	if (confirm || a.config.Script.ExecConfirm) && !a.tui.Confirmation(uimsg.ExecConfirm(snippet.GetTitle(), script)) {
-		return
+		return false, nil
 	}
 
 	log.Trace().Msg(script)
@@ -72,17 +79,24 @@ func (a *appImpl) executeSnippet(confirm bool, print bool, snippet model.Snippet
 		a.tui.Print(uimsg.ExecPrint(snippet.GetTitle(), script))
 	}
 
-	executeScript(script, a.config.Script.Shell)
+	return true, executeScript(script, a.config.Script.Shell)
 }
 
-func executeScript(script, configuredShell string) {
+func executeScript(script, configuredShell string) *capturedOutput {
 	shell := stringutil.FirstNotEmpty(configuredShell, os.Getenv("SHELL"), fallbackShell)
+
+	// Create buffers to capture stdout and stderr
+	var stdoutBuf, stderrBuf bytes.Buffer
+
+	// Create MultiWriters to write to both os.Stdout/os.Stderr and capture buffers
+	stdoutWriter := io.MultiWriter(os.Stdout, &stdoutBuf)
+	stderrWriter := io.MultiWriter(os.Stderr, &stderrBuf)
 
 	//nolint:gosec // since it would report G204 complaining about using a variable as input for exec.Command
 	cmd := exec.Command(shell, "-c", script)
 	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+	cmd.Stdout = stdoutWriter
+	cmd.Stderr = stderrWriter
 
 	err := cmd.Start()
 	if err != nil {
@@ -91,6 +105,11 @@ func executeScript(script, configuredShell string) {
 
 	if err = cmd.Wait(); err != nil {
 		log.Info().Err(err)
+	}
+
+	return &capturedOutput{
+		stdout: stdoutBuf.String(),
+		stderr: stderrBuf.String(),
 	}
 }
 

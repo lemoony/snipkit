@@ -1,6 +1,8 @@
 package testutil
 
 import (
+	"fmt"
+
 	"github.com/lemoony/snipkit/internal/model"
 	"github.com/lemoony/snipkit/internal/parser"
 )
@@ -45,5 +47,5 @@ func (t TestSnippet) Format(values []string, options model.SnippetFormatOptions)
 }
 
 func (t TestSnippet) String() string {
-	panic("implement me")
+	return fmt.Sprintf("Testsnippet: %s", t.Title)
 }

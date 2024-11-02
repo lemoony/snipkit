@@ -141,7 +141,7 @@ func NewApp(options ...Option) App {
 	}
 
 	app.tui.ApplyConfig(app.config.Style, system)
-	app.managers = app.provider.CreateManager(*app.system, app.config.Manager)
+	app.managers = app.provider.CreateManager(*app.system, app.config.Manager, app.tui)
 
 	return app
 }

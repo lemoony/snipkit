@@ -16,8 +16,9 @@ import (
 )
 
 type Client struct {
-	config     Config
-	httpClient httputil.HTTPClient
+	config       Config
+	httpClient   httputil.HTTPClient
+	contentParts []ContentParts
 }
 
 func NewClient(options ...Option) (*Client, error) {
@@ -36,9 +37,29 @@ func (c *Client) Query(prompt string) (string, error) {
 		return "", err
 	}
 
+	reqBody, err := c.prepareRequest(prompt)
+	if err != nil {
+		return "", err
+	}
+
+	resp, err := c.sendRequest(apiKey, reqBody)
+	if err != nil {
+		return "", err
+	}
+	defer func() { _ = resp.Body.Close() }()
+
+	return c.handleResponse(resp)
+}
+
+func (c *Client) prepareRequest(prompt string) ([]byte, error) {
+	c.contentParts = append(c.contentParts, ContentParts{
+		Role:  "user",
+		Parts: []TextPart{{Text: prompt}},
+	})
+
 	reqBody := Request{
 		SystemInstruction: Instruction{Parts: TextPart{Text: prompts.DefaultPrompt}},
-		Contents:          Content{Parts: TextPart{Text: prompt}},
+		Contents:          c.contentParts,
 		SafetySettings: []SafetySetting{
 			{Category: "HARM_CATEGORY_DANGEROUS_CONTENT", Threshold: "BLOCK_NONE"},
 			{Category: "HARM_CATEGORY_HARASSMENT", Threshold: "BLOCK_NONE"},
@@ -47,9 +68,13 @@ func (c *Client) Query(prompt string) (string, error) {
 
 	jsonBody, err := json.Marshal(reqBody)
 	if err != nil {
-		return "", errors.Wrap(err, "Error marshaling request body")
+		return nil, errors.Wrap(err, "Error marshaling request body")
 	}
 
+	return jsonBody, nil
+}
+
+func (c *Client) sendRequest(apiKey string, jsonBody []byte) (*http.Response, error) {
 	req, err := http.NewRequestWithContext(
 		context.Background(),
 		"POST",
@@ -57,19 +82,20 @@ func (c *Client) Query(prompt string) (string, error) {
 		bytes.NewBuffer(jsonBody),
 	)
 	if err != nil {
-		return "", errors.Wrap(err, "Error creating request")
+		return nil, errors.Wrap(err, "Error creating request")
 	}
 
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		return "", errors.Wrap(err, "Error making request")
+		return nil, errors.Wrap(err, "Error making request")
 	}
-	defer func() {
-		_ = resp.Body.Close()
-	}()
 
+	return resp, nil
+}
+
+func (c *Client) handleResponse(resp *http.Response) (string, error) {
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", errors.Wrap(err, "Error reading response body")
@@ -85,6 +111,7 @@ func (c *Client) Query(prompt string) (string, error) {
 	}
 
 	if len(googleAIResp.Candidates) > 0 && len(googleAIResp.Candidates[0].Content.Parts) > 0 {
+		c.contentParts = append(c.contentParts, googleAIResp.Candidates[0].Content)
 		return googleAIResp.Candidates[0].Content.Parts[0].Text, nil
 	}
 
