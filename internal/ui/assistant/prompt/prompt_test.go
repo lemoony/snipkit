@@ -15,6 +15,7 @@ func TestShowPrompt_WithHistory(t *testing.T) {
 	config := Config{History: history}
 
 	termtest.RunTerminalTest(t, func(c *termtest.Console) {
+		// TODO fix
 		// c.ExpectString("SnipKit Assistant")
 		// c.ExpectString("[1] previous prompt 1")
 		// c.ExpectString("[2] previous prompt 2")

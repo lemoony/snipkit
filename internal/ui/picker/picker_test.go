@@ -13,8 +13,7 @@ import (
 
 func Test_ShowPicker(t *testing.T) {
 	termtest.RunTerminalTest(t, func(c *termtest.Console) {
-		// TODO fix
-		// c.ExpectString("Which snippet manager should be added to your configuration")
+		c.ExpectString("Which snippet manager should be added to your configuration")
 		c.SendKey(termtest.KeyDown)
 		c.SendKey(termtest.KeyDown)
 		c.SendKey(termtest.KeyUp)
@@ -43,8 +42,7 @@ func Test_ShowPicker_Cancel(t *testing.T) {
 		tt := tests[i]
 		t.Run(tt.name, func(t *testing.T) {
 			termtest.RunTerminalTest(t, func(c *termtest.Console) {
-				// TODO fix
-				// c.ExpectString("Which snippet manager should be added to your configuration")
+				c.ExpectString("Which snippet manager should be added to your configuration")
 				c.SendKey(tt.key)
 			}, func(stdio termutil.Stdio) {
 				index, ok := ShowPicker("Which snippet manager should be added to your configuration",

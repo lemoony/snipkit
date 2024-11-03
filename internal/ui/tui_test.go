@@ -196,8 +196,7 @@ func Test_ShowSync(t *testing.T) {
 
 func Test_ShowPicker(t *testing.T) {
 	termtest.RunTerminalTest(t, func(c *termtest.Console) {
-		// TODO fix
-		// c.ExpectString("Which item to choose?")
+		c.ExpectString("Which item to choose?")
 		c.SendKey(termtest.KeyDown)
 		c.SendKey(termtest.KeyDown)
 		c.SendKey(termtest.KeyUp)
