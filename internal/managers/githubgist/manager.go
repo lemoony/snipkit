@@ -70,12 +70,13 @@ func (m *Manager) GetSnippets() []model.Snippet {
 
 	if cacheStore := m.getStoreFromCache(); cacheStore != nil {
 		for _, gstore := range cacheStore.Gists {
-			gistConfig := m.config.getGistConfig(gstore.URL)
-			validTags := stringutil.NewStringSet(gistConfig.IncludeTags)
-			for _, raw := range gstore.RawSnippets {
-				snippet := parseSnippet(raw, *gistConfig)
-				if tagutil.HasValidTag(validTags, snippet.GetTags()) {
-					result = append(result, parseSnippet(raw, *gistConfig))
+			if gistConfig := m.config.getGistConfig(gstore.URL); gistConfig != nil {
+				validTags := stringutil.NewStringSet(gistConfig.IncludeTags)
+				for _, raw := range gstore.RawSnippets {
+					snippet := parseSnippet(raw, *gistConfig)
+					if tagutil.HasValidTag(validTags, snippet.GetTags()) {
+						result = append(result, parseSnippet(raw, *gistConfig))
+					}
 				}
 			}
 		}

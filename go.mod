@@ -10,8 +10,8 @@ require (
 	github.com/alecthomas/chroma v0.10.0
 	github.com/atotto/clipboard v0.1.4
 	github.com/charmbracelet/bubbles v0.18.0
-	github.com/charmbracelet/bubbletea v1.1.2
-	github.com/charmbracelet/lipgloss v0.13.0
+	github.com/charmbracelet/bubbletea v1.1.0
+	github.com/charmbracelet/lipgloss v1.0.0
 	github.com/cli/oauth v1.0.1
 	github.com/corbym/gocrest v1.1.1
 	github.com/creack/pty v1.1.21
@@ -40,7 +40,7 @@ require (
 require (
 	github.com/alessio/shellescape v1.4.2 // indirect
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
-	github.com/charmbracelet/x/ansi v0.4.0 // indirect
+	github.com/charmbracelet/x/ansi v0.4.2 // indirect
 	github.com/charmbracelet/x/term v0.2.0 // indirect
 	github.com/cli/browser v1.3.0 // indirect
 	github.com/danieljoos/wincred v1.2.2 // indirect
