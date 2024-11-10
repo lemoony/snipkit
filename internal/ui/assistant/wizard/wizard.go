@@ -1,17 +1,21 @@
 package wizard
 
 import (
-	"fmt"
+	"strings"
 
+	"github.com/charmbracelet/bubbles/list"
+	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/huh"
+	"github.com/charmbracelet/lipgloss"
 
+	"github.com/lemoony/snipkit/internal/ui/style"
 	"github.com/lemoony/snipkit/internal/utils/stringutil"
 )
 
-type Option int
-
-type formStep int
+type (
+	Option   int
+	formStep int
+)
 
 const (
 	OptionNone         = Option(0)
@@ -33,99 +37,139 @@ type Result struct {
 }
 
 type formModel struct {
-	selectionForm   *huh.Form
-	filenameForm    *huh.Form
 	initialFilename string
 
 	quitting bool
+	success  bool
 	option   Option
 	filename string
 	step     formStep
+	list     list.Model
+	styler   style.Style
+	input    textinput.Model
 }
 
-func ShowAssistantWizard(config Config) Result {
-	// TODO write test
-
-	m := newModel(config)
+func ShowAssistantWizard(config Config, styler style.Style) (bool, Result) {
+	m := newModel(config, styler)
 
 	teaModel, err := tea.NewProgram(m).Run()
 	if err != nil {
-		return Result{SelectedOption: OptionDontSaveExit}
+		return false, Result{SelectedOption: OptionDontSaveExit}
 	}
 
 	model := teaModel.(*formModel)
-	return Result{
+
+	return model.success, Result{
 		SelectedOption: model.option,
 		Filename:       stringutil.StringOrDefault(model.filename, model.initialFilename),
 	}
 }
 
-func newModel(config Config) *formModel {
-	model := &formModel{
+func newModel(config Config, styler style.Style) *formModel {
+	items := []list.Item{
+		listItem{title: "Tweak prompt and/or try again", option: OptionTryAgain},
+		listItem{title: "Exit & Save", option: OptionSaveExit},
+		listItem{title: "Exit & Don't save", option: OptionDontSaveExit},
+	}
+
+	styls := list.NewDefaultItemStyles()
+	styls.SelectedTitle = lipgloss.NewStyle().
+		SetString(">").
+		Border(lipgloss.ThickBorder(), false, false, false, true).
+		BorderForeground(styler.BorderColor().Value()).
+		Foreground(styler.ActiveColor().Value()).
+		PaddingLeft(1)
+
+	styls.NormalTitle = lipgloss.NewStyle().SetString(" ").
+		Border(lipgloss.ThickBorder(), false, false, false, true).
+		BorderForeground(styler.BorderColor().Value()).
+		PaddingLeft(1)
+
+	l := list.New(items, list.DefaultDelegate{
+		ShowDescription: false,
+		Styles:          styls,
+	}, 0, 15)
+
+	l.SetSize(32, 5)
+
+	l.SetShowTitle(false)
+	l.SetShowFilter(false)
+	l.SetShowPagination(false)
+	l.SetShowStatusBar(false)
+	l.SetFilteringEnabled(false)
+
+	input := textinput.New()
+	input.Placeholder = "Type in filename..."
+	input.SetValue(config.ProposedFilename)
+	input.Focus()
+	input.CharLimit = 256
+	input.Width = 30
+	input.PromptStyle = lipgloss.NewStyle().Foreground(styler.ActiveColor().Value())
+	input.Cursor.Style = lipgloss.NewStyle().Foreground(styler.HighlightColor().Value())
+	input.PromptStyle = lipgloss.NewStyle().
+		Border(lipgloss.ThickBorder(), false, false, false, true).
+		BorderForeground(styler.BorderColor().Value()).
+		Foreground(styler.ActiveColor().Value()).
+		PaddingLeft(1)
+
+	return &formModel{
 		option:          OptionNone,
 		step:            formStepSelectOption,
 		filename:        config.ProposedFilename,
 		initialFilename: config.ProposedFilename,
+		list:            l,
+		styler:          styler,
+		input:           input,
 	}
-
-	// Create selection form
-	s := huh.NewSelect[Option]().
-		Title("The snippet was executed. What now?").
-		Options(
-			huh.NewOption("Try again and/or tweak prompt", OptionTryAgain),
-			huh.NewOption("Exit & Save", OptionSaveExit),
-			huh.NewOption("Exit & Don't save", OptionDontSaveExit),
-		).
-		Value(&model.option)
-
-	model.selectionForm = huh.NewForm(huh.NewGroup(s))
-
-	// Create filename form
-	f := huh.NewInput().
-		Title("Snippet filename:").
-		Placeholder("Type in filename...").
-		Value(&model.filename)
-
-	model.filenameForm = huh.NewForm(huh.NewGroup(f))
-
-	return model
 }
 
 func (m *formModel) Init() tea.Cmd {
-	return m.selectionForm.Init()
+	return m.list.StartSpinner()
 }
 
 func (m *formModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch m.step {
 	case formStepSelectOption:
-		form, cmd := m.selectionForm.Update(msg)
-		if f, ok := form.(*huh.Form); ok {
-			m.selectionForm = f
-		}
+		var cmd tea.Cmd
+		m.list, cmd = m.list.Update(msg)
 
-		if m.selectionForm.State == huh.StateCompleted {
-			if m.option == OptionSaveExit {
-				// Move to filename step
-				m.step = formStepEnterFilename
-				return m, m.filenameForm.Init()
+		switch msg := msg.(type) {
+		case tea.KeyMsg:
+			switch msg.Type {
+			case tea.KeyEnter:
+				selectedItem := m.list.SelectedItem().(listItem)
+				m.option = selectedItem.option
+				if m.option == OptionSaveExit {
+					m.step = formStepEnterFilename
+					return m, m.input.Focus()
+				}
+				m.success = true
+				m.quitting = true
+				return m, tea.Quit
+			case tea.KeyCtrlC, tea.KeyEsc:
+				m.quitting = true
+				return m, tea.Quit
 			}
-			m.quitting = true
-			return m, tea.Quit
 		}
-
 		return m, cmd
 
 	case formStepEnterFilename:
-		form, cmd := m.filenameForm.Update(msg)
-		if f, ok := form.(*huh.Form); ok {
-			m.filenameForm = f
-		}
+		var cmd tea.Cmd
+		m.input, cmd = m.input.Update(msg)
 
-		if m.filenameForm.State == huh.StateCompleted {
-			m.quitting = true
-			return m, tea.Quit
+		switch msg := msg.(type) {
+		case tea.KeyMsg:
+			switch msg.Type {
+			case tea.KeyEnter:
+				m.filename = m.input.Value()
+				m.quitting = true
+				m.success = true
+				return m, tea.Quit
+			case tea.KeyCtrlC, tea.KeyEsc:
+				m.quitting = true
+				return m, tea.Quit
+			}
 		}
-
 		return m, cmd
 	}
 
@@ -137,12 +181,47 @@ func (m *formModel) View() string {
 		return ""
 	}
 
+	var sb strings.Builder
+
+	sb.WriteString(m.styler.Title("SnipKit Assistant"))
+	sb.WriteString("\n")
+
 	switch m.step {
 	case formStepSelectOption:
-		return fmt.Sprintf("\n%s", m.selectionForm.View())
+		sb.WriteString(lipgloss.NewStyle().
+			Bold(true).
+			Foreground(m.styler.TitleColor().Value()).
+			Border(lipgloss.ThickBorder(), false, false, false, true).
+			BorderForeground(m.styler.BorderColor().Value()).
+			PaddingLeft(1).
+			Render("The snippet was executed. What now?"))
+
+		sb.WriteString("\n")
+		sb.WriteString(m.list.View())
 	case formStepEnterFilename:
-		return fmt.Sprintf("\n%s", m.filenameForm.View())
+
+		sb.WriteString(lipgloss.NewStyle().
+			Bold(true).
+			Foreground(m.styler.TitleColor().Value()).
+			Border(lipgloss.ThickBorder(), false, false, false, true).
+			BorderForeground(m.styler.BorderColor().Value()).
+			PaddingLeft(1).
+			Render("Snippet Filename:"))
+
+		sb.WriteString("\n")
+		sb.WriteString(m.input.View())
+		sb.WriteString("\n\n")
+		sb.WriteString(lipgloss.NewStyle().Foreground(m.styler.PlaceholderColor().Value()).Render("Press enter to confirm"))
 	}
 
-	return ""
+	return sb.String()
 }
+
+type listItem struct {
+	title  string
+	option Option
+}
+
+func (i listItem) Title() string       { return i.title }
+func (i listItem) Description() string { return "" }
+func (i listItem) FilterValue() string { return i.title }

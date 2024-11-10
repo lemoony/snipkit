@@ -78,7 +78,7 @@ type TUI interface {
 	ShowPicker(title string, items []picker.Item, selectedItem *picker.Item, options ...tea.ProgramOption) (int, bool)
 	ShowSync() sync.Screen
 	ShowAssistantPrompt([]string) (bool, string)
-	ShowAssistantWizard(config wizard.Config) wizard.Result
+	ShowAssistantWizard(config wizard.Config) (bool, wizard.Result)
 	ShowSpinner(string, chan bool)
 }
 
@@ -202,11 +202,11 @@ func (t tuiImpl) ShowSync() sync.Screen {
 }
 
 func (t tuiImpl) ShowAssistantPrompt(history []string) (bool, string) {
-	return prompt.ShowPrompt(prompt.Config{History: history}, tea.WithInput(t.stdio.In), tea.WithOutput(t.stdio.Out))
+	return prompt.ShowPrompt(prompt.Config{History: history}, t.styler, tea.WithInput(t.stdio.In), tea.WithOutput(t.stdio.Out))
 }
 
-func (t tuiImpl) ShowAssistantWizard(config wizard.Config) wizard.Result {
-	return wizard.ShowAssistantWizard(config)
+func (t tuiImpl) ShowAssistantWizard(config wizard.Config) (bool, wizard.Result) {
+	return wizard.ShowAssistantWizard(config, t.styler)
 }
 
 func (t tuiImpl) ShowSpinner(text string, stop chan bool) {

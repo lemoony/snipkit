@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/huh"
 	"github.com/charmbracelet/lipgloss"
+
+	"github.com/lemoony/snipkit/internal/ui/style"
 )
 
 type Config struct {
@@ -14,16 +16,22 @@ type Config struct {
 }
 
 type model struct {
-	form    *huh.Form
-	history []string
-
+	history      []string
+	input        textinput.Model
 	quitting     bool
 	success      bool
 	latestPrompt string
+	description  string
+
+	styler style.Style
+
+	descriptionStyle lipgloss.Style
+	inputStyle       lipgloss.Style
 }
 
-func ShowPrompt(config Config, teaOptions ...tea.ProgramOption) (bool, string) {
-	m := newModel(config, teaOptions...)
+func ShowPrompt(config Config, styler style.Style, teaOptions ...tea.ProgramOption) (bool, string) {
+	m := newModel(config, styler)
+	m.styler = styler
 
 	teaModel, err := tea.NewProgram(m, teaOptions...).Run()
 	if err != nil {
@@ -34,67 +42,77 @@ func ShowPrompt(config Config, teaOptions ...tea.ProgramOption) (bool, string) {
 	return m.success, resultModel.latestPrompt
 }
 
-func newModel(config Config, teaOptions ...tea.ProgramOption) *model {
+func newModel(config Config, styler style.Style) *model {
 	m := &model{
 		history: config.History,
 		success: true,
+		styler:  styler,
+		descriptionStyle: lipgloss.NewStyle().
+			Border(lipgloss.ThickBorder(), false, false, false, true).
+			Foreground(styler.BorderColor().Value()).
+			BorderForeground(styler.BorderColor().Value()).
+			PaddingLeft(1),
+		inputStyle: lipgloss.NewStyle().
+			Border(lipgloss.ThickBorder(), false, false, false, true).
+			BorderForeground(styler.BorderColor().Value()).
+			PaddingLeft(1),
 	}
 
-	placeholder := "Type here..."
-	description := "What do you want the script to do?"
-	if len(config.History) > 0 {
+	m.setupDescription()
+
+	m.input = textinput.New()
+	m.input.Placeholder = "Type here..."
+	m.input.Prompt = "> "
+	m.input.Focus()
+	m.input.PlaceholderStyle = lipgloss.NewStyle().Foreground(m.styler.PlaceholderColor().Value())
+	m.input.PromptStyle = lipgloss.NewStyle().Foreground(m.styler.ActiveColor().Value())
+	m.input.Cursor.Style = lipgloss.NewStyle().Foreground(m.styler.HighlightColor().Value())
+
+	return m
+}
+
+func (m *model) setupDescription() {
+	if len(m.history) > 0 {
 		var sb strings.Builder
-		for i, v := range config.History {
+		for i, v := range m.history {
 			if i > 0 {
 				sb.WriteString("\n")
 			}
 			sb.WriteString(fmt.Sprintf("%s%s", lipgloss.NewStyle().Foreground(lipgloss.Color("63")).Italic(true).Render(fmt.Sprintf("[%d] ", i+1)), v))
 		}
-		placeholder = "Type a new prompt or just press enter ..."
-		description = fmt.Sprintf(
+		m.description = fmt.Sprintf(
 			"%s\n%s\n%s",
 			"Do you want to provide additional context or change anything?",
 			lipgloss.NewStyle().Italic(true).Render("Your previous prompts and their results are automatically provided as context:"),
 			sb.String(),
 		)
+		m.input.Placeholder = "Type a new prompt or just press enter ..."
+	} else {
+		m.description = "What do you want the script to do?"
 	}
-
-	inputPrompt := huh.NewInput().
-		Title("SnipKit Assistant").
-		Description(description).
-		Prompt("> ").
-		Placeholder(placeholder).
-		Value(&m.latestPrompt)
-
-	m.form = huh.NewForm(huh.NewGroup(inputPrompt)).
-		WithProgramOptions(teaOptions...).
-		WithShowHelp(false)
-
-	return m
 }
 
 func (m *model) Init() tea.Cmd {
-	return m.form.Init()
+	return textinput.Blink
 }
 
 func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	form, cmd := m.form.Update(msg)
+	form, cmd := m.input.Update(msg)
 
-	if keyMsg, ok := msg.(tea.KeyMsg); ok {
-		if keyMsg.Type == tea.KeyCtrlC || keyMsg.Type == tea.KeyEsc {
+	m.input = form
+
+	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		switch msg.Type {
+		case tea.KeyCtrlC, tea.KeyEsc:
 			m.quitting = true
 			m.success = false
 			return m, tea.Quit
+		case tea.KeyEnter:
+			m.latestPrompt = m.input.Value()
+			m.quitting = true
+			return m, tea.Quit
 		}
-	}
-
-	if f, ok := form.(*huh.Form); ok {
-		m.form = f
-	}
-
-	if m.form.State == huh.StateCompleted {
-		m.quitting = true
-		return m, tea.Quit
 	}
 
 	return m, cmd
@@ -104,5 +122,11 @@ func (m *model) View() string {
 	if m.quitting {
 		return ""
 	}
-	return fmt.Sprintf("\n%s", m.form.View())
+
+	return fmt.Sprintf(
+		"%s\n%s\n%s",
+		m.styler.Title("SnipKit Assistant"),
+		m.descriptionStyle.Render(m.description),
+		m.inputStyle.Render(m.input.View()),
+	)
 }
