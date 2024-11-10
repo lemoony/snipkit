@@ -23,43 +23,79 @@ type model struct {
 	latestPrompt string
 	description  string
 
-	styler style.Style
-
+	styler           style.Style
 	descriptionStyle lipgloss.Style
 	inputStyle       lipgloss.Style
 }
 
 func ShowPrompt(config Config, styler style.Style, teaOptions ...tea.ProgramOption) (bool, string) {
 	m := newModel(config, styler)
-	m.styler = styler
 
-	teaModel, err := tea.NewProgram(m, teaOptions...).Run()
-	if err != nil {
+	if teaModel, err := tea.NewProgram(m, teaOptions...).Run(); err != nil {
 		return false, ""
+	} else if resultModel, ok := teaModel.(*model); ok {
+		return resultModel.success, resultModel.latestPrompt
 	}
 
-	resultModel := teaModel.(*model)
-	return m.success, resultModel.latestPrompt
+	return false, ""
 }
 
 func newModel(config Config, styler style.Style) *model {
 	m := &model{
-		history: config.History,
-		success: true,
-		styler:  styler,
-		descriptionStyle: lipgloss.NewStyle().
-			Border(lipgloss.ThickBorder(), false, false, false, true).
-			Foreground(styler.BorderColor().Value()).
-			BorderForeground(styler.BorderColor().Value()).
-			PaddingLeft(1),
-		inputStyle: lipgloss.NewStyle().
-			Border(lipgloss.ThickBorder(), false, false, false, true).
-			BorderForeground(styler.BorderColor().Value()).
-			PaddingLeft(1),
+		history:          config.History,
+		styler:           styler,
+		success:          true,
+		descriptionStyle: createDescriptionStyle(styler),
+		inputStyle:       createInputStyle(styler),
 	}
 
 	m.setupDescription()
+	m.setupInput()
 
+	return m
+}
+
+func createDescriptionStyle(styler style.Style) lipgloss.Style {
+	return lipgloss.NewStyle().
+		Border(lipgloss.ThickBorder(), false, false, false, true).
+		Foreground(styler.BorderColor().Value()).
+		BorderForeground(styler.BorderColor().Value()).
+		PaddingLeft(1)
+}
+
+func createInputStyle(styler style.Style) lipgloss.Style {
+	return lipgloss.NewStyle().
+		Border(lipgloss.ThickBorder(), false, false, false, true).
+		BorderForeground(styler.BorderColor().Value()).
+		PaddingLeft(1)
+}
+
+func (m *model) setupDescription() {
+	if len(m.history) > 0 {
+		m.description = fmt.Sprintf(
+			"%s\n%s\n%s",
+			"Do you want to provide additional context or change anything?",
+			lipgloss.NewStyle().Italic(true).Render("Your previous prompts and their results are automatically provided as context:"),
+			m.renderHistory(),
+		)
+		m.input.Placeholder = "Type a new prompt or just press enter ..."
+	} else {
+		m.description = "What do you want the script to do?"
+	}
+}
+
+func (m *model) renderHistory() string {
+	var sb strings.Builder
+	for i, v := range m.history {
+		if i > 0 {
+			sb.WriteString("\n")
+		}
+		sb.WriteString(fmt.Sprintf("%s%s", lipgloss.NewStyle().Foreground(lipgloss.Color("63")).Italic(true).Render(fmt.Sprintf("[%d] ", i+1)), v))
+	}
+	return sb.String()
+}
+
+func (m *model) setupInput() {
 	m.input = textinput.New()
 	m.input.Placeholder = "Type here..."
 	m.input.Prompt = "> "
@@ -67,29 +103,6 @@ func newModel(config Config, styler style.Style) *model {
 	m.input.PlaceholderStyle = lipgloss.NewStyle().Foreground(m.styler.PlaceholderColor().Value())
 	m.input.PromptStyle = lipgloss.NewStyle().Foreground(m.styler.ActiveColor().Value())
 	m.input.Cursor.Style = lipgloss.NewStyle().Foreground(m.styler.HighlightColor().Value())
-
-	return m
-}
-
-func (m *model) setupDescription() {
-	if len(m.history) > 0 {
-		var sb strings.Builder
-		for i, v := range m.history {
-			if i > 0 {
-				sb.WriteString("\n")
-			}
-			sb.WriteString(fmt.Sprintf("%s%s", lipgloss.NewStyle().Foreground(lipgloss.Color("63")).Italic(true).Render(fmt.Sprintf("[%d] ", i+1)), v))
-		}
-		m.description = fmt.Sprintf(
-			"%s\n%s\n%s",
-			"Do you want to provide additional context or change anything?",
-			lipgloss.NewStyle().Italic(true).Render("Your previous prompts and their results are automatically provided as context:"),
-			sb.String(),
-		)
-		m.input.Placeholder = "Type a new prompt or just press enter ..."
-	} else {
-		m.description = "What do you want the script to do?"
-	}
 }
 
 func (m *model) Init() tea.Cmd {
@@ -98,12 +111,10 @@ func (m *model) Init() tea.Cmd {
 
 func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	form, cmd := m.input.Update(msg)
-
 	m.input = form
 
-	switch msg := msg.(type) {
-	case tea.KeyMsg:
-		switch msg.Type {
+	if keyMsg, ok := msg.(tea.KeyMsg); ok {
+		switch keyMsg.Type {
 		case tea.KeyCtrlC, tea.KeyEsc:
 			m.quitting = true
 			m.success = false

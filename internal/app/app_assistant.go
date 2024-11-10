@@ -107,9 +107,9 @@ func (a *appImpl) saveScript(contents []byte, title, filename string) {
 		return manager.Key() == fslibrary.Key
 	}); ok {
 		manager.SaveAssistantSnippet(title, filename, contents)
+	} else {
+		panic("File system library not configured as manager. Try running `snipkit manager add`")
 	}
-
-	panic("File system library not configured as manager. Try running `snipkit manager add`")
 }
 
 func (a *appImpl) EnableAssistant() {

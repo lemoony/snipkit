@@ -18,13 +18,12 @@ type (
 )
 
 const (
-	OptionNone         = Option(0)
-	OptionTryAgain     = Option(1)
-	OptionSaveExit     = Option(2)
-	OptionDontSaveExit = Option(3)
+	OptionTryAgain Option = iota
+	OptionSaveExit
+	OptionDontSaveExit
 
-	formStepSelectOption  = formStep(0)
-	formStepEnterFilename = formStep(1)
+	formStepSelectOption formStep = iota
+	formStepEnterFilename
 )
 
 type Config struct {
@@ -50,7 +49,7 @@ type formModel struct {
 }
 
 func ShowAssistantWizard(config Config, styler style.Style) (bool, Result) {
-	m := newModel(config, styler)
+	m := newFormModel(config, styler)
 
 	teaModel, err := tea.NewProgram(m).Run()
 	if err != nil {
@@ -65,32 +64,48 @@ func ShowAssistantWizard(config Config, styler style.Style) (bool, Result) {
 	}
 }
 
-func newModel(config Config, styler style.Style) *formModel {
+func newFormModel(config Config, styler style.Style) *formModel {
+	listModel := createListModel(styler)
+	inputModel := createTextInputModel(config, styler)
+
+	return &formModel{
+		step:            formStepSelectOption,
+		initialFilename: config.ProposedFilename,
+		filename:        config.ProposedFilename,
+		list:            listModel,
+		styler:          styler,
+		input:           inputModel,
+	}
+}
+
+func createListModel(styler style.Style) list.Model {
 	items := []list.Item{
 		listItem{title: "Tweak prompt and/or try again", option: OptionTryAgain},
 		listItem{title: "Exit & Save", option: OptionSaveExit},
 		listItem{title: "Exit & Don't save", option: OptionDontSaveExit},
 	}
 
-	styls := list.NewDefaultItemStyles()
-	styls.SelectedTitle = lipgloss.NewStyle().
+	listStyles := list.NewDefaultItemStyles()
+	listStyles.SelectedTitle = lipgloss.NewStyle().
 		SetString(">").
 		Border(lipgloss.ThickBorder(), false, false, false, true).
 		BorderForeground(styler.BorderColor().Value()).
 		Foreground(styler.ActiveColor().Value()).
 		PaddingLeft(1)
 
-	styls.NormalTitle = lipgloss.NewStyle().SetString(" ").
+	listStyles.NormalTitle = lipgloss.NewStyle().
+		SetString(" ").
 		Border(lipgloss.ThickBorder(), false, false, false, true).
 		BorderForeground(styler.BorderColor().Value()).
 		PaddingLeft(1)
 
+	const listWidth = 32
+	const listHeight = 5
+
 	l := list.New(items, list.DefaultDelegate{
 		ShowDescription: false,
-		Styles:          styls,
-	}, 0, 15)
-
-	l.SetSize(32, 5)
+		Styles:          listStyles,
+	}, listWidth, listHeight)
 
 	l.SetShowTitle(false)
 	l.SetShowFilter(false)
@@ -98,29 +113,24 @@ func newModel(config Config, styler style.Style) *formModel {
 	l.SetShowStatusBar(false)
 	l.SetFilteringEnabled(false)
 
+	return l
+}
+
+func createTextInputModel(config Config, styler style.Style) textinput.Model {
 	input := textinput.New()
 	input.Placeholder = "Type in filename..."
 	input.SetValue(config.ProposedFilename)
 	input.Focus()
 	input.CharLimit = 256
 	input.Width = 30
-	input.PromptStyle = lipgloss.NewStyle().Foreground(styler.ActiveColor().Value())
-	input.Cursor.Style = lipgloss.NewStyle().Foreground(styler.HighlightColor().Value())
 	input.PromptStyle = lipgloss.NewStyle().
+		Foreground(styler.ActiveColor().Value()).
 		Border(lipgloss.ThickBorder(), false, false, false, true).
 		BorderForeground(styler.BorderColor().Value()).
-		Foreground(styler.ActiveColor().Value()).
 		PaddingLeft(1)
+	input.Cursor.Style = lipgloss.NewStyle().Foreground(styler.HighlightColor().Value())
 
-	return &formModel{
-		option:          OptionNone,
-		step:            formStepSelectOption,
-		filename:        config.ProposedFilename,
-		initialFilename: config.ProposedFilename,
-		list:            l,
-		styler:          styler,
-		input:           input,
-	}
+	return input
 }
 
 func (m *formModel) Init() tea.Cmd {
@@ -130,50 +140,54 @@ func (m *formModel) Init() tea.Cmd {
 func (m *formModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch m.step {
 	case formStepSelectOption:
-		var cmd tea.Cmd
-		m.list, cmd = m.list.Update(msg)
-
-		switch msg := msg.(type) {
-		case tea.KeyMsg:
-			switch msg.Type {
-			case tea.KeyEnter:
-				selectedItem := m.list.SelectedItem().(listItem)
-				m.option = selectedItem.option
-				if m.option == OptionSaveExit {
-					m.step = formStepEnterFilename
-					return m, m.input.Focus()
-				}
-				m.success = true
-				m.quitting = true
-				return m, tea.Quit
-			case tea.KeyCtrlC, tea.KeyEsc:
-				m.quitting = true
-				return m, tea.Quit
-			}
-		}
-		return m, cmd
-
+		return m.updateSelectOption(msg)
 	case formStepEnterFilename:
-		var cmd tea.Cmd
-		m.input, cmd = m.input.Update(msg)
-
-		switch msg := msg.(type) {
-		case tea.KeyMsg:
-			switch msg.Type {
-			case tea.KeyEnter:
-				m.filename = m.input.Value()
-				m.quitting = true
-				m.success = true
-				return m, tea.Quit
-			case tea.KeyCtrlC, tea.KeyEsc:
-				m.quitting = true
-				return m, tea.Quit
-			}
-		}
-		return m, cmd
+		return m.updateEnterFilename(msg)
 	}
-
 	return m, nil
+}
+
+func (m *formModel) updateSelectOption(msg tea.Msg) (tea.Model, tea.Cmd) {
+	var cmd tea.Cmd
+	m.list, cmd = m.list.Update(msg)
+
+	if keyMsg, ok := msg.(tea.KeyMsg); ok {
+		switch keyMsg.Type {
+		case tea.KeyEnter:
+			selectedItem := m.list.SelectedItem().(listItem)
+			m.option = selectedItem.option
+			if m.option == OptionSaveExit {
+				m.step = formStepEnterFilename
+				return m, m.input.Focus()
+			}
+			m.success = true
+			m.quitting = true
+			return m, tea.Quit
+		case tea.KeyCtrlC, tea.KeyEsc:
+			m.quitting = true
+			return m, tea.Quit
+		}
+	}
+	return m, cmd
+}
+
+func (m *formModel) updateEnterFilename(msg tea.Msg) (tea.Model, tea.Cmd) {
+	var cmd tea.Cmd
+	m.input, cmd = m.input.Update(msg)
+
+	if keyMsg, ok := msg.(tea.KeyMsg); ok {
+		switch keyMsg.Type {
+		case tea.KeyEnter:
+			m.filename = m.input.Value()
+			m.success = true
+			m.quitting = true
+			return m, tea.Quit
+		case tea.KeyCtrlC, tea.KeyEsc:
+			m.quitting = true
+			return m, tea.Quit
+		}
+	}
+	return m, cmd
 }
 
 func (m *formModel) View() string {
@@ -182,32 +196,16 @@ func (m *formModel) View() string {
 	}
 
 	var sb strings.Builder
-
 	sb.WriteString(m.styler.Title("SnipKit Assistant"))
 	sb.WriteString("\n")
 
 	switch m.step {
 	case formStepSelectOption:
-		sb.WriteString(lipgloss.NewStyle().
-			Bold(true).
-			Foreground(m.styler.TitleColor().Value()).
-			Border(lipgloss.ThickBorder(), false, false, false, true).
-			BorderForeground(m.styler.BorderColor().Value()).
-			PaddingLeft(1).
-			Render("The snippet was executed. What now?"))
-
+		sb.WriteString(renderTitle(m.styler, "The snippet was executed. What now?"))
 		sb.WriteString("\n")
 		sb.WriteString(m.list.View())
 	case formStepEnterFilename:
-
-		sb.WriteString(lipgloss.NewStyle().
-			Bold(true).
-			Foreground(m.styler.TitleColor().Value()).
-			Border(lipgloss.ThickBorder(), false, false, false, true).
-			BorderForeground(m.styler.BorderColor().Value()).
-			PaddingLeft(1).
-			Render("Snippet Filename:"))
-
+		sb.WriteString(renderTitle(m.styler, "Snippet Filename:"))
 		sb.WriteString("\n")
 		sb.WriteString(m.input.View())
 		sb.WriteString("\n\n")
@@ -215,6 +213,16 @@ func (m *formModel) View() string {
 	}
 
 	return sb.String()
+}
+
+func renderTitle(styler style.Style, title string) string {
+	return lipgloss.NewStyle().
+		Bold(true).
+		Foreground(styler.TitleColor().Value()).
+		Border(lipgloss.ThickBorder(), false, false, false, true).
+		BorderForeground(styler.BorderColor().Value()).
+		PaddingLeft(1).
+		Render(title)
 }
 
 type listItem struct {
