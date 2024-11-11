@@ -39,8 +39,14 @@ func RandomScriptFilename() string {
 	return fmt.Sprintf("%s_%s.sh", timestamp, randomString)
 }
 
-func extractBashScript(text string) (string, string) {
-	// Regex pattern to match bash script blocks in markdown
+type ParsedScript struct {
+	Contents string
+	Filename string
+	Title    string
+}
+
+func parseScript(text string) ParsedScript {
+	// Regex pattern to match bash Contents blocks in markdown
 	pattern := "```(bash|sh)\\s+([\\s\\S]*?)```"
 	re := regexp.MustCompile(pattern)
 
@@ -49,26 +55,47 @@ func extractBashScript(text string) (string, string) {
 
 	var script string
 	var filename string
+	var title string
 
 	if len(matches) > 0 {
-		// Extract the first matched bash/sh script block
+		// Extract the first matched bash/sh Contents block
 		script = matches[0][2]
 	} else {
-		// If no markdown code block is found, assume the text is a bash script
+		// If no markdown code block is found, assume the text is a bash Contents
 		script = text
 	}
 
+	removedLines := 0
 	// Step 1: Remove the line starting with "# Filename:"
-	// Use regular expressions to match and remove the entire line starting with "# Filename:"
 	filenameLineRe := regexp.MustCompile(`(?m)^# Filename:\s*(\S+)\s*\n`)
-	// Extract the filename if it exists
+	// Extract the Filename if it exists
 	filenameMatch := filenameLineRe.FindStringSubmatch(script)
 	if len(filenameMatch) > 1 {
-		filename = filenameMatch[1] // Extracted filename
+		filename = filenameMatch[1] // Extracted Filename
+		removedLines++
+	}
+	// Remove the "# Filename:" line from the Contents
+	script = filenameLineRe.ReplaceAllString(script, "")
+
+	// Step 2: Remove the line starting with "# Snippet Title:"
+	titleLineRe := regexp.MustCompile(`(?m)^# Snippet Title:\s*(.+)\s*\n`)
+	// Extract the Snippet Title if it exists
+	titleMatch := titleLineRe.FindStringSubmatch(script)
+	if len(titleMatch) > 1 {
+		title = titleMatch[1] // Extracted Title
+		removedLines++
+	}
+	// Remove the "# Snippet Title:" line from the Contents
+	script = titleLineRe.ReplaceAllString(script, "")
+
+	if removedLines > 0 {
+		commentRe := regexp.MustCompile(`(?m)^(\s*#\s*$\n\s*#\s*$\n?)`)
+		script = commentRe.ReplaceAllString(script, "")
 	}
 
-	// Remove the "# Filename:" line from the script
-	scriptWithoutFilename := filenameLineRe.ReplaceAllString(script, "")
-
-	return scriptWithoutFilename, filename
+	return ParsedScript{
+		Contents: script,
+		Filename: filename,
+		Title:    title,
+	}
 }

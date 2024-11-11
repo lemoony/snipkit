@@ -22,11 +22,9 @@ import (
 
 func Test_App_GenerateSnippetWithAssistant_SaveExit(t *testing.T) {
 	const exampleFile = "echo-foo.sh"
+	const exampleTitle = "Echo foo!"
 	const exampleScript = `
 #!/bin/bash
-#
-# Echo foo
-#
 # ${PARAM} Key: FOO_KEY
 echo ${FOO_KEY}
 `
@@ -34,7 +32,7 @@ echo ${FOO_KEY}
 	tui := uiMocks.TUI{}
 	tui.On(mockutil.ApplyConfig, mock.Anything, mock.Anything).Return()
 	tui.On(mockutil.ShowAssistantPrompt, []string{}).Return(true, "foo prompt")
-	tui.On(mockutil.ShowAssistantWizard, mock.Anything).Return(true, wizard.Result{SelectedOption: wizard.OptionSaveExit, Filename: exampleFile})
+	tui.On(mockutil.ShowAssistantWizard, mock.Anything).Return(true, wizard.Result{SelectedOption: wizard.OptionSaveExit, Filename: exampleFile, SnippetTitle: exampleTitle})
 	tui.On(mockutil.ShowSpinner, "Please wait, generating script...", mock.AnythingOfType("chan bool")).Return().Run(func(args mock.Arguments) {
 		go func() { <-(args[1].(chan bool)) }()
 	})
@@ -47,7 +45,9 @@ echo ${FOO_KEY}
 	cfgService.On("NeedsMigration").Return(false, "")
 
 	assistantMock := assistantMocks.Assistant{}
-	assistantMock.On("Query", mock.Anything).Return(exampleScript, exampleFile)
+	assistantMock.On("Query", mock.Anything).Return(assistant.ParsedScript{
+		Contents: exampleScript, Filename: exampleFile, Title: exampleTitle,
+	})
 	assistantMock.On("Initialize").Return(true, uimsg.Printable{})
 
 	fsLibManager := managerMocks.Manager{}
@@ -68,7 +68,7 @@ echo ${FOO_KEY}
 
 	app.GenerateSnippetWithAssistant("", 0)
 
-	fsLibManager.AssertCalled(t, mockutil.SaveAssistantSnippet, "Echo foo", exampleFile, []byte(exampleScript))
+	fsLibManager.AssertCalled(t, mockutil.SaveAssistantSnippet, exampleTitle, exampleFile, []byte(exampleScript))
 }
 
 func Test_App_GenerateSnippetWithAssistant_TweakPrompt_DontSave(t *testing.T) {
@@ -96,8 +96,8 @@ func Test_App_GenerateSnippetWithAssistant_TweakPrompt_DontSave(t *testing.T) {
 	cfgService.On("NeedsMigration").Return(false, "")
 
 	assistantMock := assistantMocks.Assistant{}
-	assistantMock.On(mockutil.Query, prompt1).Return(exampleScript1, exampleFile1)
-	assistantMock.On(mockutil.Query, mock.Anything).Return(exampleScript2, exampleFile2)
+	assistantMock.On(mockutil.Query, prompt1).Return(assistant.ParsedScript{Contents: exampleScript1, Filename: exampleFile1})
+	assistantMock.On(mockutil.Query, mock.Anything).Return(assistant.ParsedScript{Contents: exampleScript2, Filename: exampleFile2})
 	assistantMock.On(mockutil.ValidateConfig).Return(true, uimsg.Printable{})
 
 	app := NewApp(

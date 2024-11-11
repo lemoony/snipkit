@@ -31,26 +31,30 @@ func (a *appImpl) GenerateSnippetWithAssistant(demoScriptPath string, demoQueryD
 	if ok, text := a.tui.ShowAssistantPrompt([]string{}); ok {
 		prompts := []string{text}
 		spinnerStop := a.startSpinner()
-		script, filename := a.getScriptWithAssistant(assistantInstance, demoScriptPath, demoQueryDuration, text)
+		script := a.getScriptWithAssistant(assistantInstance, demoScriptPath, demoQueryDuration, text)
 		close(spinnerStop)
-		a.handleGeneratedScript(script, filename, prompts, assistantInstance)
+		a.handleGeneratedScript(script, prompts, assistantInstance)
 	}
 }
 
-func (a *appImpl) getScriptWithAssistant(asst assistant.Assistant, demoScriptPath string, demoQueryDuration time.Duration, prompt string) (string, string) {
+func (a *appImpl) getScriptWithAssistant(asst assistant.Assistant, demoScriptPath string, demoQueryDuration time.Duration, prompt string) assistant.ParsedScript {
 	if demoScriptPath != "" {
 		demoScript := a.system.ReadFile(demoScriptPath)
 		time.Sleep(demoQueryDuration)
-		return string(demoScript), "demo.sh"
+		return assistant.ParsedScript{
+			Contents: string(demoScript),
+			Filename: "demo.sh",
+			Title:    "Demo",
+		}
 	}
 	return asst.Query(prompt)
 }
 
-func (a *appImpl) handleGeneratedScript(script, filename string, prompts []string, asst assistant.Assistant) {
+func (a *appImpl) handleGeneratedScript(parsed assistant.ParsedScript, prompts []string, asst assistant.Assistant) {
 	tmpDirSvc := tmpdir.New(a.system)
 	defer tmpDirSvc.ClearFiles()
 
-	if fileOk, filePath := tmpDirSvc.CreateTempFile([]byte(script)); fileOk {
+	if fileOk, filePath := tmpDirSvc.CreateTempFile([]byte(parsed.Contents)); fileOk {
 		a.tui.OpenEditor(filePath, a.config.Editor)
 		//nolint:gosec // ignore potential file inclusion via variable
 		updatedContents, err := os.ReadFile(filePath)
@@ -62,18 +66,18 @@ func (a *appImpl) handleGeneratedScript(script, filename string, prompts []strin
 		if parameters := snippet.GetParameters(); len(parameters) > 0 {
 			parameterValues, paramOk := a.tui.ShowParameterForm(parameters, nil, ui.OkButtonExecute)
 			if paramOk {
-				a.executeAndHandleSnippet(snippet, parameterValues, prompts, asst, filename)
+				a.executeAndHandleSnippet(snippet, parameterValues, prompts, asst, parsed)
 			}
 		} else {
-			a.executeAndHandleSnippet(snippet, nil, prompts, asst, filename)
+			a.executeAndHandleSnippet(snippet, nil, prompts, asst, parsed)
 		}
 	}
 }
 
-func (a *appImpl) executeAndHandleSnippet(snippet model.Snippet, parameterValues []string, prompts []string, asst assistant.Assistant, filename string) {
+func (a *appImpl) executeAndHandleSnippet(snippet model.Snippet, parameterValues []string, prompts []string, asst assistant.Assistant, script assistant.ParsedScript) {
 	executed, capturedResult := a.executeSnippet(false, false, snippet, parameterValues)
 	if executed {
-		wizardOk, result := a.tui.ShowAssistantWizard(wizard.Config{ProposedFilename: filename})
+		wizardOk, result := a.tui.ShowAssistantWizard(wizard.Config{ProposedFilename: script.Filename, ProposedSnippetName: script.Title})
 		if wizardOk {
 			switch result.SelectedOption {
 			case wizard.OptionTryAgain:
@@ -83,7 +87,7 @@ func (a *appImpl) executeAndHandleSnippet(snippet model.Snippet, parameterValues
 					a.generateSnippetWithAdditionalPrompt(newPrompt, prompts, asst)
 				}
 			case wizard.OptionSaveExit:
-				a.saveScript([]byte(snippet.GetContent()), snippet.GetTitle(), stringutil.StringOrDefault(result.Filename, assistant.RandomScriptFilename()))
+				a.saveScript([]byte(snippet.GetContent()), result.SnippetTitle, stringutil.StringOrDefault(result.Filename, assistant.RandomScriptFilename()))
 			}
 		}
 	}
@@ -91,9 +95,9 @@ func (a *appImpl) executeAndHandleSnippet(snippet model.Snippet, parameterValues
 
 func (a *appImpl) generateSnippetWithAdditionalPrompt(newPrompt string, prompts []string, asst assistant.Assistant) {
 	spinnerStop := a.startSpinner()
-	script, filename := asst.Query(newPrompt)
+	parsed := asst.Query(newPrompt)
 	close(spinnerStop)
-	a.handleGeneratedScript(script, filename, prompts, asst)
+	a.handleGeneratedScript(parsed, prompts, asst)
 }
 
 func (a *appImpl) startSpinner() chan bool {

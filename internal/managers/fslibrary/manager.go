@@ -79,7 +79,7 @@ func (m Manager) SaveAssistantSnippet(snippetTitle string, filename string, cont
 	dirPath := m.config.LibraryPath[m.config.AssistantLibraryPathIndex]
 	if file, err := filepath.Abs(filepath.Join(dirPath, filename)); err == nil {
 		m.system.CreatePath(file)
-		m.system.WriteFile(file, contents)
+		m.system.WriteFile(file, []byte(formatSnippet(string(contents), snippetTitle)))
 		m.printer.Print(uimsg.AssistantSnippetSaved(snippetTitle, file))
 	} else {
 		panic(err)

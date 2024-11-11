@@ -34,8 +34,8 @@ func Test_AssistantImpl_Query(t *testing.T) {
 	clientMock := assistantMocks.NewClient(t)
 	clientMock.On(mockutil.Query, mock.Anything).Return(`#!/bin/sh
 #
-# Simple script
-# Filename: simple-script.sh
+# Simple Contents
+# Filename: simple-Contents.sh
 #
 echo "foo"`, nil)
 
@@ -47,13 +47,13 @@ echo "foo"`, nil)
 		assert.Fail(t, "assistant failed to initialize")
 	}
 
-	script, filename := assistant.Query("test prompt")
+	parsed := assistant.Query("test prompt")
 	assert.Equal(t, `#!/bin/sh
 #
-# Simple script
+# Simple Contents
 #
-echo "foo"`, script)
-	assert.Equal(t, "simple-script.sh", filename)
+echo "foo"`, parsed.Contents)
+	assert.Equal(t, "simple-Contents.sh", parsed.Filename)
 }
 
 func Test_AssistantDescriptions(t *testing.T) {

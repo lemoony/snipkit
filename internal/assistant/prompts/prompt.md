@@ -39,13 +39,13 @@ login ${PW}
 git ls-files "${FILE}" | xargs wc -l
 ```
 
-If asked for terminal script, provide a shebang.
-
-Include this comment right after the shebang and replace the placeholders:
+Provide a shebang and include this comment right after the shebang and replace the placeholders:
 
 ```sh
+<<shebang>>
+
 #
-# <<short descriptive name for the script>>
+# Snippet Title: <<short descriptive name for the script>>
 # Filename: <<short filename>>
 #
 ```

@@ -24,28 +24,34 @@ const (
 
 	formStepSelectOption formStep = iota
 	formStepEnterFilename
+	formStepEnterSnippetName
 )
 
 type Config struct {
-	ProposedFilename string
+	ProposedFilename    string
+	ProposedSnippetName string
 }
 
 type Result struct {
 	SelectedOption Option
 	Filename       string
+	SnippetTitle   string
 }
 
 type formModel struct {
-	initialFilename string
+	initialFilename    string
+	initialSnippetName string
 
-	quitting bool
-	success  bool
-	option   Option
-	filename string
-	step     formStep
-	list     list.Model
-	styler   style.Style
-	input    textinput.Model
+	quitting         bool
+	success          bool
+	option           Option
+	filename         string
+	snippetName      string
+	step             formStep
+	list             list.Model
+	styler           style.Style
+	filenameInput    textinput.Model
+	snippetNameInput textinput.Model
 }
 
 func ShowAssistantWizard(config Config, styler style.Style, teaOptions ...tea.ProgramOption) (bool, Result) {
@@ -61,20 +67,25 @@ func ShowAssistantWizard(config Config, styler style.Style, teaOptions ...tea.Pr
 	return model.success, Result{
 		SelectedOption: model.option,
 		Filename:       stringutil.StringOrDefault(model.filename, model.initialFilename),
+		SnippetTitle:   stringutil.StringOrDefault(model.snippetName, model.initialSnippetName),
 	}
 }
 
 func newFormModel(config Config, styler style.Style) *formModel {
 	listModel := createListModel(styler)
-	inputModel := createTextInputModel(config, styler)
+	filenameInputModel := createFilenameInputModel(config, styler)
+	snippetNameInputModel := createSnippetNameInputModel(config, styler)
 
 	return &formModel{
-		step:            formStepSelectOption,
-		initialFilename: config.ProposedFilename,
-		filename:        config.ProposedFilename,
-		list:            listModel,
-		styler:          styler,
-		input:           inputModel,
+		step:               formStepSelectOption,
+		initialFilename:    config.ProposedFilename,
+		initialSnippetName: config.ProposedSnippetName,
+		filename:           config.ProposedFilename,
+		snippetName:        config.ProposedSnippetName,
+		list:               listModel,
+		styler:             styler,
+		filenameInput:      filenameInputModel,
+		snippetNameInput:   snippetNameInputModel,
 	}
 }
 
@@ -116,11 +127,27 @@ func createListModel(styler style.Style) list.Model {
 	return l
 }
 
-func createTextInputModel(config Config, styler style.Style) textinput.Model {
+func createFilenameInputModel(config Config, styler style.Style) textinput.Model {
 	input := textinput.New()
 	input.Placeholder = "Type in filename..."
 	input.SetValue(config.ProposedFilename)
 	input.Focus()
+	input.CharLimit = 256
+	input.Width = 30
+	input.PromptStyle = lipgloss.NewStyle().
+		Foreground(styler.ActiveColor().Value()).
+		Border(lipgloss.ThickBorder(), false, false, false, true).
+		BorderForeground(styler.BorderColor().Value()).
+		PaddingLeft(1)
+	input.Cursor.Style = lipgloss.NewStyle().Foreground(styler.HighlightColor().Value())
+
+	return input
+}
+
+func createSnippetNameInputModel(config Config, styler style.Style) textinput.Model {
+	input := textinput.New()
+	input.Placeholder = "Type in snippet name..."
+	input.SetValue(config.ProposedSnippetName)
 	input.CharLimit = 256
 	input.Width = 30
 	input.PromptStyle = lipgloss.NewStyle().
@@ -143,6 +170,8 @@ func (m *formModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m.updateSelectOption(msg)
 	case formStepEnterFilename:
 		return m.updateEnterFilename(msg)
+	case formStepEnterSnippetName:
+		return m.updateEnterSnippetName(msg)
 	}
 	return m, nil
 }
@@ -158,7 +187,7 @@ func (m *formModel) updateSelectOption(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.option = selectedItem.option
 			if m.option == OptionSaveExit {
 				m.step = formStepEnterFilename
-				return m, m.input.Focus()
+				return m, m.filenameInput.Focus()
 			}
 			m.success = true
 			m.quitting = true
@@ -173,12 +202,30 @@ func (m *formModel) updateSelectOption(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m *formModel) updateEnterFilename(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
-	m.input, cmd = m.input.Update(msg)
+	m.filenameInput, cmd = m.filenameInput.Update(msg)
 
 	if keyMsg, ok := msg.(tea.KeyMsg); ok {
 		switch keyMsg.Type {
 		case tea.KeyEnter:
-			m.filename = m.input.Value()
+			m.filename = m.filenameInput.Value()
+			m.step = formStepEnterSnippetName
+			return m, m.snippetNameInput.Focus()
+		case tea.KeyCtrlC, tea.KeyEsc:
+			m.quitting = true
+			return m, tea.Quit
+		}
+	}
+	return m, cmd
+}
+
+func (m *formModel) updateEnterSnippetName(msg tea.Msg) (tea.Model, tea.Cmd) {
+	var cmd tea.Cmd
+	m.snippetNameInput, cmd = m.snippetNameInput.Update(msg)
+
+	if keyMsg, ok := msg.(tea.KeyMsg); ok {
+		switch keyMsg.Type {
+		case tea.KeyEnter:
+			m.snippetName = m.snippetNameInput.Value()
 			m.success = true
 			m.quitting = true
 			return m, tea.Quit
@@ -207,9 +254,17 @@ func (m *formModel) View() string {
 	case formStepEnterFilename:
 		sb.WriteString(m.styler.PromptLabel("Snippet Filename:"))
 		sb.WriteString("\n")
-		sb.WriteString(m.input.View())
+		sb.WriteString(m.filenameInput.View())
 		sb.WriteString("\n\n")
 		sb.WriteString(m.styler.InputHelp("Press enter to confirm"))
+	case formStepEnterSnippetName:
+		sb.WriteString(m.styler.PromptLabel("Snippet Filename: ") + m.filename)
+		sb.WriteString("\n")
+		sb.WriteString(m.styler.PromptLabel("Snippet Name:"))
+		sb.WriteString("\n")
+		sb.WriteString(m.snippetNameInput.View())
+		sb.WriteString("\n\n")
+		sb.WriteString(m.styler.InputHelp("Press enter to confirm or ESC to quit"))
 	}
 
 	return sb.String()

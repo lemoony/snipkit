@@ -26,7 +26,7 @@ func TestShowAssistantWizard_TryAgainOption(t *testing.T) {
 }
 
 func TestShowAssistantWizard_SaveExit_Default(t *testing.T) {
-	config := Config{ProposedFilename: "initial-filename.txt"}
+	config := Config{ProposedFilename: "initial-filename.txt", ProposedSnippetName: "Foo title"}
 
 	termtest.RunTerminalTest(t, func(c *termtest.Console) {
 		c.ExpectString("SnipKit Assistant")
@@ -35,16 +35,19 @@ func TestShowAssistantWizard_SaveExit_Default(t *testing.T) {
 		c.SendKey(termtest.KeyEnter)
 		c.ExpectString("Snippet Filename:")
 		c.SendKey(termtest.KeyEnter)
+		c.ExpectString("Snippet Name:")
+		c.SendKey(termtest.KeyEnter)
 	}, func(stdio termutil.Stdio) {
 		success, result := ShowAssistantWizard(config, style.Style{}, tea.WithInput(stdio.In), tea.WithOutput(stdio.Out))
 		assert.True(t, success)
 		assert.Equal(t, OptionSaveExit, result.SelectedOption)
 		assert.Equal(t, config.ProposedFilename, result.Filename)
+		assert.Equal(t, config.ProposedSnippetName, result.SnippetTitle)
 	})
 }
 
 func TestShowAssistantWizard_SaveExit_Edit(t *testing.T) {
-	config := Config{ProposedFilename: "x.txt"}
+	config := Config{ProposedFilename: "x.txt", ProposedSnippetName: "foo title"}
 
 	termtest.RunTerminalTest(t, func(c *termtest.Console) {
 		c.ExpectString("SnipKit Assistant")
@@ -57,11 +60,18 @@ func TestShowAssistantWizard_SaveExit_Edit(t *testing.T) {
 		}
 		c.Send("new-filename.txt")
 		c.SendKey(termtest.KeyEnter)
+		c.ExpectString("Snippet Name:")
+		for range config.ProposedSnippetName {
+			c.SendKey(termtest.KeyDelete)
+		}
+		c.Send("example snippet")
+		c.SendKey(termtest.KeyEnter)
 	}, func(stdio termutil.Stdio) {
 		success, result := ShowAssistantWizard(config, style.Style{}, tea.WithInput(stdio.In), tea.WithOutput(stdio.Out))
 		assert.True(t, success)
 		assert.Equal(t, OptionSaveExit, result.SelectedOption)
 		assert.Equal(t, "new-filename.txt", result.Filename)
+		assert.Equal(t, "example snippet", result.SnippetTitle)
 	})
 }
 

@@ -13,7 +13,7 @@ import (
 
 type Assistant interface {
 	Initialize() (bool, uimsg.Printable)
-	Query(string) (string, string)
+	Query(string) ParsedScript
 	AutoConfig(model.AssistantKey) Config
 	AssistantDescriptions(config Config) []model.AssistantDescription
 }
@@ -46,12 +46,12 @@ func (a *assistantImpl) Initialize() (bool, uimsg.Printable) {
 	return true, uimsg.Printable{}
 }
 
-func (a *assistantImpl) Query(prompt string) (string, string) {
+func (a *assistantImpl) Query(prompt string) ParsedScript {
 	response, err := a.client.Query(prompt)
 	if err != nil {
 		panic(err)
 	}
-	return extractBashScript(response)
+	return parseScript(response)
 }
 
 func (a *assistantImpl) AssistantDescriptions(config Config) []model.AssistantDescription {
