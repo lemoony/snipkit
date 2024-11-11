@@ -8,6 +8,8 @@ import (
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+
+	"github.com/lemoony/snipkit/internal/ui/style"
 )
 
 type errMsg error
@@ -15,11 +17,12 @@ type errMsg error
 type stopMsg struct{}
 
 type model struct {
-	spinner spinner.Model
-	keyMap  KeyMap
-
+	spinner  spinner.Model
+	keyMap   KeyMap
+	styler   style.Style
 	quitting bool
 	text     string
+	title    string
 	err      error
 	stopChan chan bool
 }
@@ -31,13 +34,15 @@ type KeyMap struct {
 	Quit key.Binding
 }
 
-func initialModel(text string, stopChan chan bool) model {
+func initialModel(text string, title string, styler style.Style, stopChan chan bool) model {
 	s := spinner.New()
 	s.Spinner = spinner.Dot
 	s.Style = lipgloss.NewStyle().Foreground(lipgloss.Color("205"))
 	return model{
 		spinner:  s,
 		text:     text,
+		title:    title,
+		styler:   styler,
 		stopChan: stopChan,
 		keyMap: KeyMap{
 			Quit: key.NewBinding(
@@ -93,13 +98,13 @@ func (m *model) View() string {
 	}
 	var str string
 	if !m.quitting {
-		str = fmt.Sprintf("%s%s", m.spinner.View(), m.text)
+		str = fmt.Sprintf("%s\n%s%s", m.styler.Title(m.title), m.spinner.View(), m.text)
 	}
 	return str
 }
 
-func ShowSpinner(text string, stopChan chan bool, teaOptions ...tea.ProgramOption) {
-	m := initialModel(text, stopChan)
+func ShowSpinner(text, title string, stopChan chan bool, styler style.Style, teaOptions ...tea.ProgramOption) {
+	m := initialModel(text, title, styler, stopChan)
 	p := tea.NewProgram(&m, teaOptions...)
 
 	if _, err := p.Run(); err != nil {

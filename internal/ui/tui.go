@@ -79,7 +79,7 @@ type TUI interface {
 	ShowSync() sync.Screen
 	ShowAssistantPrompt([]string) (bool, string)
 	ShowAssistantWizard(config wizard.Config) (bool, wizard.Result)
-	ShowSpinner(string, chan bool)
+	ShowSpinner(string, string, chan bool)
 }
 
 type tuiImpl struct {
@@ -209,8 +209,8 @@ func (t tuiImpl) ShowAssistantWizard(config wizard.Config) (bool, wizard.Result)
 	return wizard.ShowAssistantWizard(config, t.styler)
 }
 
-func (t tuiImpl) ShowSpinner(text string, stop chan bool) {
-	spinner.ShowSpinner(text, stop, tea.WithInput(t.stdio.In), tea.WithOutput(t.stdio.Out))
+func (t tuiImpl) ShowSpinner(text, title string, stop chan bool) {
+	spinner.ShowSpinner(text, title, stop, t.styler, tea.WithInput(t.stdio.In), tea.WithOutput(t.stdio.Out))
 }
 
 func getEditor(preferred string) string {

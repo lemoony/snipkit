@@ -6,6 +6,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 
+	"github.com/lemoony/snipkit/internal/ui/style"
 	"github.com/lemoony/snipkit/internal/utils/termtest"
 	"github.com/lemoony/snipkit/internal/utils/termutil"
 )
@@ -24,6 +25,7 @@ func Test_ShowSpinner(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			stopChan := make(chan bool)
 			termtest.RunTerminalTest(t, func(c *termtest.Console) {
+				c.ExpectString("Example Title")
 				time.Sleep(100 * time.Millisecond)
 				c.ExpectString("Test text...")
 				time.Sleep(50 * time.Millisecond)
@@ -32,7 +34,7 @@ func Test_ShowSpinner(t *testing.T) {
 					stopChan <- true
 				}
 			}, func(stdio termutil.Stdio) {
-				ShowSpinner("Test text...", stopChan, tea.WithInput(stdio.In), tea.WithOutput(stdio.Out))
+				ShowSpinner("Test text...", "Example Title", stopChan, style.Style{}, tea.WithInput(stdio.In), tea.WithOutput(stdio.Out))
 			})
 		})
 	}

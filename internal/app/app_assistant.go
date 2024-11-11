@@ -102,7 +102,7 @@ func (a *appImpl) generateSnippetWithAdditionalPrompt(newPrompt string, prompts 
 
 func (a *appImpl) startSpinner() chan bool {
 	stopChan := make(chan bool)
-	go a.tui.ShowSpinner("Please wait, generating script...", stopChan)
+	go a.tui.ShowSpinner("Please wait, generating script...", "SnipKit Assistant", stopChan)
 	return stopChan
 }
 

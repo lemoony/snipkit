@@ -219,12 +219,14 @@ func Test_ShowPicker(t *testing.T) {
 
 func Test_ShowSpinner(t *testing.T) {
 	termtest.RunTerminalTest(t, func(c *termtest.Console) {
+		c.ExpectString("Title")
 		c.ExpectString("Waiting...")
 		c.SendKey(termtest.KeyStrC)
 	}, func(stdio termutil.Stdio) {
 		term := NewTUI(WithStdio(stdio))
 		term.ShowSpinner(
 			"Waiting...",
+			"Title",
 			make(chan bool),
 		)
 	})
