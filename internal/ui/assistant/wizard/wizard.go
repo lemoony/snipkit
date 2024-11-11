@@ -48,10 +48,10 @@ type formModel struct {
 	input    textinput.Model
 }
 
-func ShowAssistantWizard(config Config, styler style.Style) (bool, Result) {
+func ShowAssistantWizard(config Config, styler style.Style, teaOptions ...tea.ProgramOption) (bool, Result) {
 	m := newFormModel(config, styler)
 
-	teaModel, err := tea.NewProgram(m).Run()
+	teaModel, err := tea.NewProgram(m, teaOptions...).Run()
 	if err != nil {
 		return false, Result{SelectedOption: OptionDontSaveExit}
 	}
@@ -201,28 +201,18 @@ func (m *formModel) View() string {
 
 	switch m.step {
 	case formStepSelectOption:
-		sb.WriteString(renderTitle(m.styler, "The snippet was executed. What now?"))
+		sb.WriteString(m.styler.PromptLabel("The snippet was executed. What now?"))
 		sb.WriteString("\n")
 		sb.WriteString(m.list.View())
 	case formStepEnterFilename:
-		sb.WriteString(renderTitle(m.styler, "Snippet Filename:"))
+		sb.WriteString(m.styler.PromptLabel("Snippet Filename:"))
 		sb.WriteString("\n")
 		sb.WriteString(m.input.View())
 		sb.WriteString("\n\n")
-		sb.WriteString(lipgloss.NewStyle().Foreground(m.styler.PlaceholderColor().Value()).Render("Press enter to confirm"))
+		sb.WriteString(m.styler.InputHelp("Press enter to confirm"))
 	}
 
 	return sb.String()
-}
-
-func renderTitle(styler style.Style, title string) string {
-	return lipgloss.NewStyle().
-		Bold(true).
-		Foreground(styler.TitleColor().Value()).
-		Border(lipgloss.ThickBorder(), false, false, false, true).
-		BorderForeground(styler.BorderColor().Value()).
-		PaddingLeft(1).
-		Render(title)
 }
 
 type listItem struct {

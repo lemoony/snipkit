@@ -18,14 +18,15 @@ import (
 type Key string
 
 const (
-	KeyEnter = Key("\r")
-	KeyTab   = Key("\t")
-	KeyEsc   = Key(string(rune(27)))
-	KeyStrC  = Key(string(rune(3)))
-	KeyUp    = Key("\u001B[A")
-	KeyDown  = Key("\u001B[B")
-	KeyLeft  = Key("\x1b[D")
-	KeyRight = Key("\x1b[C")
+	KeyEnter  = Key("\r")
+	KeyTab    = Key("\t")
+	KeyEsc    = Key(string(rune(27)))
+	KeyStrC   = Key(string(rune(3)))
+	KeyDelete = Key(string(rune(127)))
+	KeyUp     = Key("\u001B[A")
+	KeyDown   = Key("\u001B[B")
+	KeyLeft   = Key("\x1b[D")
+	KeyRight  = Key("\x1b[C")
 
 	defaultTestSleepTime = time.Millisecond * 100
 	defaultSendSleepTime = time.Millisecond * 10

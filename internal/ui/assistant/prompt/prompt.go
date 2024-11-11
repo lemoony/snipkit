@@ -23,9 +23,7 @@ type model struct {
 	latestPrompt string
 	description  string
 
-	styler           style.Style
-	descriptionStyle lipgloss.Style
-	inputStyle       lipgloss.Style
+	styler style.Style
 }
 
 func ShowPrompt(config Config, styler style.Style, teaOptions ...tea.ProgramOption) (bool, string) {
@@ -42,11 +40,9 @@ func ShowPrompt(config Config, styler style.Style, teaOptions ...tea.ProgramOpti
 
 func newModel(config Config, styler style.Style) *model {
 	m := &model{
-		history:          config.History,
-		styler:           styler,
-		success:          true,
-		descriptionStyle: createDescriptionStyle(styler),
-		inputStyle:       createInputStyle(styler),
+		history: config.History,
+		styler:  styler,
+		success: true,
 	}
 
 	m.setupDescription()
@@ -55,32 +51,17 @@ func newModel(config Config, styler style.Style) *model {
 	return m
 }
 
-func createDescriptionStyle(styler style.Style) lipgloss.Style {
-	return lipgloss.NewStyle().
-		Border(lipgloss.ThickBorder(), false, false, false, true).
-		Foreground(styler.BorderColor().Value()).
-		BorderForeground(styler.BorderColor().Value()).
-		PaddingLeft(1)
-}
-
-func createInputStyle(styler style.Style) lipgloss.Style {
-	return lipgloss.NewStyle().
-		Border(lipgloss.ThickBorder(), false, false, false, true).
-		BorderForeground(styler.BorderColor().Value()).
-		PaddingLeft(1)
-}
-
 func (m *model) setupDescription() {
 	if len(m.history) > 0 {
 		m.description = fmt.Sprintf(
 			"%s\n%s\n%s",
-			"Do you want to provide additional context or change anything?",
-			lipgloss.NewStyle().Italic(true).Render("Your previous prompts and their results are automatically provided as context:"),
+			m.styler.PromptLabel("Do you want to provide additional context or change anything?"),
+			m.styler.PromptDescription("Your previous prompts and their results are automatically provided as context:"),
 			m.renderHistory(),
 		)
 		m.input.Placeholder = "Type a new prompt or just press enter ..."
 	} else {
-		m.description = "What do you want the script to do?"
+		m.description = m.styler.PromptLabel("What do you want the script to do?")
 	}
 }
 
@@ -90,7 +71,7 @@ func (m *model) renderHistory() string {
 		if i > 0 {
 			sb.WriteString("\n")
 		}
-		sb.WriteString(fmt.Sprintf("%s%s", lipgloss.NewStyle().Foreground(lipgloss.Color("63")).Italic(true).Render(fmt.Sprintf("[%d] ", i+1)), v))
+		sb.WriteString(m.styler.PromptDescription(fmt.Sprintf("%s%s", lipgloss.NewStyle().Foreground(lipgloss.Color("63")).Italic(true).Render(fmt.Sprintf("[%d] ", i+1)), v)))
 	}
 	return sb.String()
 }
@@ -137,7 +118,7 @@ func (m *model) View() string {
 	return fmt.Sprintf(
 		"%s\n%s\n%s",
 		m.styler.Title("SnipKit Assistant"),
-		m.descriptionStyle.Render(m.description),
-		m.inputStyle.Render(m.input.View()),
+		m.description,
+		m.styler.InputIndent(m.input.View()),
 	)
 }

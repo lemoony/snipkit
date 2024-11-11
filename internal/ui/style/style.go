@@ -56,6 +56,51 @@ func (s *Style) Title(text string) string {
 	return s.TitleStyle().Render(text)
 }
 
+func (s *Style) PromptLabelStyle() lipgloss.Style {
+	return lipgloss.NewStyle().
+		Bold(true).
+		Foreground(s.TitleColor().Value()).
+		Border(lipgloss.ThickBorder(), false, false, false, true).
+		BorderForeground(s.BorderColor().Value()).
+		PaddingLeft(1)
+}
+
+func (s *Style) PromptLabel(text string) string {
+	return s.PromptLabelStyle().Render(text)
+}
+
+func (s *Style) PromptDescriptionStyle() lipgloss.Style {
+	return lipgloss.NewStyle().
+		Italic(true).
+		Foreground(s.PlaceholderColor().Value()).
+		Border(lipgloss.ThickBorder(), false, false, false, true).
+		BorderForeground(s.BorderColor().Value()).
+		PaddingLeft(1)
+}
+
+func (s *Style) PromptDescription(text string) string {
+	return s.PromptDescriptionStyle().Render(text)
+}
+
+func (s *Style) InputIndentSyle() lipgloss.Style {
+	return lipgloss.NewStyle().
+		Border(lipgloss.ThickBorder(), false, false, false, true).
+		BorderForeground(s.BorderColor().Value()).
+		PaddingLeft(1)
+}
+
+func (s *Style) InputIndent(text string) string {
+	return s.InputIndentSyle().Render(text)
+}
+
+func (s *Style) InputHelpStyle() lipgloss.Style {
+	return lipgloss.NewStyle().Foreground(s.PlaceholderColor().Value())
+}
+
+func (s *Style) InputHelp(text string) string {
+	return s.InputHelpStyle().Render(text)
+}
+
 func (s *Style) FormFieldWrapper(field string) string {
 	if s.minimize {
 		return lipgloss.NewStyle().Margin(0, 0, 0, 0).Render(field)
