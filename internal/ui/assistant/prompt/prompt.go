@@ -116,7 +116,7 @@ func (m *model) View() string {
 	}
 
 	return fmt.Sprintf(
-		"%s\n%s\n%s",
+		"\n%s\n%s\n%s",
 		m.styler.Title("SnipKit Assistant"),
 		m.description,
 		m.styler.InputIndent(m.input.View()),

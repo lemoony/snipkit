@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	assistantDemoScriptFlag string
+	assistantDemoScriptFlag []string
 	assistantDemoWaitFlag   int
 )
 

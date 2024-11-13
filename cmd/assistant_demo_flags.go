@@ -3,10 +3,10 @@
 package cmd
 
 func init() {
-	generateCmd.PersistentFlags().StringVar(
+	generateCmd.PersistentFlags().StringArrayVar(
 		&assistantDemoScriptFlag,
 		"demo-script",
-		"",
+		[]string{},
 		"Path to a fixed script (demo purposes only)",
 	)
 

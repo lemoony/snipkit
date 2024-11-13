@@ -66,7 +66,7 @@ echo ${FOO_KEY}
 		}),
 	)
 
-	app.GenerateSnippetWithAssistant("", 0)
+	app.GenerateSnippetWithAssistant([]string{}, 0)
 
 	fsLibManager.AssertCalled(t, mockutil.SaveAssistantSnippet, exampleTitle, exampleFile, []byte(exampleScript))
 }
@@ -108,7 +108,7 @@ func Test_App_GenerateSnippetWithAssistant_TweakPrompt_DontSave(t *testing.T) {
 		}),
 	)
 
-	app.GenerateSnippetWithAssistant("", 0)
+	app.GenerateSnippetWithAssistant([]string{}, 0)
 }
 
 func Test_App_EnableAssistant(t *testing.T) {

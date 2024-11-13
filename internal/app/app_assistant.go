@@ -22,31 +22,37 @@ import (
 	"github.com/lemoony/snipkit/internal/utils/tmpdir"
 )
 
-func (a *appImpl) GenerateSnippetWithAssistant(demoScriptPath string, demoQueryDuration time.Duration) {
-	assistantInstance := a.assistantProviderFunc(a.config.Assistant)
-	if valid, msg := assistantInstance.Initialize(); !valid {
+func (a *appImpl) GenerateSnippetWithAssistant(demoScriptPath []string, demoQueryDuration time.Duration) {
+	asst := a.assistantProviderFunc(a.config.Assistant)
+
+	a.demoScriptPaths = demoScriptPath
+	a.demoWaitFlag = demoQueryDuration
+
+	if valid, msg := asst.Initialize(); !valid {
 		a.tui.PrintAndExit(msg, -1)
 	}
 
 	if ok, text := a.tui.ShowAssistantPrompt([]string{}); ok {
 		prompts := []string{text}
 		spinnerStop := a.startSpinner()
-		script := a.getScriptWithAssistant(assistantInstance, demoScriptPath, demoQueryDuration, text)
+		script := a.getScriptWithAssistant(asst, text)
 		close(spinnerStop)
-		a.handleGeneratedScript(script, prompts, assistantInstance)
+		a.handleGeneratedScript(script, prompts, asst)
 	}
 }
 
-func (a *appImpl) getScriptWithAssistant(asst assistant.Assistant, demoScriptPath string, demoQueryDuration time.Duration, prompt string) assistant.ParsedScript {
-	if demoScriptPath != "" {
-		demoScript := a.system.ReadFile(demoScriptPath)
-		time.Sleep(demoQueryDuration)
+func (a *appImpl) getScriptWithAssistant(asst assistant.Assistant, prompt string) assistant.ParsedScript {
+	if len(a.demoScriptPaths) > 0 {
+		demoScript := a.system.ReadFile(a.demoScriptPaths[a.demoScriptIndex])
+		a.demoScriptIndex++
+		time.Sleep(a.demoWaitFlag)
 		return assistant.ParsedScript{
 			Contents: string(demoScript),
 			Filename: "demo.sh",
 			Title:    "Demo",
 		}
 	}
+
 	return asst.Query(prompt)
 }
 
@@ -95,7 +101,7 @@ func (a *appImpl) executeAndHandleSnippet(snippet model.Snippet, parameterValues
 
 func (a *appImpl) generateSnippetWithAdditionalPrompt(newPrompt string, prompts []string, asst assistant.Assistant) {
 	spinnerStop := a.startSpinner()
-	parsed := asst.Query(newPrompt)
+	parsed := a.getScriptWithAssistant(asst, newPrompt)
 	close(spinnerStop)
 	a.handleGeneratedScript(parsed, prompts, asst)
 }

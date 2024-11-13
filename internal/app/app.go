@@ -43,7 +43,7 @@ type App interface {
 	LookupAndExecuteSnippet(bool, bool)
 	FindScriptAndExecuteWithParameters(string, []model.ParameterValue, bool, bool)
 	ExportSnippets([]ExportField, ExportFormat) string
-	GenerateSnippetWithAssistant(string, time.Duration)
+	GenerateSnippetWithAssistant([]string, time.Duration)
 	EnableAssistant()
 	Info()
 	AddManager()
@@ -157,6 +157,10 @@ type appImpl struct {
 	provider                  managers.Provider
 	assistantProviderFunc     func(assistant.Config) assistant.Assistant
 	checkNeedsConfigMigration bool
+
+	demoScriptPaths []string
+	demoScriptIndex int
+	demoWaitFlag    time.Duration
 }
 
 func (a *appImpl) getAllSnippets() []model.Snippet {

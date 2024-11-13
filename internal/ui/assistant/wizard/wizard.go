@@ -243,6 +243,7 @@ func (m *formModel) View() string {
 	}
 
 	var sb strings.Builder
+	sb.WriteString("\n")
 	sb.WriteString(m.styler.Title("SnipKit Assistant"))
 	sb.WriteString("\n")
 

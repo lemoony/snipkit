@@ -98,7 +98,7 @@ func (m *model) View() string {
 	}
 	var str string
 	if !m.quitting {
-		str = fmt.Sprintf("%s\n%s%s", m.styler.Title(m.title), m.spinner.View(), m.text)
+		str = fmt.Sprintf("\n%s\n%s%s", m.styler.Title(m.title), m.spinner.View(), m.text)
 	}
 	return str
 }

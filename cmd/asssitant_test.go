@@ -12,7 +12,7 @@ func Test_Assistant_GenerateCmd(t *testing.T) {
 	defer resetCommand(execCmd)
 
 	app := mocks.App{}
-	app.On("GenerateSnippetWithAssistant", "", mock.Anything).Return(nil)
+	app.On("GenerateSnippetWithAssistant", mock.Anything, mock.Anything).Return(nil)
 
 	runExecuteTest(t, []string{"assistant", "generate"}, withApp(&app))
 
