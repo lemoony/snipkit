@@ -24,7 +24,6 @@ import (
 
 func (a *appImpl) GenerateSnippetWithAssistant(demoScriptPath []string, demoQueryDuration time.Duration) {
 	asst := a.assistantProviderFunc(a.config.Assistant)
-
 	a.demoScriptPaths = demoScriptPath
 	a.demoWaitFlag = demoQueryDuration
 
@@ -68,7 +67,7 @@ func (a *appImpl) handleGeneratedScript(parsed assistant.ParsedScript, prompts [
 			panic(errors.Wrapf(err, "failed to read temporary file"))
 		}
 
-		snippet := assistant.PrepareSnippet(updatedContents)
+		snippet := assistant.PrepareSnippet(updatedContents, parsed)
 		if parameters := snippet.GetParameters(); len(parameters) > 0 {
 			parameterValues, paramOk := a.tui.ShowParameterForm(parameters, nil, ui.OkButtonExecute)
 			if paramOk {
@@ -81,7 +80,7 @@ func (a *appImpl) handleGeneratedScript(parsed assistant.ParsedScript, prompts [
 }
 
 func (a *appImpl) executeAndHandleSnippet(snippet model.Snippet, parameterValues []string, prompts []string, asst assistant.Assistant, script assistant.ParsedScript) {
-	executed, capturedResult := a.executeSnippet(false, false, snippet, parameterValues)
+	executed, capturedResult := a.executeSnippet(len(parameterValues) == 0, false, snippet, parameterValues)
 	if executed {
 		wizardOk, result := a.tui.ShowAssistantWizard(wizard.Config{
 			ShowSaveOption:      a.config.Assistant.SaveMode != assistant.SaveModeNever,

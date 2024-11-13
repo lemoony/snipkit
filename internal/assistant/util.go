@@ -7,10 +7,9 @@ import (
 	"time"
 
 	"github.com/lemoony/snipkit/internal/model"
-	"github.com/lemoony/snipkit/internal/utils/titleheader"
 )
 
-func PrepareSnippet(content []byte) model.Snippet {
+func PrepareSnippet(content []byte, parsed ParsedScript) model.Snippet {
 	contentStr := string(content)
 	return snippetImpl{
 		id:      "",
@@ -18,10 +17,7 @@ func PrepareSnippet(content []byte) model.Snippet {
 		tags:    []string{},
 		content: contentStr,
 		titleFunc: func() string {
-			if title, ok := titleheader.ParseTitleFromHeader(contentStr); ok {
-				return title
-			}
-			return ""
+			return parsed.Title
 		},
 	}
 }

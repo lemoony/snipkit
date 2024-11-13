@@ -102,13 +102,13 @@ func Test_RandomScriptFilename(t *testing.T) {
 
 func TestPrepareSnippet(t *testing.T) {
 	content := `#!/bin/sh
-#
-# Simple Contents
-#
+
 # ${FOO} Name: Foo
 echo ${FOO}`
 
-	snippet := PrepareSnippet([]byte(content))
+	snippet := PrepareSnippet([]byte(content), ParsedScript{
+		Title: "Simple Contents",
+	})
 
 	assert.Equal(t, "Simple Contents", snippet.GetTitle())
 	assert.Equal(t, model.LanguageBash, snippet.GetLanguage())

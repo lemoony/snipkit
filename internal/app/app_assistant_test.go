@@ -89,6 +89,7 @@ func Test_App_GenerateSnippetWithAssistant_TweakPrompt_DontSave(t *testing.T) {
 		go func() { <-(args[2].(chan bool)) }()
 	})
 	tui.On(mockutil.OpenEditor, mock.Anything, mock.Anything).Return()
+	tui.On(mockutil.Confirmation, mock.Anything).Return(true)
 
 	cfg := configtest.NewTestConfig().Config
 	cfgService := configMocks.ConfigService{}
