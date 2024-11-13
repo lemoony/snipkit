@@ -1,6 +1,8 @@
 package assistant
 
 import (
+	"time"
+
 	"emperror.dev/errors"
 	"github.com/phuslu/log"
 
@@ -26,6 +28,9 @@ type assistantImpl struct {
 
 	client   Client
 	provider ClientProvider
+
+	demo            DemoConfig
+	demoScriptIndex int
 }
 
 func NewBuilder(system *system.System, config Config, cache cache.Cache, options ...Option) Assistant {
@@ -48,10 +53,19 @@ func (a *assistantImpl) Initialize() (bool, uimsg.Printable) {
 }
 
 func (a *assistantImpl) Query(prompt string) ParsedScript {
-	response, err := a.client.Query(prompt)
-	if err != nil {
-		panic(err)
+	var response string
+	if len(a.demo.ScriptPaths) > 0 {
+		demoScript := a.system.ReadFile(a.demo.ScriptPaths[a.demoScriptIndex])
+		a.demoScriptIndex++
+		time.Sleep(a.demo.QueryDuration)
+		response = string(demoScript)
+	} else {
+		var err error
+		if response, err = a.client.Query(prompt); err != nil {
+			panic(err)
+		}
 	}
+
 	result := parseScript(response)
 	log.Trace().
 		Str("filename", result.Filename).

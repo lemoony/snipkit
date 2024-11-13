@@ -24,9 +24,10 @@ import (
 )
 
 func (a *appImpl) GenerateSnippetWithAssistant(demoScriptPath []string, demoQueryDuration time.Duration) {
-	asst := a.assistantProviderFunc(a.config.Assistant)
-	a.demoScriptPaths = demoScriptPath
-	a.demoWaitFlag = demoQueryDuration
+	asst := a.assistantProviderFunc(
+		a.config.Assistant,
+		assistant.DemoConfig{ScriptPaths: demoScriptPath, QueryDuration: demoQueryDuration},
+	)
 
 	if valid, msg := asst.Initialize(); !valid {
 		a.tui.PrintAndExit(msg, -1)
@@ -35,25 +36,10 @@ func (a *appImpl) GenerateSnippetWithAssistant(demoScriptPath []string, demoQuer
 	if ok, text := a.tui.ShowAssistantPrompt([]string{}); ok {
 		prompts := []string{text}
 		spinnerStop := a.startSpinner()
-		script := a.getScriptWithAssistant(asst, text)
+		script := asst.Query(text)
 		close(spinnerStop)
 		a.handleGeneratedScript(script, prompts, asst)
 	}
-}
-
-func (a *appImpl) getScriptWithAssistant(asst assistant.Assistant, prompt string) assistant.ParsedScript {
-	if len(a.demoScriptPaths) > 0 {
-		demoScript := a.system.ReadFile(a.demoScriptPaths[a.demoScriptIndex])
-		a.demoScriptIndex++
-		time.Sleep(a.demoWaitFlag)
-		return assistant.ParsedScript{
-			Contents: string(demoScript),
-			Filename: "demo.sh",
-			Title:    "Demo",
-		}
-	}
-
-	return asst.Query(prompt)
 }
 
 func (a *appImpl) handleGeneratedScript(parsed assistant.ParsedScript, prompts []string, asst assistant.Assistant) {
@@ -111,7 +97,7 @@ func (a *appImpl) executeAndHandleSnippet(snippet model.Snippet, parameterValues
 func (a *appImpl) generateSnippetWithAdditionalPrompt(newPrompt string, prompts []string, asst assistant.Assistant) {
 	log.Debug().Int("prompt_count", len(prompts)+1).Msg("Generating additional snippet with assistant")
 	spinnerStop := a.startSpinner()
-	parsed := a.getScriptWithAssistant(asst, newPrompt)
+	parsed := asst.Query(newPrompt)
 	close(spinnerStop)
 	a.handleGeneratedScript(parsed, prompts, asst)
 }
@@ -133,7 +119,7 @@ func (a *appImpl) saveScript(contents []byte, title, filename string) {
 }
 
 func (a *appImpl) EnableAssistant() {
-	assistantInstance := a.assistantProviderFunc(a.config.Assistant)
+	assistantInstance := a.assistantProviderFunc(a.config.Assistant, assistant.DemoConfig{})
 	assistantDescriptions := assistantInstance.AssistantDescriptions(a.config.Assistant)
 
 	listItems := make([]picker.Item, len(assistantDescriptions))

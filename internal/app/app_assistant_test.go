@@ -61,7 +61,7 @@ echo ${FOO_KEY}
 		WithTUI(&tui),
 		WithConfigService(&cfgService),
 		WithProvider(&provider),
-		WithAssistantProviderFunc(func(config assistant.Config) assistant.Assistant {
+		WithAssistantProviderFunc(func(config assistant.Config, demoConfig assistant.DemoConfig) assistant.Assistant {
 			return &assistantMock
 		}),
 	)
@@ -104,7 +104,7 @@ func Test_App_GenerateSnippetWithAssistant_TweakPrompt_DontSave(t *testing.T) {
 	app := NewApp(
 		WithTUI(&tui),
 		WithConfigService(&cfgService),
-		WithAssistantProviderFunc(func(config assistant.Config) assistant.Assistant {
+		WithAssistantProviderFunc(func(config assistant.Config, demoConfig assistant.DemoConfig) assistant.Assistant {
 			return &assistantMock
 		}),
 	)

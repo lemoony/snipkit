@@ -77,7 +77,7 @@ func WithProvider(builder managers.Provider) Option {
 }
 
 // WithAssistantProviderFunc sets the assistant provider.
-func WithAssistantProviderFunc(providerFunc func(c assistant.Config) assistant.Assistant) Option {
+func WithAssistantProviderFunc(providerFunc func(c assistant.Config, d assistant.DemoConfig) assistant.Assistant) Option {
 	return optionFunc(func(a *appImpl) {
 		a.assistantProviderFunc = providerFunc
 	})
@@ -113,8 +113,8 @@ func NewApp(options ...Option) App {
 		system:   system,
 		tui:      ui.NewTUI(),
 		provider: managers.NewBuilder(appCache),
-		assistantProviderFunc: func(config assistant.Config) assistant.Assistant {
-			return assistant.NewBuilder(system, config, appCache)
+		assistantProviderFunc: func(config assistant.Config, demo assistant.DemoConfig) assistant.Assistant {
+			return assistant.NewBuilder(system, config, appCache, assistant.WithDemoConfig(demo))
 		},
 		cache:                     appCache,
 		checkNeedsConfigMigration: true,
@@ -155,12 +155,8 @@ type appImpl struct {
 
 	configService             config.Service
 	provider                  managers.Provider
-	assistantProviderFunc     func(assistant.Config) assistant.Assistant
+	assistantProviderFunc     func(assistant.Config, assistant.DemoConfig) assistant.Assistant
 	checkNeedsConfigMigration bool
-
-	demoScriptPaths []string
-	demoScriptIndex int
-	demoWaitFlag    time.Duration
 }
 
 func (a *appImpl) getAllSnippets() []model.Snippet {

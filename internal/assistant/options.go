@@ -1,5 +1,12 @@
 package assistant
 
+import "time"
+
+type DemoConfig struct {
+	ScriptPaths   []string
+	QueryDuration time.Duration
+}
+
 // Option configures a Manager.
 type Option interface {
 	apply(a *assistantImpl)
@@ -15,5 +22,11 @@ func (f optionFunc) apply(provider *assistantImpl) {
 func withClientProvider(provider ClientProvider) Option {
 	return optionFunc(func(a *assistantImpl) {
 		a.provider = provider
+	})
+}
+
+func WithDemoConfig(demo DemoConfig) Option {
+	return optionFunc(func(a *assistantImpl) {
+		a.demo = demo
 	})
 }
