@@ -15,6 +15,13 @@ func Test_Migrate(t *testing.T) {
 	assert.YAMLEq(t, string(newCfg), string(actualCfg))
 }
 
+func Test_Migrate_FsLibrary(t *testing.T) {
+	oldCfg := testdata.ConfigBytes(t, testdata.ConfigV111FsLibrary)
+	newCfg := testdata.ConfigBytes(t, testdata.ConfigV120FsLibrary)
+	actualCfg := Migrate(oldCfg)
+	assert.YAMLEq(t, string(newCfg), string(actualCfg))
+}
+
 func Test_Migrate_invalidYamlPanic(t *testing.T) {
 	assert.Panics(t, func() {
 		Migrate([]byte("{"))

@@ -26,7 +26,7 @@ func TestShowAssistantWizard_TryAgainOption(t *testing.T) {
 }
 
 func TestShowAssistantWizard_SaveExit_Default(t *testing.T) {
-	config := Config{ProposedFilename: "initial-filename.txt", ProposedSnippetName: "Foo title"}
+	config := Config{ShowSaveOption: true, ProposedFilename: "initial-filename.txt", ProposedSnippetName: "Foo title"}
 
 	termtest.RunTerminalTest(t, func(c *termtest.Console) {
 		c.ExpectString("SnipKit Assistant")
@@ -47,7 +47,7 @@ func TestShowAssistantWizard_SaveExit_Default(t *testing.T) {
 }
 
 func TestShowAssistantWizard_SaveExit_Edit(t *testing.T) {
-	config := Config{ProposedFilename: "x.txt", ProposedSnippetName: "foo title"}
+	config := Config{ShowSaveOption: true, ProposedFilename: "x.txt", ProposedSnippetName: "foo title"}
 
 	termtest.RunTerminalTest(t, func(c *termtest.Console) {
 		c.ExpectString("SnipKit Assistant")
@@ -76,7 +76,7 @@ func TestShowAssistantWizard_SaveExit_Edit(t *testing.T) {
 }
 
 func TestShowAssistantWizard_DontSaveExit(t *testing.T) {
-	config := Config{ProposedFilename: "initial-filename.txt"}
+	config := Config{ShowSaveOption: true, ProposedFilename: "initial-filename.txt"}
 
 	termtest.RunTerminalTest(t, func(c *termtest.Console) {
 		c.ExpectString("SnipKit Assistant")

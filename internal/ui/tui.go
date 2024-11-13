@@ -206,7 +206,7 @@ func (t tuiImpl) ShowAssistantPrompt(history []string) (bool, string) {
 }
 
 func (t tuiImpl) ShowAssistantWizard(config wizard.Config) (bool, wizard.Result) {
-	return wizard.ShowAssistantWizard(config, t.styler)
+	return wizard.ShowAssistantWizard(config, t.styler, tea.WithInput(t.stdio.In), tea.WithOutput(t.stdio.Out))
 }
 
 func (t tuiImpl) ShowSpinner(text, title string, stop chan bool) {

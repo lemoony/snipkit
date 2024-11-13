@@ -28,6 +28,7 @@ const (
 )
 
 type Config struct {
+	ShowSaveOption      bool
 	ProposedFilename    string
 	ProposedSnippetName string
 }
@@ -72,7 +73,7 @@ func ShowAssistantWizard(config Config, styler style.Style, teaOptions ...tea.Pr
 }
 
 func newFormModel(config Config, styler style.Style) *formModel {
-	listModel := createListModel(styler)
+	listModel := createListModel(config.ShowSaveOption, styler)
 	filenameInputModel := createFilenameInputModel(config, styler)
 	snippetNameInputModel := createSnippetNameInputModel(config, styler)
 
@@ -89,12 +90,16 @@ func newFormModel(config Config, styler style.Style) *formModel {
 	}
 }
 
-func createListModel(styler style.Style) list.Model {
+func createListModel(includeSaveOption bool, styler style.Style) list.Model {
 	items := []list.Item{
 		listItem{title: "Tweak prompt and/or try again", option: OptionTryAgain},
-		listItem{title: "Exit & Save", option: OptionSaveExit},
-		listItem{title: "Exit & Don't save", option: OptionDontSaveExit},
 	}
+
+	if includeSaveOption {
+		items = append(items, listItem{title: "Exit & Save", option: OptionSaveExit})
+	}
+
+	items = append(items, listItem{title: "Exit & Don't save", option: OptionDontSaveExit})
 
 	listStyles := list.NewDefaultItemStyles()
 	listStyles.SelectedTitle = lipgloss.NewStyle().
@@ -111,12 +116,11 @@ func createListModel(styler style.Style) list.Model {
 		PaddingLeft(1)
 
 	const listWidth = 32
-	const listHeight = 5
 
 	l := list.New(items, list.DefaultDelegate{
 		ShowDescription: false,
 		Styles:          listStyles,
-	}, listWidth, listHeight)
+	}, listWidth, 2+len(items))
 
 	l.SetShowTitle(false)
 	l.SetShowFilter(false)

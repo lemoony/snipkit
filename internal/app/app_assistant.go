@@ -83,7 +83,11 @@ func (a *appImpl) handleGeneratedScript(parsed assistant.ParsedScript, prompts [
 func (a *appImpl) executeAndHandleSnippet(snippet model.Snippet, parameterValues []string, prompts []string, asst assistant.Assistant, script assistant.ParsedScript) {
 	executed, capturedResult := a.executeSnippet(false, false, snippet, parameterValues)
 	if executed {
-		wizardOk, result := a.tui.ShowAssistantWizard(wizard.Config{ProposedFilename: script.Filename, ProposedSnippetName: script.Title})
+		wizardOk, result := a.tui.ShowAssistantWizard(wizard.Config{
+			ShowSaveOption:      a.config.Assistant.SaveMode != assistant.SaveModeNever,
+			ProposedFilename:    script.Filename,
+			ProposedSnippetName: script.Title,
+		})
 		if wizardOk {
 			switch result.SelectedOption {
 			case wizard.OptionTryAgain:

@@ -26,6 +26,12 @@ func Migrate(old []byte) []byte {
 		"saveMode": "NEVER",
 	}
 
+	if fslibConfig, ok := config.Config.Manager["fsLibrary"]; ok {
+		if fslibConfigMap, mapOk := fslibConfig.(map[string]interface{}); mapOk {
+			fslibConfigMap["assistantLibraryPathIndex"] = 0
+		}
+	}
+
 	configBytes, err := yaml.Marshal(config)
 	if err != nil {
 		panic(err)

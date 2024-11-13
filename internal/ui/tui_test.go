@@ -11,6 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/lemoony/snipkit/internal/model"
+	"github.com/lemoony/snipkit/internal/ui/assistant/wizard"
 	"github.com/lemoony/snipkit/internal/ui/confirm"
 	"github.com/lemoony/snipkit/internal/ui/picker"
 	"github.com/lemoony/snipkit/internal/ui/sync"
@@ -232,10 +233,8 @@ func Test_ShowSpinner(t *testing.T) {
 	})
 }
 
-func Test_ShowPrompt(t *testing.T) {
+func Test_ShowAssistantPrompt(t *testing.T) {
 	termtest.RunTerminalTest(t, func(c *termtest.Console) {
-		// TODO fix
-		// c.ExpectString("placeholder")
 		c.Send("foo")
 		c.SendKey(termtest.KeyEnter)
 	}, func(stdio termutil.Stdio) {
@@ -243,6 +242,18 @@ func Test_ShowPrompt(t *testing.T) {
 		ok, text := term.ShowAssistantPrompt([]string{"one", "two"})
 		assert.True(t, ok)
 		assert.Equal(t, "foo", text)
+	})
+}
+
+func Test_ShowAssistantWizard(t *testing.T) {
+	termtest.RunTerminalTest(t, func(c *termtest.Console) {
+		c.SendKey(termtest.KeyDown)
+		c.SendKey(termtest.KeyEnter)
+	}, func(stdio termutil.Stdio) {
+		term := NewTUI(WithStdio(stdio))
+		ok, result := term.ShowAssistantWizard(wizard.Config{})
+		assert.True(t, ok)
+		assert.Equal(t, wizard.OptionDontSaveExit, result.SelectedOption)
 	})
 }
 
