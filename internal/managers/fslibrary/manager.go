@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/phuslu/log"
 	"github.com/spf13/afero"
 
 	"github.com/lemoony/snipkit/internal/model"
@@ -78,10 +79,17 @@ func (m Manager) Key() model.ManagerKey {
 func (m Manager) SaveAssistantSnippet(snippetTitle string, filename string, contents []byte) {
 	dirPath := m.config.LibraryPath[m.config.AssistantLibraryPathIndex]
 	if file, err := filepath.Abs(filepath.Join(dirPath, filename)); err == nil {
+		log.Debug().
+			Str("title", snippetTitle).
+			Str("path", file).
+			Str("library_path", dirPath).
+			Msg("Saving assistant snippet to filesystem")
+
 		m.system.CreatePath(file)
 		m.system.WriteFile(file, []byte(formatSnippet(string(contents), snippetTitle)))
 		m.printer.Print(uimsg.AssistantSnippetSaved(snippetTitle, file))
 	} else {
+		log.Error().Err(err).Str("filename", filename).Msg("Failed to resolve absolute path for snippet")
 		panic(err)
 	}
 }

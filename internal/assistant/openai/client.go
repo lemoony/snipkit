@@ -10,10 +10,11 @@ import (
 	"os"
 
 	"emperror.dev/errors"
+	"github.com/phuslu/log"
 
 	"github.com/lemoony/snipkit/internal/assistant/prompts"
 	"github.com/lemoony/snipkit/internal/utils/httputil"
-	jsonutil "github.com/lemoony/snipkit/internal/utils/json"
+	"github.com/lemoony/snipkit/internal/utils/json"
 )
 
 type Client struct {
@@ -33,6 +34,8 @@ func NewClient(options ...Option) (*Client, error) {
 }
 
 func (c *Client) Query(prompt string) (string, error) {
+	log.Debug().Str("prompt", prompt).Msg("Starting query request")
+
 	apiKey, err := c.apiKey()
 	if err != nil {
 		return "", err
@@ -42,6 +45,8 @@ func (c *Client) Query(prompt string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
+	log.Trace().Str("request_body", string(reqBody)).Msg("Sending request to OpenAI")
 
 	resp, err := c.sendRequest(apiKey, reqBody)
 	if err != nil {
@@ -93,10 +98,17 @@ func (c *Client) sendRequest(apiKey string, jsonBody []byte) (*http.Response, er
 }
 
 func (c *Client) handleResponse(resp *http.Response) (string, error) {
+	log.Debug().Int("statusCode", resp.StatusCode).Msg("Handling API response")
+
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", errors.Wrap(err, "Error reading response body")
 	}
+
+	log.Trace().
+		Int("status_code", resp.StatusCode).
+		Str("response_body", string(body)).
+		Msg("Received response from OpenAI")
 
 	if resp.StatusCode != http.StatusOK {
 		return "", errors.Errorf("Error: received status code %d - Body: %s", resp.StatusCode, jsonutil.CompactJSON(body))

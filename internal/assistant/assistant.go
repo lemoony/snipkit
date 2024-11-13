@@ -2,6 +2,7 @@ package assistant
 
 import (
 	"emperror.dev/errors"
+	"github.com/phuslu/log"
 
 	"github.com/lemoony/snipkit/internal/assistant/gemini"
 	"github.com/lemoony/snipkit/internal/assistant/openai"
@@ -51,7 +52,13 @@ func (a *assistantImpl) Query(prompt string) ParsedScript {
 	if err != nil {
 		panic(err)
 	}
-	return parseScript(response)
+	result := parseScript(response)
+	log.Trace().
+		Str("filename", result.Filename).
+		Str("title", result.Title).
+		Str("contents", result.Contents).
+		Msg("Assistant generated script")
+	return result
 }
 
 func (a *assistantImpl) AssistantDescriptions(config Config) []model.AssistantDescription {
