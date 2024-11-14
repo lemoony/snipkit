@@ -16,20 +16,18 @@ import (
 )
 
 type Provider interface {
-	CreateManager(system system.System, config Config, printer ui.MessagePrinter) []Manager
+	CreateManager(system system.System, cache cache.Cache, config Config, printer ui.MessagePrinter) []Manager
 	ManagerDescriptions(config Config) []model.ManagerDescription
 	AutoConfig(key model.ManagerKey, s *system.System) Config
 }
 
-type providerImpl struct {
-	cache cache.Cache
+type providerImpl struct{}
+
+func NewBuilder() Provider {
+	return providerImpl{}
 }
 
-func NewBuilder(cache cache.Cache) Provider {
-	return providerImpl{cache: cache}
-}
-
-func (p providerImpl) CreateManager(system system.System, config Config, printer ui.MessagePrinter) []Manager {
+func (p providerImpl) CreateManager(system system.System, cache cache.Cache, config Config, printer ui.MessagePrinter) []Manager {
 	var managers []Manager
 
 	if manager := createSnippetsLab(system, config); manager != nil {
@@ -44,7 +42,7 @@ func (p providerImpl) CreateManager(system system.System, config Config, printer
 	if manager := createMassCodeConfig(system, config); manager != nil {
 		managers = append(managers, manager)
 	}
-	if manager := createGitHubGist(system, config, p.cache); manager != nil {
+	if manager := createGitHubGist(system, config, cache); manager != nil {
 		managers = append(managers, manager)
 	}
 	if manager := createFSLibrary(system, config, printer); manager != nil {

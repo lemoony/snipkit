@@ -115,7 +115,7 @@ func executeScript(script, configuredShell string) *capturedOutput {
 
 func formatOptions(cfg config.ScriptConfig) model.SnippetFormatOptions {
 	var paramMode model.SnippetParamMode
-	if strings.EqualFold(config.ParameterModeReplace, string(cfg.ParameterMode)) {
+	if strings.EqualFold(string(config.ParameterModeReplace), string(cfg.ParameterMode)) {
 		paramMode = model.SnippetParamModeReplace
 	} else {
 		paramMode = model.SnippetParamModeSet

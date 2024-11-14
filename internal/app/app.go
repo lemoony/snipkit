@@ -110,12 +110,12 @@ func NewApp(options ...Option) App {
 	appCache := cache.New(system)
 
 	app := &appImpl{
-		system:   system,
-		tui:      ui.NewTUI(),
-		provider: managers.NewBuilder(appCache),
+		system: system,
+		tui:    ui.NewTUI(),
 		assistantProviderFunc: func(config assistant.Config, demo assistant.DemoConfig) assistant.Assistant {
 			return assistant.NewBuilder(system, config, appCache, assistant.WithDemoConfig(demo))
 		},
+		provider:                  managers.NewBuilder(),
 		cache:                     appCache,
 		checkNeedsConfigMigration: true,
 	}
@@ -139,9 +139,13 @@ func NewApp(options ...Option) App {
 	if app.config == nil {
 		panic("no config provided")
 	}
+	// https://github.com/lemoony/snipkit/issues/268
+	if app.config.SecretStorage == config.SecretStoragePlainFiles {
+		appCache.EnablePlainFileSecrets()
+	}
 
 	app.tui.ApplyConfig(app.config.Style, system)
-	app.managers = app.provider.CreateManager(*app.system, app.config.Manager, app.tui)
+	app.managers = app.provider.CreateManager(*app.system, app.cache, app.config.Manager, app.tui)
 
 	return app
 }

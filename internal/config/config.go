@@ -6,11 +6,17 @@ import (
 	"github.com/lemoony/snipkit/internal/ui"
 )
 
-type ParameterMode string
+type (
+	ParameterMode string
+	SecretStorage string
+)
 
 const (
-	ParameterModeSet     = "SET"
-	ParameterModeReplace = "REPLACE"
+	ParameterModeSet     = ParameterMode("SET")
+	ParameterModeReplace = ParameterMode("REPLACE")
+
+	SecretStorageKeyring    = SecretStorage("KEYRING")
+	SecretStoragePlainFiles = SecretStorage("PLAIN_FILES")
 )
 
 type VersionWrapper struct {
@@ -23,6 +29,7 @@ type Config struct {
 	Editor             string           `yaml:"editor" mapstructure:"editor" head_comment:"Your preferred editor to open the config file when typing 'snipkit config edit'." line_comment:"Defaults to a reasonable value for your operation system when empty."`
 	DefaultRootCommand string           `yaml:"defaultRootCommand" mapstructure:"defaultRootCommand" head_comment:"The command which should run if you don't provide any subcommand." line_comment:"If not set, the help text will be shown."`
 	FuzzySearch        bool             `yaml:"fuzzySearch" mapstructure:"fuzzySearch" head_comment:"Enable fuzzy searching for snippet titles."`
+	SecretStorage      SecretStorage    `yaml:"secretStorage" mapstructure:"secretStorage" head_comment:"How secrets like access tokens are stored (see https://lemoony.github.io/snipkit/latest/configuration/overview/#secret-storage)."`
 	Script             ScriptConfig     `yaml:"scripts" mapstructure:"scripts" head_comment:"Options regarding script handling"`
 	Assistant          assistant.Config `yaml:"assistant" mapstructure:"assistant" head_comment:"Configure an AI assistant"`
 	Manager            managers.Config  `yaml:"manager" mapstructure:"manager"`

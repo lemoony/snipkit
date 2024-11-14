@@ -106,6 +106,30 @@ config:
   fuzzySearch: true
 ```
 
+### Secret Storage
+
+On linux machines, the keyring for storing secrets may not be accessible for SnipKit. As an alternative, you can opt-in to store secrets as plain files on the file system.
+
+The secrets will be stored in `<snipkit_home>/.secrets/`.
+
+```yaml title="config.yaml"
+version: 1.2.0
+config:
+  secretStorage: KEYRING 
+```
+
+Allowed Values: `KEYRING` | `PLAIN_FILES`
+
+!!! info
+    As of now, only the access token for the [GitHub Gist manager](githubgist) is stored as a secret.
+
+!!! danger
+    Don't chane this config to `PLAIN_FILES` unless you experience any problems with the keyring. This is config option is only a temporary workaround for [go-keyring#116](https://github.com/zalando/go-keyring/issues/116) (see also [SnipKit Issue #268](https://github.com/lemoony/snipkit/issues/268)) and will be removed as son as the related issue is fixed.
+
+
+[githubgist]: ../managers/githubgist.md
+
+
 ### Style
 
 #### Theme 

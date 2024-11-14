@@ -29,6 +29,7 @@ func Test_serializeToYamlWithComment(t *testing.T) {
 	testConfig.Config.Style.HideKeyMap = true
 
 	testConfig.Config.FuzzySearch = true
+	testConfig.Config.SecretStorage = SecretStorageKeyring
 
 	testConfig.Config.Assistant = assistant.Config{
 		SaveMode: assistant.SaveModeNever,

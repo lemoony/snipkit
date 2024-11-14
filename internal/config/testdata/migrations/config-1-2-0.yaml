@@ -12,6 +12,8 @@ config:
   defaultRootCommand: "" # If not set, the help text will be shown.
   # Enable fuzzy searching for snippet titles.
   fuzzySearch: true
+  # How secrets like access tokens are stored (see https://lemoony.github.io/snipkit/latest/configuration/overview/#secret-storage).
+  secretStorage: KEYRING
   scripts:
     # The path to the shell to execute scripts with. If not set or empty, $SHELL will be used instead. Fallback is '/bin/bash'.
     shell: /bin/zsh

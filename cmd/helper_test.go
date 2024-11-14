@@ -145,7 +145,7 @@ func runTerminalTest(t *testing.T, args []string, setup setup, hasError bool, te
 
 func testProviderForManager(manager managers.Manager) managers.Provider {
 	provider := mocks.Provider{}
-	provider.On("CreateManager", mock.Anything, mock.Anything, mock.Anything).Return([]managers.Manager{manager}, nil)
+	provider.On("CreateManager", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return([]managers.Manager{manager}, nil)
 	return &provider
 }
 
