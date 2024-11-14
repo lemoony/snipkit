@@ -65,7 +65,7 @@ func Test_NewAppNeedsConfigMigration(t *testing.T) {
 
 	assert.Equal(t, config.Version, err.latestVersion)
 	assert.Equal(t, "1.1.0", err.currentVersion)
-	assert.Contains(t, err.Error(), "to migrate the config file from version 1.1.0 to 1.1.1.")
+	assert.Contains(t, err.Error(), "to migrate the config file from version 1.1.0 to 1.2.0.")
 }
 
 func Test_NewAppNoManagers(t *testing.T) {
@@ -85,7 +85,7 @@ func Test_NewAppNoManagers(t *testing.T) {
 	tui.On(mockutil.ApplyConfig, mock.AnythingOfType("ui.Config"), mock.Anything).Return()
 
 	provider := managerMocks.Provider{}
-	provider.On("CreateManager", mock.Anything, mock.Anything).Return([]managers.Manager{}, nil)
+	provider.On("CreateManager", mock.Anything, mock.Anything, mock.Anything).Return([]managers.Manager{}, nil)
 
 	app := NewApp(
 		WithConfigService(config.NewService(config.WithViper(v))),

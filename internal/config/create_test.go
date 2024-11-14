@@ -5,6 +5,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	"github.com/lemoony/snipkit/internal/assistant"
+	"github.com/lemoony/snipkit/internal/assistant/openai"
 	"github.com/lemoony/snipkit/internal/config/testdata"
 	"github.com/lemoony/snipkit/internal/managers/fslibrary"
 	"github.com/lemoony/snipkit/internal/managers/githubgist"
@@ -13,6 +15,7 @@ import (
 	"github.com/lemoony/snipkit/internal/managers/snippetslab"
 )
 
+//nolint:funlen // test function for yaml config is allowed to be too long
 func Test_serializeToYamlWithComment(t *testing.T) {
 	var testConfig VersionWrapper
 	testConfig.Version = Version
@@ -26,6 +29,16 @@ func Test_serializeToYamlWithComment(t *testing.T) {
 	testConfig.Config.Style.HideKeyMap = true
 
 	testConfig.Config.FuzzySearch = true
+
+	testConfig.Config.Assistant = assistant.Config{
+		SaveMode: assistant.SaveModeNever,
+		OpenAI: &openai.Config{
+			Enabled:   true,
+			Endpoint:  "test.endpoint.com",
+			Model:     "test/model",
+			APIKeyEnv: "foo-key",
+		},
+	}
 
 	testConfig.Config.Manager.SnippetsLab = &snippetslab.Config{
 		Enabled: true, LibraryPath: "/path/to/lib", IncludeTags: []string{"snipkit", "othertag"},
@@ -54,11 +67,12 @@ func Test_serializeToYamlWithComment(t *testing.T) {
 		},
 	}
 	testConfig.Config.Manager.FsLibrary = &fslibrary.Config{
-		Enabled:            true,
-		LibraryPath:        []string{"/path/to/file/system/library"},
-		SuffixRegex:        []string{".sh"},
-		LazyOpen:           true,
-		HideTitleInPreview: true,
+		Enabled:                   true,
+		LibraryPath:               []string{"/path/to/file/system/library"},
+		AssistantLibraryPathIndex: 0,
+		SuffixRegex:               []string{".sh"},
+		LazyOpen:                  true,
+		HideTitleInPreview:        true,
 	}
 
 	expectedConfigBytes := testdata.ConfigBytes(t, testdata.Example)

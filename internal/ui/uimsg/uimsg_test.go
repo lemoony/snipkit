@@ -68,7 +68,6 @@ func Test_ConfigFileCreateResult(t *testing.T) {
 	}
 	for _, tt := range tests {
 		c := ConfigFileCreateResult(tt.deleted, testCfgPath, tt.recreate)
-		// TODO: assert more
 		assert.NotEmpty(t, c)
 	}
 }
@@ -134,6 +133,10 @@ func Test_ManagerAddConfigResult(t *testing.T) {
 
 func Test_ManagerOauthDeviceFlow(t *testing.T) {
 	assert.Contains(t, render(ManagerOauthDeviceFlow("github.com", "1234-5678")), "1234-5678")
+}
+
+func Test_MAssistantUpdateConfigResult(t *testing.T) {
+	assert.Contains(t, render(AssistantUpdateConfigResult(true, testCfgPath)), testCfgPath)
 }
 
 func Test_renderInvalidTemplate(t *testing.T) {

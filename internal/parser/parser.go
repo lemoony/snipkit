@@ -53,7 +53,7 @@ func ParseParameters(snippet string) []model.Parameter {
 }
 
 func CreateSnippet(snippet string, parameters []model.Parameter, values []string, options model.SnippetFormatOptions) string {
-	if len(values) != len(parameters) {
+	if len(values) < len(parameters) {
 		log.Warn().Msgf(
 			"Number of parameters (%d) and number of supplied values (%d) does not match",
 			len(parameters),

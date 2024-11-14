@@ -172,7 +172,7 @@ func Test_languageForSuffix(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.suffix, func(t *testing.T) {
-			assert.Equal(t, tt.expected, languageForSuffix(tt.suffix))
+			assert.Equal(t, tt.expected, LanguageForSuffix(tt.suffix))
 		})
 	}
 }

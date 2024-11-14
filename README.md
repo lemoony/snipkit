@@ -4,7 +4,7 @@
   SnipKit - Snippet CLI manager
 </h1>
 
-<h4 align="center">Execute the scripts saved in your favorite snippet manager without even leaving the terminal.
+<h4 align="center">Execute the scripts saved in your favorite snippet manager or generate new scripts with the help of AI without even leaving the terminal.
 </h4>
 
 <p>
@@ -28,6 +28,7 @@
 
 ## Features
 
+- Generate new scripts with the help of SnipKit Assistant
 - Load snippets form an external snippet manager (filtered by tags)
   - [SnippetsLab](https://www.renfei.org/snippets-lab/)
   - [Snip](https://github.com/Pictarine/macos-snippets)
@@ -47,6 +48,26 @@
 - Root command can be adjusted (e.g. set to `print` or `exec`)
 
 Inspired by [Pet](https://github.com/knqyf263/pet).
+
+### SnipKit Assistant (BETA)  🤖
+
+SnipKit Assistant lets you generate parameterized scripts based on a prompt directly from the command line:
+
+<img alt="Demo" src="./docs/images/assistant/assistant.gif" />
+
+The assistant also allows you to save generated scripts and retry or adjust the prompt based on the script output. For more details, see the [documentation](https://lemoony.github.io/snipkit/assistant/). 
+
+> ⚠️ SnipKit Assistant is currently in beta for OpenAI and Gemini. A couple of improvements are already in the pipeline...
+
+### Parameters
+
+SnipKit supports different types of script parameters to ease execution:
+
+| Parameter Type    | Demo                                                                    |
+|-------------------|-------------------------------------------------------------------------|
+| Predefined values | ![Predefined Values](./docs/images/param-example-predefined-values.gif) |
+| Path              | ![Path](./docs/images/param-example-path.gif)                           |
+| Password          | ![Password](./docs/images/param-example-password.gif)                   |
 
 ## Quick Start
 

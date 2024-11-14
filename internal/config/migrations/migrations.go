@@ -6,10 +6,11 @@ import (
 
 	configV110 "github.com/lemoony/snipkit/internal/config/migrations/v110"
 	configV111 "github.com/lemoony/snipkit/internal/config/migrations/v111"
+	configV120 "github.com/lemoony/snipkit/internal/config/migrations/v120"
 )
 
 const (
-	Latest = configV111.VersionTo
+	Latest = configV120.VersionTo
 )
 
 func Migrate(config []byte) []byte {
@@ -26,6 +27,8 @@ func Migrate(config []byte) []byte {
 			config = configV110.Migrate(config)
 		case configV111.VersionFrom:
 			config = configV111.Migrate(config)
+		case configV120.VersionFrom:
+			config = configV120.Migrate(config)
 		case Latest:
 			return config
 		default:

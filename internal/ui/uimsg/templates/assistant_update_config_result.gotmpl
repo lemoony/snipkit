@@ -1,0 +1,10 @@
+{{- if .confirmed -}}
+Updated the configuration file:
+  {{ print (Highlighted .cfgPath) }}
+
+Type in {{ print (Highlighted "snipkit config edit") }} to adjust the config as necessary.
+
+Don't forget to provide the API key as an environment variable.
+{{- else -}}
+The configuration file was not changed.
+{{- end -}}

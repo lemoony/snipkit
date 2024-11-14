@@ -11,6 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/lemoony/snipkit/internal/model"
+	"github.com/lemoony/snipkit/internal/ui/assistant/wizard"
 	"github.com/lemoony/snipkit/internal/ui/confirm"
 	"github.com/lemoony/snipkit/internal/ui/picker"
 	"github.com/lemoony/snipkit/internal/ui/sync"
@@ -196,20 +197,63 @@ func Test_ShowSync(t *testing.T) {
 
 func Test_ShowPicker(t *testing.T) {
 	termtest.RunTerminalTest(t, func(c *termtest.Console) {
-		c.ExpectString("Which snippet manager should be added to your configuration")
+		c.ExpectString("Which item to choose?")
 		c.SendKey(termtest.KeyDown)
 		c.SendKey(termtest.KeyDown)
 		c.SendKey(termtest.KeyUp)
 		c.SendKey(termtest.KeyEnter)
 	}, func(stdio termutil.Stdio) {
 		term := NewTUI(WithStdio(stdio))
-		index, ok := term.ShowPicker([]picker.Item{
-			picker.NewItem("title1", "desc1"),
-			picker.NewItem("title2", "desc2"),
-			picker.NewItem("title3", "desc3"),
-		})
+		index, ok := term.ShowPicker(
+			"Which item to choose?",
+			[]picker.Item{
+				picker.NewItem("title1", "desc1"),
+				picker.NewItem("title2", "desc2"),
+				picker.NewItem("title3", "desc3"),
+			},
+			nil,
+		)
 		assert.Equal(t, 1, index)
 		assert.True(t, ok)
+	})
+}
+
+func Test_ShowSpinner(t *testing.T) {
+	termtest.RunTerminalTest(t, func(c *termtest.Console) {
+		c.ExpectString("Title")
+		c.ExpectString("Waiting...")
+		c.SendKey(termtest.KeyStrC)
+	}, func(stdio termutil.Stdio) {
+		term := NewTUI(WithStdio(stdio))
+		term.ShowSpinner(
+			"Waiting...",
+			"Title",
+			make(chan bool),
+		)
+	})
+}
+
+func Test_ShowAssistantPrompt(t *testing.T) {
+	termtest.RunTerminalTest(t, func(c *termtest.Console) {
+		c.Send("foo")
+		c.SendKey(termtest.KeyEnter)
+	}, func(stdio termutil.Stdio) {
+		term := NewTUI(WithStdio(stdio))
+		ok, text := term.ShowAssistantPrompt([]string{"one", "two"})
+		assert.True(t, ok)
+		assert.Equal(t, "foo", text)
+	})
+}
+
+func Test_ShowAssistantWizard(t *testing.T) {
+	termtest.RunTerminalTest(t, func(c *termtest.Console) {
+		c.SendKey(termtest.KeyDown)
+		c.SendKey(termtest.KeyEnter)
+	}, func(stdio termutil.Stdio) {
+		term := NewTUI(WithStdio(stdio))
+		ok, result := term.ShowAssistantWizard(wizard.Config{})
+		assert.True(t, ok)
+		assert.Equal(t, wizard.OptionDontSaveExit, result.SelectedOption)
 	})
 }
 

@@ -25,8 +25,9 @@ used in your script (e.g., `VAR1` in the example).
   parameter input field.
 - Line 4 uses the parameter. It does not correspond to the parameter syntax and belongs to your script.
 
-!!! note 
+!!! note "Default parameter name and type"
     If you don't specify a parameter name, the name of the variable will be used instead, e.g., `VAR1` in the example.
+    In case you don't provide a type (e.g., `PASSWORD` or `PATH` - see below), the default is `TEXT`
 
 ## Default Values
 

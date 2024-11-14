@@ -33,7 +33,7 @@ snipkit config init
 This command creates a config file in the SnipKit home directory. The initial config file looks similar to this:
 
 ```yaml title="config.yaml"
-version: 1.1.1
+version: 1.2.0
 config:
   style:
     # The theme defines the terminal colors used by Snipkit.
@@ -74,7 +74,7 @@ The default editor is defined by the `$VISUAL` or `$EDITOR` environment variable
 setting the `editor` field in the configuration file to a non-empty string, e.g.:
 
 ```yaml title="config.yaml"
-version: 1.1.1
+version: 1.2.0
 config:
   editor: "code"
 ```
@@ -87,7 +87,7 @@ Most of the time, you want to call the same subcommand, e.g. `print` or `exec`. 
 command gets executed by default:
 
 ```yaml title="config.yaml"
-version: 1.1.1
+version: 1.2.0
 config:
   defaultRootCommand: "exec"
 ```
@@ -101,7 +101,7 @@ Enable fuzzy searching for snippet titles. This leads to potentially more snippe
 will try to rank them according to similarity. Disable fuzzy search for performance reason or if you just don't like.
 
 ```yaml title="config.yaml"
-version: 1.1.1
+version: 1.2.0
 config:
   fuzzySearch: true
 ```
@@ -113,7 +113,7 @@ config:
 SnipKit supports multiple themes out of the box and also allows you to define your own themes:
 
 ```yaml title="config.yaml"
-version: 1.1.1
+version: 1.2.0
 config:
   style:
     theme: "default"
@@ -130,7 +130,7 @@ By default, a help for the key mapping is displayed at the bottom of the screen.
 disabled:
 
 ```yaml title="config.yaml"
-version: 1.1.1
+version: 1.2.0
 config:
   style:
     hideKeyMap: true
@@ -144,7 +144,7 @@ The shell for script executions is defined by the `$SHELL` environment variable.
 the `shell` option to a non-empty string, e.g.:
 
 ```yaml title="config.yaml"
-version: 1.1.1 
+version: 1.2.0 
 config:
   script:
     shell: "/bin/zsh"
@@ -157,7 +157,7 @@ If neither `$SHELL` nor the config option `shell` is defined, SnipKit will try t
 How values are injected into your snippet for the defined parameters is defined by the `parameterMode` option:
 
 ```yaml title="config.yaml"
-version: 1.1.1
+version: 1.2.0
 config:
   script:
     parameterMode: SET
@@ -190,7 +190,7 @@ echo "Hello world"
 SnipKit will remove all parameter comments from a snippet when specifying `removeComments`:
 
 ```yaml title="config.yaml"
-version: 1.1.1
+version: 1.2.0
 config:
   script:
     removeComments: true
@@ -217,7 +217,7 @@ echo ${VAR}
 If you always want to explicitly confirm the command before execution, specify the `execConfirm` option as follows:
 
 ```yaml title="config.yaml"
-version: 1.1.1
+version: 1.2.0
 config:
   script:
     execConfirm: true
@@ -236,7 +236,7 @@ config:
 SnipKit will print the command to be executed on stdout if specified by the `execPrint` commands:
 
 ```yaml title="config.yaml"
-version: 1.1.1
+version: 1.2.0
 config:
   script:
     execPrint: true
@@ -248,6 +248,28 @@ config:
     snipkit exec --print
     ```
     Use the flag instead of the config option if you only want to print the command every now and then.
+
+### Assistant
+
+Have a look at the [Assistant][assistant] page on how to configure the assistant.
+
+```yaml title="config.yaml"
+version: 1.2.0
+config:
+  assistant: {}
+```
+
+### Managers
+
+Have a look at the [Managers][managers] page on how to configure managers.
+
+
+```yaml title="config.yaml"
+version: 1.2.0
+config:
+  managers: {}
+```
+
 
 ## Clean up
 
@@ -261,5 +283,5 @@ The cleanup method is a way to remove all SnipKit artifacts from your hard drive
 home directory. If this directory is empty at the end of the cleanup process, it will be deleted as well.
 
 [managers]: ../managers/overview.md
-
+[assistant]: ../assistant/index.md
 [themes]: themes.md

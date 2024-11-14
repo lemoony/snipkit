@@ -14,6 +14,7 @@ import (
 	"github.com/lemoony/snipkit/internal/managers/snippetslab"
 	"github.com/lemoony/snipkit/internal/model"
 	"github.com/lemoony/snipkit/internal/utils/testutil"
+	mocks "github.com/lemoony/snipkit/mocks/ui"
 )
 
 func Test_CreateManager(t *testing.T) {
@@ -25,7 +26,7 @@ func Test_CreateManager(t *testing.T) {
 			tt.configFunc(&config)
 
 			provider := NewBuilder(cache.New(system))
-			managers := provider.CreateManager(*system, config)
+			managers := provider.CreateManager(*system, config, &mocks.MessagePrinter{})
 			assert.Len(t, managers, 1)
 		})
 	}

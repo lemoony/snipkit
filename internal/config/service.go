@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/viper"
 	"gopkg.in/yaml.v3"
 
+	"github.com/lemoony/snipkit/internal/assistant"
 	"github.com/lemoony/snipkit/internal/config/migrations"
 	"github.com/lemoony/snipkit/internal/managers"
 	"github.com/lemoony/snipkit/internal/model"
@@ -41,6 +42,7 @@ type Service interface {
 	LoadConfig() (Config, error)
 	Edit()
 	Clean()
+	UpdateAssistantConfig(config assistant.Config)
 	UpdateManagerConfig(config managers.Config)
 	NeedsMigration() (bool, string)
 	Migrate()
@@ -147,6 +149,23 @@ func (s *serviceImpl) ConfigFilePath() string {
 	return s.v.ConfigFileUsed()
 }
 
+func (s *serviceImpl) UpdateAssistantConfig(assistantConfig assistant.Config) {
+	config, err := s.LoadConfig()
+	if err != nil {
+		panic(errors.Wrapf(ErrInvalidConfig, "failed to load config: %s", err.Error()))
+	}
+
+	if cfg := assistantConfig.OpenAI; cfg != nil {
+		config.Assistant.OpenAI = cfg
+	}
+	if cfg := assistantConfig.Gemini; cfg != nil {
+		config.Assistant.Gemini = cfg
+	}
+
+	bytes := SerializeToYamlWithComment(wrap(config))
+	s.system.WriteFile(s.ConfigFilePath(), bytes)
+}
+
 func (s *serviceImpl) UpdateManagerConfig(managerConfig managers.Config) {
 	config, err := s.LoadConfig()
 	if err != nil {
@@ -230,6 +249,7 @@ func (s *serviceImpl) Info() []model.InfoLine {
 	result := []model.InfoLine{
 		{Key: "Config path", Value: s.ConfigFilePath()},
 		{Key: "SNIPKIT_HOME", Value: stringutil.StringOrDefault(s.system.HomeEnvValue(), "Not set")},
+		{Key: "Assistant", Value: s.assistantEnabled()},
 	}
 
 	cfg, err := s.LoadConfig()
@@ -250,4 +270,12 @@ func (s *serviceImpl) updateConfigToLatest() VersionWrapper {
 	}
 
 	return result
+}
+
+func (s *serviceImpl) assistantEnabled() string {
+	if key, err := s.config.Assistant.ClientKey(); err != nil {
+		return err.Error()
+	} else {
+		return string(key)
+	}
 }

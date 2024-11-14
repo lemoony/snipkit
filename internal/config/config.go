@@ -1,6 +1,7 @@
 package config
 
 import (
+	"github.com/lemoony/snipkit/internal/assistant"
 	"github.com/lemoony/snipkit/internal/managers"
 	"github.com/lemoony/snipkit/internal/ui"
 )
@@ -18,12 +19,13 @@ type VersionWrapper struct {
 }
 
 type Config struct {
-	Style              ui.Config       `yaml:"style" mapstructure:"style"`
-	Editor             string          `yaml:"editor" mapstructure:"editor" head_comment:"Your preferred editor to open the config file when typing 'snipkit config edit'." line_comment:"Defaults to a reasonable value for your operation system when empty."`
-	DefaultRootCommand string          `yaml:"defaultRootCommand" mapstructure:"defaultRootCommand" head_comment:"The command which should run if you don't provide any subcommand." line_comment:"If not set, the help text will be shown."`
-	FuzzySearch        bool            `yaml:"fuzzySearch" mapstructure:"fuzzySearch" head_comment:"Enable fuzzy searching for snippet titles."`
-	Script             ScriptConfig    `yaml:"scripts" mapstructure:"scripts" head_comment:"Options regarding script handling"`
-	Manager            managers.Config `yaml:"manager" mapstructure:"manager"`
+	Style              ui.Config        `yaml:"style" mapstructure:"style"`
+	Editor             string           `yaml:"editor" mapstructure:"editor" head_comment:"Your preferred editor to open the config file when typing 'snipkit config edit'." line_comment:"Defaults to a reasonable value for your operation system when empty."`
+	DefaultRootCommand string           `yaml:"defaultRootCommand" mapstructure:"defaultRootCommand" head_comment:"The command which should run if you don't provide any subcommand." line_comment:"If not set, the help text will be shown."`
+	FuzzySearch        bool             `yaml:"fuzzySearch" mapstructure:"fuzzySearch" head_comment:"Enable fuzzy searching for snippet titles."`
+	Script             ScriptConfig     `yaml:"scripts" mapstructure:"scripts" head_comment:"Options regarding script handling"`
+	Assistant          assistant.Config `yaml:"assistant" mapstructure:"assistant" head_comment:"Configure an AI assistant"`
+	Manager            managers.Config  `yaml:"manager" mapstructure:"manager"`
 }
 
 type ScriptConfig struct {

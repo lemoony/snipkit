@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 
+	"emperror.dev/errors"
+
 	"github.com/lemoony/snipkit/internal/model"
 	"github.com/lemoony/snipkit/internal/utils/stringutil"
 	"github.com/lemoony/snipkit/internal/utils/system"
@@ -80,6 +82,10 @@ func (m Manager) Info() []model.InfoLine {
 func (m *Manager) GetSnippets() []model.Snippet {
 	tags := m.getValidTagUUIDs()
 	return parseLibrary(m.config.LibraryPath, m.system, &tags)
+}
+
+func (m Manager) SaveAssistantSnippet(snippetTitle string, filename string, contents []byte) {
+	panic(errors.New("Not implemented"))
 }
 
 func (m *Manager) getValidTagUUIDs() stringutil.StringSet {

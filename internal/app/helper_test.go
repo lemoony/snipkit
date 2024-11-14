@@ -18,7 +18,7 @@ func withManagerSnippets(snippets []model.Snippet) Option {
 		manager.On("GetSnippets").Return(snippets, nil)
 
 		provider := managerMocks.Provider{}
-		provider.On("CreateManager", mock.Anything, mock.Anything).Return([]managers.Manager{&manager}, nil)
+		provider.On("CreateManager", mock.Anything, mock.Anything, mock.Anything).Return([]managers.Manager{&manager}, nil)
 		a.provider = &provider
 	})
 }
@@ -26,7 +26,7 @@ func withManagerSnippets(snippets []model.Snippet) Option {
 func withManager(m ...managers.Manager) Option {
 	return optionFunc(func(a *appImpl) {
 		providerBuilder := managerMocks.Provider{}
-		providerBuilder.On("CreateManager", mock.Anything, mock.Anything).Return(m, nil)
+		providerBuilder.On("CreateManager", mock.Anything, mock.Anything, mock.Anything).Return(m, nil)
 		a.provider = &providerBuilder
 	})
 }

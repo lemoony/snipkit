@@ -10,7 +10,7 @@ import (
 
 func Test_Migrate(t *testing.T) {
 	oldCfg := testdata.ConfigBytes(t, testdata.ConfigV110)
-	newCfg := testdata.ConfigBytes(t, testdata.Latest)
+	newCfg := testdata.ConfigBytes(t, testdata.ConfigV111)
 	actualCfg := Migrate(oldCfg)
 	assert.YAMLEq(t, string(newCfg), string(actualCfg))
 }

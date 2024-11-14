@@ -40,6 +40,10 @@ const (
 	managerAddConfigResult  = "manager_add_config_result.gotmpl"
 	managerOAuthDeviceFlow  = "manager_oauth_device_flow.gotmpl"
 
+	assistantNoneEnabled        = "assistant_none_enabled.gotmpl"
+	assistantUpdateConfigResult = "assistant_update_config_result.gotmpl"
+	assistantSnippetSaved       = "assistant_snippet_saved.gotmpl"
+
 	snippetWidthMargin = 10
 )
 
@@ -192,6 +196,24 @@ func ManagerOauthDeviceFlow(host string, code string) Printable {
 	return Printable{
 		template: managerOAuthDeviceFlow,
 		data:     map[string]interface{}{"host": host, "code": code},
+	}
+}
+
+func AssistantNoneEnabled() Printable {
+	return Printable{template: assistantNoneEnabled}
+}
+
+func AssistantUpdateConfigResult(confirmed bool, cfgPath string) Printable {
+	return Printable{
+		template: assistantUpdateConfigResult,
+		data:     map[string]interface{}{"confirmed": confirmed, "cfgPath": cfgPath},
+	}
+}
+
+func AssistantSnippetSaved(title, path string) Printable {
+	return Printable{
+		template: assistantSnippetSaved,
+		data:     map[string]interface{}{"snippetTitle": title, "snippetPath": path},
 	}
 }
 

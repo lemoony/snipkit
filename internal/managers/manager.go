@@ -7,4 +7,5 @@ type Manager interface {
 	Info() []model.InfoLine
 	GetSnippets() []model.Snippet
 	Sync(model.SyncEventChannel)
+	SaveAssistantSnippet(snippetTitle string, filename string, contents []byte)
 }
