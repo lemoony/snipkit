@@ -25,8 +25,8 @@ func Test_CreateManager(t *testing.T) {
 			config := Config{}
 			tt.configFunc(&config)
 
-			provider := NewBuilder(cache.New(system))
-			managers := provider.CreateManager(*system, config, &mocks.MessagePrinter{})
+			provider := NewBuilder()
+			managers := provider.CreateManager(*system, cache.New(system), config, &mocks.MessagePrinter{})
 			assert.Len(t, managers, 1)
 		})
 	}
@@ -34,13 +34,12 @@ func Test_CreateManager(t *testing.T) {
 
 func Test_ManagerDescriptions(t *testing.T) {
 	tests := testConfigs()
-	system := testutil.NewTestSystem()
 	for _, tt := range tests {
 		t.Run(string(tt.key), func(t *testing.T) {
 			config := Config{}
 			tt.configFunc(&config)
 
-			provider := NewBuilder(cache.New(system))
+			provider := NewBuilder()
 			managers := provider.ManagerDescriptions(config)
 			found := false
 			for _, manager := range managers {
@@ -60,7 +59,7 @@ func Test_AutoConfig(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(string(tt.key), func(t *testing.T) {
-			provider := NewBuilder(cache.New(system))
+			provider := NewBuilder()
 			config := provider.AutoConfig(tt.key, system)
 
 			switch tt.key {

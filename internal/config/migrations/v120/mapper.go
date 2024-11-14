@@ -22,6 +22,7 @@ func Migrate(old []byte) []byte {
 	}
 
 	config.Version = VersionTo
+	config.Config.SecretStorage = "KEYRING"
 	config.Config.Assistant = map[string]interface{}{
 		"saveMode": "NEVER",
 	}
@@ -49,6 +50,7 @@ type configV112 struct {
 	Editor             string                 `yaml:"editor"`
 	DefaultRootCommand string                 `yaml:"defaultRootCommand"`
 	FuzzySearch        bool                   `yaml:"fuzzySearch"`
+	SecretStorage      string                 `yaml:"secretStorage"`
 	Script             map[string]interface{} `yaml:"scripts"`
 	Assistant          map[string]interface{} `yaml:"assistant"`
 	Manager            map[string]interface{} `yaml:"manager"`

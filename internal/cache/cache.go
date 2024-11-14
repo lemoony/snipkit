@@ -1,6 +1,8 @@
 package cache
 
-import "github.com/lemoony/snipkit/internal/utils/system"
+import (
+	"github.com/lemoony/snipkit/internal/utils/system"
+)
 
 type (
 	SecretKey string
@@ -13,14 +15,18 @@ type Cache interface {
 	DeleteSecret(key SecretKey, account string)
 	PutData(key DataKey, data []byte)
 	GetData(key DataKey) ([]byte, bool)
+	EnablePlainFileSecrets()
 }
 
 type cacheImpl struct {
-	system *system.System
+	system                  *system.System
+	plainFileSecretsEnabled bool
 }
 
 func New(s *system.System) Cache {
-	return &cacheImpl{
-		system: s,
-	}
+	return &cacheImpl{system: s}
+}
+
+func (c *cacheImpl) EnablePlainFileSecrets() {
+	c.plainFileSecretsEnabled = true
 }

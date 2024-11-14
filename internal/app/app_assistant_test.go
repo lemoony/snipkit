@@ -55,7 +55,7 @@ echo ${FOO_KEY}
 	fsLibManager.On(mockutil.SaveAssistantSnippet, mock.Anything, mock.Anything, mock.Anything).Return("/path", exampleFile)
 
 	provider := managerMocks.Provider{}
-	provider.On("CreateManager", mock.Anything, mock.Anything, &tui).Return([]managers.Manager{&fsLibManager}, nil)
+	provider.On("CreateManager", mock.Anything, mock.Anything, mock.Anything, &tui).Return([]managers.Manager{&fsLibManager}, nil)
 
 	app := NewApp(
 		WithTUI(&tui),
