@@ -11,12 +11,11 @@ cumbersome for you. Instead, define an alias (e.g. in your `.zshrc` file):
 ```bash 
 # SnipKit alias
 sn () {
-  snipkit exec
+  snipkit exec "$@"
 }
 ```
 
-Then you can just type `sn` instead of `snipkit` to open SnipKit.
-
+Then you can just type `sn` instead of `snipkit` to execute a script via SnipKit.
 
 ### Inline command for ZSH
 
