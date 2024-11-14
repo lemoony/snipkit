@@ -1,11 +1,14 @@
 # Parameters
 
-In order to support snippet parameters, SnipKit requires some special parameter syntax in your scripts.
+To support snippet parameters, SnipKit requires special parameter syntax in your scripts.
 
 !!! info 
-    The good thing about the parameter syntax used by SnipKit is that your scripts remain fully functional even when not
-    executed via SnipKit. All parameter information is described by the usage of comments and, thus, can be regarded as a
-    consistent way to document your scripts.
+    The parameter syntax used by SnipKit ensures that your scripts remain fully functional even when not executed via SnipKit. All parameter information is described through comments, making it a consistent way to document your scripts.
+
+!!! tip 
+    [SnipKit Assistant][assistant] helps you write snippets using the correct parameter syntax.
+
+[assistant]: ../assistant/index.md
 
 ## Parameter Names & Descriptions
 

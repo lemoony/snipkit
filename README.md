@@ -23,7 +23,7 @@
 </p>
 
 <p align="center">
-  <a href="https://lemoony.github.io/snipkit/">Documentation</a> | <a href="https://github.com/lemoony/snipkit/releases">Changelog</a>
+  <a href="https://lemoony.github.io/snipkit/">Documentation</a> | <a href="https://chatgpt.com/g/g-A2y9cPWE7-snipkit-assistant">SnipKit GPT</a> | <a href="https://github.com/lemoony/snipkit/releases">Changelog</a>
 </p>
 
 ## Features
@@ -51,7 +51,9 @@ Inspired by [Pet](https://github.com/knqyf263/pet).
 
 ### SnipKit Assistant (BETA)  🤖
 
-SnipKit Assistant lets you generate parameterized scripts based on a prompt directly from the command line:
+SnipKit Assistant lets you generate parameterized scripts based on a prompt directly from the command line.
+
+> ❇️ Alternatively, you can use  [SnipKit GPT](https://chatgpt.com/g/g-A2y9cPWE7-snipkit-assistant).
 
 <img alt="Demo" src="./docs/images/assistant/assistant.gif" />
 

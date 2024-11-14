@@ -2,10 +2,13 @@
 
 The SnipKit Assistant helps you create SnipKit snippets using AI.
 
-!!! warning
-    SnipKit Assistant is currently in beta for OpenAI and Gemini. Several improvements are in progress, so stay tuned!
+!!! tip
+    Alternatively, you may try using [SnipKit GPT](https://chatgpt.com/g/g-A2y9cPWE7-snipkit-assistant) to generate scripts compatible with SnipKit.
 
 ![Assistant Demo](../images/assistant/assistant.gif)
+
+!!! warning
+    SnipKit Assistant is currently in beta for OpenAI and Gemini. Several improvements are in progress, so stay tuned!
 
 ## Supported AI Providers
 
