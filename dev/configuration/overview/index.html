@@ -633,6 +633,15 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#secret-storage" class="md-nav__link">
+    <span class="md-ellipsis">
+      Secret Storage
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#style" class="md-nav__link">
     <span class="md-ellipsis">
       Style
@@ -1168,6 +1177,15 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#secret-storage" class="md-nav__link">
+    <span class="md-ellipsis">
+      Secret Storage
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#style" class="md-nav__link">
     <span class="md-ellipsis">
       Style
@@ -1382,6 +1400,22 @@ will try to rank them according to similarity. Disable fuzzy search for performa
 <span class="nt">config</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">fuzzySearch</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 </code></pre></div>
+<h3 id="secret-storage">Secret Storage</h3>
+<p>On linux machines, the keyring for storing secrets may not be accessible for SnipKit. As an alternative, you can opt-in to store secrets as plain files on the file system.</p>
+<p>The secrets will be stored in <code>&lt;snipkit_home&gt;/.secrets/</code>.</p>
+<div class="highlight"><span class="filename">config.yaml</span><pre><span></span><code><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.2.0</span>
+<span class="nt">config</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">secretStorage</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">KEYRING</span><span class="w"> </span>
+</code></pre></div>
+<p>Allowed Values: <code>KEYRING</code> | <code>PLAIN_FILES</code></p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>As of now, only the access token for the <a href="githubgist">GitHub Gist manager</a> is stored as a secret.</p>
+</div>
+<div class="admonition danger">
+<p class="admonition-title">Danger</p>
+<p>Don't chane this config to <code>PLAIN_FILES</code> unless you experience any problems with the keyring. This is config option is only a temporary workaround for <a href="https://github.com/zalando/go-keyring/issues/116">go-keyring#116</a> (see also <a href="https://github.com/lemoony/snipkit/issues/268">SnipKit Issue #268</a>) and will be removed as son as the related issue is fixed.</p>
+</div>
 <h3 id="style">Style</h3>
 <h4 id="theme">Theme</h4>
 <p>SnipKit supports multiple themes out of the box and also allows you to define your own themes:</p>
