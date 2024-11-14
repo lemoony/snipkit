@@ -996,10 +996,10 @@
 cumbersome for you. Instead, define an alias (e.g. in your <code>.zshrc</code> file):</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># SnipKit alias</span>
 sn<span class="w"> </span><span class="o">()</span><span class="w"> </span><span class="o">{</span>
-<span class="w">  </span>snipkit<span class="w"> </span><span class="nb">exec</span>
+<span class="w">  </span>snipkit<span class="w"> </span><span class="nb">exec</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$@</span><span class="s2">&quot;</span>
 <span class="o">}</span>
 </code></pre></div>
-<p>Then you can just type <code>sn</code> instead of <code>snipkit</code> to open SnipKit.</p>
+<p>Then you can just type <code>sn</code> instead of <code>snipkit</code> to execute a script via SnipKit.</p>
 <h3 id="inline-command-for-zsh">Inline command for ZSH</h3>
 <p>The <code>print -z</code> command in Zsh is used to push a command onto the Zsh input buffer, which effectively allows you to 
 simulate typing a command into the terminal. </p>
