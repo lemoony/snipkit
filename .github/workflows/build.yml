@@ -24,7 +24,7 @@ jobs:
           # https://github.com/jaraco/keyring/blob/main/README.rst#using-keyring-on-headless-linux-systems
           make ci
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4.5.0
+        uses: codecov/codecov-action@v5.1.2
         with:
           file: ./coverage.out
           flags: ${{ runner.os }}
@@ -44,7 +44,7 @@ jobs:
       - name: Build
         run: make ci
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4.5.0
+        uses: codecov/codecov-action@v5.1.2
         with:
           file: ./coverage.out
           flags: ${{ runner.os }}
