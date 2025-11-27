@@ -208,8 +208,13 @@ func (m *Manager) requestOAuthToken(cfg GistConfig, lines []model.SyncLine, even
 		}
 	}
 
+	host, err := oauth.NewGitHubHost(cfg.hostURL())
+	if err != nil {
+		return "", errors.Wrap(err, "failed to create GitHub host")
+	}
+
 	flow := &oauth.Flow{
-		Host:      oauth.GitHubHost(cfg.hostURL()),
+		Host:      host,
 		ClientID:  stringutil.StringOrDefault(cfg.OAuthClientID, defaultOAuthClientID),
 		Scopes:    []string{"gist"},
 		BrowseURL: m.browseURL,
