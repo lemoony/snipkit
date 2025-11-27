@@ -29,7 +29,7 @@
 ## Features
 
 - Generate new scripts with the help of SnipKit Assistant
-- Load snippets form an external snippet manager (filtered by tags)
+- Load snippets from an external snippet manager (filtered by tags)
   - [SnippetsLab](https://www.renfei.org/snippets-lab/)
   - [Snip](https://github.com/Pictarine/macos-snippets)
   - GitHub Gist ([Example gist](https://gist.github.com/lemoony/4905e7468b8f0a7991d6122d7d09e40d))
@@ -73,7 +73,7 @@ SnipKit supports different types of script parameters to ease execution:
 
 ## Quick Start
 
-Please also have a look at the [Documentation]("https://lemoony.github.io/snipkit/).
+Please also have a look at the [Documentation](https://lemoony.github.io/snipkit/).
 
 ### Overview of all commands
 

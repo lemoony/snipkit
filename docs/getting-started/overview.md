@@ -73,7 +73,7 @@ snipkit exec
     ```bash 
     snipkit exec --confirm
     ```
-    Snpkit will print the command on stdout and ask you to explicitly confirm its execution.
+    Snipkit will print the command on stdout and ask you to explicitly confirm its execution.
 
 !!! tip "Print snippet on stdout"
     If you want to print the command that is executed add the flag `-p` or `--print`.

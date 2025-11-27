@@ -61,7 +61,7 @@ values will be omitted.
 ![Demo](../images/param-example-predefined-values.gif)
 
 You can define multiple lines starting with `${<varname>} Values:` to list pre-defined values. The listed values will be
-joined by SnipKit. Each value must be seperated by the next via the character `,`.
+joined by SnipKit. Each value must be separated by the next via the character `,`.
 
 !!! attention 
     If the value contains a comma itself, it needs to be escaped via `\,`.
@@ -78,7 +78,7 @@ login ${PW}
 
 ![Demo](../images/param-example-password.gif)
 
-Marking the parameter `PW` as password happens in line 2 by defining `Type: PASSWOPRD`.
+Marking the parameter `PW` as password happens in line 2 by defining `Type: PASSWORD`.
 
 ## Paths
 
@@ -93,5 +93,5 @@ git ls-files "${FILE}" | xargs wc -l
 
 ![Demo](../images/param-example-path.gif)
 
-Marking the parameter `PW` as password happens in line 2 by defining `Type: PASSWOPRD`.
+Marking the parameter `FILE` as path happens in line 2 by defining `Type: PATH`.
 

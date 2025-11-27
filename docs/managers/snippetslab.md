@@ -2,7 +2,7 @@
 
 Available for: macOS
 
-[Homepeage](https://www.renfei.org/snippets-lab/)
+[Homepage](https://www.renfei.org/snippets-lab/)
 
 ## Configuration
 
