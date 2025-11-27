@@ -30,8 +30,8 @@ github.com/cli/browser v1.3.0/go.mod h1:HH8s+fOAxjhQoBUAsKuPCbqUuxZDhQ2/aD+SzsEf
 github.com/cli/oauth v1.0.1 h1:pXnTFl/qUegXHK531Dv0LNjW4mLx626eS42gnzfXJPA=
 github.com/cli/oauth v1.0.1/go.mod h1:qd/FX8ZBD6n1sVNQO3aIdRxeu5LGw9WhKnYhIIoC2A4=
 github.com/cli/safeexec v1.0.0/go.mod h1:Z/D4tTN8Vs5gXYHDCbaM1S/anmEDnJb1iW0+EJ5zx3Q=
-github.com/corbym/gocrest v1.1.1 h1:lry77EvxdkHVL9XaPf0uHTcRPZi9jOXvUbdxhV7djYc=
-github.com/corbym/gocrest v1.1.1/go.mod h1:vhNebfdBGx5l0Nh0OM/CvIVqGAnR9AAbI5qA9OxRUOU=
+github.com/corbym/gocrest v1.1.2 h1:HwMyOILE0E/BqC1vs/JjanEj+HXeYPGZzbppIgd1/Os=
+github.com/corbym/gocrest v1.1.2/go.mod h1:vhNebfdBGx5l0Nh0OM/CvIVqGAnR9AAbI5qA9OxRUOU=
 github.com/cpuguy83/go-md2man/v2 v2.0.4/go.mod h1:tgQtvFlXSQOSOSIRvRPT7W67SCa46tRHOmNcaadrF8o=
 github.com/creack/pty v1.1.17/go.mod h1:MOBLtS5ELjhRRrroQr9kyvTxUAFNvYEK993ew/Vr4O4=
 github.com/creack/pty v1.1.24 h1:bJrF4RRfyJnbTJqzRLHzcGaZK1NeM5kTC9jGgovnR1s=
