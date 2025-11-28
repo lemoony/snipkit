@@ -1,55 +1,87 @@
 package picker
 
 import (
+	"bytes"
 	"testing"
+	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/x/exp/teatest"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/lemoony/snipkit/internal/ui/style"
-	"github.com/lemoony/snipkit/internal/utils/termtest"
-	"github.com/lemoony/snipkit/internal/utils/termutil"
 )
 
 func Test_ShowPicker(t *testing.T) {
-	termtest.RunTerminalTest(t, func(c *termtest.Console) {
-		c.ExpectString("Which snippet manager should be added to your configuration")
-		c.SendKey(termtest.KeyDown)
-		c.SendKey(termtest.KeyDown)
-		c.SendKey(termtest.KeyUp)
-		c.SendKey(termtest.KeyEnter)
-	}, func(stdio termutil.Stdio) {
-		index, ok := ShowPicker("Which snippet manager should be added to your configuration", []Item{
-			NewItem("title1", "desc1"),
-			NewItem("title2", "desc2"),
-			NewItem("title3", "desc3"),
-		}, nil, style.NoopStyle, tea.WithInput(stdio.In), tea.WithOutput(stdio.Out))
-		assert.Equal(t, 1, index)
-		assert.True(t, ok)
-	})
+	items := []Item{
+		NewItem("title1", "desc1"),
+		NewItem("title2", "desc2"),
+		NewItem("title3", "desc3"),
+	}
+
+	m := NewModel("Which snippet manager should be added to your configuration", items, nil, style.NoopStyle)
+	tm := teatest.NewTestModel(t, m, teatest.WithInitialTermSize(80, 24))
+
+	// Wait for the title to appear
+	teatest.WaitFor(t, tm.Output(), func(bts []byte) bool {
+		return bytes.Contains(bts, []byte("Which snippet manager"))
+	}, teatest.WithDuration(2*time.Second))
+
+	// Navigate: down, down, up (should end up on item 1)
+	tm.Send(tea.KeyMsg{Type: tea.KeyDown})
+	tm.Send(tea.KeyMsg{Type: tea.KeyDown})
+	tm.Send(tea.KeyMsg{Type: tea.KeyUp})
+
+	// Press enter to select
+	tm.Send(tea.KeyMsg{Type: tea.KeyEnter})
+
+	// Wait for the program to finish
+	tm.WaitFinished(t, teatest.WithFinalTimeout(3*time.Second))
+
+	// Get the final model and check the selection
+	finalModel := tm.FinalModel(t)
+	pickerModel, ok := finalModel.(*Model)
+	assert.True(t, ok, "expected *Model type")
+
+	index, selected := pickerModel.SelectedIndex()
+	assert.True(t, selected)
+	assert.Equal(t, 1, index)
 }
 
 func Test_ShowPicker_Cancel(t *testing.T) {
 	tests := []struct {
 		name string
-		key  termtest.Key
+		key  tea.KeyType
 	}{
-		{name: "esc", key: termtest.KeyEsc},
-		{name: "str+c", key: termtest.KeyStrC},
+		{name: "esc", key: tea.KeyEsc},
+		{name: "ctrl+c", key: tea.KeyCtrlC},
 	}
 
-	for i := range tests {
-		tt := tests[i]
+	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			termtest.RunTerminalTest(t, func(c *termtest.Console) {
-				c.ExpectString("Which snippet manager should be added to your configuration")
-				c.SendKey(tt.key)
-			}, func(stdio termutil.Stdio) {
-				index, ok := ShowPicker("Which snippet manager should be added to your configuration",
-					[]Item{NewItem("title1", "desc1")}, nil, style.NoopStyle, tea.WithInput(stdio.In), tea.WithOutput(stdio.Out))
-				assert.Equal(t, -1, index)
-				assert.False(t, ok)
-			})
+			items := []Item{NewItem("title1", "desc1")}
+			m := NewModel("Which snippet manager should be added to your configuration", items, nil, style.NoopStyle)
+			tm := teatest.NewTestModel(t, m, teatest.WithInitialTermSize(80, 24))
+
+			// Wait for the title to appear
+			teatest.WaitFor(t, tm.Output(), func(bts []byte) bool {
+				return bytes.Contains(bts, []byte("Which snippet manager"))
+			}, teatest.WithDuration(2*time.Second))
+
+			// Send cancel key
+			tm.Send(tea.KeyMsg{Type: tt.key})
+
+			// Wait for the program to finish
+			tm.WaitFinished(t, teatest.WithFinalTimeout(3*time.Second))
+
+			// Get the final model and check no selection was made
+			finalModel := tm.FinalModel(t)
+			pickerModel, ok := finalModel.(*Model)
+			assert.True(t, ok, "expected *Model type")
+
+			index, selected := pickerModel.SelectedIndex()
+			assert.False(t, selected)
+			assert.Equal(t, -1, index)
 		})
 	}
 }

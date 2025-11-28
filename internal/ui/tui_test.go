@@ -13,7 +13,6 @@ import (
 	"github.com/lemoony/snipkit/internal/model"
 	"github.com/lemoony/snipkit/internal/ui/assistant/wizard"
 	"github.com/lemoony/snipkit/internal/ui/confirm"
-	"github.com/lemoony/snipkit/internal/ui/picker"
 	"github.com/lemoony/snipkit/internal/ui/sync"
 	"github.com/lemoony/snipkit/internal/ui/uimsg"
 	"github.com/lemoony/snipkit/internal/utils/termtest"
@@ -192,29 +191,6 @@ func Test_ShowSync(t *testing.T) {
 		screen.Send(sync.UpdateStateMsg{Status: model.SyncStatusStarted})
 		screen.Send(sync.UpdateStateMsg{Status: model.SyncStatusFinished})
 		<-syncChannel // wait for screen.Start() to return
-	})
-}
-
-func Test_ShowPicker(t *testing.T) {
-	termtest.RunTerminalTest(t, func(c *termtest.Console) {
-		c.ExpectString("Which item to choose?")
-		c.SendKey(termtest.KeyDown)
-		c.SendKey(termtest.KeyDown)
-		c.SendKey(termtest.KeyUp)
-		c.SendKey(termtest.KeyEnter)
-	}, func(stdio termutil.Stdio) {
-		term := NewTUI(WithStdio(stdio))
-		index, ok := term.ShowPicker(
-			"Which item to choose?",
-			[]picker.Item{
-				picker.NewItem("title1", "desc1"),
-				picker.NewItem("title2", "desc2"),
-				picker.NewItem("title3", "desc3"),
-			},
-			nil,
-		)
-		assert.Equal(t, 1, index)
-		assert.True(t, ok)
 	})
 }
 
