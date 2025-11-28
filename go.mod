@@ -21,7 +21,7 @@ require (
 	github.com/mattn/go-runewidth v0.0.16
 	github.com/muesli/reflow v0.3.0
 	github.com/muesli/termenv v0.15.3-0.20240618155329-98d742f6907a
-	github.com/phuslu/log v1.0.107
+	github.com/phuslu/log v1.0.120
 	github.com/rivo/tview v0.0.0-20240805111717-08da3ea4576f
 	github.com/rivo/uniseg v0.4.7
 	github.com/spf13/afero v1.11.0
