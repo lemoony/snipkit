@@ -23,7 +23,7 @@ manager:
         - othertag
 ```
 
-Upon adding Snip as a manager, SnipKit will try to detect the `librayPath` automatically. If the library file was not
+Upon adding Snip as a manager, SnipKit will try to detect the `libraryPath` automatically. If the library file was not
 found, `enabled` will be set to `false`.
 
 With this example configuration, SnipKit gets all snippets from Snip which are tagged `snipkit` or `othertag`. All other

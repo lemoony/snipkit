@@ -18,4 +18,4 @@ config:
 ```
 
 !!! info
-For this configuration, you will need to provide the API key for the Gemini API via the environment variable `SNIPKIT_GEMINI_API_KEY`.
+    For this configuration, you will need to provide the API key for the Gemini API via the environment variable `SNIPKIT_GEMINI_API_KEY`.

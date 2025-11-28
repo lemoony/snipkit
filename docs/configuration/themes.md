@@ -42,7 +42,7 @@ As of now, the following themes are supported:
 ## Custom themes
 
 Custom themes should be placed in the directory `<snipkit_home>/themes/`,
-`<snikit_home>` referring to the directory where your [configuration][configuration] lives.
+`<snipkit_home>` referring to the directory where your [configuration][configuration] lives.
 
 A theme called `custom-theme` should be put into a file named `custom-theme.yaml`. The contents are as follows:
 

@@ -20,7 +20,7 @@ Setting up a test environment involves the following steps:
 * Install [pre-commit](https://pre-commit.com/)
 * Run `pre-commit install`
 * For working on the documentation:
-    * Install [mkdcos](https://www.mkdocs.org/)
+    * Install [mkdocs](https://www.mkdocs.org/)
     * Install [mkdocs-material](https://github.com/squidfunk/mkdocs-material)
 
 After this, you'll be able to test any change. Alternatively, you can open the project via Gitpod: 
