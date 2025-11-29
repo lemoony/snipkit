@@ -29,16 +29,18 @@ func (i Item) Title() string {
 func (i Item) Description() string { return i.desc }
 func (i Item) FilterValue() string { return i.title }
 
-type model struct {
+// Model is the bubbletea model for the picker.
+type Model struct {
 	list   list.Model
 	choice *Item
+	items  []Item
 }
 
-func (m *model) Init() tea.Cmd {
+func (m *Model) Init() tea.Cmd {
 	return nil
 }
 
-func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		if msg.String() == "ctrl+c" {
@@ -61,17 +63,34 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m *model) View() string {
+func (m *Model) View() string {
 	return docStyle.Render(m.list.View())
 }
 
-func ShowPicker(title string, items []Item, selectedItem *Item, styler *style.Style, options ...tea.ProgramOption) (int, bool) {
+// SelectedIndex returns the index of the selected item and whether a selection was made.
+func (m *Model) SelectedIndex() (int, bool) {
+	if m.choice == nil {
+		return -1, false
+	}
+	for i, item := range m.items {
+		if item == *m.choice {
+			return i, true
+		}
+	}
+	return -1, false
+}
+
+// NewModel creates a new picker model with the given title and items.
+func NewModel(title string, items []Item, selectedItem *Item, styler *style.Style) *Model {
 	listItems := make([]list.Item, len(items))
 	for i := range items {
 		listItems[i] = list.Item(items[i])
 	}
 
-	m := model{list: list.New(listItems, list.NewDefaultDelegate(), 0, 0)}
+	m := &Model{
+		list:  list.New(listItems, list.NewDefaultDelegate(), 0, 0),
+		items: items,
+	}
 	m.list.Title = title
 	m.list.SetDelegate(delegate)
 	m.list.SetShowStatusBar(false)
@@ -96,20 +115,17 @@ func ShowPicker(title string, items []Item, selectedItem *Item, styler *style.St
 	delegate.Styles.NormalDesc.Foreground(styler.SubduedColor().Value())
 	delegate.Styles.SelectedDesc.Foreground(styler.ActiveColor().Value()).BorderForeground(styler.ActiveColor().Value())
 
-	p := tea.NewProgram(&m, append(options, tea.WithAltScreen())...)
+	return m
+}
+
+func ShowPicker(title string, items []Item, selectedItem *Item, styler *style.Style, options ...tea.ProgramOption) (int, bool) {
+	m := NewModel(title, items, selectedItem, styler)
+
+	p := tea.NewProgram(m, append(options, tea.WithAltScreen())...)
 
 	if _, err := p.Run(); err != nil {
 		panic(err)
 	}
 
-	if m.choice != nil {
-		c := *m.choice
-		for i := range m.list.Items() {
-			if listItems[i] == c {
-				return i, true
-			}
-		}
-	}
-
-	return -1, false
+	return m.SelectedIndex()
 }
