@@ -77,10 +77,10 @@ build-demo: install
 	BUILD_TAGS="demo" goreleaser --snapshot --skip=publish --clean
 
 .PHONY: release
-release: ## goreleaser --rm-dist
+release: ## goreleaser --clean
 release: install
 	$(call print-target)
-	goreleaser --rm-dist
+	goreleaser --clean
 
 .PHONY: run
 run: ## go run
