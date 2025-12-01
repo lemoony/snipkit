@@ -25,18 +25,9 @@ generate: mocks ## go generate
 	go generate ./...
 
 .PHONY: mocks
-mocks: ## go generate
+mocks: ## generate mocks
 	$(call print-target)
-	mockery --name='App' --output="./mocks/app" --dir="./internal/app"
-	mockery --name='Assistant' --output="./mocks/assistant" --dir="./internal/assistant"
-	mockery --name='Client' --output="./mocks/assistant/client" --dir="./internal/assistant"
-	mockery --name='Service' --output="./mocks/config" --structname="ConfigService"  --dir="./internal/config"
-	mockery --name='Provider' --output="./mocks/managers"  --dir="./internal/managers"
-	mockery --name='Manager' --output="./mocks/managers" --dir="./internal/managers"
-	mockery --name='Cache' --output="./mocks/cache" --dir="./internal/cache"
-	mockery --name='^TUI$$' --output="./mocks/ui" --dir="./internal/ui"
-	mockery --name='MessagePrinter' --output="./mocks/ui" --dir="./internal/ui"
-	mockery --name='Screen' --output="./mocks/ui/sync" --structname="SyncScreen" --dir="./internal/ui/sync"
+	mockery
 
 .PHONY: vet
 vet: ## go vet
