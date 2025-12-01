@@ -6,7 +6,6 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/lemoony/snipkit/internal/assistant"
-	"github.com/lemoony/snipkit/internal/assistant/openai"
 	"github.com/lemoony/snipkit/internal/config/testdata"
 	"github.com/lemoony/snipkit/internal/managers/fslibrary"
 	"github.com/lemoony/snipkit/internal/managers/githubgist"
@@ -33,11 +32,14 @@ func Test_serializeToYamlWithComment(t *testing.T) {
 
 	testConfig.Config.Assistant = assistant.Config{
 		SaveMode: assistant.SaveModeNever,
-		OpenAI: &openai.Config{
-			Enabled:   true,
-			Endpoint:  "test.endpoint.com",
-			Model:     "test/model",
-			APIKeyEnv: "foo-key",
+		Providers: []assistant.ProviderConfig{
+			{
+				Type:      assistant.ProviderTypeOpenAI,
+				Enabled:   true,
+				Endpoint:  "test.endpoint.com",
+				Model:     "test/model",
+				APIKeyEnv: "foo-key",
+			},
 		},
 	}
 

@@ -9,15 +9,15 @@ import (
 )
 
 func Test_Migrate(t *testing.T) {
-	oldCfg := testdata.ConfigBytes(t, testdata.ConfigV111)
-	newCfg := testdata.ConfigBytes(t, testdata.ConfigV120)
+	oldCfg := testdata.ConfigBytes(t, testdata.ConfigV120)
+	newCfg := testdata.ConfigBytes(t, testdata.ConfigV130)
 	actualCfg := Migrate(oldCfg)
 	assert.YAMLEq(t, string(newCfg), string(actualCfg))
 }
 
-func Test_Migrate_FsLibrary(t *testing.T) {
-	oldCfg := testdata.ConfigBytes(t, testdata.ConfigV111FsLibrary)
-	newCfg := testdata.ConfigBytes(t, testdata.ConfigV120FsLibrary)
+func Test_Migrate_WithProviders(t *testing.T) {
+	oldCfg := testdata.ConfigBytes(t, testdata.ConfigV120Providers)
+	newCfg := testdata.ConfigBytes(t, testdata.ConfigV130Providers)
 	actualCfg := Migrate(oldCfg)
 	assert.YAMLEq(t, string(newCfg), string(actualCfg))
 }

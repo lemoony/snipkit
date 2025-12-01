@@ -11,7 +11,6 @@ import (
 	"gopkg.in/yaml.v3"
 
 	"github.com/lemoony/snipkit/internal/assistant"
-	"github.com/lemoony/snipkit/internal/assistant/openai"
 	"github.com/lemoony/snipkit/internal/config"
 	"github.com/lemoony/snipkit/internal/managers"
 	"github.com/lemoony/snipkit/internal/managers/fslibrary"
@@ -71,8 +70,13 @@ func NewTestConfig() config.VersionWrapper {
 			Style:  ui.DefaultConfig(),
 			Assistant: assistant.Config{
 				SaveMode: assistant.SaveModeFsLibrary,
-				OpenAI: &openai.Config{
-					Enabled: true,
+				Providers: []assistant.ProviderConfig{
+					{
+						Type:      assistant.ProviderTypeOpenAI,
+						Enabled:   true,
+						Model:     "gpt-4o",
+						APIKeyEnv: "SNIPKIT_OPENAI_API_KEY",
+					},
 				},
 			},
 			Manager: managers.Config{

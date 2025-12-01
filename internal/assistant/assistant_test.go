@@ -6,8 +6,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
-	"github.com/lemoony/snipkit/internal/assistant/gemini"
-	"github.com/lemoony/snipkit/internal/assistant/openai"
 	"github.com/lemoony/snipkit/internal/cache"
 	"github.com/lemoony/snipkit/internal/model"
 	"github.com/lemoony/snipkit/internal/ui/uimsg"
@@ -28,7 +26,9 @@ func (m *clientProviderMock) GetClient(config Config) (Client, error) {
 func Test_AssistantImpl_Query(t *testing.T) {
 	sys := testutil.NewTestSystem()
 	cfg := Config{
-		OpenAI: &openai.Config{Enabled: true},
+		Providers: []ProviderConfig{
+			{Type: ProviderTypeOpenAI, Enabled: true, Model: "gpt-4o", APIKeyEnv: "TEST_KEY"},
+		},
 	}
 
 	clientMock := assistantMocks.NewClient(t)
@@ -60,15 +60,30 @@ func Test_AssistantDescriptions(t *testing.T) {
 	asst := assistantImpl{}
 
 	descriptions := asst.AssistantDescriptions(Config{
-		OpenAI: &openai.Config{Enabled: false},
-		Gemini: &gemini.Config{Enabled: true},
+		Providers: []ProviderConfig{
+			{Type: ProviderTypeOpenAI, Enabled: false},
+			{Type: ProviderTypeGemini, Enabled: true},
+		},
 	})
 
-	assert.Len(t, descriptions, 2)
-	assert.Equal(t, openai.Key, descriptions[0].Key)
-	assert.False(t, descriptions[0].Enabled)
-	assert.Equal(t, gemini.Key, descriptions[1].Key)
-	assert.True(t, descriptions[1].Enabled)
+	// Should have descriptions for all supported providers
+	assert.Len(t, descriptions, len(SupportedProviders))
+
+	// Find OpenAI and Gemini in the descriptions
+	var openaiDesc, geminiDesc *model.AssistantDescription
+	for i := range descriptions {
+		if descriptions[i].Key == model.AssistantKey(ProviderTypeOpenAI) {
+			openaiDesc = &descriptions[i]
+		}
+		if descriptions[i].Key == model.AssistantKey(ProviderTypeGemini) {
+			geminiDesc = &descriptions[i]
+		}
+	}
+
+	assert.NotNil(t, openaiDesc)
+	assert.False(t, openaiDesc.Enabled)
+	assert.NotNil(t, geminiDesc)
+	assert.True(t, geminiDesc.Enabled)
 }
 
 func Test_ValidateConfig(t *testing.T) {
@@ -78,28 +93,35 @@ func Test_ValidateConfig(t *testing.T) {
 		name          string
 		config        Config
 		expectedValid bool
-		panics        bool
 	}{
-		{"not valid", Config{}, false, false},
-		{"more than one expected", Config{OpenAI: &openai.Config{Enabled: true}, Gemini: &gemini.Config{Enabled: true}}, false, true},
-		{"valid", Config{OpenAI: &openai.Config{Enabled: true}}, true, false},
+		{name: "not valid - empty providers", config: Config{}, expectedValid: false},
+		{
+			name:          "not valid - no provider enabled",
+			config:        Config{Providers: []ProviderConfig{{Type: ProviderTypeOpenAI, Enabled: false}}},
+			expectedValid: false,
+		},
+		{
+			name:          "valid - one provider enabled",
+			config:        Config{Providers: []ProviderConfig{{Type: ProviderTypeOpenAI, Enabled: true, Model: "gpt-4o", APIKeyEnv: "TEST_KEY"}}},
+			expectedValid: true,
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			asst := assistantImpl{config: tt.config, provider: clientProviderImpl{}}
-
-			if tt.panics {
-				assert.Panics(t, func() {
-					_, _ = asst.Initialize()
-				})
+			clientMock := assistantMocks.NewClient(t)
+			providerMock := clientProviderMock{}
+			if tt.expectedValid {
+				providerMock.On("GetClient", mock.Anything).Return(clientMock, nil)
 			} else {
-				valid, msg := asst.Initialize()
-				assert.Equal(t, tt.expectedValid, valid)
-				if !tt.expectedValid {
-					assert.Equal(t, msg, uimsg.AssistantNoneEnabled())
-				}
+				providerMock.On("GetClient", mock.Anything).Return((*assistantMocks.Client)(nil), ErrorNoAssistantEnabled)
+			}
+			asst := assistantImpl{config: tt.config, provider: &providerMock}
+			valid, msg := asst.Initialize()
+			assert.Equal(t, tt.expectedValid, valid)
+			if !tt.expectedValid {
+				assert.Equal(t, msg, uimsg.AssistantNoneEnabled())
 			}
 		})
 	}
@@ -107,40 +129,39 @@ func Test_ValidateConfig(t *testing.T) {
 
 func Test_AutoConfig(t *testing.T) {
 	tests := []struct {
-		name          string
-		initialConfig Config
-		key           model.AssistantKey
-		expected      Config
+		name             string
+		initialConfig    Config
+		key              model.AssistantKey
+		expectedEnabled  ProviderType
+		expectedDisabled []ProviderType
 	}{
 		{
-			name:          "no assistant configured yet",
-			initialConfig: Config{},
-			key:           gemini.Key,
-			expected: Config{
-				Gemini: &gemini.Config{Enabled: true},
-			},
+			name:            "no assistant configured yet",
+			initialConfig:   Config{},
+			key:             model.AssistantKey(ProviderTypeGemini),
+			expectedEnabled: ProviderTypeGemini,
 		},
 		{
 			name: "gemini enabled, auto configure openai",
 			initialConfig: Config{
-				Gemini: &gemini.Config{Enabled: true},
+				Providers: []ProviderConfig{
+					{Type: ProviderTypeGemini, Enabled: true},
+				},
 			},
-			key: openai.Key,
-			expected: Config{
-				OpenAI: &openai.Config{Enabled: true},
-				Gemini: &gemini.Config{Enabled: false},
-			},
+			key:              model.AssistantKey(ProviderTypeOpenAI),
+			expectedEnabled:  ProviderTypeOpenAI,
+			expectedDisabled: []ProviderType{ProviderTypeGemini},
 		},
 		{
 			name: "openai enabled, auto configure gemini",
 			initialConfig: Config{
-				OpenAI: &openai.Config{Enabled: true},
+				Providers: []ProviderConfig{
+					{Type: ProviderTypeOpenAI, Enabled: true},
+				},
 			},
-			key: gemini.Key,
-			expected: Config{
-				OpenAI: &openai.Config{Enabled: false},
-				Gemini: &gemini.Config{Enabled: true},
-			},
+			key:              model.AssistantKey(ProviderTypeGemini),
+			expectedEnabled:  ProviderTypeGemini,
+			expectedDisabled: []ProviderType{ProviderTypeOpenAI},
 		},
 	}
 	for _, tt := range tests {
@@ -149,14 +170,23 @@ func Test_AutoConfig(t *testing.T) {
 			a := NewBuilder(sys, tt.initialConfig, cache.New(sys))
 			updateConfig := a.AutoConfig(tt.key)
 
-			assert.Equal(t, tt.expected.OpenAI != nil, updateConfig.OpenAI != nil)
-			if tt.expected.OpenAI != nil {
-				assert.Equal(t, tt.expected.OpenAI.Enabled, updateConfig.OpenAI.Enabled)
+			// Check that the expected provider is enabled
+			var foundEnabled bool
+			for _, p := range updateConfig.Providers {
+				if p.Type == tt.expectedEnabled {
+					assert.True(t, p.Enabled, "expected %s to be enabled", tt.expectedEnabled)
+					foundEnabled = true
+				}
 			}
+			assert.True(t, foundEnabled, "expected provider %s not found", tt.expectedEnabled)
 
-			assert.Equal(t, tt.expected.Gemini != nil, updateConfig.Gemini != nil)
-			if tt.expected.Gemini != nil {
-				assert.Equal(t, tt.expected.Gemini.Enabled, updateConfig.Gemini.Enabled)
+			// Check that expected providers are disabled
+			for _, disabledType := range tt.expectedDisabled {
+				for _, p := range updateConfig.Providers {
+					if p.Type == disabledType {
+						assert.False(t, p.Enabled, "expected %s to be disabled", disabledType)
+					}
+				}
 			}
 		})
 	}

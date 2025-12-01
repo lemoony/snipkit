@@ -6,8 +6,6 @@ import (
 	"emperror.dev/errors"
 	"github.com/phuslu/log"
 
-	"github.com/lemoony/snipkit/internal/assistant/gemini"
-	"github.com/lemoony/snipkit/internal/assistant/openai"
 	"github.com/lemoony/snipkit/internal/cache"
 	"github.com/lemoony/snipkit/internal/model"
 	"github.com/lemoony/snipkit/internal/ui/uimsg"
@@ -76,26 +74,55 @@ func (a *assistantImpl) Query(prompt string) ParsedScript {
 }
 
 func (a *assistantImpl) AssistantDescriptions(config Config) []model.AssistantDescription {
-	return []model.AssistantDescription{
-		openai.Description(config.OpenAI),
-		gemini.Description(config.Gemini),
+	descriptions := make([]model.AssistantDescription, 0, len(SupportedProviders))
+
+	for _, providerType := range SupportedProviders {
+		info := GetProviderInfo(providerType)
+		enabled := false
+
+		// Check if this provider is currently enabled in config
+		for _, p := range config.Providers {
+			if p.Type == providerType && p.Enabled {
+				enabled = true
+				break
+			}
+		}
+
+		descriptions = append(descriptions, model.AssistantDescription{
+			Key:         model.AssistantKey(providerType),
+			Name:        info.Name,
+			Description: info.Description,
+			Enabled:     enabled,
+		})
 	}
+
+	return descriptions
 }
 
 func (a *assistantImpl) AutoConfig(key model.AssistantKey) Config {
 	result := a.config
-	if key == openai.Key {
-		updated := openai.AutoDiscoveryConfig(a.config.OpenAI)
-		result.OpenAI = &updated
-		if result.Gemini != nil {
-			result.Gemini.Enabled = false
-		}
-	} else if key == gemini.Key {
-		updated := gemini.AutoDiscoveryConfig(a.config.Gemini)
-		result.Gemini = &updated
-		if result.OpenAI != nil {
-			result.OpenAI.Enabled = false
+	providerType := ProviderType(key)
+
+	// Disable all existing providers
+	for i := range result.Providers {
+		result.Providers[i].Enabled = false
+	}
+
+	// Find existing provider or add new one
+	found := false
+	for i := range result.Providers {
+		if result.Providers[i].Type == providerType {
+			result.Providers[i].Enabled = true
+			found = true
+			break
 		}
 	}
+
+	if !found {
+		// Add new provider with defaults
+		newProvider := DefaultProviderConfig(providerType)
+		result.Providers = append(result.Providers, newProvider)
+	}
+
 	return result
 }

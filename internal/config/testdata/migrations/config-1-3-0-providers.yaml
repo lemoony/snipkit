@@ -1,0 +1,29 @@
+version: 1.3.0
+config:
+  style:
+    theme: simple
+    hideKeyMap: true
+  editor: foo-editor
+  defaultRootCommand: ""
+  fuzzySearch: true
+  secretStorage: KEYRING
+  scripts:
+    shell: /bin/zsh
+    parameterMode: SET
+    removeComments: true
+    execConfirm: false
+    execPrint: false
+  assistant:
+    saveMode: FS_LIBRARY
+    providers:
+      - type: openai
+        enabled: true
+        model: azure/gpt-4.1
+        apiKeyEnv: SNIPKIT_OPENAI_API_KEY
+        endpoint: https://api.iteragpt.iteratec.de
+      - type: gemini
+        enabled: false
+        model: gemini-1.5-flash
+        apiKeyEnv: SNIPKIT_GEMINI_API_KEY
+        endpoint: https://generativelanguage.googleapis.com
+  manager: {}
