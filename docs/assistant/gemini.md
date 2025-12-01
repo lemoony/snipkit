@@ -13,7 +13,7 @@ config:
         # If set to false, Gemini will not be used as an AI assistant.
         enabled: true
         # Gemini Model to be used.
-        model: gemini-2.5-flash
+        model: gemini-1.5-flash
         # The name of the environment variable holding the Gemini API key.
         apiKeyEnv: SNIPKIT_GEMINI_API_KEY
         # Optional: Custom API endpoint.

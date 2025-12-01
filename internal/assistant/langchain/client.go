@@ -2,7 +2,9 @@ package langchain
 
 import (
 	"context"
+	"fmt"
 	"os"
+	"reflect"
 
 	"emperror.dev/errors"
 	"github.com/phuslu/log"
@@ -178,7 +180,7 @@ func (c *Client) Query(prompt string) (string, error) {
 	// Generate response
 	response, err := c.model.GenerateContent(ctx, c.history)
 	if err != nil {
-		return "", errors.Wrap(err, "failed to generate content")
+		return "", extractAPIError(err)
 	}
 
 	if len(response.Choices) == 0 {
@@ -199,11 +201,97 @@ func (c *Client) Query(prompt string) (string, error) {
 
 func getAPIKey(envVar string) (string, error) {
 	if envVar == "" {
-		return "", errors.New("no API key environment variable specified")
+		return "", errors.New("no API key environment variable specified in config")
 	}
 	apiKey := os.Getenv(envVar)
 	if apiKey == "" {
-		return "", errors.Errorf("environment variable %s is empty", envVar)
+		return "", errors.Errorf("environment variable %s is not set or empty - please set it with your API key", envVar)
 	}
 	return apiKey, nil
+}
+
+// extractAPIError extracts detailed error information from API errors.
+// Uses reflection to extract common error fields (Message, Body, Details) in a provider-agnostic way.
+func extractAPIError(err error) error {
+	if err == nil {
+		return nil
+	}
+
+	// Check for langchaingo's standardized error type first
+	var llmErr *llms.Error
+	if errors.As(err, &llmErr) {
+		msg := llmErr.Message
+		if msg == "" {
+			msg = string(llmErr.Code)
+		}
+		if len(llmErr.Details) > 0 {
+			return fmt.Errorf("%s: %s (details: %v)", llmErr.Provider, msg, llmErr.Details)
+		}
+		if llmErr.Cause != nil {
+			return fmt.Errorf("%s: %s (cause: %v)", llmErr.Provider, msg, llmErr.Cause)
+		}
+		return fmt.Errorf("%s: %s", llmErr.Provider, msg)
+	}
+
+	// Use reflection to extract common error fields from any error type
+	details := extractErrorDetails(err)
+	if details != "" {
+		return fmt.Errorf("%s", details)
+	}
+
+	return err
+}
+
+// extractErrorDetails uses reflection to find common error fields like Message, Body, Details.
+func extractErrorDetails(err error) string {
+	// Traverse the error chain
+	for unwrapped := err; unwrapped != nil; unwrapped = errors.Unwrap(unwrapped) {
+		if details := extractFieldsFromError(unwrapped); details != "" {
+			return details
+		}
+	}
+	return ""
+}
+
+// extractFieldsFromError extracts Message or Body fields from an error using reflection.
+func extractFieldsFromError(err error) string {
+	v := reflect.ValueOf(err)
+	if v.Kind() == reflect.Ptr {
+		if v.IsNil() {
+			return ""
+		}
+		v = v.Elem()
+	}
+	if v.Kind() != reflect.Struct {
+		return ""
+	}
+
+	// Try to get common error fields
+	var code, message, body string
+
+	if f := v.FieldByName("Code"); f.IsValid() && f.CanInterface() {
+		code = fmt.Sprintf("%v", f.Interface())
+	}
+	if f := v.FieldByName("Message"); f.IsValid() && f.Kind() == reflect.String {
+		message = f.String()
+	}
+	if f := v.FieldByName("Body"); f.IsValid() && f.Kind() == reflect.String {
+		body = f.String()
+	}
+
+	// Build detailed error message
+	if message != "" {
+		if code != "" {
+			return fmt.Sprintf("API error %s: %s", code, message)
+		}
+		return fmt.Sprintf("API error: %s", message)
+	}
+	if body != "" {
+		if code != "" {
+			return fmt.Sprintf("API error %s: %s", code, body)
+		}
+		return fmt.Sprintf("API error: %s", body)
+	}
+
+	return ""
 }

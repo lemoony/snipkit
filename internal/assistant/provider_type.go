@@ -46,7 +46,7 @@ func GetProviderInfo(providerType ProviderType) ProviderInfo {
 		ProviderTypeGemini: {
 			Name:             "Google Gemini",
 			Description:      "Use Google Gemini as assistant",
-			DefaultModel:     "gemini-2.5-flash",
+			DefaultModel:     "gemini-1.5-flash",
 			DefaultAPIKeyEnv: "SNIPKIT_GEMINI_API_KEY",
 		},
 		ProviderTypeOllama: {

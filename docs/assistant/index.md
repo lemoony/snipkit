@@ -89,7 +89,7 @@ config:
         apiKeyEnv: SNIPKIT_ANTHROPIC_API_KEY
       - type: gemini
         enabled: false
-        model: gemini-2.5-flash
+        model: gemini-1.5-flash
         apiKeyEnv: SNIPKIT_GEMINI_API_KEY
       - type: ollama
         enabled: false

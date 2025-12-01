@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"sync"
 	"time"
 
 	"emperror.dev/errors"
@@ -35,9 +36,9 @@ func (a *appImpl) GenerateSnippetWithAssistant(demoScriptPath []string, demoQuer
 
 	if ok, text := a.tui.ShowAssistantPrompt([]string{}); ok {
 		prompts := []string{text}
-		spinnerStop := a.startSpinner()
+		spinner := a.startSpinner()
+		defer spinner.stopAndWait()
 		script := asst.Query(text)
-		close(spinnerStop)
 		a.handleGeneratedScript(script, prompts, asst)
 	}
 }
@@ -96,16 +97,31 @@ func (a *appImpl) executeAndHandleSnippet(snippet model.Snippet, parameterValues
 
 func (a *appImpl) generateSnippetWithAdditionalPrompt(newPrompt string, prompts []string, asst assistant.Assistant) {
 	log.Debug().Int("prompt_count", len(prompts)+1).Msg("Generating additional snippet with assistant")
-	spinnerStop := a.startSpinner()
+	spinner := a.startSpinner()
+	defer spinner.stopAndWait()
 	parsed := asst.Query(newPrompt)
-	close(spinnerStop)
 	a.handleGeneratedScript(parsed, prompts, asst)
 }
 
-func (a *appImpl) startSpinner() chan bool {
+type spinnerControl struct {
+	stop chan bool
+	wg   *sync.WaitGroup
+}
+
+func (a *appImpl) startSpinner() *spinnerControl {
 	stopChan := make(chan bool)
-	go a.tui.ShowSpinner("Please wait, generating script...", "SnipKit Assistant", stopChan)
-	return stopChan
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		a.tui.ShowSpinner("Please wait, generating script...", "SnipKit Assistant", stopChan)
+	}()
+	return &spinnerControl{stop: stopChan, wg: &wg}
+}
+
+func (s *spinnerControl) stopAndWait() {
+	close(s.stop)
+	s.wg.Wait()
 }
 
 func (a *appImpl) saveScript(contents []byte, title, filename string) {
