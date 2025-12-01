@@ -1,21 +1,31 @@
-# Gemini Assistant
+# Google Gemini Assistant
+
+Use Google's Gemini models as your SnipKit assistant.
 
 ## Configuration
 
 ```yaml title="config.yaml"
-version: 1.2.0
+version: 1.3.0
 config:
   assistant:
-    gemini:
-      # If set to false, Gemini will not be used as an AI assistant.
-      enabled: true
-      # Gemini API endpoint.
-      endpoint: https://generativelanguage.googleapis.com
-      # Gemini Model to be used (e.g., openai/gpt-4o)
-      model: gemini-1.5-flash
-      # The name of the environment variable holding the Gemini API key.
-      apiKeyEnv: SNIPKIT_GEMINI_API_KEY
+    providers:
+      - type: gemini
+        # If set to false, Gemini will not be used as an AI assistant.
+        enabled: true
+        # Gemini Model to be used.
+        model: gemini-2.5-flash
+        # The name of the environment variable holding the Gemini API key.
+        apiKeyEnv: SNIPKIT_GEMINI_API_KEY
+        # Optional: Custom API endpoint.
+        # endpoint: https://generativelanguage.googleapis.com
 ```
 
-!!! info
-    For this configuration, you will need to provide the API key for the Gemini API via the environment variable `SNIPKIT_GEMINI_API_KEY`.
+## API Key
+
+You need to provide the API key for the Gemini API via the environment variable specified in `apiKeyEnv`.
+
+```sh title="Set Gemini API Key"
+export SNIPKIT_GEMINI_API_KEY="your-api-key-here"
+```
+
+Get your API key from [Google AI Studio](https://aistudio.google.com/app/apikey). See [Gemini Models](https://ai.google.dev/gemini-api/docs/models/gemini) for all available models.

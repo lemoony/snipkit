@@ -57,9 +57,17 @@ SnipKit Assistant lets you generate parameterized scripts based on a prompt dire
 
 <img alt="Demo" src="./docs/images/assistant/assistant.gif" />
 
-The assistant also allows you to save generated scripts and retry or adjust the prompt based on the script output. For more details, see the [documentation](https://lemoony.github.io/snipkit/assistant/). 
 
 > ⚠️ SnipKit Assistant is currently in beta for OpenAI and Gemini. A couple of improvements are already in the pipeline...
+
+The assistant also allows you to save generated scripts and retry or adjust the prompt based on the script output. For more details, see the [documentation](https://lemoony.github.io/snipkit/assistant/).
+
+**Supported AI Providers:**
+- OpenAI (GPT-4)
+- Anthropic (Claude)
+- Google Gemini
+- Ollama (local models)
+- Any OpenAI-compatible API (OpenRouter, Azure OpenAI, etc.)
 
 ### Parameters
 
@@ -167,5 +175,4 @@ You can also build the project via Gitpod.
 
 ## Contributing
 
-See [CONTRIBUTING.md](./CONTRIBUTING.md). 
-
+See [CONTRIBUTING.md](./CONTRIBUTING.md).

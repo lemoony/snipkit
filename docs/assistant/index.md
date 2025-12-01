@@ -7,13 +7,13 @@ The SnipKit Assistant helps you create SnipKit snippets using AI.
 
 ![Assistant Demo](../images/assistant/assistant.gif)
 
-!!! warning
-    SnipKit Assistant is currently in beta for OpenAI and Gemini. Several improvements are in progress, so stay tuned!
-
 ## Supported AI Providers
 
-- OpenAI
-- Gemini
+- [OpenAI](openai.md) (GPT-4, GPT-4o)
+- [Anthropic](anthropic.md) (Claude)
+- [Google Gemini](gemini.md)
+- [Ollama](ollama.md) (local models)
+- [OpenAI-Compatible](openai-compatible.md) (Together.ai, Groq, Azure OpenAI, etc.)
 
 ## Generate Scripts
 
@@ -47,7 +47,7 @@ SnipKit supports saving generated snippets to your [File System Library][fslibra
 If you set `saveMode: FS_LIBRARY`, the assistant will ask whether you want to save the generated script after its execution.
 
 ```yaml title="config.yaml"
-version: 1.2.0
+version: 1.3.0
 config:
   assistant:
     saveMode: FS_LIBRARY
@@ -73,19 +73,29 @@ You will need to provide an API key for the corresponding AI provider via an env
 [configuration]: ../configuration/overview.md
 
 ```yaml title="config.yaml"
-version: 1.2.0
+version: 1.3.0
 config:
   assistant:
     # Defines if you want to save the snippets created by the assistant. Possible values: NEVER | FS_LIBRARY
     saveMode: NEVER
-    openai:
-      enabled: false
-      # ....
-    gemini:
-      enabled: false
-      # ....
+    providers:
+      - type: openai
+        enabled: true
+        model: gpt-4.1
+        apiKeyEnv: SNIPKIT_OPENAI_API_KEY
+      - type: anthropic
+        enabled: false
+        model: claude-sonnet-4.5
+        apiKeyEnv: SNIPKIT_ANTHROPIC_API_KEY
+      - type: gemini
+        enabled: false
+        model: gemini-2.5-flash
+        apiKeyEnv: SNIPKIT_GEMINI_API_KEY
+      - type: ollama
+        enabled: false
+        model: llama3
+        serverUrl: http://localhost:11434
 ```
 
-!!! warning
-    Only one AI provider can be set to `enabled: true` at a time. If all providers are set to `enabled: false`, the assistant will not function.
-
+!!! note
+    The first provider with `enabled: true` will be used. If all providers are set to `enabled: false`, the assistant will not function.

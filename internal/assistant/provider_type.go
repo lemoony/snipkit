@@ -33,20 +33,20 @@ func GetProviderInfo(providerType ProviderType) ProviderInfo {
 	info := map[ProviderType]ProviderInfo{
 		ProviderTypeOpenAI: {
 			Name:             "OpenAI",
-			Description:      "Use OpenAI (GPT-4, GPT-4o) as assistant",
-			DefaultModel:     "gpt-4o",
+			Description:      "Use OpenAI (GPT-4) as assistant",
+			DefaultModel:     "gpt-4.1",
 			DefaultAPIKeyEnv: "SNIPKIT_OPENAI_API_KEY",
 		},
 		ProviderTypeAnthropic: {
 			Name:             "Anthropic",
 			Description:      "Use Anthropic Claude as assistant",
-			DefaultModel:     "claude-sonnet-4-20250514",
+			DefaultModel:     "claude-sonnet-4.5",
 			DefaultAPIKeyEnv: "SNIPKIT_ANTHROPIC_API_KEY",
 		},
 		ProviderTypeGemini: {
 			Name:             "Google Gemini",
 			Description:      "Use Google Gemini as assistant",
-			DefaultModel:     "gemini-1.5-flash",
+			DefaultModel:     "gemini-2.5-flash",
 			DefaultAPIKeyEnv: "SNIPKIT_GEMINI_API_KEY",
 		},
 		ProviderTypeOllama: {
@@ -57,7 +57,7 @@ func GetProviderInfo(providerType ProviderType) ProviderInfo {
 		},
 		ProviderTypeOpenAICompatible: {
 			Name:             "OpenAI-Compatible",
-			Description:      "Use any OpenAI-compatible API (Together.ai, Groq, etc.)",
+			Description:      "Use any OpenAI-compatible API (OpenRouter, etc.)",
 			DefaultModel:     "",
 			DefaultAPIKeyEnv: "",
 		},

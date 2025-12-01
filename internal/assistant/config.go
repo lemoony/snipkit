@@ -13,7 +13,10 @@ const (
 	SaveModeFsLibrary = SaveMode("FS_LIBRARY")
 )
 
-var ErrorNoAssistantEnabled = errors.New("No assistant configured or enabled")
+var (
+	ErrorNoAssistantEnabled       = errors.New("No assistant configured or enabled")
+	ErrorMultipleProvidersEnabled = errors.New("only one provider can be enabled at a time")
+)
 
 // ProviderConfig represents a single LLM provider configuration.
 type ProviderConfig struct {
@@ -32,8 +35,26 @@ type Config struct {
 	Providers []ProviderConfig `yaml:"providers,omitempty" mapstructure:"providers" head_comment:"List of LLM providers. The first enabled provider will be used."`
 }
 
+// ValidateConfig returns an error if the configuration is invalid.
+func (c Config) ValidateConfig() error {
+	enabledCount := 0
+	for _, p := range c.Providers {
+		if p.Enabled {
+			enabledCount++
+		}
+	}
+	if enabledCount > 1 {
+		return ErrorMultipleProvidersEnabled
+	}
+	return nil
+}
+
 // GetActiveProvider returns the first enabled provider config.
+// Returns an error if multiple providers are enabled or none are enabled.
 func (c Config) GetActiveProvider() (*ProviderConfig, error) {
+	if err := c.ValidateConfig(); err != nil {
+		return nil, err
+	}
 	for i := range c.Providers {
 		if c.Providers[i].Enabled {
 			return &c.Providers[i], nil
