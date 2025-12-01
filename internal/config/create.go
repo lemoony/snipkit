@@ -151,33 +151,45 @@ func marshalToYAML(value interface{}) []byte {
 }
 
 func traverseYamlTree(node *yaml.Node, path []string, treeMap *map[string]*yaml.Node) {
-	if node.Kind == yaml.DocumentNode {
+	switch node.Kind {
+	case yaml.DocumentNode:
 		for i := range node.Content {
 			traverseYamlTree(node.Content[i], path, treeMap)
 		}
-	} else if node.Kind == yaml.MappingNode {
-		for i := range node.Content {
-			if node.Content[i].Kind == yaml.MappingNode {
-				if i%2 == 1 {
-					traverseYamlTree(node.Content[i], append(path, node.Content[i-1].Value), treeMap)
-				}
-			} else if node.Content[i].Kind == yaml.ScalarNode || node.Content[i].Kind == yaml.SequenceNode {
-				if i%2 == 1 {
-					pathPrefix := strings.Join(path, ".")
-					if len(path) > 0 {
-						pathPrefix = fmt.Sprintf("%s.", pathPrefix)
-					}
+	case yaml.MappingNode:
+		handleMappingNode(node, path, treeMap)
+	}
+}
 
-					currentNode := node.Content[i-1]
-					if node.Content[i].Kind == yaml.SequenceNode {
-						for idx, v := range node.Content[i].Content {
-							traverseYamlTree(v, append(path, fmt.Sprintf("%s[%d]", currentNode.Value, idx)), treeMap)
-						}
-					}
+func handleMappingNode(node *yaml.Node, path []string, treeMap *map[string]*yaml.Node) {
+	for i := range node.Content {
+		if i%2 == 0 {
+			continue // Skip keys, only process values
+		}
 
-					(*treeMap)[strings.TrimSpace(fmt.Sprintf("%s%s\n", pathPrefix, currentNode.Value))] = currentNode
-				}
-			}
+		valueNode := node.Content[i]
+		keyNode := node.Content[i-1]
+
+		switch valueNode.Kind {
+		case yaml.MappingNode:
+			traverseYamlTree(valueNode, append(path, keyNode.Value), treeMap)
+		case yaml.ScalarNode, yaml.SequenceNode:
+			processScalarOrSequence(valueNode, keyNode, path, treeMap)
 		}
 	}
+}
+
+func processScalarOrSequence(valueNode, keyNode *yaml.Node, path []string, treeMap *map[string]*yaml.Node) {
+	pathPrefix := strings.Join(path, ".")
+	if len(path) > 0 {
+		pathPrefix += "."
+	}
+
+	if valueNode.Kind == yaml.SequenceNode {
+		for idx, v := range valueNode.Content {
+			traverseYamlTree(v, append(path, fmt.Sprintf("%s[%d]", keyNode.Value, idx)), treeMap)
+		}
+	}
+
+	(*treeMap)[strings.TrimSpace(fmt.Sprintf("%s%s\n", pathPrefix, keyNode.Value))] = keyNode
 }
