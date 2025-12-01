@@ -1,0 +1,56 @@
+template: testify
+formatter: goimports
+pkgname: mocks
+structname: "{{.InterfaceName}}"
+filename: "{{.InterfaceName}}.go"
+packages:
+  github.com/lemoony/snipkit/internal/app:
+    config:
+      dir: mocks/app
+    interfaces:
+      App:
+
+  github.com/lemoony/snipkit/internal/assistant:
+    config:
+      dir: mocks/assistant
+    interfaces:
+      Assistant:
+      Client:
+        config:
+          dir: mocks/assistant/client
+
+  github.com/lemoony/snipkit/internal/config:
+    config:
+      dir: mocks/config
+    interfaces:
+      Service:
+        config:
+          structname: ConfigService
+
+  github.com/lemoony/snipkit/internal/managers:
+    config:
+      dir: mocks/managers
+    interfaces:
+      Provider:
+      Manager:
+
+  github.com/lemoony/snipkit/internal/cache:
+    config:
+      dir: mocks/cache
+    interfaces:
+      Cache:
+
+  github.com/lemoony/snipkit/internal/ui:
+    config:
+      dir: mocks/ui
+    interfaces:
+      TUI:
+      MessagePrinter:
+
+  github.com/lemoony/snipkit/internal/ui/sync:
+    config:
+      dir: mocks/ui/sync
+    interfaces:
+      Screen:
+        config:
+          structname: SyncScreen
