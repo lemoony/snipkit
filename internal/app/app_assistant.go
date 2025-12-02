@@ -37,11 +37,15 @@ func (a *appImpl) GenerateSnippetWithAssistant(demoScriptPath []string, demoQuer
 
 	if ok, text := a.tui.ShowAssistantPrompt([]chat.HistoryEntry{}); ok {
 		history := []chat.HistoryEntry{{UserPrompt: text}}
-		spinner := a.startSpinner()
-		script := asst.Query(text)
-		spinner.stopAndWait() // Stop spinner before showing preview
-		a.handleGeneratedScript(script, history, asst)
+		a.generateAndHandleScript(text, history, asst)
 	}
+}
+
+func (a *appImpl) generateAndHandleScript(prompt string, history []chat.HistoryEntry, asst assistant.Assistant) {
+	spinner := a.startSpinner()
+	script := asst.Query(prompt)
+	spinner.stopAndWait()
+	a.handleGeneratedScript(script, history, asst)
 }
 
 func (a *appImpl) handleGeneratedScript(parsed assistant.ParsedScript, history []chat.HistoryEntry, asst assistant.Assistant) {
@@ -69,10 +73,7 @@ func (a *appImpl) handleGeneratedScript(parsed assistant.ParsedScript, history [
 			history = append(history, chat.HistoryEntry{
 				UserPrompt: newPrompt,
 			})
-			spinner := a.startSpinner()
-			newScript := asst.Query(newPrompt)
-			spinner.stopAndWait()
-			a.handleGeneratedScript(newScript, history, asst)
+			a.generateAndHandleScript(newPrompt, history, asst)
 		}
 		return
 
@@ -151,10 +152,7 @@ func (a *appImpl) executeAndHandleSnippet(snippet model.Snippet, parameterValues
 
 func (a *appImpl) generateSnippetWithAdditionalPrompt(newPrompt string, history []chat.HistoryEntry, asst assistant.Assistant) {
 	log.Debug().Int("prompt_count", len(history)).Msg("Generating additional snippet with assistant")
-	spinner := a.startSpinner()
-	parsed := asst.Query(newPrompt)
-	spinner.stopAndWait() // Stop spinner before showing preview
-	a.handleGeneratedScript(parsed, history, asst)
+	a.generateAndHandleScript(newPrompt, history, asst)
 }
 
 type spinnerControl struct {
