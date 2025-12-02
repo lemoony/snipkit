@@ -10,6 +10,7 @@ import (
 	"github.com/lemoony/snipkit/internal/config/configtest"
 	"github.com/lemoony/snipkit/internal/managers"
 	"github.com/lemoony/snipkit/internal/managers/fslibrary"
+	"github.com/lemoony/snipkit/internal/ui/assistant/chat"
 	"github.com/lemoony/snipkit/internal/ui/assistant/wizard"
 	"github.com/lemoony/snipkit/internal/ui/picker"
 	"github.com/lemoony/snipkit/internal/ui/uimsg"
@@ -31,12 +32,13 @@ echo ${FOO_KEY}
 
 	tui := uiMocks.TUI{}
 	tui.On(mockutil.ApplyConfig, mock.Anything, mock.Anything).Return()
-	tui.On(mockutil.ShowAssistantPrompt, []string{}).Return(true, "foo prompt")
+	tui.On(mockutil.ShowAssistantPrompt, []chat.HistoryEntry{}).Return(true, "foo prompt")
+	tui.On(mockutil.ShowAssistantScriptPreview, mock.Anything, mock.Anything).Return(chat.PreviewActionExecute)
 	tui.On(mockutil.ShowAssistantWizard, mock.Anything).Return(true, wizard.Result{SelectedOption: wizard.OptionSaveExit, Filename: exampleFile, SnippetTitle: exampleTitle})
 	tui.On(mockutil.ShowSpinner, "Please wait, generating script...", "SnipKit Assistant", mock.AnythingOfType("chan bool")).Return().Run(func(args mock.Arguments) {
 		go func() { <-(args[2].(chan bool)) }()
 	})
-	tui.On(mockutil.OpenEditor, mock.Anything, mock.Anything).Return()
+	// No OpenEditor call since PreviewActionExecute skips the editor
 	tui.On(mockutil.ShowParameterForm, mock.Anything, mock.Anything, mock.Anything).Return([]string{"hello world"}, true)
 
 	cfg := configtest.NewTestConfig().Config
@@ -81,14 +83,15 @@ func Test_App_GenerateSnippetWithAssistant_TweakPrompt_DontSave(t *testing.T) {
 
 	tui := uiMocks.TUI{}
 	tui.On(mockutil.ApplyConfig, mock.Anything, mock.Anything).Return()
-	tui.On(mockutil.ShowAssistantPrompt, []string{}).Return(true, prompt1)
-	tui.On(mockutil.ShowAssistantPrompt, []string{prompt1}).Return(true, prompt2)
+	tui.On(mockutil.ShowAssistantPrompt, []chat.HistoryEntry{}).Return(true, prompt1)
+	tui.On(mockutil.ShowAssistantPrompt, mock.Anything).Return(true, prompt2)
+	tui.On(mockutil.ShowAssistantScriptPreview, mock.Anything, mock.Anything).Return(chat.PreviewActionExecute)
 	tui.On(mockutil.ShowAssistantWizard, wizard.Config{ShowSaveOption: true, ProposedFilename: exampleFile1}).Return(true, wizard.Result{SelectedOption: wizard.OptionTryAgain})
 	tui.On(mockutil.ShowAssistantWizard, wizard.Config{ShowSaveOption: true, ProposedFilename: exampleFile2}).Return(true, wizard.Result{SelectedOption: wizard.OptionDontSaveExit})
 	tui.On(mockutil.ShowSpinner, "Please wait, generating script...", "SnipKit Assistant", mock.AnythingOfType("chan bool")).Return().Run(func(args mock.Arguments) {
 		go func() { <-(args[2].(chan bool)) }()
 	})
-	tui.On(mockutil.OpenEditor, mock.Anything, mock.Anything).Return()
+	// No OpenEditor call since PreviewActionExecute skips the editor
 	tui.On(mockutil.Confirmation, mock.Anything).Return(true)
 
 	cfg := configtest.NewTestConfig().Config

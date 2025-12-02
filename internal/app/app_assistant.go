@@ -16,6 +16,7 @@ import (
 	"github.com/lemoony/snipkit/internal/managers/fslibrary"
 	"github.com/lemoony/snipkit/internal/model"
 	"github.com/lemoony/snipkit/internal/ui"
+	"github.com/lemoony/snipkit/internal/ui/assistant/chat"
 	"github.com/lemoony/snipkit/internal/ui/assistant/wizard"
 	"github.com/lemoony/snipkit/internal/ui/picker"
 	"github.com/lemoony/snipkit/internal/ui/uimsg"
@@ -34,42 +35,92 @@ func (a *appImpl) GenerateSnippetWithAssistant(demoScriptPath []string, demoQuer
 		a.tui.PrintAndExit(msg, -1)
 	}
 
-	if ok, text := a.tui.ShowAssistantPrompt([]string{}); ok {
-		prompts := []string{text}
+	if ok, text := a.tui.ShowAssistantPrompt([]chat.HistoryEntry{}); ok {
+		history := []chat.HistoryEntry{{UserPrompt: text}}
 		spinner := a.startSpinner()
-		defer spinner.stopAndWait()
 		script := asst.Query(text)
-		a.handleGeneratedScript(script, prompts, asst)
+		spinner.stopAndWait() // Stop spinner before showing preview
+		a.handleGeneratedScript(script, history, asst)
 	}
 }
 
-func (a *appImpl) handleGeneratedScript(parsed assistant.ParsedScript, prompts []string, asst assistant.Assistant) {
+func (a *appImpl) handleGeneratedScript(parsed assistant.ParsedScript, history []chat.HistoryEntry, asst assistant.Assistant) {
 	tmpDirSvc := tmpdir.New(a.system)
 	defer tmpDirSvc.ClearFiles()
 
-	if fileOk, filePath := tmpDirSvc.CreateTempFile([]byte(parsed.Contents)); fileOk {
-		a.tui.OpenEditor(filePath, a.config.Editor)
-		//nolint:gosec // ignore potential file inclusion via variable
-		updatedContents, err := os.ReadFile(filePath)
-		if err != nil {
-			panic(errors.Wrapf(err, "failed to read temporary file"))
+	// Show the generated script in the chat for review
+	action := a.tui.ShowAssistantScriptPreview(history, parsed.Contents)
+
+	switch action {
+	case chat.PreviewActionCancel:
+		// User canceled the preview
+		return
+
+	case chat.PreviewActionRevise:
+		// User wants to revise with a new prompt without executing
+		// First, update the last history entry with the generated script
+		if len(history) > 0 {
+			lastIdx := len(history) - 1
+			history[lastIdx].GeneratedScript = parsed.Contents
 		}
 
-		snippet := assistant.PrepareSnippet(updatedContents, parsed)
+		if ok, newPrompt := a.tui.ShowAssistantPrompt(history); ok {
+			// Add new entry for revision
+			history = append(history, chat.HistoryEntry{
+				UserPrompt: newPrompt,
+			})
+			spinner := a.startSpinner()
+			newScript := asst.Query(newPrompt)
+			spinner.stopAndWait()
+			a.handleGeneratedScript(newScript, history, asst)
+		}
+		return
+
+	case chat.PreviewActionExecute:
+		// Execute directly without opening editor
+		snippet := assistant.PrepareSnippet([]byte(parsed.Contents), parsed)
 		if parameters := snippet.GetParameters(); len(parameters) > 0 {
 			parameterValues, paramOk := a.tui.ShowParameterForm(parameters, nil, ui.OkButtonExecute)
 			if paramOk {
-				a.executeAndHandleSnippet(snippet, parameterValues, prompts, asst, parsed)
+				a.executeAndHandleSnippet(snippet, parameterValues, history, asst, parsed)
 			}
 		} else {
-			a.executeAndHandleSnippet(snippet, nil, prompts, asst, parsed)
+			a.executeAndHandleSnippet(snippet, nil, history, asst, parsed)
+		}
+
+	case chat.PreviewActionEdit:
+		// Open in editor first, then execute
+		if fileOk, filePath := tmpDirSvc.CreateTempFile([]byte(parsed.Contents)); fileOk {
+			a.tui.OpenEditor(filePath, a.config.Editor)
+			//nolint:gosec // ignore potential file inclusion via variable
+			updatedContents, err := os.ReadFile(filePath)
+			if err != nil {
+				panic(errors.Wrapf(err, "failed to read temporary file"))
+			}
+
+			snippet := assistant.PrepareSnippet(updatedContents, parsed)
+			if parameters := snippet.GetParameters(); len(parameters) > 0 {
+				parameterValues, paramOk := a.tui.ShowParameterForm(parameters, nil, ui.OkButtonExecute)
+				if paramOk {
+					a.executeAndHandleSnippet(snippet, parameterValues, history, asst, parsed)
+				}
+			} else {
+				a.executeAndHandleSnippet(snippet, nil, history, asst, parsed)
+			}
 		}
 	}
 }
 
-func (a *appImpl) executeAndHandleSnippet(snippet model.Snippet, parameterValues []string, prompts []string, asst assistant.Assistant, script assistant.ParsedScript) {
+func (a *appImpl) executeAndHandleSnippet(snippet model.Snippet, parameterValues []string, history []chat.HistoryEntry, asst assistant.Assistant, script assistant.ParsedScript) {
 	executed, capturedResult := a.executeSnippet(len(parameterValues) == 0, false, snippet, parameterValues)
 	if executed {
+		// Update last history entry with script and output
+		if len(history) > 0 {
+			lastIdx := len(history) - 1
+			history[lastIdx].GeneratedScript = script.Contents
+			history[lastIdx].ExecutionOutput = capturedResult.stdout + capturedResult.stderr
+		}
+
 		wizardOk, result := a.tui.ShowAssistantWizard(wizard.Config{
 			ShowSaveOption:      a.config.Assistant.SaveMode != assistant.SaveModeNever,
 			ProposedFilename:    script.Filename,
@@ -79,10 +130,13 @@ func (a *appImpl) executeAndHandleSnippet(snippet model.Snippet, parameterValues
 			switch result.SelectedOption {
 			case wizard.OptionTryAgain:
 				log.Debug().Msg("User requested to try again with assistant")
-				if ok2, prompt2 := a.tui.ShowAssistantPrompt(prompts); ok2 {
-					prompts = append(prompts, prompt2)
+				if ok2, prompt2 := a.tui.ShowAssistantPrompt(history); ok2 {
+					// Add new entry for retry
+					history = append(history, chat.HistoryEntry{
+						UserPrompt: prompt2,
+					})
 					newPrompt := fmt.Sprintf("The result of the command was: %s\n%s\n\n%s", capturedResult.stdout, capturedResult.stderr, prompt2)
-					a.generateSnippetWithAdditionalPrompt(newPrompt, prompts, asst)
+					a.generateSnippetWithAdditionalPrompt(newPrompt, history, asst)
 				}
 			case wizard.OptionSaveExit:
 				log.Debug().
@@ -95,12 +149,12 @@ func (a *appImpl) executeAndHandleSnippet(snippet model.Snippet, parameterValues
 	}
 }
 
-func (a *appImpl) generateSnippetWithAdditionalPrompt(newPrompt string, prompts []string, asst assistant.Assistant) {
-	log.Debug().Int("prompt_count", len(prompts)+1).Msg("Generating additional snippet with assistant")
+func (a *appImpl) generateSnippetWithAdditionalPrompt(newPrompt string, history []chat.HistoryEntry, asst assistant.Assistant) {
+	log.Debug().Int("prompt_count", len(history)).Msg("Generating additional snippet with assistant")
 	spinner := a.startSpinner()
-	defer spinner.stopAndWait()
 	parsed := asst.Query(newPrompt)
-	a.handleGeneratedScript(parsed, prompts, asst)
+	spinner.stopAndWait() // Stop spinner before showing preview
+	a.handleGeneratedScript(parsed, history, asst)
 }
 
 type spinnerControl struct {

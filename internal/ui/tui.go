@@ -15,7 +15,7 @@ import (
 	"github.com/spf13/afero"
 
 	"github.com/lemoony/snipkit/internal/model"
-	"github.com/lemoony/snipkit/internal/ui/assistant/prompt"
+	"github.com/lemoony/snipkit/internal/ui/assistant/chat"
 	"github.com/lemoony/snipkit/internal/ui/assistant/wizard"
 	"github.com/lemoony/snipkit/internal/ui/confirm"
 	"github.com/lemoony/snipkit/internal/ui/form"
@@ -77,7 +77,8 @@ type TUI interface {
 	ShowParameterForm(parameters []model.Parameter, values []model.ParameterValue, okButton OkButton) ([]string, bool)
 	ShowPicker(title string, items []picker.Item, selectedItem *picker.Item, options ...tea.ProgramOption) (int, bool)
 	ShowSync() sync.Screen
-	ShowAssistantPrompt([]string) (bool, string)
+	ShowAssistantPrompt([]chat.HistoryEntry) (bool, string)
+	ShowAssistantScriptPreview(history []chat.HistoryEntry, script string) chat.PreviewAction
 	ShowAssistantWizard(config wizard.Config) (bool, wizard.Result)
 	ShowSpinner(string, string, chan bool)
 }
@@ -201,8 +202,12 @@ func (t tuiImpl) ShowSync() sync.Screen {
 	)
 }
 
-func (t tuiImpl) ShowAssistantPrompt(history []string) (bool, string) {
-	return prompt.ShowPrompt(prompt.Config{History: history}, t.styler, tea.WithInput(t.stdio.In), tea.WithOutput(t.stdio.Out))
+func (t tuiImpl) ShowAssistantPrompt(history []chat.HistoryEntry) (bool, string) {
+	return chat.ShowChat(chat.Config{History: history}, t.styler, tea.WithInput(t.stdio.In), tea.WithOutput(t.stdio.Out))
+}
+
+func (t tuiImpl) ShowAssistantScriptPreview(history []chat.HistoryEntry, script string) chat.PreviewAction {
+	return chat.ShowScriptPreview(chat.PreviewConfig{History: history, Script: script}, t.styler, tea.WithInput(t.stdio.In), tea.WithOutput(t.stdio.Out))
 }
 
 func (t tuiImpl) ShowAssistantWizard(config wizard.Config) (bool, wizard.Result) {
