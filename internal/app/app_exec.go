@@ -22,6 +22,16 @@ import (
 
 const fallbackShell = "/bin/bash"
 
+// ExecutionContext indicates the origin of the execution request.
+type ExecutionContext int
+
+const (
+	// ContextDefault represents normal execution (e.g., from lookup).
+	ContextDefault ExecutionContext = iota
+	// ContextAssistant represents execution initiated from the assistant.
+	ContextAssistant
+)
+
 type capturedOutput struct {
 	stdout   string
 	stderr   string
@@ -42,7 +52,7 @@ func (a *appImpl) LookupAndExecuteSnippet(confirm, print bool) {
 	if ok, snippet := a.LookupSnippet(); ok {
 		parameters := snippet.GetParameters()
 		if parameterValues, paramOk := a.tui.ShowParameterForm(parameters, nil, ui.OkButtonExecute); paramOk {
-			a.executeSnippet(confirm, print, snippet, parameterValues)
+			a.executeSnippet(ContextDefault, print, snippet, parameterValues)
 		}
 	}
 }
@@ -51,9 +61,9 @@ func (a *appImpl) FindScriptAndExecuteWithParameters(id string, paramValues []mo
 	if snippetFound, snippet := a.getSnippet(id); !snippetFound {
 		panic(ErrSnippetIDNotFound)
 	} else if paramOk, parameters := matchParameters(paramValues, snippet.GetParameters()); paramOk {
-		a.executeSnippet(confirm, print, snippet, parameters)
+		a.executeSnippet(ContextDefault, print, snippet, parameters)
 	} else if parameterValues, formOk := a.tui.ShowParameterForm(snippet.GetParameters(), paramValues, ui.OkButtonExecute); formOk {
-		a.executeSnippet(confirm, print, snippet, parameterValues)
+		a.executeSnippet(ContextDefault, print, snippet, parameterValues)
 	}
 }
 
@@ -81,10 +91,11 @@ func matchParameters(paramValues []model.ParameterValue, snippetParameters []mod
 	return found == len(snippetParameters), result
 }
 
-func (a *appImpl) executeSnippet(confirm bool, print bool, snippet model.Snippet, parameterValues []string) (bool, *capturedOutput) {
+func (a *appImpl) executeSnippet(context ExecutionContext, print bool, snippet model.Snippet, parameterValues []string) (bool, *capturedOutput) {
 	script := snippet.Format(parameterValues, formatOptions(a.config.Script))
 
-	if (confirm || a.config.Script.ExecConfirm) && !a.tui.Confirmation(uimsg.ExecConfirm(snippet.GetTitle(), script)) {
+	// Skip confirmation for assistant context (parameter modal serves as implicit confirmation)
+	if context == ContextDefault && a.config.Script.ExecConfirm && !a.tui.Confirmation(uimsg.ExecConfirm(snippet.GetTitle(), script)) {
 		return false, nil
 	}
 

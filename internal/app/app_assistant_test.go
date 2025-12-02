@@ -11,7 +11,6 @@ import (
 	"github.com/lemoony/snipkit/internal/managers"
 	"github.com/lemoony/snipkit/internal/managers/fslibrary"
 	"github.com/lemoony/snipkit/internal/ui/assistant/chat"
-	"github.com/lemoony/snipkit/internal/ui/assistant/wizard"
 	"github.com/lemoony/snipkit/internal/ui/picker"
 	"github.com/lemoony/snipkit/internal/ui/uimsg"
 	"github.com/lemoony/snipkit/internal/utils/testutil/mockutil"
@@ -32,14 +31,24 @@ echo ${FOO_KEY}
 
 	tui := uiMocks.TUI{}
 	tui.On(mockutil.ApplyConfig, mock.Anything, mock.Anything).Return()
-	tui.On(mockutil.ShowAssistantPrompt, []chat.HistoryEntry{}).Return(true, "foo prompt")
-	tui.On(mockutil.ShowAssistantScriptPreviewWithGeneration, mock.Anything, mock.Anything).Return(
+	// First call: initial generation, user chooses Execute
+	tui.On(mockutil.ShowUnifiedAssistantChat, mock.Anything).Return(
 		assistant.ParsedScript{Contents: exampleScript, Filename: exampleFile, Title: exampleTitle},
+		[]string{"hello world"}, // parameterValues - provide values so execution happens
 		chat.PreviewActionExecute,
-	)
-	tui.On(mockutil.ShowAssistantWizard, mock.Anything).Return(true, wizard.Result{SelectedOption: wizard.OptionSaveExit, Filename: exampleFile, SnippetTitle: exampleTitle})
-	// No OpenEditor call since PreviewActionExecute skips the editor
-	tui.On(mockutil.ShowParameterForm, mock.Anything, mock.Anything, mock.Anything).Return([]string{"hello world"}, true)
+		"", // latestPrompt
+		"", // saveFilename
+		"", // saveSnippetName
+	).Once()
+	// Second call: after execution, user chooses Cancel with save data
+	tui.On(mockutil.ShowUnifiedAssistantChat, mock.Anything).Return(
+		assistant.ParsedScript{Contents: exampleScript, Filename: exampleFile, Title: exampleTitle},
+		[]string{},               // parameterValues
+		chat.PreviewActionCancel, // Exit after execution
+		"",                       // latestPrompt
+		exampleFile,              // saveFilename
+		exampleTitle,             // saveSnippetName
+	).Once()
 
 	cfg := configtest.NewTestConfig().Config
 	cfgService := configMocks.ConfigService{}
@@ -83,18 +92,42 @@ func Test_App_GenerateSnippetWithAssistant_TweakPrompt_DontSave(t *testing.T) {
 
 	tui := uiMocks.TUI{}
 	tui.On(mockutil.ApplyConfig, mock.Anything, mock.Anything).Return()
-	tui.On(mockutil.ShowAssistantPrompt, []chat.HistoryEntry{}).Return(true, prompt1)
-	tui.On(mockutil.ShowAssistantPrompt, mock.Anything).Return(true, prompt2)
-	tui.On(mockutil.ShowAssistantScriptPreviewWithGeneration, mock.Anything, mock.Anything).Return(
+	// First script: generation, then execute
+	tui.On(mockutil.ShowUnifiedAssistantChat, mock.Anything).Return(
 		assistant.ParsedScript{Contents: exampleScript1, Filename: exampleFile1},
+		[]string{}, // No params needed for these scripts
 		chat.PreviewActionExecute,
+		"", // latestPrompt
+		"", // saveFilename
+		"", // saveSnippetName
 	).Once()
-	tui.On(mockutil.ShowAssistantScriptPreviewWithGeneration, mock.Anything, mock.Anything).Return(
+	// After first execution: user chooses Revise to try again
+	tui.On(mockutil.ShowUnifiedAssistantChat, mock.Anything).Return(
+		assistant.ParsedScript{Contents: exampleScript1, Filename: exampleFile1},
+		[]string{},
+		chat.PreviewActionRevise, // Try again
+		prompt2,                  // latestPrompt - user enters new prompt
+		"",                       // saveFilename
+		"",                       // saveSnippetName
+	).Once()
+	// Second script: generation, then execute
+	tui.On(mockutil.ShowUnifiedAssistantChat, mock.Anything).Return(
 		assistant.ParsedScript{Contents: exampleScript2, Filename: exampleFile2},
+		[]string{},
 		chat.PreviewActionExecute,
+		"", // latestPrompt
+		"", // saveFilename
+		"", // saveSnippetName
 	).Once()
-	tui.On(mockutil.ShowAssistantWizard, wizard.Config{ShowSaveOption: true, ProposedFilename: exampleFile1}).Return(true, wizard.Result{SelectedOption: wizard.OptionTryAgain})
-	tui.On(mockutil.ShowAssistantWizard, wizard.Config{ShowSaveOption: true, ProposedFilename: exampleFile2}).Return(true, wizard.Result{SelectedOption: wizard.OptionDontSaveExit})
+	// After second execution: user chooses ExitNoSave
+	tui.On(mockutil.ShowUnifiedAssistantChat, mock.Anything).Return(
+		assistant.ParsedScript{Contents: exampleScript2, Filename: exampleFile2},
+		[]string{},
+		chat.PreviewActionExitNoSave, // Don't save and exit
+		"",                           // latestPrompt
+		"",                           // saveFilename
+		"",                           // saveSnippetName
+	).Once()
 	// No OpenEditor call since PreviewActionExecute skips the editor
 	tui.On(mockutil.Confirmation, mock.Anything).Return(true)
 

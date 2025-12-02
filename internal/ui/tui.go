@@ -78,8 +78,7 @@ type TUI interface {
 	ShowPicker(title string, items []picker.Item, selectedItem *picker.Item, options ...tea.ProgramOption) (int, bool)
 	ShowSync() sync.Screen
 	ShowAssistantPrompt([]chat.HistoryEntry) (bool, string)
-	ShowAssistantScriptPreview(history []chat.HistoryEntry, script string) chat.PreviewAction
-	ShowAssistantScriptPreviewWithGeneration(history []chat.HistoryEntry, generate func() interface{}) (interface{}, chat.PreviewAction)
+	ShowUnifiedAssistantChat(config chat.UnifiedConfig) (interface{}, []string, chat.PreviewAction, string, string, string)
 	ShowAssistantWizard(config wizard.Config) (bool, wizard.Result)
 	ShowSpinner(string, string, chan bool)
 }
@@ -207,12 +206,8 @@ func (t tuiImpl) ShowAssistantPrompt(history []chat.HistoryEntry) (bool, string)
 	return chat.ShowChat(chat.Config{History: history}, t.styler, tea.WithInput(t.stdio.In), tea.WithOutput(t.stdio.Out))
 }
 
-func (t tuiImpl) ShowAssistantScriptPreview(history []chat.HistoryEntry, script string) chat.PreviewAction {
-	return chat.ShowScriptPreview(chat.PreviewConfig{History: history, Script: script}, t.styler, tea.WithInput(t.stdio.In), tea.WithOutput(t.stdio.Out))
-}
-
-func (t tuiImpl) ShowAssistantScriptPreviewWithGeneration(history []chat.HistoryEntry, generate func() interface{}) (interface{}, chat.PreviewAction) {
-	return chat.ShowScriptPreviewWithGeneration(history, generate, t.styler, tea.WithInput(t.stdio.In), tea.WithOutput(t.stdio.Out))
+func (t tuiImpl) ShowUnifiedAssistantChat(config chat.UnifiedConfig) (interface{}, []string, chat.PreviewAction, string, string, string) {
+	return chat.ShowUnifiedChat(config, t.styler, tea.WithInput(t.stdio.In), tea.WithOutput(t.stdio.Out))
 }
 
 func (t tuiImpl) ShowAssistantWizard(config wizard.Config) (bool, wizard.Result) {

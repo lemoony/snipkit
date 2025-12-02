@@ -42,22 +42,27 @@ func buildMessagesFromHistory(history []HistoryEntry) []ChatMessage {
 	}
 
 	messages := make([]ChatMessage, 0, len(history)*maxMessagesPerEntry)
-	for _, entry := range history {
-		// Add user prompt
-		messages = append(messages, ChatMessage{
-			Type:      MessageTypeUser,
-			Content:   entry.UserPrompt,
-			Timestamp: time.Now(),
-		})
+	var previousScript string
 
-		// Add generated script (truncated)
-		if entry.GeneratedScript != "" {
+	for _, entry := range history {
+		// Add user prompt (only if not empty)
+		if entry.UserPrompt != "" {
+			messages = append(messages, ChatMessage{
+				Type:      MessageTypeUser,
+				Content:   entry.UserPrompt,
+				Timestamp: time.Now(),
+			})
+		}
+
+		// Add generated script (truncated) only if it's different from the previous one
+		if entry.GeneratedScript != "" && entry.GeneratedScript != previousScript {
 			script := truncateContent(entry.GeneratedScript, maxLines)
 			messages = append(messages, ChatMessage{
 				Type:      MessageTypeScript,
 				Content:   script,
 				Timestamp: time.Now(),
 			})
+			previousScript = entry.GeneratedScript
 		}
 
 		// Add execution output (truncated)
@@ -196,7 +201,7 @@ func renderOutput(content string, exitCode *int, duration *time.Duration, execut
 		MarginLeft(2).
 		MarginTop(1)
 
-	styledContent := outputStyle.Render(content)
+	styledContent := outputStyle.Render(strings.TrimRight(content, "\n"))
 
 	return fmt.Sprintf("%s\n%s", label, styledContent)
 }

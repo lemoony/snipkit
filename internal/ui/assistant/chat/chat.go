@@ -34,7 +34,7 @@ type chatModel struct {
 func ShowChat(config Config, styler style.Style, teaOptions ...tea.ProgramOption) (bool, string) {
 	m := newModel(config, styler)
 
-	if teaModel, err := tea.NewProgram(m, teaOptions...).Run(); err != nil {
+	if teaModel, err := tea.NewProgram(m, append(teaOptions, tea.WithAltScreen())...).Run(); err != nil {
 		return false, ""
 	} else if resultModel, ok := teaModel.(*chatModel); ok {
 		return resultModel.success, resultModel.latestPrompt
@@ -56,29 +56,7 @@ func newModel(config Config, styler style.Style) *chatModel {
 }
 
 func (m *chatModel) setupInput() {
-	m.input = textinput.New()
-
-	if len(m.messages) > 0 {
-		m.input.Placeholder = "Type a new prompt or just press enter..."
-	} else {
-		m.input.Placeholder = "What do you want the script to do?"
-	}
-
-	m.input.Prompt = "> "
-	m.input.Focus()
-	m.input.PlaceholderStyle = lipgloss.NewStyle().
-		Foreground(m.styler.PlaceholderColor().Value()).
-		Background(m.styler.VerySubduedColor().Value()).
-		Italic(true)
-	m.input.PromptStyle = lipgloss.NewStyle().
-		Foreground(m.styler.ActiveColor().Value()).
-		Background(m.styler.VerySubduedColor().Value()).
-		Bold(true)
-	m.input.TextStyle = lipgloss.NewStyle().
-		Foreground(m.styler.TextColor().Value()).
-		Background(m.styler.VerySubduedColor().Value()).
-		Bold(true)
-	m.input.Cursor.Style = lipgloss.NewStyle().Foreground(m.styler.HighlightColor().Value())
+	m.input = setupTextInput(m.styler, len(m.messages) > 0)
 }
 
 func (m *chatModel) Init() tea.Cmd {
@@ -159,7 +137,7 @@ func (m *chatModel) View() string {
 	}
 
 	if !m.ready {
-		return "\n  Initializing..."
+		return textInitializing
 	}
 
 	// Build the view
