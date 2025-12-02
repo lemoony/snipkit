@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
+	"github.com/charmbracelet/lipgloss/table"
 	"github.com/pmezard/go-difflib/difflib"
 
 	"github.com/lemoony/snipkit/internal/ui/style"
@@ -14,6 +15,11 @@ const (
 	defaultContextLines        = 3
 	minimalConfigLineThreshold = 5
 	minTruncateWidth           = 3
+	lineNumberWidth            = 4
+
+	// Table column indices.
+	colBefore = 0
+	colAfter  = 1
 )
 
 // DiffLineType represents the type of a diff line.
@@ -223,125 +229,143 @@ func compressContext(diffLines []DiffLine, contextLines int) []DiffLine {
 	return result
 }
 
-// renderHeader creates the header and separator line for the diff view.
-func renderHeader(leftWidth, rightWidth int, styler *style.Style, borderStyle lipgloss.Style) []string {
-	headerStyle := lipgloss.NewStyle().
-		Bold(true).
-		Foreground(styler.TitleColor().Value())
+// createDiffStyleFunc generates a StyleFunc for table cell styling based on diff line types.
+func createDiffStyleFunc(diffLines []DiffLine, styler *style.Style) table.StyleFunc {
+	return func(row, col int) lipgloss.Style {
+		// Header row styling
+		if row == -1 {
+			return lipgloss.NewStyle().
+				Bold(true).
+				Foreground(styler.TitleColor().Value()).
+				Align(lipgloss.Center)
+		}
 
-	// Build header manually with proper padding
-	leftHeaderText := "BEFORE"
-	rightHeaderText := "AFTER"
-	leftPadding := (leftWidth - len(leftHeaderText)) / 2
-	rightPadding := (rightWidth - len(rightHeaderText)) / 2
+		// Data rows
+		if row >= 0 && row < len(diffLines) {
+			dl := diffLines[row]
 
-	leftHeader := headerStyle.Render(strings.Repeat(" ", leftPadding) + leftHeaderText + strings.Repeat(" ", leftWidth-leftPadding-len(leftHeaderText)))
-	midSeparator := borderStyle.Render(" │ ")
-	rightHeader := headerStyle.Render(strings.Repeat(" ", rightPadding) + rightHeaderText + strings.Repeat(" ", rightWidth-rightPadding-len(rightHeaderText)))
+			// Column 0: BEFORE (left side)
+			if col == colBefore {
+				return getLeftContentStyle(dl.LineType, styler)
+			}
 
-	header := leftHeader + midSeparator + rightHeader
+			// Column 1: AFTER (right side)
+			if col == colAfter {
+				return getRightContentStyle(dl.LineType, styler)
+			}
+		}
 
-	// Add separator line
-	separatorLine := strings.Repeat("─", leftWidth) + "─┼─" + strings.Repeat("─", rightWidth)
-
-	return []string{header, borderStyle.Render(separatorLine)}
-}
-
-// renderSideBySide creates a styled side-by-side diff view.
-func renderSideBySide(diffLines []DiffLine, styler *style.Style, width int) string {
-	// Width allocation
-	lineNumWidth := 4
-	separatorWidth := 3
-	contentWidth := (width - (lineNumWidth * 2) - separatorWidth) / 2
-
-	leftWidth := lineNumWidth + contentWidth
-	rightWidth := lineNumWidth + contentWidth
-
-	// Border style for separators
-	borderStyle := lipgloss.NewStyle().Foreground(styler.BorderColor().Value())
-
-	var lines []string
-	lines = append(lines, renderHeader(leftWidth, rightWidth, styler, borderStyle)...)
-
-	// Render each diff line
-	for _, dl := range diffLines {
-		leftStyle, rightStyle := getStylesForLineType(dl.LineType, styler)
-
-		// Format line numbers
-		leftNumStr := formatLineNumber(dl.LeftNum, lineNumWidth)
-		rightNumStr := formatLineNumber(dl.RightNum, lineNumWidth)
-
-		// Truncate content if needed
-		leftContent := truncateString(dl.LeftLine, contentWidth)
-		rightContent := truncateString(dl.RightLine, contentWidth)
-
-		// Apply styles and combine
-		leftPart := lipgloss.JoinHorizontal(
-			lipgloss.Top,
-			leftStyle.Width(lineNumWidth).Render(leftNumStr),
-			leftStyle.Width(contentWidth).Render(leftContent),
-		)
-
-		sep := lipgloss.NewStyle().
-			Foreground(styler.BorderColor().Value()).
-			Width(separatorWidth).
-			Render(" │ ")
-
-		rightPart := lipgloss.JoinHorizontal(
-			lipgloss.Top,
-			rightStyle.Width(lineNumWidth).Render(rightNumStr),
-			rightStyle.Width(contentWidth).Render(rightContent),
-		)
-
-		line := lipgloss.JoinHorizontal(lipgloss.Top, leftPart, sep, rightPart)
-		lines = append(lines, line)
+		return lipgloss.NewStyle()
 	}
-
-	return wrapWithBorder(lines, borderStyle, width)
 }
 
-// wrapWithBorder adds a full box border around the diff content.
-func wrapWithBorder(lines []string, borderStyle lipgloss.Style, width int) string {
-	content := lipgloss.JoinVertical(lipgloss.Left, lines...)
-
-	// Add left and right borders with padding
-	var borderedLines []string
-	for _, line := range strings.Split(content, "\n") {
-		borderedLine := borderStyle.Render("│") + " " + line + " " + borderStyle.Render("│")
-		borderedLines = append(borderedLines, borderedLine)
-	}
-
-	// Add top and bottom borders
-	topBorder := borderStyle.Render("┌" + strings.Repeat("─", width+2) + "┐")
-	bottomBorder := borderStyle.Render("└" + strings.Repeat("─", width+2) + "┘")
-
-	return topBorder + "\n" + strings.Join(borderedLines, "\n") + "\n" + bottomBorder
-}
-
-// getStylesForLineType returns appropriate lipgloss styles for left and right sides.
-func getStylesForLineType(lineType DiffLineType, styler *style.Style) (left, right lipgloss.Style) {
+// getLeftContentStyle returns the style for left (BEFORE) content based on line type.
+func getLeftContentStyle(lineType DiffLineType, styler *style.Style) lipgloss.Style {
 	base := lipgloss.NewStyle()
-
 	switch lineType {
 	case DiffLineContext:
-		return base.Foreground(styler.TextColor().Value()),
-			base.Foreground(styler.TextColor().Value())
-
+		return base.Foreground(styler.TextColor().Value())
+	case DiffLineRemoved, DiffLineModified:
+		return base.Foreground(styler.ErrorColor().Value()).Bold(true)
 	case DiffLineAdded:
-		return base.Foreground(styler.SubduedColor().Value()),
-			base.Foreground(styler.SuccessColor().Value()).Bold(true)
-
-	case DiffLineRemoved:
-		return base.Foreground(styler.ErrorColor().Value()).Bold(true),
-			base.Foreground(styler.SubduedColor().Value())
-
-	case DiffLineModified:
-		return base.Foreground(styler.ErrorColor().Value()),
-			base.Foreground(styler.SuccessColor().Value())
-
+		return base.Foreground(styler.SubduedColor().Value())
 	default:
-		return base, base
+		return base
 	}
+}
+
+// getRightContentStyle returns the style for right (AFTER) content based on line type.
+func getRightContentStyle(lineType DiffLineType, styler *style.Style) lipgloss.Style {
+	base := lipgloss.NewStyle()
+	switch lineType {
+	case DiffLineContext:
+		return base.Foreground(styler.TextColor().Value())
+	case DiffLineAdded, DiffLineModified:
+		return base.Foreground(styler.SuccessColor().Value()).Bold(true)
+	case DiffLineRemoved:
+		return base.Foreground(styler.SubduedColor().Value())
+	default:
+		return base
+	}
+}
+
+// renderSideBySideTable creates a table-based side-by-side diff view.
+func renderSideBySideTable(diffLines []DiffLine, styler *style.Style, width int) string {
+	// Create table with 2 columns: BEFORE (line# + content), AFTER (line# + content)
+	t := table.New().
+		Headers("BEFORE", "AFTER").
+		BorderStyle(lipgloss.NewStyle().Foreground(styler.BorderColor().Value())).
+		Border(lipgloss.NormalBorder()).
+		BorderTop(true).
+		BorderBottom(true).
+		BorderLeft(true).
+		BorderRight(true).
+		BorderHeader(true).
+		BorderColumn(true).
+		BorderRow(false).
+		Width(width).
+		StyleFunc(createDiffStyleFunc(diffLines, styler))
+
+	// Add all diff lines as rows with line numbers prepended to content
+	for _, dl := range diffLines {
+		leftNum := formatLineNumber(dl.LeftNum, lineNumberWidth)
+		rightNum := formatLineNumber(dl.RightNum, lineNumberWidth)
+		leftCell := leftNum + dl.LeftLine
+		rightCell := rightNum + dl.RightLine
+		t.Row(leftCell, rightCell)
+	}
+
+	return t.Render()
+}
+
+// renderNewConfigOnlyTable renders a single-column table view for new installations.
+func renderNewConfigOnlyTable(newYaml string, styler *style.Style, width int) string {
+	lines := strings.Split(newYaml, "\n")
+
+	// Create 2-column table: line number and content
+	t := table.New().
+		Headers("#", "NEW CONFIGURATION").
+		BorderStyle(lipgloss.NewStyle().Foreground(styler.SuccessColor().Value())).
+		Border(lipgloss.NormalBorder()).
+		BorderTop(true).
+		BorderBottom(true).
+		BorderLeft(true).
+		BorderRight(true).
+		BorderHeader(true).
+		BorderColumn(true).
+		BorderRow(false).
+		Width(width)
+
+	// StyleFunc for new config (all green)
+	t.StyleFunc(func(row, col int) lipgloss.Style {
+		if row == -1 {
+			// Header
+			return lipgloss.NewStyle().
+				Bold(true).
+				Foreground(styler.SuccessColor().Value()).
+				Align(lipgloss.Center)
+		}
+
+		if col == 0 {
+			// Line numbers (right-aligned)
+			return lipgloss.NewStyle().
+				Foreground(styler.SuccessColor().Value()).
+				Align(lipgloss.Right)
+		}
+
+		// Content
+		return lipgloss.NewStyle().
+			Foreground(styler.SuccessColor().Value()).
+			Bold(true)
+	})
+
+	// Add rows with line numbers
+	for i, line := range lines {
+		lineNum := fmt.Sprintf("%d", i+1)
+		t.Row(lineNum, line)
+	}
+
+	return t.Render()
 }
 
 // formatLineNumber formats a line number for display.
@@ -377,29 +401,4 @@ func isMinimalConfig(configStr string) bool {
 
 	// If less than threshold meaningful lines, consider it minimal
 	return meaningfulLines < minimalConfigLineThreshold
-}
-
-// renderNewConfigOnly renders a single-column view for new installations.
-func renderNewConfigOnly(newYaml string, styler *style.Style, width int) string {
-	lines := strings.Split(newYaml, "\n")
-	var styledLines []string
-
-	addedStyle := lipgloss.NewStyle().
-		Foreground(styler.SuccessColor().Value()).
-		Bold(true)
-
-	for i, line := range lines {
-		lineNum := fmt.Sprintf("%4d + ", i+1)
-		styledLine := addedStyle.Render(lineNum + line)
-		styledLines = append(styledLines, styledLine)
-	}
-
-	blockStyle := lipgloss.NewStyle().
-		BorderStyle(lipgloss.NormalBorder()).
-		BorderForeground(styler.SuccessColor().Value()).
-		Padding(1).
-		Width(width)
-
-	content := lipgloss.JoinVertical(lipgloss.Left, styledLines...)
-	return blockStyle.Render(styler.Title("NEW CONFIGURATION") + "\n\n" + content)
 }

@@ -309,12 +309,12 @@ func templateFuncs(styler *style.Style) template.FuncMap {
 
 			// Special case: minimal/empty old config (new installation)
 			if oldYaml == "" || isMinimalConfig(oldYaml) {
-				return renderNewConfigOnly(newYaml, styler, width)
+				return renderNewConfigOnlyTable(newYaml, styler, width)
 			}
 
 			// Normal case: compute and render diff
 			diffLines := computeDiff(oldYaml, newYaml)
-			return renderSideBySide(diffLines, styler, width)
+			return renderSideBySideTable(diffLines, styler, width)
 		},
 		"Title": func(values ...interface{}) string {
 			return styler.Title(values[0].(string))

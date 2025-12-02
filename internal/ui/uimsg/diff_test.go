@@ -180,7 +180,7 @@ func TestTruncateString(t *testing.T) {
 	}
 }
 
-func TestRenderSideBySide(t *testing.T) {
+func TestRenderSideBySideTable(t *testing.T) {
 	// Test that rendering doesn't panic and produces output
 	diffLines := []DiffLine{
 		{LineType: DiffLineContext, LeftLine: "version: v1.1.0", RightLine: "version: v1.1.0", LeftNum: 1, RightNum: 1},
@@ -189,7 +189,7 @@ func TestRenderSideBySide(t *testing.T) {
 	}
 
 	styler := testStyle // Use existing test style from uimsg_test.go
-	result := renderSideBySide(diffLines, styler, 120)
+	result := renderSideBySideTable(diffLines, styler, 120)
 
 	assert.NotEmpty(t, result)
 	// Verify it contains expected elements (after stripping ANSI codes would be better, but basic check)
@@ -197,11 +197,11 @@ func TestRenderSideBySide(t *testing.T) {
 	assert.Contains(t, result, "AFTER")
 }
 
-func TestRenderNewConfigOnly(t *testing.T) {
+func TestRenderNewConfigOnlyTable(t *testing.T) {
 	newYaml := testConfigV110
 	styler := testStyle
 
-	result := renderNewConfigOnly(newYaml, styler, 120)
+	result := renderNewConfigOnlyTable(newYaml, styler, 120)
 
 	assert.NotEmpty(t, result)
 	assert.Contains(t, result, "NEW CONFIGURATION")
