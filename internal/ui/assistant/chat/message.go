@@ -140,13 +140,19 @@ func renderOutput(content string, styler style.Style) string {
 		Foreground(styler.PlaceholderColor().Value()).
 		Render("● Execution Output:")
 
-	// Use muted style for output
-	text := lipgloss.NewStyle().
+	// Create styled container with left border accent
+	outputStyle := lipgloss.NewStyle().
+		Background(styler.VerySubduedColor().Value()).
 		Foreground(styler.PlaceholderColor().Value()).
-		PaddingLeft(2).
-		Render(content)
+		Border(lipgloss.ThickBorder(), false, false, false, true).
+		BorderForeground(styler.PlaceholderColor().Value()).
+		Padding(1, 2).
+		MarginLeft(2).
+		MarginTop(1)
 
-	return fmt.Sprintf("%s\n%s", label, text)
+	styledContent := outputStyle.Render(content)
+
+	return fmt.Sprintf("%s\n%s", label, styledContent)
 }
 
 // renderScript renders a script with syntax highlighting and border.

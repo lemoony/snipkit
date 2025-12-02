@@ -64,22 +64,19 @@ func (m *chatModel) setupInput() {
 		m.input.Placeholder = "What do you want the script to do?"
 	}
 
-	// Subtle grey background for input
-	subtleGrey := lipgloss.Color("#2a2a2a")
-
 	m.input.Prompt = "> "
 	m.input.Focus()
 	m.input.PlaceholderStyle = lipgloss.NewStyle().
 		Foreground(m.styler.PlaceholderColor().Value()).
-		Background(subtleGrey).
+		Background(m.styler.VerySubduedColor().Value()).
 		Italic(true)
 	m.input.PromptStyle = lipgloss.NewStyle().
 		Foreground(m.styler.ActiveColor().Value()).
-		Background(subtleGrey).
+		Background(m.styler.VerySubduedColor().Value()).
 		Bold(true)
 	m.input.TextStyle = lipgloss.NewStyle().
 		Foreground(m.styler.TextColor().Value()).
-		Background(subtleGrey).
+		Background(m.styler.VerySubduedColor().Value()).
 		Bold(true)
 	m.input.Cursor.Style = lipgloss.NewStyle().Foreground(m.styler.HighlightColor().Value())
 }
@@ -186,7 +183,7 @@ func (m *chatModel) View() string {
 	inputStyle := lipgloss.NewStyle().
 		Border(lipgloss.ThickBorder(), false, false, false, true).
 		BorderForeground(m.styler.ActiveColor().Value()).
-		Background(lipgloss.Color("#2a2a2a")).
+		Background(m.styler.VerySubduedColor().Value()).
 		Padding(1, 2).
 		MarginTop(1).
 		MarginBottom(1).
