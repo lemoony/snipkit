@@ -21,7 +21,10 @@ const (
 	ConfigV111FsLibrary = ConfigVersion("1.1.1-fslibrary")
 	ConfigV120          = ConfigVersion("1.2.0")
 	ConfigV120FsLibrary = ConfigVersion("1.2.0-fslibrary")
-	Latest              = ConfigV120
+	ConfigV120Providers = ConfigVersion("1.2.0-providers")
+	ConfigV130          = ConfigVersion("1.3.0")
+	ConfigV130Providers = ConfigVersion("1.3.0-providers")
+	Latest              = ConfigV130
 
 	Example = ConfigVersion("example-config.yaml")
 )

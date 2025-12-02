@@ -50,5 +50,8 @@ nav:
   - Assistant:
     - Overview: 'assistant/index.md'
     - OpenAI: 'assistant/openai.md'
+    - Anthropic: 'assistant/anthropic.md'
     - Gemini: 'assistant/gemini.md'
+    - Ollama: 'assistant/ollama.md'
+    - OpenAI-Compatible: 'assistant/openai-compatible.md'
 

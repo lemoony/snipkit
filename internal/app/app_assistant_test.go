@@ -136,10 +136,14 @@ func Test_App_EnableAssistant(t *testing.T) {
 
 	if call := mockutil.FindMethodCall(mockutil.ShowPicker, tui.Calls); call != nil {
 		assert.Equal(t, "Which AI provider for the assistant do you want to use?", call.Arguments.Get(0).(string))
-		assert.Len(t, call.Arguments.Get(1), 2)
-		assert.Equal(t, call.Arguments.Get(1).([]picker.Item)[0].Title(), "OpenAI")
-		assert.Equal(t, call.Arguments.Get(1).([]picker.Item)[1].Title(), "Gemini")
-		assert.Equal(t, call.Arguments.Get(2).(*picker.Item).Title(), "OpenAI")
+		items := call.Arguments.Get(1).([]picker.Item)
+		assert.Len(t, items, 5) // OpenAI, Anthropic, Gemini, Ollama, OpenAI-Compatible
+		assert.Equal(t, "OpenAI", items[0].Title())
+		assert.Equal(t, "Anthropic", items[1].Title())
+		assert.Equal(t, "Google Gemini", items[2].Title())
+		assert.Equal(t, "Ollama", items[3].Title())
+		assert.Equal(t, "OpenAI-Compatible", items[4].Title())
+		assert.Equal(t, "OpenAI", call.Arguments.Get(2).(*picker.Item).Title())
 	}
 
 	tui.AssertCalled(t, mockutil.Confirmation, mock.AnythingOfType("uimsg.Confirm"))

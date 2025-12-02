@@ -5,37 +5,48 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/lemoony/snipkit/internal/assistant/gemini"
-	"github.com/lemoony/snipkit/internal/assistant/openai"
+	"github.com/lemoony/snipkit/internal/assistant/langchain"
 )
 
 func Test_clientProviderImpl_GetClient(t *testing.T) {
 	tests := []struct {
-		name               string
-		config             Config
-		expectedError      bool
-		expectedClientType interface{}
+		name          string
+		config        Config
+		expectedError bool
 	}{
 		{
-			name:               "openai",
-			config:             Config{OpenAI: &openai.Config{Enabled: true}},
-			expectedError:      false,
-			expectedClientType: &openai.Client{},
-		},
-		{
-			name:               "gemini",
-			config:             Config{Gemini: &gemini.Config{Enabled: true}},
-			expectedError:      false,
-			expectedClientType: &gemini.Client{},
-		},
-		{
-			name:          "multiple enabled - error",
-			config:        Config{OpenAI: &openai.Config{Enabled: true}, Gemini: &gemini.Config{Enabled: true}},
+			name: "openai provider enabled",
+			config: Config{
+				Providers: []ProviderConfig{
+					{Type: ProviderTypeOpenAI, Enabled: true, Model: "gpt-4o", APIKeyEnv: "TEST_KEY"},
+				},
+			},
+			// Will error because API key env var is not set in test environment
 			expectedError: true,
 		},
 		{
-			name:          "none enabled - error",
-			config:        Config{OpenAI: &openai.Config{Enabled: false}, Gemini: &gemini.Config{Enabled: false}},
+			name: "gemini provider enabled",
+			config: Config{
+				Providers: []ProviderConfig{
+					{Type: ProviderTypeGemini, Enabled: true, Model: "gemini-1.5-flash", APIKeyEnv: "TEST_KEY"},
+				},
+			},
+			// Will error because API key env var is not set in test environment
+			expectedError: true,
+		},
+		{
+			name: "none enabled - error",
+			config: Config{
+				Providers: []ProviderConfig{
+					{Type: ProviderTypeOpenAI, Enabled: false},
+					{Type: ProviderTypeGemini, Enabled: false},
+				},
+			},
+			expectedError: true,
+		},
+		{
+			name:          "empty providers - error",
+			config:        Config{},
 			expectedError: true,
 		},
 	}
@@ -43,10 +54,11 @@ func Test_clientProviderImpl_GetClient(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			client, err := clientProviderImpl{}.GetClient(tt.config)
 			if tt.expectedError {
-				assert.NotNil(t, err)
+				assert.Error(t, err)
 			} else {
+				assert.NoError(t, err)
 				assert.NotNil(t, client)
-				assert.IsType(t, tt.expectedClientType, client)
+				assert.IsType(t, &langchain.Client{}, client)
 			}
 		})
 	}

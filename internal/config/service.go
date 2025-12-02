@@ -155,12 +155,8 @@ func (s *serviceImpl) UpdateAssistantConfig(assistantConfig assistant.Config) {
 		panic(errors.Wrapf(ErrInvalidConfig, "failed to load config: %s", err.Error()))
 	}
 
-	if cfg := assistantConfig.OpenAI; cfg != nil {
-		config.Assistant.OpenAI = cfg
-	}
-	if cfg := assistantConfig.Gemini; cfg != nil {
-		config.Assistant.Gemini = cfg
-	}
+	// Replace the entire assistant config including providers array
+	config.Assistant = assistantConfig
 
 	bytes := SerializeToYamlWithComment(wrap(config))
 	s.system.WriteFile(s.ConfigFilePath(), bytes)
