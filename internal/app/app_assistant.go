@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"strings"
-	"sync"
 	"time"
 
 	"emperror.dev/errors"
@@ -42,18 +41,31 @@ func (a *appImpl) GenerateSnippetWithAssistant(demoScriptPath []string, demoQuer
 }
 
 func (a *appImpl) generateAndHandleScript(prompt string, history []chat.HistoryEntry, asst assistant.Assistant) {
-	spinner := a.startSpinner()
-	script := asst.Query(prompt)
-	spinner.stopAndWait()
-	a.handleGeneratedScript(script, history, asst)
+	// Create a function that generates the script
+	generateScript := func() interface{} {
+		return asst.Query(prompt)
+	}
+
+	// Show preview with async generation
+	scriptInterface, action := a.tui.ShowAssistantScriptPreviewWithGeneration(history, generateScript)
+
+	if action == chat.PreviewActionCancel {
+		return
+	}
+
+	// Convert back to ParsedScript
+	script, ok := scriptInterface.(assistant.ParsedScript)
+	if !ok {
+		return
+	}
+
+	// Handle the generated script with the chosen action
+	a.handleGeneratedScriptWithAction(script, action, history, asst)
 }
 
-func (a *appImpl) handleGeneratedScript(parsed assistant.ParsedScript, history []chat.HistoryEntry, asst assistant.Assistant) {
+func (a *appImpl) handleGeneratedScriptWithAction(parsed assistant.ParsedScript, action chat.PreviewAction, history []chat.HistoryEntry, asst assistant.Assistant) {
 	tmpDirSvc := tmpdir.New(a.system)
 	defer tmpDirSvc.ClearFiles()
-
-	// Show the generated script in the chat for review
-	action := a.tui.ShowAssistantScriptPreview(history, parsed.Contents)
 
 	switch action {
 	case chat.PreviewActionCancel:
@@ -153,27 +165,6 @@ func (a *appImpl) executeAndHandleSnippet(snippet model.Snippet, parameterValues
 func (a *appImpl) generateSnippetWithAdditionalPrompt(newPrompt string, history []chat.HistoryEntry, asst assistant.Assistant) {
 	log.Debug().Int("prompt_count", len(history)).Msg("Generating additional snippet with assistant")
 	a.generateAndHandleScript(newPrompt, history, asst)
-}
-
-type spinnerControl struct {
-	stop chan bool
-	wg   *sync.WaitGroup
-}
-
-func (a *appImpl) startSpinner() *spinnerControl {
-	stopChan := make(chan bool)
-	var wg sync.WaitGroup
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		a.tui.ShowSpinner("Please wait, generating script...", "SnipKit Assistant", stopChan)
-	}()
-	return &spinnerControl{stop: stopChan, wg: &wg}
-}
-
-func (s *spinnerControl) stopAndWait() {
-	close(s.stop)
-	s.wg.Wait()
 }
 
 func (a *appImpl) saveScript(contents []byte, title, filename string) {

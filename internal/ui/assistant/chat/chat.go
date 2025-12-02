@@ -64,10 +64,23 @@ func (m *chatModel) setupInput() {
 		m.input.Placeholder = "What do you want the script to do?"
 	}
 
+	// Subtle grey background for input
+	subtleGrey := lipgloss.Color("#2a2a2a")
+
 	m.input.Prompt = "> "
 	m.input.Focus()
-	m.input.PlaceholderStyle = lipgloss.NewStyle().Foreground(m.styler.PlaceholderColor().Value())
-	m.input.PromptStyle = lipgloss.NewStyle().Foreground(m.styler.ActiveColor().Value())
+	m.input.PlaceholderStyle = lipgloss.NewStyle().
+		Foreground(m.styler.PlaceholderColor().Value()).
+		Background(subtleGrey).
+		Italic(true)
+	m.input.PromptStyle = lipgloss.NewStyle().
+		Foreground(m.styler.ActiveColor().Value()).
+		Background(subtleGrey).
+		Bold(true)
+	m.input.TextStyle = lipgloss.NewStyle().
+		Foreground(m.styler.TextColor().Value()).
+		Background(subtleGrey).
+		Bold(true)
 	m.input.Cursor.Style = lipgloss.NewStyle().Foreground(m.styler.HighlightColor().Value())
 }
 
@@ -169,8 +182,17 @@ func (m *chatModel) View() string {
 		sections = append(sections, helpText)
 	}
 
-	// Input area
-	sections = append(sections, m.styler.InputIndent(m.input.View()))
+	// Input area with enhanced styling
+	inputStyle := lipgloss.NewStyle().
+		Border(lipgloss.ThickBorder(), false, false, false, true).
+		BorderForeground(m.styler.ActiveColor().Value()).
+		Background(lipgloss.Color("#2a2a2a")).
+		Padding(1, 2).
+		MarginTop(1).
+		MarginBottom(1).
+		Width(m.width)
+
+	sections = append(sections, inputStyle.Render(m.input.View()))
 
 	return fmt.Sprintf("\n%s\n", lipgloss.JoinVertical(lipgloss.Left, sections...))
 }
