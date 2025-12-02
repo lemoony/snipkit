@@ -26,10 +26,41 @@ func (a *appImpl) AddManager() {
 		nil,
 	); ok {
 		managerDescription := managerDescriptions[index]
+
+		// Serialize current config as "old"
+		oldConfigBytes := config.SerializeToYamlWithComment(config.Wrap(*a.config))
+		oldConfigStr := strings.TrimSpace(string(oldConfigBytes))
+
+		// Get new manager config
 		cfg := a.provider.AutoConfig(managerDescription.Key, a.system)
-		configBytes := config.SerializeToYamlWithComment(cfg)
-		configStr := strings.TrimSpace(string(configBytes))
-		confirmed := a.tui.Confirmation(uimsg.ManagerConfigAddConfirm(configStr))
+
+		// Create a copy of current config and apply the new manager to show full diff
+		newConfig := *a.config
+		if cfg.FsLibrary != nil {
+			newConfig.Manager.FsLibrary = cfg.FsLibrary
+		}
+		if cfg.SnippetsLab != nil {
+			newConfig.Manager.SnippetsLab = cfg.SnippetsLab
+		}
+		if cfg.PictarineSnip != nil {
+			newConfig.Manager.PictarineSnip = cfg.PictarineSnip
+		}
+		if cfg.Pet != nil {
+			newConfig.Manager.Pet = cfg.Pet
+		}
+		if cfg.MassCode != nil {
+			newConfig.Manager.MassCode = cfg.MassCode
+		}
+		if cfg.GithubGist != nil {
+			newConfig.Manager.GithubGist = cfg.GithubGist
+		}
+
+		// Serialize new config
+		newConfigBytes := config.SerializeToYamlWithComment(config.Wrap(newConfig))
+		newConfigStr := strings.TrimSpace(string(newConfigBytes))
+
+		// Pass both configs
+		confirmed := a.tui.Confirmation(uimsg.ManagerConfigAddConfirm(oldConfigStr, newConfigStr))
 		if confirmed {
 			a.configService.UpdateManagerConfig(cfg)
 		}

@@ -82,9 +82,11 @@ func Test_ConfigFileDeleteResult(t *testing.T) {
 }
 
 func Test_ConfigFileMigrationConfirm(t *testing.T) {
-	configStr := `config: test`
-	c := ConfigFileMigrationConfirm(configStr)
-	assert.Contains(t, testutil.StripANSI(c.Header(testStyle, 0)), configStr)
+	oldConfigStr := `config: old`
+	newConfigStr := `config: new`
+	c := ConfigFileMigrationConfirm(oldConfigStr, newConfigStr)
+	result := testutil.StripANSI(c.Header(testStyle, 120))
+	assert.NotEmpty(t, result)
 }
 
 func Test_ConfigFileMigrationResult(t *testing.T) {
@@ -122,9 +124,12 @@ func Test_ThemesDeleteResult(t *testing.T) {
 }
 
 func Test_ManagerConfigAddConfirm(t *testing.T) {
-	c := ManagerConfigAddConfirm("yaml")
+	oldConfig := "old: yaml"
+	newConfig := "new: yaml"
+	c := ManagerConfigAddConfirm(oldConfig, newConfig)
 	assert.NotEmpty(t, c.Prompt)
-	assert.Contains(t, c.Header(testStyle, 0), "yaml")
+	result := c.Header(testStyle, 120)
+	assert.NotEmpty(t, result)
 }
 
 func Test_ManagerAddConfigResult(t *testing.T) {

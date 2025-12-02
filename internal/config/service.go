@@ -202,9 +202,17 @@ func (s *serviceImpl) Migrate() {
 		panic(errors.Errorf("Config is already up to date: %s", Version))
 	}
 
+	// Read old config for diff
+	oldConfigBytes := s.system.ReadFile(s.v.ConfigFileUsed())
+	oldConfigStr := string(oldConfigBytes)
+
+	// Generate new migrated config
 	newConfig := s.updateConfigToLatest()
 	newConfigBytes := SerializeToYamlWithComment(newConfig)
-	confirmed := s.tui.Confirmation(uimsg.ConfigFileMigrationConfirm(string(newConfigBytes)))
+	newConfigStr := string(newConfigBytes)
+
+	// Pass both old and new
+	confirmed := s.tui.Confirmation(uimsg.ConfigFileMigrationConfirm(oldConfigStr, newConfigStr))
 
 	if confirmed {
 		s.system.WriteFile(s.v.ConfigFileUsed(), newConfigBytes)
