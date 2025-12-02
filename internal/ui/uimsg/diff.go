@@ -223,6 +223,30 @@ func compressContext(diffLines []DiffLine, contextLines int) []DiffLine {
 	return result
 }
 
+// renderHeader creates the header and separator line for the diff view.
+func renderHeader(leftWidth, rightWidth int, styler *style.Style, borderStyle lipgloss.Style) []string {
+	headerStyle := lipgloss.NewStyle().
+		Bold(true).
+		Foreground(styler.TitleColor().Value())
+
+	// Build header manually with proper padding
+	leftHeaderText := "BEFORE"
+	rightHeaderText := "AFTER"
+	leftPadding := (leftWidth - len(leftHeaderText)) / 2
+	rightPadding := (rightWidth - len(rightHeaderText)) / 2
+
+	leftHeader := headerStyle.Render(strings.Repeat(" ", leftPadding) + leftHeaderText + strings.Repeat(" ", leftWidth-leftPadding-len(leftHeaderText)))
+	midSeparator := borderStyle.Render(" │ ")
+	rightHeader := headerStyle.Render(strings.Repeat(" ", rightPadding) + rightHeaderText + strings.Repeat(" ", rightWidth-rightPadding-len(rightHeaderText)))
+
+	header := leftHeader + midSeparator + rightHeader
+
+	// Add separator line
+	separatorLine := strings.Repeat("─", leftWidth) + "─┼─" + strings.Repeat("─", rightWidth)
+
+	return []string{header, borderStyle.Render(separatorLine)}
+}
+
 // renderSideBySide creates a styled side-by-side diff view.
 func renderSideBySide(diffLines []DiffLine, styler *style.Style, width int) string {
 	// Width allocation
@@ -230,24 +254,14 @@ func renderSideBySide(diffLines []DiffLine, styler *style.Style, width int) stri
 	separatorWidth := 3
 	contentWidth := (width - (lineNumWidth * 2) - separatorWidth) / 2
 
+	leftWidth := lineNumWidth + contentWidth
+	rightWidth := lineNumWidth + contentWidth
+
+	// Border style for separators
+	borderStyle := lipgloss.NewStyle().Foreground(styler.BorderColor().Value())
+
 	var lines []string
-
-	// Add header
-	headerStyle := lipgloss.NewStyle().
-		Bold(true).
-		Foreground(styler.TitleColor().Value())
-
-	leftHeader := headerStyle.Width(lineNumWidth + contentWidth).Align(lipgloss.Center).Render("BEFORE")
-	separator := headerStyle.Width(separatorWidth).Render(" │ ")
-	rightHeader := headerStyle.Width(lineNumWidth + contentWidth).Align(lipgloss.Center).Render("AFTER")
-
-	header := lipgloss.JoinHorizontal(lipgloss.Top, leftHeader, separator, rightHeader)
-	lines = append(lines, header)
-
-	// Add separator line
-	separatorLine := strings.Repeat("─", width)
-	separatorStyle := lipgloss.NewStyle().Foreground(styler.BorderColor().Value())
-	lines = append(lines, separatorStyle.Render(separatorLine))
+	lines = append(lines, renderHeader(leftWidth, rightWidth, styler, borderStyle)...)
 
 	// Render each diff line
 	for _, dl := range diffLines {
@@ -283,14 +297,25 @@ func renderSideBySide(diffLines []DiffLine, styler *style.Style, width int) stri
 		lines = append(lines, line)
 	}
 
-	// Wrap in border box
-	blockStyle := lipgloss.NewStyle().
-		BorderStyle(lipgloss.NormalBorder()).
-		BorderForeground(styler.BorderColor().Value()).
-		Padding(1).
-		Width(width)
+	return wrapWithBorder(lines, borderStyle, width)
+}
 
-	return blockStyle.Render(lipgloss.JoinVertical(lipgloss.Left, lines...))
+// wrapWithBorder adds a full box border around the diff content.
+func wrapWithBorder(lines []string, borderStyle lipgloss.Style, width int) string {
+	content := lipgloss.JoinVertical(lipgloss.Left, lines...)
+
+	// Add left and right borders with padding
+	var borderedLines []string
+	for _, line := range strings.Split(content, "\n") {
+		borderedLine := borderStyle.Render("│") + " " + line + " " + borderStyle.Render("│")
+		borderedLines = append(borderedLines, borderedLine)
+	}
+
+	// Add top and bottom borders
+	topBorder := borderStyle.Render("┌" + strings.Repeat("─", width+2) + "┐")
+	bottomBorder := borderStyle.Render("└" + strings.Repeat("─", width+2) + "┘")
+
+	return topBorder + "\n" + strings.Join(borderedLines, "\n") + "\n" + bottomBorder
 }
 
 // getStylesForLineType returns appropriate lipgloss styles for left and right sides.
