@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"time"
 
 	"emperror.dev/errors"
 	"github.com/creack/pty"
@@ -22,8 +23,11 @@ import (
 const fallbackShell = "/bin/bash"
 
 type capturedOutput struct {
-	stdout string
-	stderr string
+	stdout   string
+	stderr   string
+	exitCode int
+	duration time.Duration
+	err      error
 }
 
 // Terminal function variables that can be overridden in tests.
@@ -159,18 +163,34 @@ func executeWithoutPTY(cmd *exec.Cmd) *capturedOutput {
 	cmd.Stdout = stdoutWriter
 	cmd.Stderr = stderrWriter
 
+	// Track start time
+	startTime := time.Now()
+
 	err := cmd.Start()
 	if err != nil {
 		panic(errors.Wrapf(errors.WithStack(err), "failed to run command"))
 	}
 
-	if err = cmd.Wait(); err != nil {
+	err = cmd.Wait()
+	duration := time.Since(startTime)
+
+	// Extract exit code
+	exitCode := 0
+	if err != nil {
 		log.Info().Err(err)
+		if exitErr, ok := err.(*exec.ExitError); ok {
+			exitCode = exitErr.ExitCode()
+		} else {
+			exitCode = -1 // Could not determine exit code
+		}
 	}
 
 	return &capturedOutput{
-		stdout: stdoutBuf.String(),
-		stderr: stderrBuf.String(),
+		stdout:   stdoutBuf.String(),
+		stderr:   stderrBuf.String(),
+		exitCode: exitCode,
+		duration: duration,
+		err:      err,
 	}
 }
 

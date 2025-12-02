@@ -130,8 +130,12 @@ func (a *appImpl) executeAndHandleSnippet(snippet model.Snippet, parameterValues
 		// Update last history entry with script and output
 		if len(history) > 0 {
 			lastIdx := len(history) - 1
+			executionTime := time.Now()
 			history[lastIdx].GeneratedScript = script.Contents
 			history[lastIdx].ExecutionOutput = capturedResult.stdout + capturedResult.stderr
+			history[lastIdx].ExitCode = &capturedResult.exitCode
+			history[lastIdx].Duration = &capturedResult.duration
+			history[lastIdx].ExecutionTime = &executionTime
 		}
 
 		wizardOk, result := a.tui.ShowAssistantWizard(wizard.Config{

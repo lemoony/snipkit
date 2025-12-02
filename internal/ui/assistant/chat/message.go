@@ -25,9 +25,12 @@ const (
 )
 
 type ChatMessage struct {
-	Type      MessageType
-	Content   string
-	Timestamp time.Time
+	Type          MessageType
+	Content       string
+	Timestamp     time.Time
+	ExitCode      *int           // Exit code for output messages
+	Duration      *time.Duration // Execution duration for output messages
+	ExecutionTime *time.Time     // Execution timestamp for output messages
 }
 
 const maxMessagesPerEntry = 3 // User prompt, script, and output
@@ -61,9 +64,12 @@ func buildMessagesFromHistory(history []HistoryEntry) []ChatMessage {
 		if entry.ExecutionOutput != "" {
 			output := truncateContent(entry.ExecutionOutput, maxLines)
 			messages = append(messages, ChatMessage{
-				Type:      MessageTypeOutput,
-				Content:   output,
-				Timestamp: time.Now(),
+				Type:          MessageTypeOutput,
+				Content:       output,
+				Timestamp:     time.Now(),
+				ExitCode:      entry.ExitCode,
+				Duration:      entry.Duration,
+				ExecutionTime: entry.ExecutionTime,
 			})
 		}
 	}
@@ -98,7 +104,7 @@ func renderMessage(msg ChatMessage, styler style.Style, width int) string {
 	case MessageTypeScript:
 		return renderScript(msg.Content, styler, width)
 	case MessageTypeOutput:
-		return renderOutput(msg.Content, styler)
+		return renderOutput(msg.Content, msg.ExitCode, msg.Duration, msg.ExecutionTime, styler)
 	default:
 		return msg.Content
 	}
@@ -134,11 +140,51 @@ func renderAssistantMessage(content string, styler style.Style) string {
 }
 
 // renderOutput renders execution output with muted styling.
-func renderOutput(content string, styler style.Style) string {
-	label := lipgloss.NewStyle().
+func renderOutput(content string, exitCode *int, duration *time.Duration, executionTime *time.Time, styler style.Style) string {
+	// Build label parts
+	baseLabel := "● Execution Output"
+
+	var labelParts []string
+	labelParts = append(labelParts, lipgloss.NewStyle().
 		Bold(true).
 		Foreground(styler.PlaceholderColor().Value()).
-		Render("● Execution Output:")
+		Render(baseLabel+": "))
+
+	if exitCode != nil && duration != nil && executionTime != nil {
+		// Format duration (e.g., "1.2s", "345ms")
+		durationStr := formatDuration(*duration)
+
+		// Format execution time (HH:mm:ss)
+		timeStr := executionTime.Format("15:04:05")
+
+		// Status with color coding
+		var statusStyle lipgloss.Style
+		var statusText string
+		if *exitCode == 0 {
+			statusStyle = lipgloss.NewStyle().
+				Foreground(styler.SuccessColor().Value()).
+				Bold(true)
+			statusText = "✓ Success"
+		} else {
+			statusStyle = lipgloss.NewStyle().
+				Foreground(styler.ErrorColor().Value()).
+				Bold(true)
+			statusText = fmt.Sprintf("✗ Failed (exit %d)", *exitCode)
+		}
+
+		metadataStyle := lipgloss.NewStyle().
+			Foreground(styler.PlaceholderColor().Value())
+
+		// Combine: status • duration • time
+		labelParts = append(labelParts,
+			statusStyle.Render(statusText),
+			metadataStyle.Render(" • "),
+			metadataStyle.Render(durationStr),
+			metadataStyle.Render(" • "),
+			metadataStyle.Render(timeStr))
+	}
+
+	label := lipgloss.JoinHorizontal(lipgloss.Left, labelParts...)
 
 	// Create styled container with left border accent
 	outputStyle := lipgloss.NewStyle().
@@ -218,4 +264,19 @@ func highlightCode(code string, styler style.Style) string {
 	}
 
 	return buf.String()
+}
+
+// formatDuration formats a duration into a human-readable string.
+func formatDuration(d time.Duration) string {
+	const secondsPerMinute = 60
+	switch {
+	case d < time.Second:
+		return fmt.Sprintf("%dms", d.Milliseconds())
+	case d < time.Minute:
+		return fmt.Sprintf("%.1fs", d.Seconds())
+	default:
+		minutes := int(d.Minutes())
+		seconds := int(d.Seconds()) % secondsPerMinute
+		return fmt.Sprintf("%dm%ds", minutes, seconds)
+	}
 }
