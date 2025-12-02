@@ -2,66 +2,78 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://lyrahgames.github.io/snipkit/dev/</loc>
-         <lastmod>2024-11-14</lastmod>
+         <lastmod>2025-12-02</lastmod>
     </url>
     <url>
          <loc>https://lyrahgames.github.io/snipkit/dev/assistant/</loc>
-         <lastmod>2024-11-14</lastmod>
+         <lastmod>2025-12-02</lastmod>
+    </url>
+    <url>
+         <loc>https://lyrahgames.github.io/snipkit/dev/assistant/anthropic/</loc>
+         <lastmod>2025-12-02</lastmod>
     </url>
     <url>
          <loc>https://lyrahgames.github.io/snipkit/dev/assistant/gemini/</loc>
-         <lastmod>2024-11-14</lastmod>
+         <lastmod>2025-12-02</lastmod>
+    </url>
+    <url>
+         <loc>https://lyrahgames.github.io/snipkit/dev/assistant/ollama/</loc>
+         <lastmod>2025-12-02</lastmod>
+    </url>
+    <url>
+         <loc>https://lyrahgames.github.io/snipkit/dev/assistant/openai-compatible/</loc>
+         <lastmod>2025-12-02</lastmod>
     </url>
     <url>
          <loc>https://lyrahgames.github.io/snipkit/dev/assistant/openai/</loc>
-         <lastmod>2024-11-14</lastmod>
+         <lastmod>2025-12-02</lastmod>
     </url>
     <url>
          <loc>https://lyrahgames.github.io/snipkit/dev/configuration/overview/</loc>
-         <lastmod>2024-11-14</lastmod>
+         <lastmod>2025-12-02</lastmod>
     </url>
     <url>
          <loc>https://lyrahgames.github.io/snipkit/dev/configuration/themes/</loc>
-         <lastmod>2024-11-14</lastmod>
+         <lastmod>2025-12-02</lastmod>
     </url>
     <url>
          <loc>https://lyrahgames.github.io/snipkit/dev/getting-started/fzf/</loc>
-         <lastmod>2024-11-14</lastmod>
+         <lastmod>2025-12-02</lastmod>
     </url>
     <url>
          <loc>https://lyrahgames.github.io/snipkit/dev/getting-started/overview/</loc>
-         <lastmod>2024-11-14</lastmod>
+         <lastmod>2025-12-02</lastmod>
     </url>
     <url>
          <loc>https://lyrahgames.github.io/snipkit/dev/getting-started/parameters/</loc>
-         <lastmod>2024-11-14</lastmod>
+         <lastmod>2025-12-02</lastmod>
     </url>
     <url>
          <loc>https://lyrahgames.github.io/snipkit/dev/getting-started/power-setup/</loc>
-         <lastmod>2024-11-14</lastmod>
+         <lastmod>2025-12-02</lastmod>
     </url>
     <url>
          <loc>https://lyrahgames.github.io/snipkit/dev/managers/fslibrary/</loc>
-         <lastmod>2024-11-14</lastmod>
+         <lastmod>2025-12-02</lastmod>
     </url>
     <url>
          <loc>https://lyrahgames.github.io/snipkit/dev/managers/githubgist/</loc>
-         <lastmod>2024-11-14</lastmod>
+         <lastmod>2025-12-02</lastmod>
     </url>
     <url>
          <loc>https://lyrahgames.github.io/snipkit/dev/managers/overview/</loc>
-         <lastmod>2024-11-14</lastmod>
+         <lastmod>2025-12-02</lastmod>
     </url>
     <url>
          <loc>https://lyrahgames.github.io/snipkit/dev/managers/pet/</loc>
-         <lastmod>2024-11-14</lastmod>
+         <lastmod>2025-12-02</lastmod>
     </url>
     <url>
          <loc>https://lyrahgames.github.io/snipkit/dev/managers/pictarinesnip/</loc>
-         <lastmod>2024-11-14</lastmod>
+         <lastmod>2025-12-02</lastmod>
     </url>
     <url>
          <loc>https://lyrahgames.github.io/snipkit/dev/managers/snippetslab/</loc>
-         <lastmod>2024-11-14</lastmod>
+         <lastmod>2025-12-02</lastmod>
     </url>
 </urlset>
