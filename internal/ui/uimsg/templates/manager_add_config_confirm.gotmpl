@@ -1,6 +1,6 @@
-{{ print "" (Title "The following will be added to your config file") -}}
+{{ print "" (Title "Your config file will be updated as follows:") -}}
 
-{{ print (Snippet .configYaml .screenWidth) }}
+{{ print (SideBySideDiff .oldConfigYaml .newConfigYaml) }}
 
 You might be required to alter the configuration after the change is applied.
 

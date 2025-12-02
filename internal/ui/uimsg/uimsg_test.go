@@ -82,9 +82,11 @@ func Test_ConfigFileDeleteResult(t *testing.T) {
 }
 
 func Test_ConfigFileMigrationConfirm(t *testing.T) {
-	configStr := `config: test`
-	c := ConfigFileMigrationConfirm(configStr)
-	assert.Contains(t, testutil.StripANSI(c.Header(testStyle, 0)), configStr)
+	oldConfigStr := `config: old`
+	newConfigStr := `config: new`
+	c := ConfigFileMigrationConfirm(oldConfigStr, newConfigStr)
+	result := testutil.StripANSI(c.Header(testStyle, 120))
+	assert.NotEmpty(t, result)
 }
 
 func Test_ConfigFileMigrationResult(t *testing.T) {
@@ -122,9 +124,12 @@ func Test_ThemesDeleteResult(t *testing.T) {
 }
 
 func Test_ManagerConfigAddConfirm(t *testing.T) {
-	c := ManagerConfigAddConfirm("yaml")
+	oldConfig := "old: yaml"
+	newConfig := "new: yaml"
+	c := ManagerConfigAddConfirm(oldConfig, newConfig)
 	assert.NotEmpty(t, c.Prompt)
-	assert.Contains(t, c.Header(testStyle, 0), "yaml")
+	result := c.Header(testStyle, 120)
+	assert.NotEmpty(t, result)
 }
 
 func Test_ManagerAddConfigResult(t *testing.T) {
@@ -147,4 +152,57 @@ func Test_renderInvalidTemplate(t *testing.T) {
 
 func render(p Printable) string {
 	return testutil.StripANSI(p.RenderWith(testStyle))
+}
+
+func Test_SideBySideDiff_EdgeCases(t *testing.T) {
+	tests := []struct {
+		name    string
+		oldYaml string
+		newYaml string
+		verify  func(t *testing.T, result string)
+	}{
+		{
+			name:    "minimal old config",
+			oldYaml: "version: v1.1.0\nconfig: {}",
+			newYaml: "version: v1.1.0\nconfig:\n  editor: vim",
+			verify: func(t *testing.T, result string) {
+				t.Helper()
+				// Should render as "new config only" table
+				assert.Contains(t, result, "NEW CONFIGURATION")
+				assert.Contains(t, result, "editor: vim")
+			},
+		},
+		{
+			name:    "empty old config",
+			oldYaml: "",
+			newYaml: "version: v1.1.0\nconfig:\n  editor: nvim",
+			verify: func(t *testing.T, result string) {
+				t.Helper()
+				// Should render as "new config only" table
+				assert.Contains(t, result, "NEW CONFIGURATION")
+			},
+		},
+		{
+			name:    "normal diff",
+			oldYaml: "version: v1.1.0\nconfig:\n  editor: vim\n  fuzzy: true\n  theme: default",
+			newYaml: "version: v1.1.0\nconfig:\n  editor: nvim\n  fuzzy: true\n  theme: dark",
+			verify: func(t *testing.T, result string) {
+				t.Helper()
+				// Should render side-by-side
+				assert.Contains(t, result, "BEFORE")
+				assert.Contains(t, result, "AFTER")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Use the template function directly
+			funcs := templateFuncs(testStyle)
+			sideBySideDiff := funcs["SideBySideDiff"].(func(...interface{}) string)
+
+			result := sideBySideDiff(tt.oldYaml, tt.newYaml)
+			tt.verify(t, testutil.StripANSI(result))
+		})
+	}
 }

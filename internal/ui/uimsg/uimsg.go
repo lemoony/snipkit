@@ -132,11 +132,14 @@ func ConfigFileDeleteResult(deleted bool, configPath string) Printable {
 	}
 }
 
-func ConfigFileMigrationConfirm(cfg string) Confirm {
+func ConfigFileMigrationConfirm(oldCfg, newCfg string) Confirm {
 	return Confirm{
 		Prompt:   "Do you want to apply the config change?",
 		template: configFileMigrationConfirm,
-		data:     map[string]interface{}{"configYaml": cfg},
+		data: map[string]interface{}{
+			"oldConfigYaml": oldCfg,
+			"newConfigYaml": newCfg,
+		},
 	}
 }
 
@@ -177,11 +180,14 @@ func ThemesDeleteResult(deleted bool, themesPath string) Printable {
 	}
 }
 
-func ManagerConfigAddConfirm(cfg string) Confirm {
+func ManagerConfigAddConfirm(oldCfg, newCfg string) Confirm {
 	return Confirm{
 		Prompt:   "Do you want to apply the change?",
 		template: managerAddConfigConfirm,
-		data:     map[string]interface{}{"configYaml": cfg},
+		data: map[string]interface{}{
+			"oldConfigYaml": oldCfg,
+			"newConfigYaml": newCfg,
+		},
 	}
 }
 
@@ -288,6 +294,27 @@ func templateFuncs(styler *style.Style) template.FuncMap {
 			raw = wrap.String(raw, width)
 
 			return blockStyle.Render(raw)
+		},
+		"SideBySideDiff": func(values ...interface{}) string {
+			width, _, _ := term.GetSize(0)
+			width -= snippetWidthMargin
+
+			// Handle edge case: only one value provided (shouldn't happen, but be safe)
+			if len(values) < 2 {
+				return templateFuncs(styler)["Snippet"].(func(...interface{}) string)(values...)
+			}
+
+			oldYaml := strings.TrimSpace(values[0].(string))
+			newYaml := strings.TrimSpace(values[1].(string))
+
+			// Special case: minimal/empty old config (new installation)
+			if oldYaml == "" || isMinimalConfig(oldYaml) {
+				return renderNewConfigOnlyTable(newYaml, styler, width)
+			}
+
+			// Normal case: compute and render diff
+			diffLines := computeDiff(oldYaml, newYaml)
+			return renderSideBySideTable(diffLines, styler, width)
 		},
 		"Title": func(values ...interface{}) string {
 			return styler.Title(values[0].(string))

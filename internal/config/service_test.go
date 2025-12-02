@@ -424,7 +424,7 @@ func Test_Migrate(t *testing.T) {
 			tui.On(mockutil.ApplyConfig, mock.Anything, mock.Anything).Return()
 			tui.On(mockutil.Print, mock.Anything).Return()
 			tui.
-				On(mockutil.Confirmation, uimsg.ConfigFileMigrationConfirm(string(config)), mock.Anything).
+				On(mockutil.Confirmation, uimsg.ConfigFileMigrationConfirm(string(config110), string(config)), mock.Anything).
 				Return(tt.confirm)
 
 			service := NewService(WithViper(v), WithTerminal(&tui), WithSystem(s))

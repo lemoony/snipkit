@@ -42,6 +42,11 @@ func wrap(config Config) VersionWrapper {
 	}
 }
 
+// Wrap wraps a Config into a VersionWrapper with the current version.
+func Wrap(config Config) VersionWrapper {
+	return wrap(config)
+}
+
 func createConfigFile(system *system.System, viper *viper.Viper) {
 	config := wrap(defaultConfig())
 	data := SerializeToYamlWithComment(config)

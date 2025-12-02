@@ -153,10 +153,23 @@ func (a *appImpl) EnableAssistant() {
 			Str("provider", assistantDescription.Name).
 			Msg("User selected AI assistant provider")
 
+		// Serialize current config
+		oldConfigBytes := config.SerializeToYamlWithComment(config.Wrap(*a.config))
+		oldConfigStr := strings.TrimSpace(string(oldConfigBytes))
+
+		// Get new assistant config
 		cfg := assistantInstance.AutoConfig(assistantDescription.Key)
-		configBytes := config.SerializeToYamlWithComment(cfg)
-		configStr := strings.TrimSpace(string(configBytes))
-		confirmed := a.tui.Confirmation(uimsg.ManagerConfigAddConfirm(configStr))
+
+		// Create a copy of current config and apply the new assistant to show full diff
+		newConfig := *a.config
+		newConfig.Assistant = cfg
+
+		// Serialize new config
+		newConfigBytes := config.SerializeToYamlWithComment(config.Wrap(newConfig))
+		newConfigStr := strings.TrimSpace(string(newConfigBytes))
+
+		// Pass both configs
+		confirmed := a.tui.Confirmation(uimsg.ManagerConfigAddConfirm(oldConfigStr, newConfigStr))
 		if confirmed {
 			a.configService.UpdateAssistantConfig(cfg)
 			log.Debug().Str("provider", assistantDescription.Name).Msg("Assistant configuration updated")
