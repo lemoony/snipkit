@@ -35,7 +35,7 @@ type model struct {
 
 	okButtonText string
 
-	fields       []*fieldModel
+	fields       []*FieldModel
 	elementFocus int
 	showFields   int
 
@@ -81,7 +81,7 @@ func initialModel(parameters []internalModel.Parameter, values []internalModel.P
 		o.apply(&m)
 	}
 
-	m.fields = make([]*fieldModel, len(parameters))
+	m.fields = make([]*FieldModel, len(parameters))
 
 	for i, f := range parameters {
 		name := f.Key

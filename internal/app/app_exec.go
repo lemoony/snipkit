@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"time"
 
 	"emperror.dev/errors"
 	"github.com/creack/pty"
@@ -21,9 +22,22 @@ import (
 
 const fallbackShell = "/bin/bash"
 
+// ExecutionContext indicates the origin of the execution request.
+type ExecutionContext int
+
+const (
+	// ContextDefault represents normal execution (e.g., from lookup).
+	ContextDefault ExecutionContext = iota
+	// ContextAssistant represents execution initiated from the assistant.
+	ContextAssistant
+)
+
 type capturedOutput struct {
-	stdout string
-	stderr string
+	stdout   string
+	stderr   string
+	exitCode int
+	duration time.Duration
+	err      error
 }
 
 // Terminal function variables that can be overridden in tests.
@@ -38,7 +52,7 @@ func (a *appImpl) LookupAndExecuteSnippet(confirm, print bool) {
 	if ok, snippet := a.LookupSnippet(); ok {
 		parameters := snippet.GetParameters()
 		if parameterValues, paramOk := a.tui.ShowParameterForm(parameters, nil, ui.OkButtonExecute); paramOk {
-			a.executeSnippet(confirm, print, snippet, parameterValues)
+			a.executeSnippet(ContextDefault, print, snippet, parameterValues)
 		}
 	}
 }
@@ -47,9 +61,9 @@ func (a *appImpl) FindScriptAndExecuteWithParameters(id string, paramValues []mo
 	if snippetFound, snippet := a.getSnippet(id); !snippetFound {
 		panic(ErrSnippetIDNotFound)
 	} else if paramOk, parameters := matchParameters(paramValues, snippet.GetParameters()); paramOk {
-		a.executeSnippet(confirm, print, snippet, parameters)
+		a.executeSnippet(ContextDefault, print, snippet, parameters)
 	} else if parameterValues, formOk := a.tui.ShowParameterForm(snippet.GetParameters(), paramValues, ui.OkButtonExecute); formOk {
-		a.executeSnippet(confirm, print, snippet, parameterValues)
+		a.executeSnippet(ContextDefault, print, snippet, parameterValues)
 	}
 }
 
@@ -77,10 +91,11 @@ func matchParameters(paramValues []model.ParameterValue, snippetParameters []mod
 	return found == len(snippetParameters), result
 }
 
-func (a *appImpl) executeSnippet(confirm bool, print bool, snippet model.Snippet, parameterValues []string) (bool, *capturedOutput) {
+func (a *appImpl) executeSnippet(context ExecutionContext, print bool, snippet model.Snippet, parameterValues []string) (bool, *capturedOutput) {
 	script := snippet.Format(parameterValues, formatOptions(a.config.Script))
 
-	if (confirm || a.config.Script.ExecConfirm) && !a.tui.Confirmation(uimsg.ExecConfirm(snippet.GetTitle(), script)) {
+	// Skip confirmation for assistant context (parameter modal serves as implicit confirmation)
+	if context == ContextDefault && a.config.Script.ExecConfirm && !a.tui.Confirmation(uimsg.ExecConfirm(snippet.GetTitle(), script)) {
 		return false, nil
 	}
 
@@ -159,18 +174,34 @@ func executeWithoutPTY(cmd *exec.Cmd) *capturedOutput {
 	cmd.Stdout = stdoutWriter
 	cmd.Stderr = stderrWriter
 
+	// Track start time
+	startTime := time.Now()
+
 	err := cmd.Start()
 	if err != nil {
 		panic(errors.Wrapf(errors.WithStack(err), "failed to run command"))
 	}
 
-	if err = cmd.Wait(); err != nil {
+	err = cmd.Wait()
+	duration := time.Since(startTime)
+
+	// Extract exit code
+	exitCode := 0
+	if err != nil {
 		log.Info().Err(err)
+		if exitErr, ok := err.(*exec.ExitError); ok {
+			exitCode = exitErr.ExitCode()
+		} else {
+			exitCode = -1 // Could not determine exit code
+		}
 	}
 
 	return &capturedOutput{
-		stdout: stdoutBuf.String(),
-		stderr: stderrBuf.String(),
+		stdout:   stdoutBuf.String(),
+		stderr:   stderrBuf.String(),
+		exitCode: exitCode,
+		duration: duration,
+		err:      err,
 	}
 }
 
