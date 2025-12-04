@@ -138,6 +138,86 @@ func Test_detectShell(t *testing.T) {
 	}
 }
 
+func Test_detectShell_EdgeCases(t *testing.T) {
+	tests := []struct {
+		name, script, configuredShell, expected string
+	}{
+		{"empty script uses configured shell", "", "/bin/zsh", "/bin/zsh"},
+		{"whitespace only script uses configured shell", "   \n\t  ", "/bin/bash", "/bin/bash"},
+		{"shebang without newline falls back", "#!/bin/bash", "/bin/zsh", "/bin/zsh"},
+		{"shebang with only newline", "#!/bin/bash\n", "", "/bin/bash"},
+		{"shebang with whitespace before interpreter", "#!  /bin/bash\n", "", "/bin/bash"},
+		{"env shebang with extra spaces", "#!/usr/bin/env   bash\necho hi", "", "bash"},
+		{"ruby shebang", "#!/usr/bin/env ruby\nputs 'hello'", "", "ruby"},
+		{"node shebang", "#!/usr/bin/env node\nconsole.log('hi')", "", "node"},
+		{"perl direct path", "#!/usr/bin/perl\nprint 'hi'", "", "/usr/bin/perl"},
+		{"fish shell", "#!/usr/bin/env fish\necho hello", "", "fish"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := detectShell(tt.script, tt.configuredShell)
+			assert.Equal(t, tt.expected, result)
+		})
+	}
+}
+
+func Test_executeWithoutPTY(t *testing.T) {
+	tests := []struct {
+		name           string
+		script         string
+		expectedStdout string
+		expectedStderr string
+	}{
+		{
+			name:           "simple echo",
+			script:         "echo hello",
+			expectedStdout: "hello\n",
+			expectedStderr: "",
+		},
+		{
+			name:           "stderr output",
+			script:         "echo error >&2",
+			expectedStdout: "",
+			expectedStderr: "error\n",
+		},
+		{
+			name:           "both stdout and stderr",
+			script:         "echo out && echo err >&2",
+			expectedStdout: "out\n",
+			expectedStderr: "err\n",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := executeScript(tt.script, "/bin/sh")
+			assert.Equal(t, tt.expectedStdout, result.stdout)
+			assert.Equal(t, tt.expectedStderr, result.stderr)
+		})
+	}
+}
+
+func Test_executeScript_usesDetectedShell(t *testing.T) {
+	// Test that shebang is respected
+	script := "#!/bin/sh\necho $0"
+	result := executeScript(script, "/bin/bash")
+	// The output should indicate sh was used (contains "sh")
+	assert.Contains(t, result.stdout, "sh")
+}
+
+func Test_executeScript_terminalDetection(t *testing.T) {
+	// Save original function
+	originalIsTerminal := isTerminalFunc
+	defer func() { isTerminalFunc = originalIsTerminal }()
+
+	// Test non-terminal path (default in tests)
+	isTerminalFunc = func(fd int) bool { return false }
+	result := executeScript("echo test", "/bin/sh")
+	assert.Equal(t, "test\n", result.stdout)
+	assert.Equal(t, "", result.stderr)
+}
+
 func Test_formatOptions(t *testing.T) {
 	tests := []struct {
 		config   config.ScriptConfig

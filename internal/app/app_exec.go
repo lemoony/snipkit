@@ -26,6 +26,10 @@ type capturedOutput struct {
 	stderr string
 }
 
+// isTerminalFunc is used to check if a file descriptor is a terminal.
+// It can be overridden in tests to simulate terminal/non-terminal environments.
+var isTerminalFunc = term.IsTerminal
+
 func (a *appImpl) LookupAndExecuteSnippet(confirm, print bool) {
 	if ok, snippet := a.LookupSnippet(); ok {
 		parameters := snippet.GetParameters()
@@ -91,7 +95,7 @@ func executeScript(script, configuredShell string) *capturedOutput {
 	cmd := exec.Command(shell, "-c", script)
 
 	// Check if stdin is a terminal to decide execution mode
-	if term.IsTerminal(int(os.Stdin.Fd())) {
+	if isTerminalFunc(int(os.Stdin.Fd())) {
 		return executeWithPTY(cmd)
 	}
 	return executeWithoutPTY(cmd)
