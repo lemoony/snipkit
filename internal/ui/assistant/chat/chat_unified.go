@@ -731,7 +731,7 @@ func (m *unifiedChatModel) View() string {
 	// Bottom bar (mode-dependent)
 	sections = append(sections, m.renderBottomBar())
 
-	baseView := fmt.Sprintf("\n%s\n", lipgloss.JoinVertical(lipgloss.Left, sections...))
+	baseView := lipgloss.JoinVertical(lipgloss.Left, sections...)
 
 	// Overlay modals if active
 	if m.modalState != modalNone {
@@ -769,9 +769,7 @@ func (m *unifiedChatModel) renderInputBar() string {
 		Border(lipgloss.ThickBorder(), false, false, false, true).
 		BorderForeground(m.styler.ActiveColor().Value()).
 		Background(m.styler.VerySubduedColor().Value()).
-		Padding(1, 2).
-		MarginTop(1).
-		MarginBottom(1).
+		Padding(0, 2).
 		Width(m.width)
 
 	return inputStyle.Render(m.input.View())
@@ -784,9 +782,7 @@ func (m *unifiedChatModel) renderGeneratingBar() string {
 
 	style := lipgloss.NewStyle().
 		Foreground(m.styler.PlaceholderColor().Value()).
-		Padding(1, 2).
-		MarginTop(1).
-		MarginBottom(1)
+		Padding(0, 2)
 
 	return style.Render(text)
 }
@@ -826,9 +822,7 @@ func (m *unifiedChatModel) renderActionBar(options []actionBarOption) string {
 		Render("\n  ←/→ to select • Enter to confirm • Shortcuts available • Esc to cancel")
 
 	style := lipgloss.NewStyle().
-		Padding(1, 2).
-		MarginTop(1).
-		MarginBottom(1)
+		Padding(0, 2)
 
 	return style.Render(fmt.Sprintf("%s%s", menu, helpText))
 }
