@@ -108,6 +108,36 @@ echo "${VAR1}"`
 	tui.AssertCalled(t, "ShowParameterForm", snippets[0].GetParameters(), []model.ParameterValue{}, ui.OkButtonExecute)
 }
 
+func Test_detectShell(t *testing.T) {
+	tests := []struct {
+		name, script, configuredShell, expected string
+	}{
+		{"bash shebang direct path", "#!/bin/bash\necho hello", "", "/bin/bash"},
+		{"bash shebang with env", "#!/usr/bin/env bash\necho hello", "", "bash"},
+		{"zsh shebang direct path", "#!/bin/zsh\necho hello", "", "/bin/zsh"},
+		{"zsh shebang with env", "#!/usr/bin/env zsh\necho hello", "", "zsh"},
+		{"sh shebang", "#!/bin/sh\necho hello", "", "/bin/sh"},
+		{"shebang with arguments", "#!/bin/bash -e\necho hello", "", "/bin/bash"},
+		{"env shebang with arguments", "#!/usr/bin/env bash -e\necho hello", "", "bash"},
+		{"no shebang uses configured shell", "echo hello", "/bin/zsh", "/bin/zsh"},
+		{"shebang takes priority over configured shell", "#!/bin/bash\necho hello", "/bin/zsh", "/bin/bash"},
+		{"python shebang", "#!/usr/bin/env python3\nprint('hello')", "", "python3"},
+		{"no shebang and no configured shell falls back", "echo hello", "", "/bin/bash"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := detectShell(tt.script, tt.configuredShell)
+			// For the fallback test case, we need to handle the $SHELL env var
+			if tt.name == "no shebang and no configured shell falls back" {
+				assert.NotEmpty(t, result) // Either it uses $SHELL or falls back to /bin/bash
+			} else {
+				assert.Equal(t, tt.expected, result)
+			}
+		})
+	}
+}
+
 func Test_formatOptions(t *testing.T) {
 	tests := []struct {
 		config   config.ScriptConfig
