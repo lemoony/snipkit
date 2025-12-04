@@ -26,9 +26,13 @@ type capturedOutput struct {
 	stderr string
 }
 
-// isTerminalFunc is used to check if a file descriptor is a terminal.
-// It can be overridden in tests to simulate terminal/non-terminal environments.
-var isTerminalFunc = term.IsTerminal
+// Terminal function variables that can be overridden in tests.
+var (
+	isTerminalFunc  = term.IsTerminal
+	getTermSizeFunc = term.GetSize
+	makeRawFunc     = term.MakeRaw
+	restoreTermFunc = term.Restore
+)
 
 func (a *appImpl) LookupAndExecuteSnippet(confirm, print bool) {
 	if ok, snippet := a.LookupSnippet(); ok {
@@ -105,7 +109,7 @@ func executeScript(script, configuredShell string) *capturedOutput {
 func executeWithPTY(cmd *exec.Cmd) *capturedOutput {
 	// Get current terminal size
 	rows, cols := 24, 80 // defaults
-	if w, h, err := term.GetSize(int(os.Stdout.Fd())); err == nil {
+	if w, h, err := getTermSizeFunc(int(os.Stdout.Fd())); err == nil {
 		cols, rows = w, h
 	}
 
@@ -117,9 +121,9 @@ func executeWithPTY(cmd *exec.Cmd) *capturedOutput {
 	defer func() { _ = ptmx.Close() }()
 
 	// Set stdin to raw mode to pass through all input
-	oldState, err := term.MakeRaw(int(os.Stdin.Fd()))
+	oldState, err := makeRawFunc(int(os.Stdin.Fd()))
 	if err == nil {
-		defer func() { _ = term.Restore(int(os.Stdin.Fd()), oldState) }()
+		defer func() { _ = restoreTermFunc(int(os.Stdin.Fd()), oldState) }()
 	}
 
 	// Buffer to capture output while also displaying it

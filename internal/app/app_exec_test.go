@@ -1,16 +1,21 @@
 package app
 
 import (
+	"errors"
 	"fmt"
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"golang.org/x/term"
 
 	"github.com/lemoony/snipkit/internal/config"
 	"github.com/lemoony/snipkit/internal/config/configtest"
 	"github.com/lemoony/snipkit/internal/model"
 	"github.com/lemoony/snipkit/internal/ui"
+	"github.com/lemoony/snipkit/internal/utils/termtest"
+	"github.com/lemoony/snipkit/internal/utils/termutil"
 	"github.com/lemoony/snipkit/internal/utils/testutil"
 	"github.com/lemoony/snipkit/internal/utils/testutil/mockutil"
 	uiMocks "github.com/lemoony/snipkit/mocks/ui"
@@ -238,4 +243,72 @@ func Test_formatOptions(t *testing.T) {
 			assert.Equal(t, tt.expected, formatOptions(tt.config))
 		})
 	}
+}
+
+// saveTermFuncs saves and returns a restore function for all terminal function variables.
+func saveTermFuncs() func() {
+	origIsTerminal := isTerminalFunc
+	origGetSize := getTermSizeFunc
+	origMakeRaw := makeRawFunc
+	origRestore := restoreTermFunc
+	return func() {
+		isTerminalFunc = origIsTerminal
+		getTermSizeFunc = origGetSize
+		makeRawFunc = origMakeRaw
+		restoreTermFunc = origRestore
+	}
+}
+
+func Test_executeWithPTY_TermSizeError(t *testing.T) {
+	defer saveTermFuncs()()
+
+	// Mock getTermSizeFunc to return error - should use defaults (80x24)
+	getTermSizeFunc = func(fd int) (int, int, error) {
+		return 0, 0, errors.New("not a terminal")
+	}
+
+	termtest.RunTerminalTest(t, func(c *termtest.Console) {
+		c.ExpectString("hello")
+	}, func(stdio termutil.Stdio) {
+		oldStdin, oldStdout := os.Stdin, os.Stdout
+		os.Stdin = stdio.In.(*os.File)
+		os.Stdout = stdio.Out.(*os.File)
+		defer func() {
+			os.Stdin = oldStdin
+			os.Stdout = oldStdout
+		}()
+
+		isTerminalFunc = func(fd int) bool { return true }
+		makeRawFunc = func(fd int) (*term.State, error) {
+			return nil, errors.New("cannot make raw")
+		}
+
+		result := executeScript("echo hello", "/bin/sh")
+		assert.Contains(t, result.stdout, "hello")
+	})
+}
+
+func Test_executeWithPTY_MakeRawError(t *testing.T) {
+	defer saveTermFuncs()()
+
+	termtest.RunTerminalTest(t, func(c *termtest.Console) {
+		c.ExpectString("test output")
+	}, func(stdio termutil.Stdio) {
+		oldStdin, oldStdout := os.Stdin, os.Stdout
+		os.Stdin = stdio.In.(*os.File)
+		os.Stdout = stdio.Out.(*os.File)
+		defer func() {
+			os.Stdin = oldStdin
+			os.Stdout = oldStdout
+		}()
+
+		isTerminalFunc = func(fd int) bool { return true }
+		// Simulate makeRaw failure - execution should still proceed
+		makeRawFunc = func(fd int) (*term.State, error) {
+			return nil, errors.New("cannot set raw mode")
+		}
+
+		result := executeScript("echo 'test output'", "/bin/sh")
+		assert.Contains(t, result.stdout, "test output")
+	})
 }
