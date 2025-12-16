@@ -214,7 +214,7 @@ func (m *unifiedChatModel) transitionToMode(newMode UIMode) tea.Cmd {
 	if m.ready {
 		titleHeight := lipgloss.Height(m.styler.Title("SnipKit Assistant"))
 		bottomBarHeight := m.getBottomBarHeight()
-		margins := 4
+		margins := 0
 		viewportHeight := m.height - titleHeight - bottomBarHeight - margins
 
 		if viewportHeight > 0 {
@@ -239,6 +239,14 @@ func (m *unifiedChatModel) transitionToMode(newMode UIMode) tea.Cmd {
 // setupInputMode transitions to input mode.
 func (m *unifiedChatModel) setupInputMode() tea.Cmd {
 	m.setupInput()
+
+	// Set input width (same logic as in handleWindowSize)
+	inputWidth := m.width - len(m.input.Prompt) - 2
+	if inputWidth < 1 {
+		inputWidth = 1
+	}
+	m.input.Width = inputWidth
+
 	return textinput.Blink
 }
 
@@ -430,7 +438,7 @@ func (m *unifiedChatModel) handleWindowSize(msg tea.WindowSizeMsg) {
 	// Calculate dimensions
 	titleHeight := lipgloss.Height(m.styler.Title("SnipKit Assistant"))
 	bottomBarHeight := m.getBottomBarHeight() // Dynamically calculated based on current mode
-	margins := 4                              // top and bottom margins
+	margins := 0
 
 	viewportHeight := msg.Height - titleHeight - bottomBarHeight - margins
 	if viewportHeight < 1 {
@@ -819,7 +827,7 @@ func (m *unifiedChatModel) getScriptReadyOptions() []actionBarOption {
 func (m *unifiedChatModel) getPostExecutionOptions() []actionBarOption {
 	return []actionBarOption{
 		{label: "Execute again", shortcut: "E", action: PreviewActionExecute},
-		{label: "Ask another question", shortcut: "R", action: PreviewActionRevise},
+		{label: "Revise", shortcut: "R", action: PreviewActionRevise},
 		{label: "Save & Exit", shortcut: "S", action: PreviewActionCancel}, // Save
 		{label: "Exit & Don't save", shortcut: "X", action: PreviewActionExitNoSave},
 	}

@@ -1,6 +1,8 @@
 package chat
 
 import (
+	"strings"
+
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -30,7 +32,7 @@ func renderModalControlBar(
 	} else {
 		primaryStyle = primaryStyle.Foreground(styler.TextColor().Value())
 	}
-	buttons = append(buttons, primaryStyle.Render("["+primaryShortcut+"] "+primaryLabel))
+	buttons = append(buttons, primaryStyle.Render(primaryLabel))
 
 	// Secondary button (Cancel)
 	secondaryStyle := lipgloss.NewStyle().Padding(0, 1)
@@ -42,15 +44,15 @@ func renderModalControlBar(
 	} else {
 		secondaryStyle = secondaryStyle.Foreground(styler.TextColor().Value())
 	}
-	buttons = append(buttons, secondaryStyle.Render("["+secondaryShortcut+"] "+secondaryLabel))
+	buttons = append(buttons, secondaryStyle.Render(secondaryLabel))
 
 	// Join buttons horizontally
 	buttonRow := lipgloss.JoinHorizontal(lipgloss.Left, buttons...)
 
-	// Add help text below
+	// Add help text below with Ctrl shortcuts
 	helpText := lipgloss.NewStyle().
 		Foreground(styler.PlaceholderColor().Value()).
-		Render("Tab: navigate • Enter: select • " + primaryShortcut + "/" + secondaryShortcut + ": shortcuts")
+		Render("Ctrl+" + strings.ToUpper(primaryShortcut) + ": " + strings.ToLower(primaryLabel) + " • Esc: cancel • Tab: navigate • Enter: select")
 
 	return lipgloss.JoinVertical(lipgloss.Left, buttonRow, helpText)
 }
@@ -80,10 +82,10 @@ func handleModalKeyPress(
 	fieldCount int,
 ) modalKeyAction {
 	switch keyMsg.String() {
-	case "esc", "c":
+	case "esc":
 		return modalKeyCancel
 
-	case primaryShortcut:
+	case "ctrl+" + primaryShortcut:
 		return modalKeySubmit
 
 	case "enter":
