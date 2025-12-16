@@ -19,6 +19,16 @@ import (
 // ansiRegex matches ANSI escape sequences and other terminal control codes.
 var ansiRegex = regexp.MustCompile(`\x1b\[[0-9;]*[a-zA-Z]|\x1b\][^\x07]*\x07|\x1b[PX^_][^\x1b]*\x1b\\|\r`)
 
+// interactiveCommands lists command patterns that indicate interactive/TUI scripts.
+var interactiveCommands = []string{
+	"gum ", "gum\n", // gum TUI toolkit
+	"fzf", "peco", "percol", // fuzzy finders
+	"read ", " read ", // bash user input
+	"select ",                         // bash menu
+	"dialog ", "whiptail ", "zenity ", // TUI dialogs
+	"tput ", // cursor control
+}
+
 type MessageType int
 
 const (
@@ -69,9 +79,14 @@ func buildMessagesFromHistory(history []HistoryEntry) []ChatMessage {
 			previousScript = entry.GeneratedScript
 		}
 
-		// Add execution output (truncated)
+		// Add execution output (truncated or placeholder for interactive scripts)
 		if entry.ExecutionOutput != "" {
-			output := truncateContent(entry.ExecutionOutput, maxLines)
+			var output string
+			if isInteractiveScript(entry.GeneratedScript) {
+				output = "(Interactive output not shown)"
+			} else {
+				output = truncateContent(entry.ExecutionOutput, maxLines)
+			}
 			messages = append(messages, ChatMessage{
 				Type:          MessageTypeOutput,
 				Content:       output,
@@ -215,6 +230,17 @@ func renderOutput(content string, exitCode *int, duration *time.Duration, execut
 // stripANSI removes ANSI escape sequences from a string.
 func stripANSI(s string) string {
 	return ansiRegex.ReplaceAllString(s, "")
+}
+
+// isInteractiveScript checks if script contains interactive commands.
+func isInteractiveScript(script string) bool {
+	scriptLower := strings.ToLower(script)
+	for _, cmd := range interactiveCommands {
+		if strings.Contains(scriptLower, cmd) {
+			return true
+		}
+	}
+	return false
 }
 
 // renderScript renders a script with syntax highlighting and border.
