@@ -3,6 +3,7 @@ package chat
 import (
 	"bytes"
 	"fmt"
+	"regexp"
 	"strings"
 	"time"
 
@@ -14,6 +15,9 @@ import (
 
 	"github.com/lemoony/snipkit/internal/ui/style"
 )
+
+// ansiRegex matches ANSI escape sequences and other terminal control codes.
+var ansiRegex = regexp.MustCompile(`\x1b\[[0-9;]*[a-zA-Z]|\x1b\][^\x07]*\x07|\x1b[PX^_][^\x1b]*\x1b\\|\r`)
 
 type MessageType int
 
@@ -194,16 +198,23 @@ func renderOutput(content string, exitCode *int, duration *time.Duration, execut
 	// Create styled container with left border accent
 	outputStyle := lipgloss.NewStyle().
 		Background(styler.VerySubduedColor().Value()).
-		Foreground(styler.PlaceholderColor().Value()).
+		Foreground(styler.TextColor().Value()).
 		Border(lipgloss.ThickBorder(), false, false, false, true).
 		BorderForeground(styler.PlaceholderColor().Value()).
 		Padding(1, 2).
 		MarginLeft(2).
 		MarginTop(1)
 
-	styledContent := outputStyle.Render(strings.TrimRight(content, "\n"))
+	// Strip ANSI escape codes from PTY output before rendering
+	cleanContent := stripANSI(strings.TrimRight(content, "\n"))
+	styledContent := outputStyle.Render(cleanContent)
 
 	return fmt.Sprintf("%s\n%s", label, styledContent)
+}
+
+// stripANSI removes ANSI escape sequences from a string.
+func stripANSI(s string) string {
+	return ansiRegex.ReplaceAllString(s, "")
 }
 
 // renderScript renders a script with syntax highlighting and border.
