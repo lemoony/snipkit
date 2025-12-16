@@ -765,14 +765,32 @@ func (m *unifiedChatModel) getBottomBarHeight() int {
 
 // renderInputBar renders the input bar for input mode.
 func (m *unifiedChatModel) renderInputBar() string {
+	// Use vertical padding when there's enough space
+	verticalPad := 0
+	if m.height > 20 {
+		verticalPad = 1
+	}
+
 	inputStyle := lipgloss.NewStyle().
 		Border(lipgloss.ThickBorder(), false, false, false, true).
 		BorderForeground(m.styler.ActiveColor().Value()).
 		Background(m.styler.VerySubduedColor().Value()).
-		Padding(0, 2).
+		Padding(verticalPad, 2).
 		Width(m.width)
 
-	return inputStyle.Render(m.input.View())
+	inputRow := inputStyle.Render(m.input.View())
+
+	helpStyle := lipgloss.NewStyle().
+		Foreground(m.styler.PlaceholderColor().Value()).
+		Padding(0, 2)
+	helpText := helpStyle.Render("Enter: submit • Esc: cancel • PgUp/PgDown: scroll")
+
+	// Add spacing line between input and help text when there's enough vertical space
+	if m.height > 20 {
+		return lipgloss.JoinVertical(lipgloss.Left, inputRow, "", helpText)
+	}
+
+	return lipgloss.JoinVertical(lipgloss.Left, inputRow, helpText)
 }
 
 // renderGeneratingBar renders the bar for generating mode.
