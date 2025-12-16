@@ -2,6 +2,7 @@ package app
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"os"
 	"os/exec"
@@ -108,6 +109,11 @@ func (a *appImpl) executeSnippet(context ExecutionContext, print bool, snippet m
 }
 
 func executeScript(script, configuredShell string) *capturedOutput {
+	// Print execution header with vertical padding
+	fmt.Println()
+	fmt.Println("Script execution:")
+	fmt.Println()
+
 	shell := detectShell(script, configuredShell)
 
 	//nolint:gosec // since it would report G204 complaining about using a variable as input for exec.Command
