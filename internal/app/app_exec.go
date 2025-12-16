@@ -11,6 +11,7 @@ import (
 
 	"emperror.dev/errors"
 	"github.com/creack/pty"
+	"github.com/cliofy/govte/terminal"
 	"github.com/phuslu/log"
 	"golang.org/x/term"
 
@@ -147,8 +148,11 @@ func executeWithPTY(cmd *exec.Cmd) *capturedOutput {
 		defer func() { _ = restoreTermFunc(int(os.Stdin.Fd()), oldState) }()
 	}
 
-	// Buffer to capture output while also displaying it
+	// Buffer to capture raw output
 	var outputBuf bytes.Buffer
+
+	// Track start time
+	startTime := time.Now()
 
 	// Copy stdin to pty in a goroutine
 	go func() { _, _ = io.Copy(ptmx, os.Stdin) }()
@@ -156,15 +160,44 @@ func executeWithPTY(cmd *exec.Cmd) *capturedOutput {
 	// Copy pty output to both stdout and buffer
 	_, _ = io.Copy(io.MultiWriter(os.Stdout, &outputBuf), ptmx)
 
-	// Wait for command to complete
+	// Wait for command to complete and capture exit code
+	var exitCode int
 	if waitErr := cmd.Wait(); waitErr != nil {
 		log.Info().Err(waitErr)
+		if exitErr, ok := waitErr.(*exec.ExitError); ok {
+			exitCode = exitErr.ExitCode()
+		} else {
+			exitCode = -1
+		}
 	}
 
+	duration := time.Since(startTime)
+
+	// Process raw output through virtual terminal to get final rendered state
+	// Use a fixed size for consistent rendering (actual terminal size may be very wide)
+	renderedOutput := renderThroughVirtualTerminal(outputBuf.String(), 80, 24)
+
 	return &capturedOutput{
-		stdout: outputBuf.String(),
-		stderr: "", // PTY combines stdout and stderr
+		stdout:   renderedOutput,
+		stderr:   "", // PTY combines stdout and stderr
+		exitCode: exitCode,
+		duration: duration,
 	}
+}
+
+// renderThroughVirtualTerminal processes raw PTY output through a virtual terminal
+// to get the final rendered state (handling cursor movements, clearing, etc.).
+func renderThroughVirtualTerminal(rawOutput string, cols, rows int) string {
+	// Use govte to parse the terminal output and get the final rendered state
+	content := terminal.ParseBytes([]byte(rawOutput), cols, rows)
+
+	// Trim trailing empty lines
+	lines := strings.Split(content, "\n")
+	for len(lines) > 0 && strings.TrimSpace(lines[len(lines)-1]) == "" {
+		lines = lines[:len(lines)-1]
+	}
+
+	return strings.Join(lines, "\n")
 }
 
 // executeWithoutPTY runs the command without a PTY (for non-terminal contexts).
