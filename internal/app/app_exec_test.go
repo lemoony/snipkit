@@ -269,6 +269,7 @@ func Test_executeWithPTY_TermSizeError(t *testing.T) {
 
 	termtest.RunTerminalTest(t, func(c *termtest.Console) {
 		c.ExpectString("hello")
+		c.Send("\n") // Press Enter to continue after script execution
 	}, func(stdio termutil.Stdio) {
 		oldStdin, oldStdout := os.Stdin, os.Stdout
 		os.Stdin = stdio.In.(*os.File)
@@ -293,6 +294,7 @@ func Test_executeWithPTY_MakeRawError(t *testing.T) {
 
 	termtest.RunTerminalTest(t, func(c *termtest.Console) {
 		c.ExpectString("test output")
+		c.Send("\n") // Press Enter to continue after script execution
 	}, func(stdio termutil.Stdio) {
 		oldStdin, oldStdout := os.Stdin, os.Stdout
 		os.Stdin = stdio.In.(*os.File)

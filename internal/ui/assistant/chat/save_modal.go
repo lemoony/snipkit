@@ -81,7 +81,7 @@ func (m *saveModal) Init() tea.Cmd {
 }
 
 // Update handles messages for the modal.
-func (m *saveModal) Update(msg tea.Msg) (*saveModal, tea.Cmd) { //nolint:dupl // Similar to parameterModal.Update but type-specific, extraction would add complexity
+func (m *saveModal) Update(msg tea.Msg) (*saveModal, tea.Cmd) {
 	if keyMsg, ok := msg.(tea.KeyMsg); ok {
 		action := handleModalKeyPress(keyMsg, "s", m.focusArea, m.buttonFocus, m.elementFocus, len(m.fields))
 
@@ -259,7 +259,6 @@ func (m *saveModal) renderControlBar() string {
 		"Save",
 		"S",
 		"Cancel",
-		"C",
 	)
 }
 

@@ -54,6 +54,11 @@ func NewParameterModal(parameters []appModel.Parameter, styler style.Style, fs a
 			fs,
 		)
 
+		// Pre-fill default value if present
+		if param.DefaultValue != "" {
+			fields[i].SetValue(param.DefaultValue)
+		}
+
 		labelWidth := lipgloss.Width(param.Name)
 		if labelWidth > maxLabelWidth {
 			maxLabelWidth = labelWidth
@@ -90,7 +95,9 @@ func (m *parameterModal) Init() tea.Cmd {
 }
 
 // Update handles messages for the modal.
-func (m *parameterModal) Update(msg tea.Msg) (*parameterModal, tea.Cmd) { //nolint:dupl // Similar to saveModal.Update but type-specific, extraction would add complexity
+func (m *parameterModal) Update(msg tea.Msg) (*parameterModal, tea.Cmd) {
+	var cmd tea.Cmd
+
 	if keyMsg, ok := msg.(tea.KeyMsg); ok {
 		action := handleModalKeyPress(keyMsg, "e", m.focusArea, m.buttonFocus, m.elementFocus, len(m.fields))
 
@@ -102,25 +109,29 @@ func (m *parameterModal) Update(msg tea.Msg) (*parameterModal, tea.Cmd) { //noli
 			m.submitted = true
 			return m, nil
 		case modalKeyNavigateForward:
-			return m, m.navigateForward()
+			cmd = m.navigateForward()
 		case modalKeyNavigateBackward:
-			return m, m.navigateBackward()
+			cmd = m.navigateBackward()
 		case modalKeyNavigateFields:
-			return m, m.navigateFields(false)
+			cmd = m.navigateFields(false)
 		case modalKeyNavigateButtonsForward:
 			m.navigateButtonsForward()
 			return m, nil
 		case modalKeyNavigateButtonsBackward:
 			m.navigateButtonsBackward()
 			return m, nil
-		case modalKeyDelegateToField:
-			var cmd tea.Cmd
-			m.fields[m.elementFocus], cmd = m.fields[m.elementFocus].Update(msg)
-			return m, cmd
 		}
 	}
 
-	return m, nil
+	// Always delegate to field when in fields area (like form.go does)
+	// This allows fields to handle arrow keys for dropdown navigation
+	if m.focusArea == focusFields && m.elementFocus < len(m.fields) {
+		var fieldCmd tea.Cmd
+		m.fields[m.elementFocus], fieldCmd = m.fields[m.elementFocus].Update(msg)
+		return m, tea.Batch(cmd, fieldCmd)
+	}
+
+	return m, cmd
 }
 
 // navigateFields moves focus between fields.
@@ -268,7 +279,6 @@ func (m *parameterModal) renderControlBar() string {
 		"Execute",
 		"E",
 		"Cancel",
-		"C",
 	)
 }
 

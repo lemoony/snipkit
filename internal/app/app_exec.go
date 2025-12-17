@@ -2,7 +2,6 @@ package app
 
 import (
 	"bytes"
-	"fmt"
 	"io"
 	"os"
 	"os/exec"
@@ -10,14 +9,13 @@ import (
 	"time"
 
 	"emperror.dev/errors"
-	"github.com/creack/pty"
-	"github.com/cliofy/govte/terminal"
 	"github.com/phuslu/log"
 	"golang.org/x/term"
 
 	"github.com/lemoony/snipkit/internal/config"
 	"github.com/lemoony/snipkit/internal/model"
 	"github.com/lemoony/snipkit/internal/ui"
+	"github.com/lemoony/snipkit/internal/ui/execution"
 	"github.com/lemoony/snipkit/internal/ui/uimsg"
 	"github.com/lemoony/snipkit/internal/utils/stringutil"
 )
@@ -110,94 +108,23 @@ func (a *appImpl) executeSnippet(context ExecutionContext, print bool, snippet m
 }
 
 func executeScript(script, configuredShell string) *capturedOutput {
-	// Print execution header with vertical padding
-	fmt.Println()
-	fmt.Println("Script execution:")
-	fmt.Println()
-
 	shell := detectShell(script, configuredShell)
 
 	//nolint:gosec // since it would report G204 complaining about using a variable as input for exec.Command
 	cmd := exec.Command(shell, "-c", script)
 
-	// Check if stdin is a terminal to decide execution mode
+	// Run the script
 	if isTerminalFunc(int(os.Stdin.Fd())) {
-		return executeWithPTY(cmd)
-	}
-	return executeWithoutPTY(cmd)
-}
-
-// executeWithPTY runs the command with a pseudo-terminal to preserve colors and interactivity.
-func executeWithPTY(cmd *exec.Cmd) *capturedOutput {
-	// Get current terminal size
-	rows, cols := 24, 80 // defaults
-	if w, h, err := getTermSizeFunc(int(os.Stdout.Fd())); err == nil {
-		cols, rows = w, h
-	}
-
-	// Start the command with a pty
-	ptmx, err := pty.StartWithSize(cmd, &pty.Winsize{Rows: uint16(rows), Cols: uint16(cols)})
-	if err != nil {
-		panic(errors.Wrapf(errors.WithStack(err), "failed to start command with pty"))
-	}
-	defer func() { _ = ptmx.Close() }()
-
-	// Set stdin to raw mode to pass through all input
-	oldState, err := makeRawFunc(int(os.Stdin.Fd()))
-	if err == nil {
-		defer func() { _ = restoreTermFunc(int(os.Stdin.Fd()), oldState) }()
-	}
-
-	// Buffer to capture raw output
-	var outputBuf bytes.Buffer
-
-	// Track start time
-	startTime := time.Now()
-
-	// Copy stdin to pty in a goroutine
-	go func() { _, _ = io.Copy(ptmx, os.Stdin) }()
-
-	// Copy pty output to both stdout and buffer
-	_, _ = io.Copy(io.MultiWriter(os.Stdout, &outputBuf), ptmx)
-
-	// Wait for command to complete and capture exit code
-	var exitCode int
-	if waitErr := cmd.Wait(); waitErr != nil {
-		log.Info().Err(waitErr)
-		if exitErr, ok := waitErr.(*exec.ExitError); ok {
-			exitCode = exitErr.ExitCode()
-		} else {
-			exitCode = -1
+		// Use Tea-based viewer for terminal execution
+		result := execution.RunWithViewer(cmd)
+		return &capturedOutput{
+			stdout:   result.Stdout,
+			exitCode: result.ExitCode,
+			duration: result.Duration,
 		}
 	}
 
-	duration := time.Since(startTime)
-
-	// Process raw output through virtual terminal to get final rendered state
-	// Use a fixed size for consistent rendering (actual terminal size may be very wide)
-	renderedOutput := renderThroughVirtualTerminal(outputBuf.String(), 80, 24)
-
-	return &capturedOutput{
-		stdout:   renderedOutput,
-		stderr:   "", // PTY combines stdout and stderr
-		exitCode: exitCode,
-		duration: duration,
-	}
-}
-
-// renderThroughVirtualTerminal processes raw PTY output through a virtual terminal
-// to get the final rendered state (handling cursor movements, clearing, etc.).
-func renderThroughVirtualTerminal(rawOutput string, cols, rows int) string {
-	// Use govte to parse the terminal output and get the final rendered state
-	content := terminal.ParseBytes([]byte(rawOutput), cols, rows)
-
-	// Trim trailing empty lines
-	lines := strings.Split(content, "\n")
-	for len(lines) > 0 && strings.TrimSpace(lines[len(lines)-1]) == "" {
-		lines = lines[:len(lines)-1]
-	}
-
-	return strings.Join(lines, "\n")
+	return executeWithoutPTY(cmd)
 }
 
 // executeWithoutPTY runs the command without a PTY (for non-terminal contexts).

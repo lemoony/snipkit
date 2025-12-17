@@ -113,8 +113,10 @@ func (a *appImpl) handleExecuteAction(history []chat.HistoryEntry, scriptInterfa
 	}
 
 	// Execute the snippet
+	log.Trace().Msg("About to execute snippet")
 	executed, capturedResult := a.executeSnippet(ContextAssistant, false, snippet, paramValues)
 	executionTime := time.Now()
+	log.Trace().Bool("executed", executed).Msg("Snippet execution completed, about to return to chat")
 
 	if executed {
 		return a.updateHistoryWithSuccess(history, parsed.Contents, capturedResult, executionTime)

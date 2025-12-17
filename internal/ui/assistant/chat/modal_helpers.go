@@ -18,7 +18,6 @@ func renderModalControlBar(
 	primaryLabel string,
 	primaryShortcut string,
 	secondaryLabel string,
-	secondaryShortcut string,
 ) string {
 	buttons := []string{}
 
@@ -101,10 +100,10 @@ func handleModalKeyPress(
 		}
 		return modalKeyNavigateFields
 
-	case "tab", "down":
+	case "tab":
 		return modalKeyNavigateForward
 
-	case "shift+tab", "up":
+	case "shift+tab":
 		return modalKeyNavigateBackward
 
 	case keyLeft, keyRight:

@@ -183,6 +183,10 @@ func (m *unifiedChatModel) Init() tea.Cmd {
 
 	var cmds []tea.Cmd
 
+	// Always request window size to ensure viewport is properly initialized
+	// (especially important when returning from script execution)
+	cmds = append(cmds, tea.WindowSize())
+
 	// Handle generation mode
 	if m.currentMode == UIModeGenerating {
 		cmds = append(cmds, tick())
@@ -196,10 +200,7 @@ func (m *unifiedChatModel) Init() tea.Cmd {
 		cmds = append(cmds, textinput.Blink)
 	}
 
-	if len(cmds) > 0 {
-		return tea.Batch(cmds...)
-	}
-	return nil
+	return tea.Batch(cmds...)
 }
 
 // transitionToMode transitions the model to a new UI mode.
@@ -728,14 +729,6 @@ func (m *unifiedChatModel) View() string {
 	// Viewport with message history
 	sections = append(sections, m.viewport.View())
 
-	// Help text if history is scrollable
-	if m.viewport.TotalLineCount() > m.viewport.Height {
-		helpText := lipgloss.NewStyle().
-			Foreground(m.styler.PlaceholderColor().Value()).
-			Render("  Use PgUp/PgDown to scroll")
-		sections = append(sections, helpText)
-	}
-
 	// Bottom bar (mode-dependent)
 	sections = append(sections, m.renderBottomBar())
 
@@ -773,17 +766,13 @@ func (m *unifiedChatModel) getBottomBarHeight() int {
 
 // renderInputBar renders the input bar for input mode.
 func (m *unifiedChatModel) renderInputBar() string {
-	// Use vertical padding when there's enough space
-	verticalPad := 0
-	if m.height > 20 {
-		verticalPad = 1
-	}
-
 	inputStyle := lipgloss.NewStyle().
 		Border(lipgloss.ThickBorder(), false, false, false, true).
 		BorderForeground(m.styler.ActiveColor().Value()).
 		Background(m.styler.VerySubduedColor().Value()).
-		Padding(verticalPad, 2).
+		PaddingTop(1).
+		PaddingLeft(2).
+		PaddingRight(2).
 		Width(m.width)
 
 	inputRow := inputStyle.Render(m.input.View())
@@ -793,11 +782,7 @@ func (m *unifiedChatModel) renderInputBar() string {
 		Padding(0, 2)
 	helpText := helpStyle.Render("Enter: submit • Esc: cancel • PgUp/PgDown: scroll")
 
-	// Add spacing line between input and help text when there's enough vertical space
-	if m.height > 20 {
-		return lipgloss.JoinVertical(lipgloss.Left, inputRow, "", helpText)
-	}
-
+	// The inputStyle already has vertical padding, so no extra spacing needed
 	return lipgloss.JoinVertical(lipgloss.Left, inputRow, helpText)
 }
 
