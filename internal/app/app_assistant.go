@@ -114,16 +114,11 @@ func (a *appImpl) handleExecuteAction(history []chat.HistoryEntry, scriptInterfa
 
 	// Execute the snippet
 	log.Trace().Msg("About to execute snippet")
-	executed, capturedResult := a.executeSnippet(ContextAssistant, false, snippet, paramValues)
+	capturedResult := a.executeSnippet(ContextAssistant, false, snippet, paramValues)
 	executionTime := time.Now()
-	log.Trace().Bool("executed", executed).Msg("Snippet execution completed, about to return to chat")
+	log.Trace().Msg("Snippet execution completed, about to return to chat")
 
-	if executed {
-		return a.updateHistoryWithSuccess(history, parsed.Contents, capturedResult, executionTime)
-	}
-
-	log.Error().Msg("Script execution failed")
-	return a.updateHistoryWithFailure(history, parsed.Contents)
+	return a.updateHistoryWithSuccess(history, parsed.Contents, capturedResult, executionTime)
 }
 
 // handleEditAction handles the edit action. Returns (shouldContinue, updatedHistory).
@@ -165,10 +160,7 @@ func (a *appImpl) handleEditAction(history []chat.HistoryEntry, scriptInterface 
 	}
 
 	// Execute the edited snippet
-	executed, capturedResult := a.executeSnippet(ContextAssistant, false, snippet, editedParamValues)
-	if !executed {
-		return false, history
-	}
+	capturedResult := a.executeSnippet(ContextAssistant, false, snippet, editedParamValues)
 
 	// Update history with execution results
 	if len(history) > 0 {
@@ -219,28 +211,6 @@ func (a *appImpl) updateHistoryWithSuccess(history []chat.HistoryEntry, scriptCo
 		history[lastIdx].ExitCode = &result.exitCode
 		history[lastIdx].Duration = &result.duration
 		history[lastIdx].ExecutionTime = &executionTime
-	}
-	return history
-}
-
-// updateHistoryWithFailure updates history with failed execution results.
-func (a *appImpl) updateHistoryWithFailure(history []chat.HistoryEntry, scriptContents string) []chat.HistoryEntry {
-	exitCode := 1
-	isExecuteAgain := len(history) > 0 && history[len(history)-1].ExecutionOutput != ""
-
-	if isExecuteAgain {
-		return append(history, chat.HistoryEntry{
-			UserPrompt:      "",
-			GeneratedScript: scriptContents,
-			ExecutionOutput: "Error: Script execution failed",
-			ExitCode:        &exitCode,
-		})
-	}
-
-	if len(history) > 0 {
-		lastIdx := len(history) - 1
-		history[lastIdx].ExecutionOutput = "Error: Script execution failed"
-		history[lastIdx].ExitCode = &exitCode
 	}
 	return history
 }

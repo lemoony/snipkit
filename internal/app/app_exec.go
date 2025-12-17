@@ -91,12 +91,12 @@ func matchParameters(paramValues []model.ParameterValue, snippetParameters []mod
 	return found == len(snippetParameters), result
 }
 
-func (a *appImpl) executeSnippet(context ExecutionContext, print bool, snippet model.Snippet, parameterValues []string) (bool, *capturedOutput) {
+func (a *appImpl) executeSnippet(context ExecutionContext, print bool, snippet model.Snippet, parameterValues []string) *capturedOutput {
 	script := snippet.Format(parameterValues, formatOptions(a.config.Script))
 
 	// Skip confirmation for assistant context (parameter modal serves as implicit confirmation)
 	if context == ContextDefault && a.config.Script.ExecConfirm && !a.tui.Confirmation(uimsg.ExecConfirm(snippet.GetTitle(), script)) {
-		return false, nil
+		return nil
 	}
 
 	log.Trace().Msg(script)
@@ -104,7 +104,7 @@ func (a *appImpl) executeSnippet(context ExecutionContext, print bool, snippet m
 		a.tui.Print(uimsg.ExecPrint(snippet.GetTitle(), script))
 	}
 
-	return true, executeScript(script, a.config.Script.Shell)
+	return executeScript(script, a.config.Script.Shell)
 }
 
 func executeScript(script, configuredShell string) *capturedOutput {
