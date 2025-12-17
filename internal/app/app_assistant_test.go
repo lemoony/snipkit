@@ -1,6 +1,7 @@
 package app
 
 import (
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -150,6 +151,67 @@ func Test_App_GenerateSnippetWithAssistant_TweakPrompt_DontSave(t *testing.T) {
 	)
 
 	app.GenerateSnippetWithAssistant([]string{}, 0)
+}
+
+func Test_App_GenerateSnippetWithAssistant_EditAction(t *testing.T) {
+	const originalScript = `#!/bin/bash
+echo original`
+	const editedScript = `#!/bin/bash
+echo edited`
+
+	tui := uiMocks.TUI{}
+	tui.On(mockutil.ApplyConfig, mock.Anything, mock.Anything).Return()
+
+	// First call: script ready, user chooses Edit
+	tui.On(mockutil.ShowUnifiedAssistantChat, mock.Anything).Return(
+		assistant.ParsedScript{Contents: originalScript, Filename: "script.sh"},
+		[]string{},
+		chat.PreviewActionEdit,
+		"", // latestPrompt
+		"", // saveFilename
+		"", // saveSnippetName
+	).Once()
+
+	// Mock OpenEditor - write edited content to the temp file when called
+	tui.On(mockutil.OpenEditor, mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
+		filePath := args.Get(0).(string)
+		// Write the edited script to the temp file (simulating user edit)
+		_ = os.WriteFile(filePath, []byte(editedScript), 0o644)
+	}).Return()
+
+	// Second call: after edit and execution, user exits
+	tui.On(mockutil.ShowUnifiedAssistantChat, mock.Anything).Return(
+		assistant.ParsedScript{Contents: editedScript, Filename: "script.sh"},
+		[]string{},
+		chat.PreviewActionExitNoSave,
+		"", // latestPrompt
+		"", // saveFilename
+		"", // saveSnippetName
+	).Once()
+
+	cfg := configtest.NewTestConfig().Config
+	cfgService := configMocks.ConfigService{}
+	cfgService.On("LoadConfig").Return(cfg, nil)
+	cfgService.On("NeedsMigration").Return(false, "")
+
+	assistantMock := assistantMocks.Assistant{}
+	assistantMock.On("Query", mock.Anything).Return(assistant.ParsedScript{
+		Contents: originalScript, Filename: "script.sh",
+	})
+	assistantMock.On("Initialize").Return(true, uimsg.Printable{})
+
+	app := NewApp(
+		WithTUI(&tui),
+		WithConfigService(&cfgService),
+		WithAssistantProviderFunc(func(config assistant.Config, demoConfig assistant.DemoConfig) assistant.Assistant {
+			return &assistantMock
+		}),
+	)
+
+	app.GenerateSnippetWithAssistant([]string{}, 0)
+
+	// Verify OpenEditor was called
+	tui.AssertCalled(t, mockutil.OpenEditor, mock.Anything, mock.Anything)
 }
 
 func Test_App_EnableAssistant(t *testing.T) {
