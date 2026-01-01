@@ -15,7 +15,7 @@ require (
 	github.com/charmbracelet/bubbletea v1.3.5
 	github.com/charmbracelet/lipgloss v1.1.0
 	github.com/charmbracelet/x/exp/teatest v0.0.0-20251126160633-0b68cdcd21da
-	github.com/cli/oauth v1.2.0
+	github.com/cli/oauth v1.2.1
 	github.com/corbym/gocrest v1.1.2
 	github.com/creack/pty v1.1.24
 	github.com/gdamore/tcell/v2 v2.7.4
