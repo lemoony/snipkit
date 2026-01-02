@@ -10,6 +10,19 @@ import (
 	"github.com/lemoony/snipkit/internal/ui/style"
 )
 
+// focusArea represents which area of the modal has focus.
+type focusArea int
+
+const (
+	focusFields focusArea = iota
+	focusButtons
+
+	// UI constants.
+	keyLeft             = "left"
+	keyRight            = "right"
+	modalContentPadding = 4
+)
+
 // renderModalControlBar renders a two-button control bar with the given labels and shortcuts.
 func renderModalControlBar(
 	styler style.Style,

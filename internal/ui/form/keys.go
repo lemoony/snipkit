@@ -46,24 +46,6 @@ func defaultKeyMap() KeyMap {
 	}
 }
 
-// FullHelp returns bindings to show the full help view. It's part of the
-// help.KeyMap interface.
-func (m *model) FullHelp() [][]key.Binding {
-	return [][]key.Binding{}
-}
-
-// ShortHelp returns bindings to show in the abbreviated help view. It's part
-// of the help.KeyMap interface.
-func (m *model) ShortHelp() []key.Binding {
-	h := []key.Binding{
-		m.keyMap.Next,
-		m.keyMap.Quit,
-		m.keyMap.Apply,
-	}
-
-	return h
-}
-
 // FieldKeyMap defines keybindings. It satisfies to the help.KeyMap interface, which
 // is used to render the menu menu.
 type FieldKeyMap struct {

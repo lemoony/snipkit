@@ -61,25 +61,25 @@ func Test_parameterModal_Update_Tab_Navigation(t *testing.T) {
 	modal := NewParameterModal(params, style.Style{}, afero.NewMemMapFs())
 	modal.Init()
 
-	assert.Equal(t, 0, modal.elementFocus)
-	assert.Equal(t, focusFields, modal.focusArea)
+	assert.Equal(t, 0, modal.modal.GetElementFocus())
+	assert.Equal(t, int(focusFields), modal.modal.GetFocusArea())
 
 	// Tab to next field
 	msg := tea.KeyMsg{Type: tea.KeyTab}
 	modal, _ = modal.Update(msg)
-	assert.Equal(t, 1, modal.elementFocus)
+	assert.Equal(t, 1, modal.modal.GetElementFocus())
 
 	// Tab to buttons
 	modal, _ = modal.Update(msg)
-	assert.Equal(t, focusButtons, modal.focusArea)
+	assert.Equal(t, int(focusButtons), modal.modal.GetFocusArea())
 }
 
 func Test_parameterModal_EnterInButtons_Execute(t *testing.T) {
 	modal := NewParameterModal([]model.Parameter{}, style.Style{}, afero.NewMemMapFs())
 	modal.Init() // This sets focus to buttons since no fields
 
-	assert.Equal(t, focusButtons, modal.focusArea)
-	assert.Equal(t, 0, modal.buttonFocus) // Execute button
+	assert.Equal(t, int(focusButtons), modal.modal.GetFocusArea())
+	assert.Equal(t, 0, modal.modal.GetButtonFocus()) // Execute button
 
 	msg := tea.KeyMsg{Type: tea.KeyEnter}
 	modal, _ = modal.Update(msg)
@@ -90,7 +90,7 @@ func Test_parameterModal_EnterInButtons_Execute(t *testing.T) {
 func Test_parameterModal_EnterInButtons_Cancel(t *testing.T) {
 	modal := NewParameterModal([]model.Parameter{}, style.Style{}, afero.NewMemMapFs())
 	modal.Init()
-	modal.buttonFocus = 1 // Cancel button
+	modal.modal.SetButtonFocus(1) // Cancel button
 
 	msg := tea.KeyMsg{Type: tea.KeyEnter}
 	modal, _ = modal.Update(msg)
@@ -107,15 +107,15 @@ func Test_parameterModal_UpArrowFromButtons_GoesToLastField(t *testing.T) {
 	modal.Init()
 
 	// Navigate to buttons
-	modal.focusArea = focusButtons
-	modal.buttonFocus = 0
+	modal.modal.SetFocusArea(int(focusButtons))
+	modal.modal.SetButtonFocus(0)
 
 	// Press up arrow
 	msg := tea.KeyMsg{Type: tea.KeyUp}
 	modal, _ = modal.Update(msg)
 
-	assert.Equal(t, focusFields, modal.focusArea)
-	assert.Equal(t, 1, modal.elementFocus) // Last field (index 1 of 2 fields)
+	assert.Equal(t, int(focusFields), modal.modal.GetFocusArea())
+	assert.Equal(t, 1, modal.modal.GetElementFocus()) // Last field (index 1 of 2 fields)
 }
 
 func Test_parameterModal_TabOnLastButton_CyclesToFirstField(t *testing.T) {
@@ -126,15 +126,15 @@ func Test_parameterModal_TabOnLastButton_CyclesToFirstField(t *testing.T) {
 	modal.Init()
 
 	// Navigate to last button
-	modal.focusArea = focusButtons
-	modal.buttonFocus = 1 // Cancel button
+	modal.modal.SetFocusArea(int(focusButtons))
+	modal.modal.SetButtonFocus(1) // Cancel button
 
 	// Press tab
 	msg := tea.KeyMsg{Type: tea.KeyTab}
 	modal, _ = modal.Update(msg)
 
-	assert.Equal(t, focusFields, modal.focusArea)
-	assert.Equal(t, 0, modal.elementFocus)
+	assert.Equal(t, int(focusFields), modal.modal.GetFocusArea())
+	assert.Equal(t, 0, modal.modal.GetElementFocus())
 }
 
 func Test_parameterModal_CompleteNavigationCycle(t *testing.T) {
@@ -146,22 +146,22 @@ func Test_parameterModal_CompleteNavigationCycle(t *testing.T) {
 	modal.Init()
 
 	// Start at first field
-	assert.Equal(t, focusFields, modal.focusArea)
-	assert.Equal(t, 0, modal.elementFocus)
+	assert.Equal(t, int(focusFields), modal.modal.GetFocusArea())
+	assert.Equal(t, 0, modal.modal.GetElementFocus())
 
 	// Tab through fields and buttons
 	tab := tea.KeyMsg{Type: tea.KeyTab}
 	modal, _ = modal.Update(tab) // To field 1
-	assert.Equal(t, 1, modal.elementFocus)
+	assert.Equal(t, 1, modal.modal.GetElementFocus())
 
 	modal, _ = modal.Update(tab) // To Execute button
-	assert.Equal(t, focusButtons, modal.focusArea)
-	assert.Equal(t, 0, modal.buttonFocus)
+	assert.Equal(t, int(focusButtons), modal.modal.GetFocusArea())
+	assert.Equal(t, 0, modal.modal.GetButtonFocus())
 
 	modal, _ = modal.Update(tab) // To Cancel button
-	assert.Equal(t, 1, modal.buttonFocus)
+	assert.Equal(t, 1, modal.modal.GetButtonFocus())
 
 	modal, _ = modal.Update(tab) // Cycle back to first field
-	assert.Equal(t, focusFields, modal.focusArea)
-	assert.Equal(t, 0, modal.elementFocus)
+	assert.Equal(t, int(focusFields), modal.modal.GetFocusArea())
+	assert.Equal(t, 0, modal.modal.GetElementFocus())
 }
