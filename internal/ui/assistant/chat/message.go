@@ -69,9 +69,25 @@ func buildMessagesFromHistory(history []HistoryEntry) []ChatMessage {
 			previousScript = entry.GeneratedScript
 		}
 
-		// Add execution output (truncated)
-		if entry.ExecutionOutput != "" {
-			output := truncateContent(entry.ExecutionOutput, maxLines)
+		// Add execution output (truncated) - show "Empty output" if execution occurred but no output
+		if entry.ExecutionOutput != "" || entry.ExitCode != nil {
+			output := entry.ExecutionOutput
+			strippedOutput := strings.TrimSpace(stripANSI(output))
+
+			// Only show "Empty output" for successful commands with no output
+			// Failed commands should show whatever output they have (even if empty after stripping)
+			if strippedOutput == "" {
+				if entry.ExitCode != nil && *entry.ExitCode != 0 {
+					// Failed command with no visible output - keep empty, exit code indicator will show
+					output = ""
+				} else {
+					// Successful command with no output
+					output = "Empty output"
+				}
+			} else {
+				output = truncateContent(output, maxLines)
+			}
+
 			messages = append(messages, ChatMessage{
 				Type:          MessageTypeOutput,
 				Content:       output,

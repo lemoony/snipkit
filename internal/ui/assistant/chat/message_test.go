@@ -140,6 +140,120 @@ func Test_buildMessagesFromHistory_EmptyPromptSkipped(t *testing.T) {
 	assert.Equal(t, MessageTypeScript, messages[0].Type)
 }
 
+func Test_buildMessagesFromHistory_EmptyOutput(t *testing.T) {
+	exitCode := 0
+	duration := 100 * time.Millisecond
+	execTime := time.Now()
+
+	tests := []struct {
+		name   string
+		output string
+	}{
+		{"empty string", ""},
+		{"whitespace only", "   "},
+		{"newlines only", "\n\n\n"},
+		{"tabs and newlines", "\t\n\t\n"},
+		{"mixed whitespace", "  \n\t  \n  "},
+		{"ansi codes only", "\x1b[31m\x1b[0m"},
+		{"ansi with whitespace", "\x1b[31m  \n  \x1b[0m"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			history := []HistoryEntry{
+				{
+					UserPrompt:      "run something",
+					GeneratedScript: "echo -n",
+					ExecutionOutput: tt.output,
+					ExitCode:        &exitCode,
+					Duration:        &duration,
+					ExecutionTime:   &execTime,
+				},
+			}
+
+			messages := buildMessagesFromHistory(history)
+
+			assert.Len(t, messages, 3)
+			assert.Equal(t, MessageTypeUser, messages[0].Type)
+			assert.Equal(t, MessageTypeScript, messages[1].Type)
+			assert.Equal(t, MessageTypeOutput, messages[2].Type)
+			assert.Equal(t, "Empty output", messages[2].Content)
+			assert.Equal(t, &exitCode, messages[2].ExitCode)
+			assert.Equal(t, &duration, messages[2].Duration)
+		})
+	}
+}
+
+func Test_buildMessagesFromHistory_FailedCommandEmptyOutput(t *testing.T) {
+	failedExitCode := 1
+	duration := 100 * time.Millisecond
+	execTime := time.Now()
+
+	tests := []struct {
+		name   string
+		output string
+	}{
+		{"empty string", ""},
+		{"whitespace only", "   "},
+		{"newlines only", "\n\n\n"},
+		{"ansi codes only", "\x1b[31m\x1b[0m"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			history := []HistoryEntry{
+				{
+					UserPrompt:      "run something",
+					GeneratedScript: "false",
+					ExecutionOutput: tt.output,
+					ExitCode:        &failedExitCode,
+					Duration:        &duration,
+					ExecutionTime:   &execTime,
+				},
+			}
+
+			messages := buildMessagesFromHistory(history)
+
+			assert.Len(t, messages, 3)
+			assert.Equal(t, MessageTypeUser, messages[0].Type)
+			assert.Equal(t, MessageTypeScript, messages[1].Type)
+			assert.Equal(t, MessageTypeOutput, messages[2].Type)
+			// Failed commands should NOT show "Empty output"
+			assert.Equal(t, "", messages[2].Content)
+			assert.Equal(t, &failedExitCode, messages[2].ExitCode)
+			assert.Equal(t, &duration, messages[2].Duration)
+		})
+	}
+}
+
+func Test_buildMessagesFromHistory_FailedCommandWithError(t *testing.T) {
+	failedExitCode := 128
+	duration := 100 * time.Millisecond
+	execTime := time.Now()
+
+	history := []HistoryEntry{
+		{
+			UserPrompt:      "git log on nonexistent file",
+			GeneratedScript: "git log --oneline --follow -f nonexistent.txt",
+			ExecutionOutput: "fatal: ambiguous argument 'nonexistent.txt': unknown revision or path not in the working tree.\nUse '--' to separate paths from revisions",
+			ExitCode:        &failedExitCode,
+			Duration:        &duration,
+			ExecutionTime:   &execTime,
+		},
+	}
+
+	messages := buildMessagesFromHistory(history)
+
+	assert.Len(t, messages, 3)
+	assert.Equal(t, MessageTypeUser, messages[0].Type)
+	assert.Equal(t, MessageTypeScript, messages[1].Type)
+	assert.Equal(t, MessageTypeOutput, messages[2].Type)
+	// Failed commands should show the error message
+	assert.Contains(t, messages[2].Content, "fatal: ambiguous argument")
+	assert.Equal(t, &failedExitCode, messages[2].ExitCode)
+	assert.Equal(t, &duration, messages[2].Duration)
+}
+
 func Test_stripANSI(t *testing.T) {
 	tests := []struct {
 		name     string
