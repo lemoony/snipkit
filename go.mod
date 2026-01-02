@@ -6,7 +6,7 @@ toolchain go1.24.10
 
 require (
 	emperror.dev/errors v0.8.1
-	github.com/BurntSushi/toml v1.4.0
+	github.com/BurntSushi/toml v1.6.0
 	github.com/Netflix/go-expect v0.0.0-20220104043353-73e0943537d2
 	github.com/adrg/xdg v0.5.3
 	github.com/alecthomas/chroma v0.10.0
