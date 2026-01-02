@@ -1,16 +1,17 @@
 # SnipKit Assistant
 
-The SnipKit Assistant helps you create SnipKit snippets using AI.
+The SnipKit Assistant helps you create SnipKit snippets using AI through an interactive chat-style interface. Generate scripts from natural language prompts, execute them with real-time output preview, and refine with follow-up prompts—all in a unified workflow.
 
 !!! tip
     Alternatively, you may try using [SnipKit GPT](https://chatgpt.com/g/g-A2y9cPWE7-snipkit-assistant) to generate scripts compatible with SnipKit.
 
+<!-- TODO: Update GIF to show new unified chat interface -->
 ![Assistant Demo](../images/assistant/assistant.gif)
 
 ## Supported AI Providers
 
-- [OpenAI](openai.md) (GPT-4, GPT-4o)
-- [Anthropic](anthropic.md) (Claude)
+- [OpenAI](openai.md)
+- [Anthropic](anthropic.md)
 - [Google Gemini](gemini.md)
 - [Ollama](ollama.md) (local models)
 - [OpenAI-Compatible](openai-compatible.md) (Together.ai, Groq, Azure OpenAI, etc.)
@@ -25,26 +26,52 @@ snipkit assistant generate
 snipkit ai
 ```
 
-SnipKit opens the generated script in the [configured editor](../configuration/overview.md#editor), allowing you to review and modify it if necessary. The script will be executed once you close the editor.
+After entering your prompt, SnipKit displays the generated script directly in the chat interface. You can then choose from the action bar:
 
-## Retry or Tweak Prompts
+- **Execute** (`E`) - Run the script immediately (prompts for parameter values if needed)
+- **Open Editor** (`O`) - Edit the script in your [configured editor](../configuration/overview.md#editor) before execution
+- **Revise** (`R`) - Provide a follow-up prompt to refine the script
+- **Cancel** (`C`) - Exit without executing
 
-If the script didn't work as expected or if you want to add more information, you can do so after the execution.
+## Execution Preview
 
+When you execute a script, SnipKit displays the output in real-time as the command runs. After execution completes, you'll see:
+
+- The complete script output (stdout and stderr)
+- Exit code
+- Execution duration
+
+This information helps you quickly understand whether the script worked as expected and diagnose any issues.
+
+## Revise Prompts
+
+If the script didn't work as expected or you want to refine it, select **Revise** (`R`) from the action bar after execution. The chat interface preserves your full conversation history, including:
+
+- Previous prompts
+- Generated scripts
+- Execution output and results
+
+<!-- TODO: Update GIF to show new revise workflow -->
 ![Assistant Wizard](../images/assistant//assistant-zip.gif)
 
-SnipKit remembers the previous prompt and script output. Everything is automatically included for the next prompt, so you don't need to provide anything unless you want to add new details.
+When you provide a follow-up prompt, SnipKit automatically includes the context from previous interactions, so you can simply describe what needs to change.
 
 !!! tip
-    If the script didn't work due to errors visible in the output, you may not need to provide a new prompt. Just leave it empty and press enter.
+    If the script failed due to errors visible in the output, try revising with an empty prompt—the AI will use the error output to fix the issue automatically.
 
 ## Save Generated Snippets
 
 SnipKit supports saving generated snippets to your [File System Library][fslibrary].
 
+<!-- TODO: Update GIF to show new save modal -->
 ![Assistant Wizard](../images/assistant/assistant-save.gif)
 
-If you set `saveMode: FS_LIBRARY`, the assistant will ask whether you want to save the generated script after its execution.
+After executing a script, select **Save & Exit** (`S`) from the action bar. A modal dialog lets you specify:
+
+- **Filename** - The file name for the saved script
+- **Snippet Name** - A descriptive title for the snippet
+
+If you set `saveMode: FS_LIBRARY`, the save option will be available in the post-execution action bar.
 
 ```yaml title="config.yaml"
 version: 1.3.0
