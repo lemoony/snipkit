@@ -104,6 +104,10 @@ func (m *saveModal) Update(msg tea.Msg) (*saveModal, tea.Cmd) {
 		case modalKeyNavigateButtonsBackward:
 			m.navigateButtonsBackward()
 			return m, nil
+		case modalKeyNavigateUp:
+			return m, m.navigateUpFromButtons()
+		case modalKeyNavigateToFirstField:
+			return m, m.navigateToFirstField()
 		case modalKeyDelegateToField:
 			var cmd tea.Cmd
 			m.fields[m.elementFocus], cmd = m.fields[m.elementFocus].Update(msg)
@@ -211,6 +215,28 @@ func (m *saveModal) navigateButtonsBackward() {
 	if m.buttonFocus < 0 {
 		m.buttonFocus = 1
 	}
+}
+
+// navigateUpFromButtons moves from buttons to last field.
+func (m *saveModal) navigateUpFromButtons() tea.Cmd {
+	if m.focusArea != focusButtons || len(m.fields) == 0 {
+		return nil
+	}
+
+	m.focusArea = focusFields
+	m.elementFocus = len(m.fields) - 1
+	return m.fields[m.elementFocus].Focus()
+}
+
+// navigateToFirstField moves from last button to first field (Tab cycling).
+func (m *saveModal) navigateToFirstField() tea.Cmd {
+	if len(m.fields) == 0 {
+		return nil
+	}
+
+	m.focusArea = focusFields
+	m.elementFocus = 0
+	return m.fields[0].Focus()
 }
 
 // View renders the modal as a centered box.

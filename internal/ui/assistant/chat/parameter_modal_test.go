@@ -97,3 +97,71 @@ func Test_parameterModal_EnterInButtons_Cancel(t *testing.T) {
 
 	assert.True(t, modal.IsCanceled())
 }
+
+func Test_parameterModal_UpArrowFromButtons_GoesToLastField(t *testing.T) {
+	params := []model.Parameter{
+		{Name: "FOO", Type: model.ParameterTypeValue},
+		{Name: "BAR", Type: model.ParameterTypeValue},
+	}
+	modal := NewParameterModal(params, style.Style{}, afero.NewMemMapFs())
+	modal.Init()
+
+	// Navigate to buttons
+	modal.focusArea = focusButtons
+	modal.buttonFocus = 0
+
+	// Press up arrow
+	msg := tea.KeyMsg{Type: tea.KeyUp}
+	modal, _ = modal.Update(msg)
+
+	assert.Equal(t, focusFields, modal.focusArea)
+	assert.Equal(t, 1, modal.elementFocus) // Last field (index 1 of 2 fields)
+}
+
+func Test_parameterModal_TabOnLastButton_CyclesToFirstField(t *testing.T) {
+	params := []model.Parameter{
+		{Name: "FOO", Type: model.ParameterTypeValue},
+	}
+	modal := NewParameterModal(params, style.Style{}, afero.NewMemMapFs())
+	modal.Init()
+
+	// Navigate to last button
+	modal.focusArea = focusButtons
+	modal.buttonFocus = 1 // Cancel button
+
+	// Press tab
+	msg := tea.KeyMsg{Type: tea.KeyTab}
+	modal, _ = modal.Update(msg)
+
+	assert.Equal(t, focusFields, modal.focusArea)
+	assert.Equal(t, 0, modal.elementFocus)
+}
+
+func Test_parameterModal_CompleteNavigationCycle(t *testing.T) {
+	params := []model.Parameter{
+		{Name: "FOO", Type: model.ParameterTypeValue},
+		{Name: "BAR", Type: model.ParameterTypeValue},
+	}
+	modal := NewParameterModal(params, style.Style{}, afero.NewMemMapFs())
+	modal.Init()
+
+	// Start at first field
+	assert.Equal(t, focusFields, modal.focusArea)
+	assert.Equal(t, 0, modal.elementFocus)
+
+	// Tab through fields and buttons
+	tab := tea.KeyMsg{Type: tea.KeyTab}
+	modal, _ = modal.Update(tab) // To field 1
+	assert.Equal(t, 1, modal.elementFocus)
+
+	modal, _ = modal.Update(tab) // To Execute button
+	assert.Equal(t, focusButtons, modal.focusArea)
+	assert.Equal(t, 0, modal.buttonFocus)
+
+	modal, _ = modal.Update(tab) // To Cancel button
+	assert.Equal(t, 1, modal.buttonFocus)
+
+	modal, _ = modal.Update(tab) // Cycle back to first field
+	assert.Equal(t, focusFields, modal.focusArea)
+	assert.Equal(t, 0, modal.elementFocus)
+}

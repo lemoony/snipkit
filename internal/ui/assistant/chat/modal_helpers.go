@@ -51,7 +51,7 @@ func renderModalControlBar(
 	// Add help text below with Ctrl shortcuts
 	helpText := lipgloss.NewStyle().
 		Foreground(styler.PlaceholderColor().Value()).
-		Render("Ctrl+" + strings.ToUpper(primaryShortcut) + ": " + strings.ToLower(primaryLabel) + " • Esc: cancel • Tab: navigate • Enter: select")
+		Render("Ctrl+" + strings.ToUpper(primaryShortcut) + ": " + strings.ToLower(primaryLabel) + " • Esc: cancel • Tab/↑/↓: navigate • Enter: select")
 
 	return lipgloss.JoinVertical(lipgloss.Left, buttonRow, helpText)
 }
@@ -69,7 +69,47 @@ const (
 	modalKeyNavigateButtonsForward
 	modalKeyNavigateButtonsBackward
 	modalKeyDelegateToField
+	modalKeyNavigateUp
+	modalKeyNavigateToFirstField
 )
+
+// handleEnterKey processes the enter key based on focus area and position.
+func handleEnterKey(focusArea focusArea, buttonFocus int, elementFocus int, fieldCount int) modalKeyAction {
+	if focusArea == focusButtons {
+		if buttonFocus == 0 {
+			return modalKeySubmit
+		}
+		return modalKeyCancel
+	}
+	// In field - check if it's the last field
+	if elementFocus == fieldCount-1 {
+		return modalKeyNavigateForward
+	}
+	return modalKeyNavigateFields
+}
+
+// handleTabKey processes the tab key based on focus area and button position.
+func handleTabKey(focusArea focusArea, buttonFocus int) modalKeyAction {
+	if focusArea == focusButtons && buttonFocus == 1 {
+		// Last button - cycle to first field
+		return modalKeyNavigateToFirstField
+	}
+	return modalKeyNavigateForward
+}
+
+// handleArrowKeys processes arrow keys based on focus area and key pressed.
+func handleArrowKeys(keyStr string, focusArea focusArea) modalKeyAction {
+	if keyStr == "up" && focusArea == focusButtons {
+		return modalKeyNavigateUp
+	}
+	if focusArea == focusButtons && (keyStr == keyLeft || keyStr == keyRight) {
+		if keyStr == keyLeft {
+			return modalKeyNavigateButtonsBackward
+		}
+		return modalKeyNavigateButtonsForward
+	}
+	return modalKeyNone
+}
 
 // handleModalKeyPress processes common modal key presses and returns the appropriate action.
 func handleModalKeyPress(
@@ -80,38 +120,22 @@ func handleModalKeyPress(
 	elementFocus int,
 	fieldCount int,
 ) modalKeyAction {
-	switch keyMsg.String() {
+	keyStr := keyMsg.String()
+
+	switch keyStr {
 	case "esc":
 		return modalKeyCancel
-
 	case "ctrl+" + primaryShortcut:
 		return modalKeySubmit
-
 	case "enter":
-		if focusArea == focusButtons {
-			if buttonFocus == 0 {
-				return modalKeySubmit
-			}
-			return modalKeyCancel
-		}
-		// In field - check if it's the last field
-		if elementFocus == fieldCount-1 {
-			return modalKeyNavigateForward
-		}
-		return modalKeyNavigateFields
-
+		return handleEnterKey(focusArea, buttonFocus, elementFocus, fieldCount)
 	case "tab":
-		return modalKeyNavigateForward
-
+		return handleTabKey(focusArea, buttonFocus)
 	case "shift+tab":
 		return modalKeyNavigateBackward
-
-	case keyLeft, keyRight:
-		if focusArea == focusButtons {
-			if keyMsg.String() == keyLeft {
-				return modalKeyNavigateButtonsBackward
-			}
-			return modalKeyNavigateButtonsForward
+	case "up", keyLeft, keyRight:
+		if action := handleArrowKeys(keyStr, focusArea); action != modalKeyNone {
+			return action
 		}
 	}
 

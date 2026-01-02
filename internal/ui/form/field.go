@@ -91,9 +91,8 @@ func (m *FieldModel) SetValue(text string) {
 }
 
 func (m *FieldModel) Focus() tea.Cmd {
-	if m.ParameterType != appModel.ParameterTypePath {
-		m.filterOptions()
-	}
+	// Always filter options on focus to initialize suggestions
+	m.filterOptions()
 	return m.field.Focus()
 }
 
@@ -124,15 +123,21 @@ func (m *FieldModel) Update(msg tea.Msg) (*FieldModel, tea.Cmd) {
 				m.applyFilePathOption()
 				handled = true
 			}
+		case key.Matches(msg, m.keyMap.ApplyCompletion):
+			// Only handle if we have a suggestion to apply
+			if m.HasOptionToApply() {
+				m.applyFilePathOption()
+				handled = true
+			}
+			// Otherwise falls through to textinput for normal cursor movement
 		}
 	}
 
-	if !handled {
-		prevValue := m.field.Value()
-		m.field, cmd = m.field.Update(msg)
-		if prevValue != m.field.Value() {
-			m.filterOptions()
-		}
+	// Always update textinput for cursor, but only check value changes if not handled
+	prevValue := m.field.Value()
+	m.field, cmd = m.field.Update(msg)
+	if !handled && prevValue != m.field.Value() {
+		m.filterOptions()
 	}
 
 	return m, cmd
@@ -216,6 +221,16 @@ func (m *FieldModel) filterOptionsForFilePath() {
 	for i := range m.filteredOptions {
 		m.filterMatches[i] = 0
 	}
+
+	// Auto-select first option and set it as the proposed suggestion
+	if len(m.options) > 0 {
+		m.selectedOption = 0
+		m.optionOffset = 0
+		m.selectedPathSuggestion = m.options[0]
+	} else {
+		m.selectedOption = -1
+		m.selectedPathSuggestion = ""
+	}
 }
 
 func (m *FieldModel) applyFilePathOption() {
@@ -244,10 +259,16 @@ func (m *FieldModel) View() string {
 	label := labelStyle.Render(lipgloss.PlaceHorizontal(m.labelWidth, lipgloss.Left, m.Label, lipgloss.WithWhitespaceChars(" ")))
 
 	var fieldView string
-	if m.selectedPathSuggestion != "" {
-		fieldView = m.field.TextStyle.Render(m.field.Value()) +
-			lipgloss.NewStyle().Italic(true).Foreground(m.styler.PlaceholderColor().Value()).
-				Render(strings.TrimPrefix(m.selectedPathSuggestion, m.field.Value()))
+	if m.selectedPathSuggestion != "" && m.ParameterType == appModel.ParameterTypePath {
+		// Show typed text in normal style
+		typedText := m.field.TextStyle.Render(m.field.Value())
+
+		// Show completion in subdued/grayed style (like zsh)
+		completion := strings.TrimPrefix(m.selectedPathSuggestion, m.field.Value())
+		completionStyle := lipgloss.NewStyle().
+			Foreground(m.styler.SubduedColor().Value())
+
+		fieldView = typedText + completionStyle.Render(completion)
 	} else {
 		fieldView = m.field.View()
 	}

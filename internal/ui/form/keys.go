@@ -68,9 +68,10 @@ func (m *model) ShortHelp() []key.Binding {
 // is used to render the menu menu.
 type FieldKeyMap struct {
 	// Keybindings used when browsing the list.
-	CursorUp   key.Binding
-	CursorDown key.Binding
-	Apply      key.Binding
+	CursorUp        key.Binding
+	CursorDown      key.Binding
+	Apply           key.Binding
+	ApplyCompletion key.Binding // Right arrow to apply without navigating
 
 	// The quit keybinding. This won't be caught when filtering.
 	Quit key.Binding
@@ -91,6 +92,10 @@ func defaultFieldKeyMap() FieldKeyMap {
 		Apply: key.NewBinding(
 			key.WithKeys("enter"),
 			key.WithHelp("↵", "apply"),
+		),
+		ApplyCompletion: key.NewBinding(
+			key.WithKeys("right"),
+			key.WithHelp("→", "complete"),
 		),
 		Quit: key.NewBinding(
 			key.WithKeys("esc", "ctrl+c"),
