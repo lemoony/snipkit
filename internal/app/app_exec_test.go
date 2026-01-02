@@ -196,7 +196,7 @@ func Test_executeWithoutPTY(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := executeScript(tt.script, "/bin/sh")
+			result := executeScript(ContextDefault, tt.script, "/bin/sh")
 			assert.Equal(t, tt.expectedStdout, result.stdout)
 			assert.Equal(t, tt.expectedStderr, result.stderr)
 		})
@@ -206,7 +206,7 @@ func Test_executeWithoutPTY(t *testing.T) {
 func Test_executeScript_usesDetectedShell(t *testing.T) {
 	// Test that shebang is respected
 	script := "#!/bin/sh\necho $0"
-	result := executeScript(script, "/bin/bash")
+	result := executeScript(ContextDefault, script, "/bin/bash")
 	// The output should indicate sh was used (contains "sh")
 	assert.Contains(t, result.stdout, "sh")
 }
@@ -218,7 +218,7 @@ func Test_executeScript_terminalDetection(t *testing.T) {
 
 	// Test non-terminal path (default in tests)
 	isTerminalFunc = func(fd int) bool { return false }
-	result := executeScript("echo test", "/bin/sh")
+	result := executeScript(ContextDefault, "echo test", "/bin/sh")
 	assert.Equal(t, "test\n", result.stdout)
 	assert.Equal(t, "", result.stderr)
 }
@@ -284,7 +284,7 @@ func Test_executeWithPTY_TermSizeError(t *testing.T) {
 			return nil, errors.New("cannot make raw")
 		}
 
-		result := executeScript("echo hello", "/bin/sh")
+		result := executeScript(ContextDefault, "echo hello", "/bin/sh")
 		assert.Contains(t, result.stdout, "hello")
 	})
 }
@@ -310,7 +310,7 @@ func Test_executeWithPTY_MakeRawError(t *testing.T) {
 			return nil, errors.New("cannot set raw mode")
 		}
 
-		result := executeScript("echo 'test output'", "/bin/sh")
+		result := executeScript(ContextDefault, "echo 'test output'", "/bin/sh")
 		assert.Contains(t, result.stdout, "test output")
 	})
 }

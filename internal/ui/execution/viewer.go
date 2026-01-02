@@ -45,20 +45,24 @@ type CapturedOutput struct {
 }
 
 // helpLine renders a styled help line.
-func helpLine(running bool) string {
+func helpLine(running bool, fromAssistant bool) string {
 	gray := "\x1b[38;5;240m"
 	reset := "\x1b[0m"
 
 	if running {
 		return gray + "Ctrl+C: abort • Script running..." + reset
 	}
-	return gray + "Enter: back to assistant • Ctrl+C: quit" + reset
+	if fromAssistant {
+		return gray + "Enter: back to assistant • Ctrl+C: quit" + reset
+	}
+	return gray + "Enter/Ctrl+C: quit" + reset
 }
 
 // RunWithViewer executes the command with real-time output and a help line.
+// The fromAssistant parameter controls the help text shown after execution.
 //
 //nolint:gocognit,gocyclo,funlen // Complex function managing PTY, terminal state, and concurrent I/O
-func RunWithViewer(cmd *exec.Cmd) *CapturedOutput {
+func RunWithViewer(cmd *exec.Cmd, fromAssistant bool) *CapturedOutput {
 	// Get terminal size
 	cols, rows := 80, 24
 	if w, h, sizeErr := term.GetSize(int(os.Stdout.Fd())); sizeErr == nil {
@@ -241,7 +245,7 @@ func RunWithViewer(cmd *exec.Cmd) *CapturedOutput {
 	_ = ptmx.Close()
 
 	// Show completion help line with padding (still in raw mode)
-	_, _ = os.Stdout.WriteString("\r\n" + helpLine(false))
+	_, _ = os.Stdout.WriteString("\r\n" + helpLine(false, fromAssistant))
 
 	// Signal that script is done - stdin reader will now wait for Enter
 	close(scriptDone)

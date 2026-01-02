@@ -104,10 +104,10 @@ func (a *appImpl) executeSnippet(context ExecutionContext, print bool, snippet m
 		a.tui.Print(uimsg.ExecPrint(snippet.GetTitle(), script))
 	}
 
-	return executeScript(script, a.config.Script.Shell)
+	return executeScript(context, script, a.config.Script.Shell)
 }
 
-func executeScript(script, configuredShell string) *capturedOutput {
+func executeScript(context ExecutionContext, script, configuredShell string) *capturedOutput {
 	shell := detectShell(script, configuredShell)
 
 	//nolint:gosec // since it would report G204 complaining about using a variable as input for exec.Command
@@ -116,7 +116,7 @@ func executeScript(script, configuredShell string) *capturedOutput {
 	// Run the script
 	if isTerminalFunc(int(os.Stdin.Fd())) {
 		// Use Tea-based viewer for terminal execution
-		result := execution.RunWithViewer(cmd)
+		result := execution.RunWithViewer(cmd, context == ContextAssistant)
 		return &capturedOutput{
 			stdout:   result.Stdout,
 			exitCode: result.ExitCode,
