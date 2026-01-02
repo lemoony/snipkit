@@ -32,6 +32,8 @@ const (
 	textInitializing      = "\n  Initializing..."
 	maxScriptPreviewLen   = 100
 	modalPaddingH         = 4
+	responsivePaddingH    = 1   // Horizontal padding when terminal is wide enough
+	minWidthForPadding    = 100 // Minimum terminal width to apply padding
 )
 
 func (m UIMode) String() string {
@@ -436,6 +438,12 @@ func (m *unifiedChatModel) handleWindowSize(msg tea.WindowSizeMsg) {
 	m.width = msg.Width
 	m.height = msg.Height
 
+	// Calculate effective content width accounting for responsive padding
+	contentWidth := msg.Width
+	if msg.Width >= minWidthForPadding {
+		contentWidth = msg.Width - (responsivePaddingH * 2)
+	}
+
 	// Calculate dimensions
 	titleHeight := lipgloss.Height(m.styler.Title("SnipKit Assistant"))
 	bottomBarHeight := m.getBottomBarHeight() // Dynamically calculated based on current mode
@@ -448,31 +456,31 @@ func (m *unifiedChatModel) handleWindowSize(msg tea.WindowSizeMsg) {
 
 	if !m.ready {
 		// First time setup
-		m.viewport = viewport.New(msg.Width, viewportHeight)
+		m.viewport = viewport.New(contentWidth, viewportHeight)
 		m.viewport.YPosition = 0
 
 		if m.generating {
 			m.viewport.SetContent(m.renderMessagesWithSpinner())
 		} else {
-			m.viewport.SetContent(renderMessages(m.messages, m.styler, msg.Width))
+			m.viewport.SetContent(renderMessages(m.messages, m.styler, contentWidth))
 		}
 		m.viewport.GotoBottom()
 		m.ready = true
 	} else {
 		// Resize existing viewport
-		m.viewport.Width = msg.Width
+		m.viewport.Width = contentWidth
 		m.viewport.Height = viewportHeight
 
 		if m.generating {
 			m.viewport.SetContent(m.renderMessagesWithSpinner())
 		} else {
-			m.viewport.SetContent(renderMessages(m.messages, m.styler, msg.Width))
+			m.viewport.SetContent(renderMessages(m.messages, m.styler, contentWidth))
 		}
 	}
 
 	// Update input width if in input mode
 	if m.currentMode == UIModeInput {
-		inputWidth := msg.Width - len(m.input.Prompt) - 2
+		inputWidth := contentWidth - len(m.input.Prompt) - 2
 		if inputWidth < 1 {
 			inputWidth = 1
 		}
@@ -707,7 +715,7 @@ func (m *unifiedChatModel) renderMessagesWithSpinner() string {
 		messagesForRender[len(messagesForRender)-1].Content = fmt.Sprintf("%s Generating script...", spinnerFrame)
 	}
 
-	return renderMessages(messagesForRender, m.styler, m.width)
+	return renderMessages(messagesForRender, m.styler, m.contentWidth())
 }
 
 // View renders the unified chat interface.
@@ -733,6 +741,13 @@ func (m *unifiedChatModel) View() string {
 	sections = append(sections, m.renderBottomBar())
 
 	baseView := lipgloss.JoinVertical(lipgloss.Left, sections...)
+
+	// Apply responsive padding
+	if m.width >= minWidthForPadding {
+		baseView = lipgloss.NewStyle().
+			Padding(0, responsivePaddingH).
+			Render(baseView)
+	}
 
 	// Overlay modals if active
 	if m.modalState != modalNone {
@@ -773,7 +788,7 @@ func (m *unifiedChatModel) renderInputBar() string {
 		PaddingTop(1).
 		PaddingLeft(2).
 		PaddingRight(2).
-		Width(m.width)
+		Width(m.contentWidth())
 
 	inputRow := inputStyle.Render(m.input.View())
 
@@ -927,4 +942,12 @@ func (m *unifiedChatModel) renderModalOverlay(baseView string) string {
 		return lipgloss.Place(m.width, m.height, lipgloss.Center, lipgloss.Center, executingStyle.Render(executingText))
 	}
 	return baseView
+}
+
+// contentWidth returns the effective content width accounting for responsive padding.
+func (m *unifiedChatModel) contentWidth() int {
+	if m.width >= minWidthForPadding {
+		return m.width - (responsivePaddingH * 2)
+	}
+	return m.width
 }
