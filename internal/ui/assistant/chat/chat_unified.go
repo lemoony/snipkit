@@ -295,14 +295,14 @@ func (m *unifiedChatModel) setupPostExecutionMode() tea.Cmd {
 
 // Update handles incoming messages and updates the model state.
 func (m *unifiedChatModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	// Handle modal overlays first (highest priority)
-	if m.modalState != modalNone {
-		return m.handleModalUpdate(msg)
-	}
-
-	// Handle global messages (window size, mouse, quit, etc.)
+	// Handle global messages first (window size, quit, etc.)
 	if handled, model, cmd := m.handleGlobalMessages(msg); handled {
 		return model, cmd
+	}
+
+	// Handle modal overlays second
+	if m.modalState != modalNone {
+		return m.handleModalUpdate(msg)
 	}
 
 	// Mode-specific handling
@@ -922,13 +922,12 @@ func (m *unifiedChatModel) renderModalOverlay(baseView string) string {
 	case modalParameters:
 		if m.paramModal != nil {
 			modal := m.paramModal.View(m.width, m.height)
-			// Darken background by rendering a semi-transparent overlay
-			return lipgloss.Place(m.width, m.height, lipgloss.Center, lipgloss.Center, modal)
+			return PlaceOverlay(baseView, modal, m.width, m.height, lipgloss.Center, lipgloss.Center)
 		}
 	case modalSave:
 		if m.saveModal != nil {
 			modal := m.saveModal.View(m.width, m.height)
-			return lipgloss.Place(m.width, m.height, lipgloss.Center, lipgloss.Center, modal)
+			return PlaceOverlay(baseView, modal, m.width, m.height, lipgloss.Center, lipgloss.Center)
 		}
 	case modalExecuting:
 		executingText := "⚡ Executing script..."
@@ -939,7 +938,8 @@ func (m *unifiedChatModel) renderModalOverlay(baseView string) string {
 			Padding(2, modalPaddingH).
 			Border(lipgloss.RoundedBorder()).
 			BorderForeground(m.styler.ActiveColor().Value())
-		return lipgloss.Place(m.width, m.height, lipgloss.Center, lipgloss.Center, executingStyle.Render(executingText))
+		modal := executingStyle.Render(executingText)
+		return PlaceOverlay(baseView, modal, m.width, m.height, lipgloss.Center, lipgloss.Center)
 	}
 	return baseView
 }
