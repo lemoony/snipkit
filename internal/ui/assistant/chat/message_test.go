@@ -5,6 +5,8 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+
+	"github.com/lemoony/snipkit/internal/ui/style"
 )
 
 func Test_buildMessagesFromHistory_EmptyHistory(t *testing.T) {
@@ -307,4 +309,143 @@ func Test_truncateContent_ManyLines(t *testing.T) {
 	result := truncateContent(content, 20)
 
 	assert.Contains(t, result, "... (30 more lines)")
+}
+
+func Test_formatDuration(t *testing.T) {
+	tests := []struct {
+		name     string
+		duration time.Duration
+		expected string
+	}{
+		{"milliseconds", 500 * time.Millisecond, "500ms"},
+		{"one ms", 1 * time.Millisecond, "1ms"},
+		{"999 ms", 999 * time.Millisecond, "999ms"},
+		{"one second", 1 * time.Second, "1.0s"},
+		{"one point five seconds", 1500 * time.Millisecond, "1.5s"},
+		{"59 seconds", 59 * time.Second, "59.0s"},
+		{"one minute", 60 * time.Second, "1m0s"},
+		{"one minute 30 seconds", 90 * time.Second, "1m30s"},
+		{"two minutes", 120 * time.Second, "2m0s"},
+		{"five minutes 45 seconds", 345 * time.Second, "5m45s"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := formatDuration(tt.duration)
+			assert.Equal(t, tt.expected, result)
+		})
+	}
+}
+
+func Test_renderAssistantMessage(t *testing.T) {
+	styler := style.Style{}
+	result := renderAssistantMessage("Hello, I'm here to help", styler)
+
+	assert.Contains(t, result, "[Assistant]:")
+	assert.Contains(t, result, "Hello, I'm here to help")
+}
+
+func Test_renderOutput_Success(t *testing.T) {
+	styler := style.Style{}
+	exitCode := 0
+	duration := 1500 * time.Millisecond
+	execTime := time.Date(2024, 1, 15, 14, 30, 45, 0, time.UTC)
+
+	result := renderOutput("output content", &exitCode, &duration, &execTime, styler)
+
+	assert.Contains(t, result, "Execution Output")
+	assert.Contains(t, result, "output content")
+	assert.Contains(t, result, "Success")
+	assert.Contains(t, result, "1.5s")
+	assert.Contains(t, result, "14:30:45")
+}
+
+func Test_renderOutput_Failure(t *testing.T) {
+	styler := style.Style{}
+	exitCode := 1
+	duration := 500 * time.Millisecond
+	execTime := time.Date(2024, 1, 15, 10, 0, 0, 0, time.UTC)
+
+	result := renderOutput("error message", &exitCode, &duration, &execTime, styler)
+
+	assert.Contains(t, result, "Execution Output")
+	assert.Contains(t, result, "error message")
+	assert.Contains(t, result, "Failed")
+	assert.Contains(t, result, "exit 1")
+	assert.Contains(t, result, "500ms")
+}
+
+func Test_renderOutput_NoMetadata(t *testing.T) {
+	styler := style.Style{}
+
+	result := renderOutput("just output", nil, nil, nil, styler)
+
+	assert.Contains(t, result, "Execution Output")
+	assert.Contains(t, result, "just output")
+	// Should not contain success/failure indicators
+	assert.NotContains(t, result, "Success")
+	assert.NotContains(t, result, "Failed")
+}
+
+func Test_renderMessage_AllTypes(t *testing.T) {
+	styler := style.Style{}
+	width := 80
+
+	tests := []struct {
+		name     string
+		msg      ChatMessage
+		contains []string
+	}{
+		{
+			"user message",
+			ChatMessage{Type: MessageTypeUser, Content: "test user"},
+			[]string{"Your Request:", "test user"},
+		},
+		{
+			"assistant message",
+			ChatMessage{Type: MessageTypeAssistant, Content: "assistant response"},
+			[]string{"[Assistant]:", "assistant response"},
+		},
+		{
+			"script message",
+			ChatMessage{Type: MessageTypeScript, Content: "echo hello"},
+			[]string{"Generated Script:", "echo"}, // Use partial match due to syntax highlighting
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := renderMessage(tt.msg, styler, width)
+			// Strip ANSI for comparison
+			stripped := stripANSI(result)
+			for _, expected := range tt.contains {
+				assert.Contains(t, stripped, expected)
+			}
+		})
+	}
+}
+
+func Test_renderMessages_Empty(t *testing.T) {
+	styler := style.Style{}
+
+	result := renderMessages([]ChatMessage{}, styler, 80)
+
+	assert.Contains(t, result, "automatically provided as context")
+}
+
+func Test_renderMessages_Multiple(t *testing.T) {
+	styler := style.Style{}
+	messages := []ChatMessage{
+		{Type: MessageTypeUser, Content: "first prompt"},
+		{Type: MessageTypeScript, Content: "echo first"},
+		{Type: MessageTypeUser, Content: "second prompt"},
+	}
+
+	result := renderMessages(messages, styler, 80)
+	// Strip ANSI for comparison
+	stripped := stripANSI(result)
+
+	assert.Contains(t, stripped, "first prompt")
+	assert.Contains(t, stripped, "echo first")
+	assert.Contains(t, stripped, "second prompt")
 }
