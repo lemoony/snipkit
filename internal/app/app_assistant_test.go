@@ -190,7 +190,8 @@ echo edited`
 	tui.On(mockutil.OpenEditor, mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
 		_ = os.WriteFile(args.Get(0).(string), []byte(editedScript), 0o644)
 	}).Return()
-	// Third call: after edit and execution, capture config to verify history update
+	// Third call: after edit, returns to ScriptReady mode (no execution yet)
+	// Capture config to verify edited script is shown in history
 	var capturedConfig chat.UnifiedConfig
 	tui.On(mockutil.ShowUnifiedAssistantChat, mock.Anything).Run(func(args mock.Arguments) {
 		capturedConfig = args.Get(0).(chat.UnifiedConfig)
@@ -209,9 +210,11 @@ echo edited`
 
 	tui.AssertCalled(t, mockutil.OpenEditor, mock.Anything, mock.Anything)
 	assert.Len(t, capturedConfig.History, 1)
+	// Verify edited script is shown in chat history (before execution)
 	assert.Equal(t, editedScript, capturedConfig.History[0].GeneratedScript)
-	assert.NotEmpty(t, capturedConfig.History[0].ExecutionOutput)
-	assert.NotNil(t, capturedConfig.History[0].ExitCode)
+	// Script hasn't been executed yet - returns to ScriptReady mode for user to choose
+	assert.Empty(t, capturedConfig.History[0].ExecutionOutput)
+	assert.Nil(t, capturedConfig.History[0].ExitCode)
 }
 
 func Test_App_GenerateSnippetWithAssistant_ExecuteNilScript(t *testing.T) {

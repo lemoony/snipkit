@@ -2,7 +2,6 @@ package execution
 
 import (
 	"bytes"
-	"fmt"
 	"os"
 	"os/exec"
 	"os/signal"
@@ -268,14 +267,6 @@ func RunWithViewer(cmd *exec.Cmd, fromAssistant bool) *CapturedOutput {
 
 	// Clean output for history
 	rawOutput := outputBuf.String()
-
-	// DEBUG: Log raw output for failed commands
-	if exitCode != 0 {
-		fmt.Fprintf(os.Stderr, "\n\n=== DEBUG: Command failed with exit code %d ===\n", exitCode)
-		fmt.Fprintf(os.Stderr, "Raw output length: %d bytes\n", len(rawOutput))
-		fmt.Fprintf(os.Stderr, "Raw output (quoted): %q\n", rawOutput)
-		fmt.Fprintf(os.Stderr, "=== END DEBUG ===\n\n")
-	}
 
 	// For failed commands (non-zero exit), preserve raw output to show error messages
 	// For successful commands, clean output for better display

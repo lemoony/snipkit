@@ -12,7 +12,6 @@ import (
 	"github.com/lemoony/snipkit/internal/managers"
 	"github.com/lemoony/snipkit/internal/managers/fslibrary"
 	"github.com/lemoony/snipkit/internal/model"
-	"github.com/lemoony/snipkit/internal/ui"
 	"github.com/lemoony/snipkit/internal/ui/assistant/chat"
 	"github.com/lemoony/snipkit/internal/ui/picker"
 	"github.com/lemoony/snipkit/internal/ui/uimsg"
@@ -147,32 +146,12 @@ func (a *appImpl) handleEditAction(history []chat.HistoryEntry, scriptInterface 
 		return false, history
 	}
 
-	snippet := assistant.PrepareSnippet(updatedContents, parsed)
-	parameters := snippet.GetParameters()
-
-	var editedParamValues []string
-	if len(parameters) > 0 {
-		var paramOk bool
-		editedParamValues, paramOk = a.tui.ShowParameterForm(parameters, nil, ui.OkButtonExecute)
-		if !paramOk {
-			return false, history
-		}
-	}
-
-	// Execute the edited snippet
-	capturedResult := a.executeSnippet(ContextAssistant, false, snippet, editedParamValues)
-
-	// Update history with execution results
+	// Update history with edited script (don't execute yet - return to action menu)
 	if len(history) > 0 {
 		lastIdx := len(history) - 1
-		executionTime := time.Now()
 		history[lastIdx].GeneratedScript = string(updatedContents)
 		history[lastIdx].ScriptFilename = parsed.Filename
 		history[lastIdx].ScriptTitle = parsed.Title
-		history[lastIdx].ExecutionOutput = capturedResult.stdout + capturedResult.stderr
-		history[lastIdx].ExitCode = &capturedResult.exitCode
-		history[lastIdx].Duration = &capturedResult.duration
-		history[lastIdx].ExecutionTime = &executionTime
 	}
 
 	return true, history
