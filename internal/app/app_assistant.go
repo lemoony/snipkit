@@ -118,7 +118,7 @@ func (a *appImpl) handleExecuteAction(history []chat.HistoryEntry, scriptInterfa
 	executionTime := time.Now()
 	log.Trace().Msg("Snippet execution completed, about to return to chat")
 
-	return a.updateHistoryWithSuccess(history, parsed.Contents, capturedResult, executionTime)
+	return a.updateHistoryWithSuccess(history, parsed, capturedResult, executionTime)
 }
 
 // handleEditAction handles the edit action. Returns (shouldContinue, updatedHistory).
@@ -167,6 +167,8 @@ func (a *appImpl) handleEditAction(history []chat.HistoryEntry, scriptInterface 
 		lastIdx := len(history) - 1
 		executionTime := time.Now()
 		history[lastIdx].GeneratedScript = string(updatedContents)
+		history[lastIdx].ScriptFilename = parsed.Filename
+		history[lastIdx].ScriptTitle = parsed.Title
 		history[lastIdx].ExecutionOutput = capturedResult.stdout + capturedResult.stderr
 		history[lastIdx].ExitCode = &capturedResult.exitCode
 		history[lastIdx].Duration = &capturedResult.duration
@@ -188,14 +190,16 @@ func (a *appImpl) addExecutionError(history []chat.HistoryEntry, errorMsg string
 }
 
 // updateHistoryWithSuccess updates history with successful execution results.
-func (a *appImpl) updateHistoryWithSuccess(history []chat.HistoryEntry, scriptContents string, result *capturedOutput, executionTime time.Time) []chat.HistoryEntry {
+func (a *appImpl) updateHistoryWithSuccess(history []chat.HistoryEntry, parsed assistant.ParsedScript, result *capturedOutput, executionTime time.Time) []chat.HistoryEntry {
 	isExecuteAgain := len(history) > 0 && history[len(history)-1].ExecutionOutput != ""
 
 	if isExecuteAgain {
 		log.Trace().Msg("Execute again: appending new history entry")
 		return append(history, chat.HistoryEntry{
 			UserPrompt:      "",
-			GeneratedScript: scriptContents,
+			GeneratedScript: parsed.Contents,
+			ScriptFilename:  parsed.Filename,
+			ScriptTitle:     parsed.Title,
 			ExecutionOutput: result.stdout + result.stderr,
 			ExitCode:        &result.exitCode,
 			Duration:        &result.duration,
@@ -206,7 +210,9 @@ func (a *appImpl) updateHistoryWithSuccess(history []chat.HistoryEntry, scriptCo
 	log.Trace().Msg("First execution: updating existing history entry")
 	if len(history) > 0 {
 		lastIdx := len(history) - 1
-		history[lastIdx].GeneratedScript = scriptContents
+		history[lastIdx].GeneratedScript = parsed.Contents
+		history[lastIdx].ScriptFilename = parsed.Filename
+		history[lastIdx].ScriptTitle = parsed.Title
 		history[lastIdx].ExecutionOutput = result.stdout + result.stderr
 		history[lastIdx].ExitCode = &result.exitCode
 		history[lastIdx].Duration = &result.duration

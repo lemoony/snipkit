@@ -152,12 +152,13 @@ func newUnifiedChatModel(config UnifiedConfig, styler style.Style) *unifiedChatM
 
 	// Set generatedScript from history if we have it
 	// We need to reconstruct a ParsedScript object from the content
-	if generatedScriptContent != "" {
-		// Create a ParsedScript object with the contents from history
+	if generatedScriptContent != "" && len(config.History) > 0 {
+		// Create a ParsedScript object with the contents and metadata from history
+		lastEntry := config.History[len(config.History)-1]
 		m.generatedScript = assistant.ParsedScript{
 			Contents: generatedScriptContent,
-			Filename: "",
-			Title:    "",
+			Filename: lastEntry.ScriptFilename,
+			Title:    lastEntry.ScriptTitle,
 		}
 	}
 
