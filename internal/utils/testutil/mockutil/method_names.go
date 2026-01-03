@@ -15,12 +15,12 @@ const (
 
 	Confirmation = "Confirmation"
 
-	ShowPicker          = "ShowPicker"
-	ShowAssistantPrompt = "ShowAssistantPrompt"
-	ShowAssistantWizard = "ShowAssistantWizard"
-	ShowSpinner         = "ShowSpinner"
-	ShowParameterForm   = "ShowParameterForm"
-	OpenEditor          = "OpenEditor"
+	ShowPicker               = "ShowPicker"
+	ShowUnifiedAssistantChat = "ShowUnifiedAssistantChat"
+	ShowAssistantWizard      = "ShowAssistantWizard"
+	ShowSpinner              = "ShowSpinner"
+	ShowParameterForm        = "ShowParameterForm"
+	OpenEditor               = "OpenEditor"
 
 	Query                = "Query"
 	ValidateConfig       = "Initialize"

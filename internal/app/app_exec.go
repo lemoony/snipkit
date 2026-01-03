@@ -6,24 +6,38 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"time"
 
 	"emperror.dev/errors"
-	"github.com/creack/pty"
 	"github.com/phuslu/log"
 	"golang.org/x/term"
 
 	"github.com/lemoony/snipkit/internal/config"
 	"github.com/lemoony/snipkit/internal/model"
 	"github.com/lemoony/snipkit/internal/ui"
+	"github.com/lemoony/snipkit/internal/ui/execution"
 	"github.com/lemoony/snipkit/internal/ui/uimsg"
 	"github.com/lemoony/snipkit/internal/utils/stringutil"
 )
 
 const fallbackShell = "/bin/bash"
 
+// ExecutionContext indicates the origin of the execution request.
+type ExecutionContext int
+
+const (
+	// ContextDefault represents normal execution (e.g., from lookup).
+	ContextDefault ExecutionContext = iota
+	// ContextAssistant represents execution initiated from the assistant.
+	ContextAssistant
+)
+
 type capturedOutput struct {
-	stdout string
-	stderr string
+	stdout   string
+	stderr   string
+	exitCode int
+	duration time.Duration
+	err      error
 }
 
 // Terminal function variables that can be overridden in tests.
@@ -38,7 +52,7 @@ func (a *appImpl) LookupAndExecuteSnippet(confirm, print bool) {
 	if ok, snippet := a.LookupSnippet(); ok {
 		parameters := snippet.GetParameters()
 		if parameterValues, paramOk := a.tui.ShowParameterForm(parameters, nil, ui.OkButtonExecute); paramOk {
-			a.executeSnippet(confirm, print, snippet, parameterValues)
+			a.executeSnippet(ContextDefault, print, snippet, parameterValues)
 		}
 	}
 }
@@ -47,9 +61,9 @@ func (a *appImpl) FindScriptAndExecuteWithParameters(id string, paramValues []mo
 	if snippetFound, snippet := a.getSnippet(id); !snippetFound {
 		panic(ErrSnippetIDNotFound)
 	} else if paramOk, parameters := matchParameters(paramValues, snippet.GetParameters()); paramOk {
-		a.executeSnippet(confirm, print, snippet, parameters)
+		a.executeSnippet(ContextDefault, print, snippet, parameters)
 	} else if parameterValues, formOk := a.tui.ShowParameterForm(snippet.GetParameters(), paramValues, ui.OkButtonExecute); formOk {
-		a.executeSnippet(confirm, print, snippet, parameterValues)
+		a.executeSnippet(ContextDefault, print, snippet, parameterValues)
 	}
 }
 
@@ -77,11 +91,12 @@ func matchParameters(paramValues []model.ParameterValue, snippetParameters []mod
 	return found == len(snippetParameters), result
 }
 
-func (a *appImpl) executeSnippet(confirm bool, print bool, snippet model.Snippet, parameterValues []string) (bool, *capturedOutput) {
+func (a *appImpl) executeSnippet(context ExecutionContext, print bool, snippet model.Snippet, parameterValues []string) *capturedOutput {
 	script := snippet.Format(parameterValues, formatOptions(a.config.Script))
 
-	if (confirm || a.config.Script.ExecConfirm) && !a.tui.Confirmation(uimsg.ExecConfirm(snippet.GetTitle(), script)) {
-		return false, nil
+	// Skip confirmation for assistant context (parameter modal serves as implicit confirmation)
+	if context == ContextDefault && a.config.Script.ExecConfirm && !a.tui.Confirmation(uimsg.ExecConfirm(snippet.GetTitle(), script)) {
+		return nil
 	}
 
 	log.Trace().Msg(script)
@@ -89,61 +104,27 @@ func (a *appImpl) executeSnippet(confirm bool, print bool, snippet model.Snippet
 		a.tui.Print(uimsg.ExecPrint(snippet.GetTitle(), script))
 	}
 
-	return true, executeScript(script, a.config.Script.Shell)
+	return executeScript(context, script, a.config.Script.Shell)
 }
 
-func executeScript(script, configuredShell string) *capturedOutput {
+func executeScript(context ExecutionContext, script, configuredShell string) *capturedOutput {
 	shell := detectShell(script, configuredShell)
 
 	//nolint:gosec // since it would report G204 complaining about using a variable as input for exec.Command
 	cmd := exec.Command(shell, "-c", script)
 
-	// Check if stdin is a terminal to decide execution mode
+	// Run the script
 	if isTerminalFunc(int(os.Stdin.Fd())) {
-		return executeWithPTY(cmd)
+		// Use Tea-based viewer for terminal execution
+		result := execution.RunWithViewer(cmd, context == ContextAssistant)
+		return &capturedOutput{
+			stdout:   result.Stdout,
+			exitCode: result.ExitCode,
+			duration: result.Duration,
+		}
 	}
+
 	return executeWithoutPTY(cmd)
-}
-
-// executeWithPTY runs the command with a pseudo-terminal to preserve colors and interactivity.
-func executeWithPTY(cmd *exec.Cmd) *capturedOutput {
-	// Get current terminal size
-	rows, cols := 24, 80 // defaults
-	if w, h, err := getTermSizeFunc(int(os.Stdout.Fd())); err == nil {
-		cols, rows = w, h
-	}
-
-	// Start the command with a pty
-	ptmx, err := pty.StartWithSize(cmd, &pty.Winsize{Rows: uint16(rows), Cols: uint16(cols)})
-	if err != nil {
-		panic(errors.Wrapf(errors.WithStack(err), "failed to start command with pty"))
-	}
-	defer func() { _ = ptmx.Close() }()
-
-	// Set stdin to raw mode to pass through all input
-	oldState, err := makeRawFunc(int(os.Stdin.Fd()))
-	if err == nil {
-		defer func() { _ = restoreTermFunc(int(os.Stdin.Fd()), oldState) }()
-	}
-
-	// Buffer to capture output while also displaying it
-	var outputBuf bytes.Buffer
-
-	// Copy stdin to pty in a goroutine
-	go func() { _, _ = io.Copy(ptmx, os.Stdin) }()
-
-	// Copy pty output to both stdout and buffer
-	_, _ = io.Copy(io.MultiWriter(os.Stdout, &outputBuf), ptmx)
-
-	// Wait for command to complete
-	if waitErr := cmd.Wait(); waitErr != nil {
-		log.Info().Err(waitErr)
-	}
-
-	return &capturedOutput{
-		stdout: outputBuf.String(),
-		stderr: "", // PTY combines stdout and stderr
-	}
 }
 
 // executeWithoutPTY runs the command without a PTY (for non-terminal contexts).
@@ -159,18 +140,34 @@ func executeWithoutPTY(cmd *exec.Cmd) *capturedOutput {
 	cmd.Stdout = stdoutWriter
 	cmd.Stderr = stderrWriter
 
+	// Track start time
+	startTime := time.Now()
+
 	err := cmd.Start()
 	if err != nil {
 		panic(errors.Wrapf(errors.WithStack(err), "failed to run command"))
 	}
 
-	if err = cmd.Wait(); err != nil {
+	err = cmd.Wait()
+	duration := time.Since(startTime)
+
+	// Extract exit code
+	exitCode := 0
+	if err != nil {
 		log.Info().Err(err)
+		if exitErr, ok := err.(*exec.ExitError); ok {
+			exitCode = exitErr.ExitCode()
+		} else {
+			exitCode = -1 // Could not determine exit code
+		}
 	}
 
 	return &capturedOutput{
-		stdout: stdoutBuf.String(),
-		stderr: stderrBuf.String(),
+		stdout:   stdoutBuf.String(),
+		stderr:   stderrBuf.String(),
+		exitCode: exitCode,
+		duration: duration,
+		err:      err,
 	}
 }
 

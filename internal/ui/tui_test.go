@@ -11,6 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/lemoony/snipkit/internal/model"
+	"github.com/lemoony/snipkit/internal/ui/assistant/chat"
 	"github.com/lemoony/snipkit/internal/ui/assistant/wizard"
 	"github.com/lemoony/snipkit/internal/ui/confirm"
 	"github.com/lemoony/snipkit/internal/ui/sync"
@@ -215,7 +216,10 @@ func Test_ShowAssistantPrompt(t *testing.T) {
 		c.SendKey(termtest.KeyEnter)
 	}, func(stdio termutil.Stdio) {
 		term := NewTUI(WithStdio(stdio))
-		ok, text := term.ShowAssistantPrompt([]string{"one", "two"})
+		ok, text := term.ShowAssistantPrompt([]chat.HistoryEntry{
+			{UserPrompt: "one"},
+			{UserPrompt: "two"},
+		})
 		assert.True(t, ok)
 		assert.Equal(t, "foo", text)
 	})

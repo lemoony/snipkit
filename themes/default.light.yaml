@@ -3,7 +3,7 @@ variables:
   white: "#FFFFFF"
   black: "#000000"
   gray: "#8A8A8A"
-  lightGray: "#DDDADA"
+  lightGray: "#2a2a2a"
   green: "#40916c"
 theme:
   borderColor: ${gray}

@@ -51,20 +51,23 @@ Inspired by [Pet](https://github.com/knqyf263/pet).
 
 ### SnipKit Assistant (BETA)  🤖
 
-SnipKit Assistant lets you generate parameterized scripts based on a prompt directly from the command line.
+SnipKit Assistant lets you generate parameterized scripts based on a prompt directly from the command line through an interactive chat-style interface.
 
 > ❇️ Alternatively, you can use  [SnipKit GPT](https://chatgpt.com/g/g-A2y9cPWE7-snipkit-assistant).
 
 <img alt="Demo" src="./docs/images/assistant/assistant.gif" />
 
+**Key features:**
+- **Unified chat interface** - Generate, execute, and refine scripts in a single-screen workflow
+- **Real-time execution preview** - See script output as it runs with exit code and duration
+- **Revise with context** - Chat history is preserved, making follow-up prompts easy
+- **Save to library** - Save generated scripts directly to your File System Library
 
-> ⚠️ SnipKit Assistant is currently in beta for OpenAI and Gemini. A couple of improvements are already in the pipeline...
-
-The assistant also allows you to save generated scripts and retry or adjust the prompt based on the script output. For more details, see the [documentation](https://lemoony.github.io/snipkit/assistant/).
+For more details, see the [documentation](https://lemoony.github.io/snipkit/assistant/).
 
 **Supported AI Providers:**
-- OpenAI (GPT-4)
-- Anthropic (Claude)
+- OpenAI
+- Anthropic
 - Google Gemini
 - Ollama (local models)
 - Any OpenAI-compatible API (OpenRouter, Azure OpenAI, etc.)

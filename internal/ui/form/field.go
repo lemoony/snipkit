@@ -23,7 +23,8 @@ const (
 	fieldLabelPaddingLeft = 4
 )
 
-type fieldModel struct {
+// FieldModel represents a single parameter input field.
+type FieldModel struct {
 	styler style.Style
 	fs     afero.Fs
 
@@ -52,8 +53,8 @@ func NewField(
 	paramType appModel.ParameterType,
 	options []string,
 	fs afero.Fs,
-) *fieldModel {
-	m := fieldModel{
+) *FieldModel {
+	m := FieldModel{
 		styler:         styler,
 		fs:             fs,
 		Label:          label,
@@ -76,35 +77,34 @@ func NewField(
 	return &m
 }
 
-func (m *fieldModel) Value() string {
+func (m *FieldModel) Value() string {
 	return m.field.Value()
 }
 
-func (m *fieldModel) SetLabelWidth(width int) {
+func (m *FieldModel) SetLabelWidth(width int) {
 	m.field.Width = fieldTotalWidth - width - two - 8 //nolint:mnd // magic number 8
 	m.labelWidth = width
 }
 
-func (m *fieldModel) SetValue(text string) {
+func (m *FieldModel) SetValue(text string) {
 	m.field.SetValue(text)
 }
 
-func (m *fieldModel) Focus() tea.Cmd {
-	if m.ParameterType != appModel.ParameterTypePath {
-		m.filterOptions()
-	}
+func (m *FieldModel) Focus() tea.Cmd {
+	// Always filter options on focus to initialize suggestions
+	m.filterOptions()
 	return m.field.Focus()
 }
 
-func (m *fieldModel) Blur() {
+func (m *FieldModel) Blur() {
 	m.field.Blur()
 }
 
-func (m *fieldModel) HasOptionToApply() bool {
+func (m *FieldModel) HasOptionToApply() bool {
 	return m.selectedPathSuggestion != ""
 }
 
-func (m *fieldModel) Update(msg tea.Msg) (*fieldModel, tea.Cmd) {
+func (m *FieldModel) Update(msg tea.Msg) (*FieldModel, tea.Cmd) {
 	var cmd tea.Cmd
 
 	handled := false
@@ -123,21 +123,27 @@ func (m *fieldModel) Update(msg tea.Msg) (*fieldModel, tea.Cmd) {
 				m.applyFilePathOption()
 				handled = true
 			}
+		case key.Matches(msg, m.keyMap.ApplyCompletion):
+			// Only handle if we have a suggestion to apply
+			if m.HasOptionToApply() {
+				m.applyFilePathOption()
+				handled = true
+			}
+			// Otherwise falls through to textinput for normal cursor movement
 		}
 	}
 
-	if !handled {
-		prevValue := m.field.Value()
-		m.field, cmd = m.field.Update(msg)
-		if prevValue != m.field.Value() {
-			m.filterOptions()
-		}
+	// Always update textinput for cursor, but only check value changes if not handled
+	prevValue := m.field.Value()
+	m.field, cmd = m.field.Update(msg)
+	if !handled && prevValue != m.field.Value() {
+		m.filterOptions()
 	}
 
 	return m, cmd
 }
 
-func (m *fieldModel) selectNextOption() {
+func (m *FieldModel) selectNextOption() {
 	if len(m.options) == 0 {
 		return
 	}
@@ -156,7 +162,7 @@ func (m *fieldModel) selectNextOption() {
 	}
 }
 
-func (m *fieldModel) selectPreviousOption() {
+func (m *FieldModel) selectPreviousOption() {
 	if len(m.options) == 0 {
 		return
 	}
@@ -175,7 +181,7 @@ func (m *fieldModel) selectPreviousOption() {
 	}
 }
 
-func (m *fieldModel) filterOptions() {
+func (m *FieldModel) filterOptions() {
 	if m.ParameterType == appModel.ParameterTypeValue {
 		m.filterOptionsForValue()
 	} else if m.ParameterType == appModel.ParameterTypePath {
@@ -183,7 +189,7 @@ func (m *fieldModel) filterOptions() {
 	}
 }
 
-func (m *fieldModel) filterOptionsForValue() {
+func (m *FieldModel) filterOptionsForValue() {
 	filterValue := strings.ToLower(m.field.Value())
 
 	m.filteredOptions = m.options
@@ -208,16 +214,26 @@ func (m *fieldModel) filterOptionsForValue() {
 	m.selectedPathSuggestion = ""
 }
 
-func (m *fieldModel) filterOptionsForFilePath() {
+func (m *FieldModel) filterOptionsForFilePath() {
 	m.filteredOptions = suggestionsForPath(m.fs, m.field.Value())
 	m.options = m.filteredOptions
 	m.filterMatches = make([]int, len(m.filteredOptions))
 	for i := range m.filteredOptions {
 		m.filterMatches[i] = 0
 	}
+
+	// Auto-select first option and set it as the proposed suggestion
+	if len(m.options) > 0 {
+		m.selectedOption = 0
+		m.optionOffset = 0
+		m.selectedPathSuggestion = m.options[0]
+	} else {
+		m.selectedOption = -1
+		m.selectedPathSuggestion = ""
+	}
 }
 
-func (m *fieldModel) applyFilePathOption() {
+func (m *FieldModel) applyFilePathOption() {
 	m.field.SetValue(m.selectedPathSuggestion)
 	m.selectedPathSuggestion = ""
 	m.field.CursorEnd()
@@ -225,7 +241,7 @@ func (m *fieldModel) applyFilePathOption() {
 }
 
 //nolint:funlen // refactor at a later point.
-func (m *fieldModel) View() string {
+func (m *FieldModel) View() string {
 	color := m.styler.SubduedColor()
 	borderStyle := lipgloss.HiddenBorder()
 	if m.field.Focused() {
@@ -243,10 +259,16 @@ func (m *fieldModel) View() string {
 	label := labelStyle.Render(lipgloss.PlaceHorizontal(m.labelWidth, lipgloss.Left, m.Label, lipgloss.WithWhitespaceChars(" ")))
 
 	var fieldView string
-	if m.selectedPathSuggestion != "" {
-		fieldView = m.field.TextStyle.Render(m.field.Value()) +
-			lipgloss.NewStyle().Italic(true).Foreground(m.styler.PlaceholderColor().Value()).
-				Render(strings.TrimPrefix(m.selectedPathSuggestion, m.field.Value()))
+	if m.selectedPathSuggestion != "" && m.ParameterType == appModel.ParameterTypePath {
+		// Show typed text in normal style
+		typedText := m.field.TextStyle.Render(m.field.Value())
+
+		// Show completion in subdued/grayed style (like zsh)
+		completion := strings.TrimPrefix(m.selectedPathSuggestion, m.field.Value())
+		completionStyle := lipgloss.NewStyle().
+			Foreground(m.styler.SubduedColor().Value())
+
+		fieldView = typedText + completionStyle.Render(completion)
 	} else {
 		fieldView = m.field.View()
 	}
