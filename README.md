@@ -55,7 +55,6 @@ SnipKit Assistant lets you generate parameterized scripts based on a prompt dire
 
 > ❇️ Alternatively, you can use  [SnipKit GPT](https://chatgpt.com/g/g-A2y9cPWE7-snipkit-assistant).
 
-<!-- TODO: Update GIF to show new unified chat interface -->
 <img alt="Demo" src="./docs/images/assistant/assistant.gif" />
 
 **Key features:**

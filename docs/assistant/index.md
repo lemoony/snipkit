@@ -5,7 +5,6 @@ The SnipKit Assistant helps you create SnipKit snippets using AI through an inte
 !!! tip
     Alternatively, you may try using [SnipKit GPT](https://chatgpt.com/g/g-A2y9cPWE7-snipkit-assistant) to generate scripts compatible with SnipKit.
 
-<!-- TODO: Update GIF to show new unified chat interface -->
 ![Assistant Demo](../images/assistant/assistant.gif)
 
 ## Supported AI Providers
@@ -51,7 +50,6 @@ If the script didn't work as expected or you want to refine it, select **Revise*
 - Generated scripts
 - Execution output and results
 
-<!-- TODO: Update GIF to show new revise workflow -->
 ![Assistant Wizard](../images/assistant//assistant-zip.gif)
 
 When you provide a follow-up prompt, SnipKit automatically includes the context from previous interactions, so you can simply describe what needs to change.
@@ -63,7 +61,6 @@ When you provide a follow-up prompt, SnipKit automatically includes the context 
 
 SnipKit supports saving generated snippets to your [File System Library][fslibrary].
 
-<!-- TODO: Update GIF to show new save modal -->
 ![Assistant Wizard](../images/assistant/assistant-save.gif)
 
 After executing a script, select **Save & Exit** (`S`) from the action bar. A modal dialog lets you specify:
