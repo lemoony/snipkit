@@ -224,6 +224,9 @@ func (m *unifiedChatModel) transitionToMode(newMode UIMode) tea.Cmd {
 		if viewportHeight > 0 {
 			m.viewport.Height = viewportHeight
 		}
+
+		// Auto-scroll to bottom when transitioning to modes that show new content
+		m.viewport.GotoBottom()
 	}
 
 	switch newMode {
@@ -341,8 +344,9 @@ func (m *unifiedChatModel) handleGlobalMessages(msg tea.Msg) (bool, tea.Model, t
 			return true, m, tea.Quit
 		}
 
-		// PgUp/PgDown always goes to viewport for scrolling
-		if msg.Type == tea.KeyPgUp || msg.Type == tea.KeyPgDown {
+		// PgUp/PgDown and Up/Down arrows for viewport scrolling
+		if msg.Type == tea.KeyPgUp || msg.Type == tea.KeyPgDown ||
+			msg.Type == tea.KeyUp || msg.Type == tea.KeyDown {
 			var cmd tea.Cmd
 			m.viewport, cmd = m.viewport.Update(msg)
 			return true, m, cmd
@@ -796,7 +800,7 @@ func (m *unifiedChatModel) renderInputBar() string {
 	helpStyle := lipgloss.NewStyle().
 		Foreground(m.styler.PlaceholderColor().Value()).
 		Padding(0, 2)
-	helpText := helpStyle.Render("Enter: submit • Esc: cancel • PgUp/PgDown: scroll")
+	helpText := helpStyle.Render("Enter: submit • Esc: cancel • ↑/↓/PgUp/PgDown: scroll")
 
 	// The inputStyle already has vertical padding, so no extra spacing needed
 	return lipgloss.JoinVertical(lipgloss.Left, inputRow, helpText)
@@ -846,7 +850,7 @@ func (m *unifiedChatModel) renderActionBar(options []actionBarOption) string {
 	menu := lipgloss.JoinHorizontal(lipgloss.Top, items...)
 	helpText := lipgloss.NewStyle().
 		Foreground(m.styler.PlaceholderColor().Value()).
-		Render("\n  ←/→ to select • Enter to confirm • Shortcuts available • Esc to cancel")
+		Render("\n  ←/→ to select • Enter to confirm • ↑/↓: scroll • Esc to cancel")
 
 	style := lipgloss.NewStyle().
 		Padding(0, 2)

@@ -106,7 +106,7 @@ func buildMessagesFromHistory(history []HistoryEntry) []ChatMessage {
 func renderMessages(messages []ChatMessage, styler style.Style, width int) string {
 	if len(messages) == 0 {
 		contextNote := styler.PromptDescription(
-			"Your prompts and their results are automatically provided as context to the AI.",
+			"The history and script results are automatically provided as context",
 		)
 		return contextNote
 	}
