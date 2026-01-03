@@ -391,11 +391,7 @@ func (m *ParameterModal) View(terminalWidth, terminalHeight int) string {
 	if m.config.EmbeddedMode {
 		contentWidth := lipgloss.Width(content) + modalContentPadding
 
-		modalStyle := lipgloss.NewStyle().
-			Border(lipgloss.RoundedBorder()).
-			BorderForeground(m.styler.BorderColor().Value()).
-			Padding(1, 2).
-			Width(contentWidth)
+		modalStyle := m.styler.ModalStyle().Width(contentWidth)
 
 		return modalStyle.Render(content)
 	}

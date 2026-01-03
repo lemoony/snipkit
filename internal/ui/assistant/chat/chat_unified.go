@@ -764,17 +764,20 @@ func (m *unifiedChatModel) View() string {
 
 // renderBottomBar renders the bottom bar based on current mode.
 func (m *unifiedChatModel) renderBottomBar() string {
+	var bar string
 	switch m.currentMode {
 	case UIModeInput:
-		return m.renderInputBar()
+		bar = m.renderInputBar()
 	case UIModeGenerating:
-		return m.renderGeneratingBar()
+		bar = m.renderGeneratingBar()
 	case UIModeScriptReady:
-		return m.renderScriptReadyBar()
+		bar = m.renderScriptReadyBar()
 	case UIModePostExecution:
-		return m.renderPostExecutionBar()
+		bar = m.renderPostExecutionBar()
 	}
-	return ""
+
+	// Add top margin for spacing from viewport
+	return lipgloss.NewStyle().MarginTop(1).Render(bar)
 }
 
 // getBottomBarHeight returns the actual height of the bottom bar for the current mode.

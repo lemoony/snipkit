@@ -264,11 +264,7 @@ func (m *saveModal) View(terminalWidth, terminalHeight int) string {
 	contentWidth := lipgloss.Width(content) + modalContentPadding
 
 	// Create modal box with border
-	modalStyle := lipgloss.NewStyle().
-		Border(lipgloss.RoundedBorder()).
-		BorderForeground(m.styler.BorderColor().Value()).
-		Padding(1, 2).
-		Width(contentWidth)
+	modalStyle := m.styler.ModalStyle().Width(contentWidth)
 
 	modal := modalStyle.Render(content)
 

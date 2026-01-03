@@ -252,7 +252,12 @@ func gridToString(grid [][]cell) string {
 		for _, c := range row {
 			// Only emit ANSI codes when they change
 			if c.ansiPrefix != lastANSI {
-				builder.WriteString(c.ansiPrefix)
+				if c.ansiPrefix == "" && lastANSI != "" {
+					// Reset when transitioning to unstyled cell
+					builder.WriteString("\x1b[0m")
+				} else {
+					builder.WriteString(c.ansiPrefix)
+				}
 				lastANSI = c.ansiPrefix
 			}
 			if c.content != "" {
