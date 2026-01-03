@@ -8,7 +8,7 @@ Available for: macOS, Linux
 
 The configuration for Pet may look similar to this:
 
-```yaml title="config.yaml" 
+```yaml [config.yaml] 
 manager:
     pet:
       # Set to true if you want to use pet.
@@ -33,10 +33,11 @@ snippets will not be presented to you. If you don't want to filter for tags, set
 Pet comes with its own parameter syntax in the form of `<param>`, `<param=default_value>` or `<param=|_value1_||_value2_|>`. 
 SnipKit supports this syntax and you should have no problems using your Pet snippets the same way in SnipKit.
 
-!!! tip
-    While being easy to use, Pet's parameter syntax is less expressive than the one of SnipKit.
-    Migrate to the  [file system directory][fslibrary] manager if you want to take advantage of the additional SnipKit 
-    features like multiple value options or parameter descriptions.
+::: tip
+While being easy to use, Pet's parameter syntax is less expressive than the one of SnipKit.
+Migrate to the  [file system directory][fslibrary] manager if you want to take advantage of the additional SnipKit 
+features like multiple value options or parameter descriptions.
+:::
 
 
-[fslibrary]: ./fslibrary.md
+[fslibrary]: ./fslibrary

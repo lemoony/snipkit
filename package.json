@@ -1,0 +1,16 @@
+{
+  "name": "snipkit-docs",
+  "type": "module",
+  "scripts": {
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs",
+    "docs:migrate": "node scripts/migrate-docs.js"
+  },
+  "devDependencies": {
+    "@catppuccin/vitepress": "^0.1.2",
+    "glob": "^11.0.0",
+    "vitepress": "^1.5.0",
+    "vue": "^3.5.0"
+  }
+}

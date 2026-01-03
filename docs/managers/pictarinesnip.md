@@ -10,7 +10,7 @@ Available for: macOS
 
 The configuration for Snip may look similar to this:
 
-```yaml title="config.yaml" 
+```yaml [config.yaml] 
 manager:
     pictarineSnip:
       # Set to true if you want to use Snip.

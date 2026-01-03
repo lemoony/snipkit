@@ -8,7 +8,7 @@ Available for: macOS
 
 The configuration for SnippetsLab may look similar to this:
 
-```yaml title="config.yaml"
+```yaml [config.yaml]
 manager:
     snippetsLab:
       # Set to true if you want to use SnippetsLab.

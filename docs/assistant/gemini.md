@@ -4,7 +4,7 @@ Use Google's Gemini models as your SnipKit assistant.
 
 ## Configuration
 
-```yaml title="config.yaml"
+```yaml [config.yaml]
 version: 1.3.0
 config:
   assistant:
@@ -24,7 +24,7 @@ config:
 
 You need to provide the API key for the Gemini API via the environment variable specified in `apiKeyEnv`.
 
-```sh title="Set Gemini API Key"
+```sh [Set Gemini API Key]
 export SNIPKIT_GEMINI_API_KEY="your-api-key-here"
 ```
 
