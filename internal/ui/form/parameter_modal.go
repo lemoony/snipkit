@@ -477,7 +477,7 @@ func renderModalControlBar(
 	if focusArea == focusButtons && buttonFocus == 0 {
 		primaryStyle = primaryStyle.
 			Bold(true).
-			Foreground(styler.HighlightColor().Value()).
+			Foreground(styler.ButtonTextColor(true).Value()).
 			Background(styler.ActiveColor().Value())
 	} else {
 		primaryStyle = primaryStyle.Foreground(styler.TextColor().Value())
@@ -489,7 +489,7 @@ func renderModalControlBar(
 	if focusArea == focusButtons && buttonFocus == 1 {
 		secondaryStyle = secondaryStyle.
 			Bold(true).
-			Foreground(styler.HighlightColor().Value()).
+			Foreground(styler.ButtonTextColor(true).Value()).
 			Background(styler.ActiveColor().Value())
 	} else {
 		secondaryStyle = secondaryStyle.Foreground(styler.TextColor().Value())

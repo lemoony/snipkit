@@ -914,7 +914,7 @@ func (m *unifiedChatModel) renderPostExecutionBar() string {
 func (m *unifiedChatModel) getMenuItemStyle(selected bool) lipgloss.Style {
 	if selected {
 		return lipgloss.NewStyle().
-			Foreground(m.styler.HighlightColor().Value()).
+			Foreground(m.styler.ButtonTextColor(true).Value()).
 			Background(m.styler.ActiveColor().Value()).
 			Bold(true).
 			Padding(0, 1)
