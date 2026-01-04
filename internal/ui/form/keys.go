@@ -46,31 +46,14 @@ func defaultKeyMap() KeyMap {
 	}
 }
 
-// FullHelp returns bindings to show the full help view. It's part of the
-// help.KeyMap interface.
-func (m *model) FullHelp() [][]key.Binding {
-	return [][]key.Binding{}
-}
-
-// ShortHelp returns bindings to show in the abbreviated help view. It's part
-// of the help.KeyMap interface.
-func (m *model) ShortHelp() []key.Binding {
-	h := []key.Binding{
-		m.keyMap.Next,
-		m.keyMap.Quit,
-		m.keyMap.Apply,
-	}
-
-	return h
-}
-
 // FieldKeyMap defines keybindings. It satisfies to the help.KeyMap interface, which
 // is used to render the menu menu.
 type FieldKeyMap struct {
 	// Keybindings used when browsing the list.
-	CursorUp   key.Binding
-	CursorDown key.Binding
-	Apply      key.Binding
+	CursorUp        key.Binding
+	CursorDown      key.Binding
+	Apply           key.Binding
+	ApplyCompletion key.Binding // Right arrow to apply without navigating
 
 	// The quit keybinding. This won't be caught when filtering.
 	Quit key.Binding
@@ -91,6 +74,10 @@ func defaultFieldKeyMap() FieldKeyMap {
 		Apply: key.NewBinding(
 			key.WithKeys("enter"),
 			key.WithHelp("↵", "apply"),
+		),
+		ApplyCompletion: key.NewBinding(
+			key.WithKeys("right"),
+			key.WithHelp("→", "complete"),
 		),
 		Quit: key.NewBinding(
 			key.WithKeys("esc", "ctrl+c"),

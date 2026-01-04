@@ -1,13 +1,10 @@
 package app
 
 import (
-	"fmt"
 	"os"
 	"strings"
-	"sync"
 	"time"
 
-	"emperror.dev/errors"
 	"github.com/phuslu/log"
 
 	"github.com/lemoony/snipkit/internal/assistant"
@@ -15,8 +12,7 @@ import (
 	"github.com/lemoony/snipkit/internal/managers"
 	"github.com/lemoony/snipkit/internal/managers/fslibrary"
 	"github.com/lemoony/snipkit/internal/model"
-	"github.com/lemoony/snipkit/internal/ui"
-	"github.com/lemoony/snipkit/internal/ui/assistant/wizard"
+	"github.com/lemoony/snipkit/internal/ui/assistant/chat"
 	"github.com/lemoony/snipkit/internal/ui/picker"
 	"github.com/lemoony/snipkit/internal/ui/uimsg"
 	"github.com/lemoony/snipkit/internal/utils/sliceutil"
@@ -34,94 +30,9 @@ func (a *appImpl) GenerateSnippetWithAssistant(demoScriptPath []string, demoQuer
 		a.tui.PrintAndExit(msg, -1)
 	}
 
-	if ok, text := a.tui.ShowAssistantPrompt([]string{}); ok {
-		prompts := []string{text}
-		spinner := a.startSpinner()
-		defer spinner.stopAndWait()
-		script := asst.Query(text)
-		a.handleGeneratedScript(script, prompts, asst)
-	}
-}
-
-func (a *appImpl) handleGeneratedScript(parsed assistant.ParsedScript, prompts []string, asst assistant.Assistant) {
-	tmpDirSvc := tmpdir.New(a.system)
-	defer tmpDirSvc.ClearFiles()
-
-	if fileOk, filePath := tmpDirSvc.CreateTempFile([]byte(parsed.Contents)); fileOk {
-		a.tui.OpenEditor(filePath, a.config.Editor)
-		//nolint:gosec // ignore potential file inclusion via variable
-		updatedContents, err := os.ReadFile(filePath)
-		if err != nil {
-			panic(errors.Wrapf(err, "failed to read temporary file"))
-		}
-
-		snippet := assistant.PrepareSnippet(updatedContents, parsed)
-		if parameters := snippet.GetParameters(); len(parameters) > 0 {
-			parameterValues, paramOk := a.tui.ShowParameterForm(parameters, nil, ui.OkButtonExecute)
-			if paramOk {
-				a.executeAndHandleSnippet(snippet, parameterValues, prompts, asst, parsed)
-			}
-		} else {
-			a.executeAndHandleSnippet(snippet, nil, prompts, asst, parsed)
-		}
-	}
-}
-
-func (a *appImpl) executeAndHandleSnippet(snippet model.Snippet, parameterValues []string, prompts []string, asst assistant.Assistant, script assistant.ParsedScript) {
-	executed, capturedResult := a.executeSnippet(len(parameterValues) == 0, false, snippet, parameterValues)
-	if executed {
-		wizardOk, result := a.tui.ShowAssistantWizard(wizard.Config{
-			ShowSaveOption:      a.config.Assistant.SaveMode != assistant.SaveModeNever,
-			ProposedFilename:    script.Filename,
-			ProposedSnippetName: script.Title,
-		})
-		if wizardOk {
-			switch result.SelectedOption {
-			case wizard.OptionTryAgain:
-				log.Debug().Msg("User requested to try again with assistant")
-				if ok2, prompt2 := a.tui.ShowAssistantPrompt(prompts); ok2 {
-					prompts = append(prompts, prompt2)
-					newPrompt := fmt.Sprintf("The result of the command was: %s\n%s\n\n%s", capturedResult.stdout, capturedResult.stderr, prompt2)
-					a.generateSnippetWithAdditionalPrompt(newPrompt, prompts, asst)
-				}
-			case wizard.OptionSaveExit:
-				log.Debug().
-					Str("title", result.SnippetTitle).
-					Str("filename", stringutil.StringOrDefault(result.Filename, assistant.RandomScriptFilename())).
-					Msg("Saving assistant-generated snippet")
-				a.saveScript([]byte(snippet.GetContent()), result.SnippetTitle, stringutil.StringOrDefault(result.Filename, assistant.RandomScriptFilename()))
-			}
-		}
-	}
-}
-
-func (a *appImpl) generateSnippetWithAdditionalPrompt(newPrompt string, prompts []string, asst assistant.Assistant) {
-	log.Debug().Int("prompt_count", len(prompts)+1).Msg("Generating additional snippet with assistant")
-	spinner := a.startSpinner()
-	defer spinner.stopAndWait()
-	parsed := asst.Query(newPrompt)
-	a.handleGeneratedScript(parsed, prompts, asst)
-}
-
-type spinnerControl struct {
-	stop chan bool
-	wg   *sync.WaitGroup
-}
-
-func (a *appImpl) startSpinner() *spinnerControl {
-	stopChan := make(chan bool)
-	var wg sync.WaitGroup
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		a.tui.ShowSpinner("Please wait, generating script...", "SnipKit Assistant", stopChan)
-	}()
-	return &spinnerControl{stop: stopChan, wg: &wg}
-}
-
-func (s *spinnerControl) stopAndWait() {
-	close(s.stop)
-	s.wg.Wait()
+	// Start unified assistant loop with empty history
+	history := []chat.HistoryEntry{}
+	a.unifiedAssistantLoop(history, asst)
 }
 
 func (a *appImpl) saveScript(contents []byte, title, filename string) {
@@ -131,6 +42,262 @@ func (a *appImpl) saveScript(contents []byte, title, filename string) {
 		manager.SaveAssistantSnippet(title, filename, contents)
 	} else {
 		panic("File system library not configured as manager. Try running `snipkit manager add`")
+	}
+}
+
+// handleCancelAction handles the cancel/save action.
+func (a *appImpl) handleCancelAction(script assistant.ParsedScript, saveFilename, saveSnippetName string) {
+	// Check if save data was provided
+	if saveFilename != "" || saveSnippetName != "" {
+		// User saved from modal
+		if script.Contents != "" {
+			snippet := assistant.PrepareSnippet([]byte(script.Contents), script)
+			filename := stringutil.StringOrDefault(saveFilename, assistant.RandomScriptFilename())
+			title := stringutil.StringOrDefault(saveSnippetName, script.Title)
+
+			log.Debug().
+				Str("title", title).
+				Str("filename", filename).
+				Msg("Saving assistant-generated snippet")
+
+			a.saveScript([]byte(snippet.GetContent()), title, filename)
+		}
+	}
+}
+
+// handleReviseAction handles the revise action. Returns (shouldReturn, updatedHistory).
+func (a *appImpl) handleReviseAction(history []chat.HistoryEntry, script assistant.ParsedScript, latestPrompt string) (bool, []chat.HistoryEntry) {
+	if latestPrompt == "" {
+		log.Warn().Msg("PreviewActionRevise but no prompt provided")
+		return true, history
+	}
+
+	// Update last history entry with current script if present
+	if script.Contents != "" && len(history) > 0 {
+		lastIdx := len(history) - 1
+		history[lastIdx].GeneratedScript = script.Contents
+	}
+
+	// Add new history entry with the new prompt
+	history = append(history, chat.HistoryEntry{
+		UserPrompt: latestPrompt,
+	})
+
+	return false, history
+}
+
+// handleExecuteAction handles the execute action and returns updated history.
+func (a *appImpl) handleExecuteAction(history []chat.HistoryEntry, script assistant.ParsedScript, paramValues []string) []chat.HistoryEntry {
+	if script.Contents == "" {
+		log.Error().Msg("Execute action but no script available")
+		return a.addExecutionError(history, "Error: No script available to execute")
+	}
+
+	// Prepare snippet and check for parameters
+	snippet := assistant.PrepareSnippet([]byte(script.Contents), script)
+	parameters := snippet.GetParameters()
+
+	if len(parameters) > 0 && len(paramValues) == 0 {
+		log.Warn().Msgf("Executing script with %d parameters but no values provided", len(parameters))
+	}
+
+	// Execute the snippet
+	log.Trace().Msg("About to execute snippet")
+	capturedResult := a.executeSnippet(ContextAssistant, false, snippet, paramValues)
+	executionTime := time.Now()
+	log.Trace().Msg("Snippet execution completed, about to return to chat")
+
+	return a.updateHistoryWithSuccess(history, script, capturedResult, executionTime)
+}
+
+// handleEditAction handles the edit action. Returns (shouldContinue, updatedHistory).
+func (a *appImpl) handleEditAction(history []chat.HistoryEntry, script assistant.ParsedScript, tmpDirSvc tmpdir.TmpDir) (bool, []chat.HistoryEntry) {
+	if script.Contents == "" {
+		log.Warn().Msg("Edit action but no script available")
+		return false, history
+	}
+
+	fileOk, filePath := tmpDirSvc.CreateTempFile([]byte(script.Contents))
+	if !fileOk {
+		return false, history
+	}
+
+	a.tui.OpenEditor(filePath, a.config.Editor)
+	//nolint:gosec // ignore potential file inclusion via variable
+	updatedContents, err := os.ReadFile(filePath)
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to read edited file")
+		return false, history
+	}
+
+	// Update history with edited script (don't execute yet - return to action menu)
+	if len(history) > 0 {
+		lastIdx := len(history) - 1
+		history[lastIdx].GeneratedScript = string(updatedContents)
+		history[lastIdx].ScriptFilename = script.Filename
+		history[lastIdx].ScriptTitle = script.Title
+	}
+
+	return true, history
+}
+
+// addExecutionError adds an error to the last history entry.
+func (a *appImpl) addExecutionError(history []chat.HistoryEntry, errorMsg string) []chat.HistoryEntry {
+	if len(history) > 0 {
+		lastIdx := len(history) - 1
+		history[lastIdx].ExecutionOutput = errorMsg
+		exitCode := 1
+		history[lastIdx].ExitCode = &exitCode
+	}
+	return history
+}
+
+// updateHistoryWithSuccess updates history with successful execution results.
+func (a *appImpl) updateHistoryWithSuccess(history []chat.HistoryEntry, parsed assistant.ParsedScript, result *capturedOutput, executionTime time.Time) []chat.HistoryEntry {
+	isExecuteAgain := len(history) > 0 && history[len(history)-1].ExecutionOutput != ""
+
+	if isExecuteAgain {
+		log.Trace().Msg("Execute again: appending new history entry")
+		return append(history, chat.HistoryEntry{
+			UserPrompt:      "",
+			GeneratedScript: parsed.Contents,
+			ScriptFilename:  parsed.Filename,
+			ScriptTitle:     parsed.Title,
+			ExecutionOutput: result.stdout + result.stderr,
+			ExitCode:        &result.exitCode,
+			Duration:        &result.duration,
+			ExecutionTime:   &executionTime,
+		})
+	}
+
+	log.Trace().Msg("First execution: updating existing history entry")
+	if len(history) > 0 {
+		lastIdx := len(history) - 1
+		history[lastIdx].GeneratedScript = parsed.Contents
+		history[lastIdx].ScriptFilename = parsed.Filename
+		history[lastIdx].ScriptTitle = parsed.Title
+		history[lastIdx].ExecutionOutput = result.stdout + result.stderr
+		history[lastIdx].ExitCode = &result.exitCode
+		history[lastIdx].Duration = &result.duration
+		history[lastIdx].ExecutionTime = &executionTime
+	}
+	return history
+}
+
+// unifiedAssistantLoop manages the unified chat interaction loop.
+func (a *appImpl) unifiedAssistantLoop(history []chat.HistoryEntry, asst assistant.Assistant) {
+	tmpDirSvc := tmpdir.New(a.system)
+	defer tmpDirSvc.ClearFiles()
+
+	for {
+		// Build config based on current history state
+		config := a.buildUnifiedConfig(history, asst)
+
+		// Show unified chat (handles all modes internally)
+		scriptInterface, paramValues, action, latestPrompt, saveFilename, saveSnippetName := a.tui.ShowUnifiedAssistantChat(config)
+
+		// Handle the action
+		switch action {
+		case chat.PreviewActionCancel:
+			a.handleCancelAction(scriptInterface, saveFilename, saveSnippetName)
+			return
+
+		case chat.PreviewActionExitNoSave:
+			return
+
+		case chat.PreviewActionRevise:
+			if shouldReturn, updatedHistory := a.handleReviseAction(history, scriptInterface, latestPrompt); shouldReturn {
+				return
+			} else {
+				history = updatedHistory
+				continue
+			}
+
+		case chat.PreviewActionExecute:
+			history = a.handleExecuteAction(history, scriptInterface, paramValues)
+			continue
+
+		case chat.PreviewActionEdit:
+			if shouldContinue, updatedHistory := a.handleEditAction(history, scriptInterface, tmpDirSvc); shouldContinue {
+				history = updatedHistory
+				continue
+			}
+			return
+		}
+	}
+}
+
+// buildUnifiedConfig creates a UnifiedConfig based on the current history state.
+func (a *appImpl) extractParameters(scriptContent string) []model.Parameter {
+	if scriptContent == "" {
+		return nil
+	}
+	snippet := assistant.PrepareSnippet([]byte(scriptContent), assistant.ParsedScript{
+		Contents: scriptContent,
+	})
+	return snippet.GetParameters()
+}
+
+func (a *appImpl) buildUnifiedConfig(history []chat.HistoryEntry, asst assistant.Assistant) chat.UnifiedConfig {
+	// Case 1: Empty history or new prompt needed - start in input mode
+	if len(history) == 0 {
+		return chat.UnifiedConfig{
+			History:    history,
+			Generating: false,
+			ScriptChan: nil,
+			Parameters: nil,
+		}
+	}
+
+	lastEntry := history[len(history)-1]
+
+	// Case 2: User entered prompt but no script generated yet - start generation
+	if lastEntry.UserPrompt != "" && lastEntry.GeneratedScript == "" {
+		// Start async generation
+		prompt := lastEntry.UserPrompt
+		// scriptChan is buffered (size 1) so the goroutine won't block even if
+		// the user cancels before reading. The channel will be garbage collected
+		// along with its contents when no longer referenced.
+		scriptChan := make(chan assistant.ParsedScript, 1)
+		go func() {
+			script := asst.Query(prompt)
+			scriptChan <- script
+		}()
+
+		return chat.UnifiedConfig{
+			History:    history,
+			Generating: true,
+			ScriptChan: scriptChan,
+			Parameters: nil,
+		}
+	}
+
+	// Case 3: Script generated but not executed - show action menu mode
+	if lastEntry.GeneratedScript != "" && lastEntry.ExecutionOutput == "" {
+		return chat.UnifiedConfig{
+			History:    history,
+			Generating: false,
+			ScriptChan: nil,
+			Parameters: a.extractParameters(lastEntry.GeneratedScript),
+		}
+	}
+
+	// Case 4: Script executed - show post-execution mode
+	if lastEntry.ExecutionOutput != "" {
+		return chat.UnifiedConfig{
+			History:    history,
+			Generating: false,
+			ScriptChan: nil,
+			Parameters: a.extractParameters(lastEntry.GeneratedScript),
+		}
+	}
+
+	// Default: input mode
+	return chat.UnifiedConfig{
+		History:    history,
+		Generating: false,
+		ScriptChan: nil,
+		Parameters: nil,
 	}
 }
 

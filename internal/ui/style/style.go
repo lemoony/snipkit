@@ -253,6 +253,15 @@ func (s Style) ErrorColor() Color {
 	return s.colors.errorColor
 }
 
+// ModalStyle returns the standard style for modal overlays.
+func (s Style) ModalStyle() lipgloss.Style {
+	return lipgloss.NewStyle().
+		Border(lipgloss.DoubleBorder()).
+		BorderForeground(s.ActiveColor().Value()).
+		BorderBackground(s.VerySubduedColor().Value()).
+		Padding(1, 2)
+}
+
 func max(a, b int) int {
 	if a > b {
 		return a
