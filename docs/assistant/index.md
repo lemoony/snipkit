@@ -51,7 +51,7 @@ If the script didn't work as expected or you want to refine it, select **Revise*
 - Generated scripts
 - Execution output and results
 
-![Assistant Wizard](/images/assistant//assistant-zip.gif)
+![Assistant Wizard](/images/assistant/assistant-zip.gif)
 
 When you provide a follow-up prompt, SnipKit automatically includes the context from previous interactions, so you can simply describe what needs to change.
 

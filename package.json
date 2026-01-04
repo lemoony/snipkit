@@ -4,8 +4,7 @@
   "scripts": {
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
-    "docs:preview": "vitepress preview docs",
-    "docs:migrate": "node scripts/migrate-docs.js"
+    "docs:preview": "vitepress preview docs"
   },
   "devDependencies": {
     "@catppuccin/vitepress": "^0.1.2",

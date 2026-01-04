@@ -34,7 +34,7 @@ snipkit config init
 This command creates a config file in the SnipKit home directory. The initial config file looks similar to this:
 
 ```yaml [config.yaml]
-version: 1.2.0
+version: 1.3.0
 config:
   style:
     # The theme defines the terminal colors used by Snipkit.
@@ -75,7 +75,7 @@ The default editor is defined by the `$VISUAL` or `$EDITOR` environment variable
 setting the `editor` field in the configuration file to a non-empty string, e.g.:
 
 ```yaml [config.yaml]
-version: 1.2.0
+version: 1.3.0
 config:
   editor: "code"
 ```
@@ -88,9 +88,9 @@ Most of the time, you want to call the same subcommand, e.g. `print` or `exec`. 
 command gets executed by default:
 
 ```yaml [config.yaml]
-version: 1.2.0
+version: 1.3.0
 config:
-  defaultRootCommand: "exec"
+  defaultRootCommand: "exec
 ```
 
 This way, calling `snipkit` will yield the same result as `snipkit exec`. If you want to call the `print` command instead,
@@ -102,7 +102,7 @@ Enable fuzzy searching for snippet titles. This leads to potentially more snippe
 will try to rank them according to similarity. Disable fuzzy search for performance reasons or if you just don't like it.
 
 ```yaml [config.yaml]
-version: 1.2.0
+version: 1.3.0
 config:
   fuzzySearch: true
 ```
@@ -114,7 +114,7 @@ On linux machines, the keyring for storing secrets may not be accessible for Sni
 The secrets will be stored in `<snipkit_home>/.secrets/`.
 
 ```yaml [config.yaml]
-version: 1.2.0
+version: 1.3.0
 config:
   secretStorage: KEYRING 
 ```
@@ -140,7 +140,7 @@ Don't change this config to `PLAIN_FILES` unless you experience any problems wit
 SnipKit supports multiple themes out of the box and also allows you to define your own themes:
 
 ```yaml [config.yaml]
-version: 1.2.0
+version: 1.3.0
 config:
   style:
     theme: "default"
@@ -157,7 +157,7 @@ By default, a help for the key mapping is displayed at the bottom of the screen.
 disabled:
 
 ```yaml [config.yaml]
-version: 1.2.0
+version: 1.3.0
 config:
   style:
     hideKeyMap: true
@@ -171,7 +171,7 @@ The shell for script executions is defined by the `$SHELL` environment variable.
 the `shell` option to a non-empty string, e.g.:
 
 ```yaml [config.yaml]
-version: 1.2.0 
+version: 1.3.0 
 config:
   script:
     shell: "/bin/zsh"
@@ -184,7 +184,7 @@ If neither `$SHELL` nor the config option `shell` is defined, SnipKit will try t
 How values are injected into your snippet for the defined parameters is defined by the `parameterMode` option:
 
 ```yaml [config.yaml]
-version: 1.2.0
+version: 1.3.0
 config:
   script:
     parameterMode: SET
@@ -217,7 +217,7 @@ echo "Hello world"
 SnipKit will remove all parameter comments from a snippet when specifying `removeComments`:
 
 ```yaml [config.yaml]
-version: 1.2.0
+version: 1.3.0
 config:
   script:
     removeComments: true
@@ -245,7 +245,7 @@ Comments will always be removed if `parameterMode` is set to `REPLACE`.
 If you always want to explicitly confirm the command before execution, specify the `execConfirm` option as follows:
 
 ```yaml [config.yaml]
-version: 1.2.0
+version: 1.3.0
 config:
   script:
     execConfirm: true
@@ -265,7 +265,7 @@ Use the flag instead of the config option if you only want to explicitly confirm
 SnipKit will print the command to be executed on stdout if specified by the `execPrint` commands:
 
 ```yaml [config.yaml]
-version: 1.2.0
+version: 1.3.0
 config:
   script:
     execPrint: true
@@ -284,7 +284,7 @@ Use the flag instead of the config option if you only want to print the command 
 Have a look at the [Assistant][assistant] page on how to configure the assistant.
 
 ```yaml [config.yaml]
-version: 1.2.0
+version: 1.3.0
 config:
   assistant: {}
 ```
@@ -295,7 +295,7 @@ Have a look at the [Managers][managers] page on how to configure managers.
 
 
 ```yaml [config.yaml]
-version: 1.2.0
+version: 1.3.0
 config:
   managers: {}
 ```

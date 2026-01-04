@@ -8,7 +8,7 @@ site_description: >-
 repo_name: lemoony/snipkit
 repo_url: https://github.com/lemoony/snipkit
 
-copyright: Copyright &copy; 2024 lemoony
+copyright: Copyright &copy; 2026 lemoony
 
 theme:
   name: material
@@ -31,27 +31,26 @@ markdown_extensions:
   - attr_list
   - md_in_html
 nav:
-  - Home: 'index.md'
+  - Home: "index.md"
   - Getting started:
-    - Overview: 'getting-started/overview.md'
-    - Parameters: 'getting-started/parameters.md'
-    - Power Setup: 'getting-started/power-setup.md'
-    - Fzf: 'getting-started/fzf.md'
+      - Overview: "getting-started/overview.md"
+      - Parameters: "getting-started/parameters.md"
+      - Power Setup: "getting-started/power-setup.md"
+      - Fzf: "getting-started/fzf.md"
   - Configuration:
-      - Overview: 'configuration/overview.md'
-      - Themes: 'configuration/themes.md'
+      - Overview: "configuration/overview.md"
+      - Themes: "configuration/themes.md"
   - Managers:
-    - Overview: 'managers/overview.md'
-    - File System Library: 'managers/fslibrary.md'
-    - GitHub Gist: 'managers/githubgist.md'
-    - SnippetsLab: 'managers/snippetslab.md'
-    - Snip: 'managers/pictarinesnip.md'
-    - Pet: 'managers/pet.md'
+      - Overview: "managers/overview.md"
+      - File System Library: "managers/fslibrary.md"
+      - GitHub Gist: "managers/githubgist.md"
+      - SnippetsLab: "managers/snippetslab.md"
+      - Snip: "managers/pictarinesnip.md"
+      - Pet: "managers/pet.md"
   - Assistant:
-    - Overview: 'assistant/index.md'
-    - OpenAI: 'assistant/openai.md'
-    - Anthropic: 'assistant/anthropic.md'
-    - Gemini: 'assistant/gemini.md'
-    - Ollama: 'assistant/ollama.md'
-    - OpenAI-Compatible: 'assistant/openai-compatible.md'
-
+      - Overview: "assistant/index.md"
+      - OpenAI: "assistant/openai.md"
+      - Anthropic: "assistant/anthropic.md"
+      - Gemini: "assistant/gemini.md"
+      - Ollama: "assistant/ollama.md"
+      - OpenAI-Compatible: "assistant/openai-compatible.md"

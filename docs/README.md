@@ -76,13 +76,3 @@ Uses [Catppuccin](https://github.com/catppuccin/vitepress) theme:
 - **Dark mode**: Mocha flavor with Mauve accent
 - **Light mode**: Latte flavor
 
-## Migration from MkDocs
-
-The docs were migrated from MkDocs. Key syntax conversions:
-
-| MkDocs | VitePress |
-|--------|-----------|
-| `!!! tip "Title"` | `::: tip Title` |
-| `!!! warning` | `::: warning` |
-| `` ```yaml title="file"`` | `` ```yaml [file]`` |
-| `{ .md-button }` | Plain links |

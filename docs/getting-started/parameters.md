@@ -2,11 +2,13 @@
 
 To support snippet parameters, SnipKit requires special parameter syntax in your scripts.
 
-!!! info 
-    The parameter syntax used by SnipKit ensures that your scripts remain fully functional even when not executed via SnipKit. All parameter information is described through comments, making it a consistent way to document your scripts.
+::: info
+The parameter syntax used by SnipKit ensures that your scripts remain fully functional even when not executed via SnipKit. All parameter information is described through comments, making it a consistent way to document your scripts.
+:::
 
-!!! tip 
-    [SnipKit Assistant][assistant] helps you write snippets using the correct parameter syntax.
+::: tip
+[SnipKit Assistant][assistant] helps you write snippets using the correct parameter syntax.
+:::
 
 [assistant]: ../assistant/index
 
@@ -64,8 +66,9 @@ values will be omitted.
 You can define multiple lines starting with `${<varname>} Values:` to list pre-defined values. The listed values will be
 joined by SnipKit. Each value must be separated by the next via the character `,`.
 
-!!! attention 
-    If the value contains a comma itself, it needs to be escaped via `\,`.
+::: warning
+If the value contains a comma itself, it needs to be escaped via `\,`.
+:::
 
 ## Passwords
 

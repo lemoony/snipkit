@@ -17,20 +17,13 @@ hero:
       link: https://github.com/lemoony/snipkit
 
 features:
-  - icon:
-      src: /images/logo.png
+  - icon: 🔍
     title: Search Snippets
     details: Search for snippets by typing. SnipKit supports fuzzy matching for quick access to your scripts.
-  - icon:
-      src: /images/logo.png
+  - icon: ⚙️
     title: Parameters
     details: Execute snippets with parameters. Define default values or pick from pre-defined options.
-  - icon:
-      src: /images/logo.png
+  - icon: 🤖
     title: AI Assistant
     details: Generate scripts with the help of AI using the SnipKit Assistant feature.
-  - icon:
-      src: /images/logo.png
-    title: Themes
-    details: Customize SnipKit with themes to match the look of your terminal.
 ---
