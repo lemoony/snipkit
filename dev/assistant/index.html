@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
     
     
       
@@ -33,7 +33,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.618322db.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
       
       
 
@@ -1021,10 +1021,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#retry-or-tweak-prompts" class="md-nav__link">
+  <a href="#execution-preview" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Retry or Tweak Prompts
+        Execution Preview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#revise-prompts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Revise Prompts
       
     </span>
   </a>
@@ -1258,10 +1269,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#retry-or-tweak-prompts" class="md-nav__link">
+  <a href="#execution-preview" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Retry or Tweak Prompts
+        Execution Preview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#revise-prompts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Revise Prompts
       
     </span>
   </a>
@@ -1311,7 +1333,7 @@
 
 
 <h1 id="snipkit-assistant">SnipKit Assistant</h1>
-<p>The SnipKit Assistant helps you create SnipKit snippets using AI.</p>
+<p>The SnipKit Assistant helps you create SnipKit snippets using AI through an interactive chat-style interface. Generate scripts from natural language prompts, execute them with real-time output preview, and refine with follow-up prompts—all in a unified workflow.</p>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
 <p>Alternatively, you may try using <a href="https://chatgpt.com/g/g-A2y9cPWE7-snipkit-assistant">SnipKit GPT</a> to generate scripts compatible with SnipKit.</p>
@@ -1319,8 +1341,8 @@
 <p><img alt="Assistant Demo" src="../images/assistant/assistant.gif" /></p>
 <h2 id="supported-ai-providers">Supported AI Providers</h2>
 <ul>
-<li><a href="openai/">OpenAI</a> (GPT-4, GPT-4o)</li>
-<li><a href="anthropic/">Anthropic</a> (Claude)</li>
+<li><a href="openai/">OpenAI</a></li>
+<li><a href="anthropic/">Anthropic</a></li>
 <li><a href="gemini/">Google Gemini</a></li>
 <li><a href="ollama/">Ollama</a> (local models)</li>
 <li><a href="openai-compatible/">OpenAI-Compatible</a> (Together.ai, Groq, Azure OpenAI, etc.)</li>
@@ -1330,19 +1352,43 @@
 </code></pre></div>
 <div class="highlight"><span class="filename">Root-Level Command for Convenience</span><pre><span></span><code>snipkit<span class="w"> </span>ai
 </code></pre></div>
-<p>SnipKit opens the generated script in the <a href="../configuration/overview/#editor">configured editor</a>, allowing you to review and modify it if necessary. The script will be executed once you close the editor.</p>
-<h2 id="retry-or-tweak-prompts">Retry or Tweak Prompts</h2>
-<p>If the script didn't work as expected or if you want to add more information, you can do so after the execution.</p>
+<p>After entering your prompt, SnipKit displays the generated script directly in the chat interface. You can then choose from the action bar:</p>
+<ul>
+<li><strong>Execute</strong> (<code>E</code>) - Run the script immediately (prompts for parameter values if needed)</li>
+<li><strong>Open Editor</strong> (<code>O</code>) - Edit the script in your <a href="../configuration/overview/#editor">configured editor</a> before execution</li>
+<li><strong>Revise</strong> (<code>R</code>) - Provide a follow-up prompt to refine the script</li>
+<li><strong>Cancel</strong> (<code>C</code>) - Exit without executing</li>
+</ul>
+<h2 id="execution-preview">Execution Preview</h2>
+<p>When you execute a script, SnipKit displays the output in real-time as the command runs. After execution completes, you'll see:</p>
+<ul>
+<li>The complete script output (stdout and stderr)</li>
+<li>Exit code</li>
+<li>Execution duration</li>
+</ul>
+<p>This information helps you quickly understand whether the script worked as expected and diagnose any issues.</p>
+<h2 id="revise-prompts">Revise Prompts</h2>
+<p>If the script didn't work as expected or you want to refine it, select <strong>Revise</strong> (<code>R</code>) from the action bar after execution. The chat interface preserves your full conversation history, including:</p>
+<ul>
+<li>Previous prompts</li>
+<li>Generated scripts</li>
+<li>Execution output and results</li>
+</ul>
 <p><img alt="Assistant Wizard" src="../images/assistant/assistant-zip.gif" /></p>
-<p>SnipKit remembers the previous prompt and script output. Everything is automatically included for the next prompt, so you don't need to provide anything unless you want to add new details.</p>
+<p>When you provide a follow-up prompt, SnipKit automatically includes the context from previous interactions, so you can simply describe what needs to change.</p>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>If the script didn't work due to errors visible in the output, you may not need to provide a new prompt. Just leave it empty and press enter.</p>
+<p>If the script failed due to errors visible in the output, try revising with an empty prompt—the AI will use the error output to fix the issue automatically.</p>
 </div>
 <h2 id="save-generated-snippets">Save Generated Snippets</h2>
 <p>SnipKit supports saving generated snippets to your <a href="../managers/fslibrary/">File System Library</a>.</p>
 <p><img alt="Assistant Wizard" src="../images/assistant/assistant-save.gif" /></p>
-<p>If you set <code>saveMode: FS_LIBRARY</code>, the assistant will ask whether you want to save the generated script after its execution.</p>
+<p>After executing a script, select <strong>Save &amp; Exit</strong> (<code>S</code>) from the action bar. A modal dialog lets you specify:</p>
+<ul>
+<li><strong>Filename</strong> - The file name for the saved script</li>
+<li><strong>Snippet Name</strong> - A descriptive title for the snippet</li>
+</ul>
+<p>If you set <code>saveMode: FS_LIBRARY</code>, the save option will be available in the post-execution action bar.</p>
 <div class="highlight"><span class="filename">config.yaml</span><pre><span></span><code><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.3.0</span>
 <span class="nt">config</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">assistant</span><span class="p">:</span>
@@ -1438,10 +1484,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections"], "search": "../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>
