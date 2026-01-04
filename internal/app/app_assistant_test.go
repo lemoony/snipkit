@@ -180,7 +180,7 @@ echo edited`
 
 	// First call: user enters a prompt (creates history entry)
 	tui.On(mockutil.ShowUnifiedAssistantChat, mock.Anything).Return(
-		nil, []string{}, chat.PreviewActionRevise, "test prompt", "", "",
+		assistant.ParsedScript{}, []string{}, chat.PreviewActionRevise, "test prompt", "", "",
 	).Once()
 	// Second call: script ready, user chooses Edit
 	tui.On(mockutil.ShowUnifiedAssistantChat, mock.Anything).Return(
@@ -217,20 +217,20 @@ echo edited`
 	assert.Nil(t, capturedConfig.History[0].ExitCode)
 }
 
-func Test_App_GenerateSnippetWithAssistant_ExecuteNilScript(t *testing.T) {
+func Test_App_GenerateSnippetWithAssistant_ExecuteEmptyScript(t *testing.T) {
 	tui := uiMocks.TUI{}
 	tui.On(mockutil.ApplyConfig, mock.Anything, mock.Anything).Return()
 	// First call: user enters a prompt (creates history entry)
 	tui.On(mockutil.ShowUnifiedAssistantChat, mock.Anything).Return(
-		nil,
+		assistant.ParsedScript{},
 		[]string{},
 		chat.PreviewActionRevise,
 		"test prompt", // latestPrompt - this creates a history entry
 		"", "",
 	).Once()
-	// Second call: script generation phase, but TUI returns nil script with Execute
+	// Second call: script generation phase, but TUI returns empty script with Execute
 	tui.On(mockutil.ShowUnifiedAssistantChat, mock.Anything).Return(
-		nil, // nil script - defensive error path
+		assistant.ParsedScript{}, // empty script - defensive error path
 		[]string{},
 		chat.PreviewActionExecute,
 		"", "", "",
@@ -240,7 +240,7 @@ func Test_App_GenerateSnippetWithAssistant_ExecuteNilScript(t *testing.T) {
 	tui.On(mockutil.ShowUnifiedAssistantChat, mock.Anything).Run(func(args mock.Arguments) {
 		capturedConfig = args.Get(0).(chat.UnifiedConfig)
 	}).Return(
-		nil,
+		assistant.ParsedScript{},
 		[]string{},
 		chat.PreviewActionExitNoSave,
 		"", "", "",
@@ -274,63 +274,6 @@ func Test_App_GenerateSnippetWithAssistant_ExecuteNilScript(t *testing.T) {
 	assert.Equal(t, 1, *capturedConfig.History[0].ExitCode)
 }
 
-func Test_App_GenerateSnippetWithAssistant_ExecuteWrongScriptType(t *testing.T) {
-	tui := uiMocks.TUI{}
-	tui.On(mockutil.ApplyConfig, mock.Anything, mock.Anything).Return()
-	// First call: user enters a prompt (creates history entry)
-	tui.On(mockutil.ShowUnifiedAssistantChat, mock.Anything).Return(
-		nil,
-		[]string{},
-		chat.PreviewActionRevise,
-		"test prompt", // latestPrompt - this creates a history entry
-		"", "",
-	).Once()
-	// Second call: script generation phase, but TUI returns wrong type with Execute
-	tui.On(mockutil.ShowUnifiedAssistantChat, mock.Anything).Return(
-		"not a ParsedScript", // wrong type - defensive error path
-		[]string{},
-		chat.PreviewActionExecute,
-		"", "", "",
-	).Once()
-	// Third call: verify error was recorded in history
-	var capturedConfig chat.UnifiedConfig
-	tui.On(mockutil.ShowUnifiedAssistantChat, mock.Anything).Run(func(args mock.Arguments) {
-		capturedConfig = args.Get(0).(chat.UnifiedConfig)
-	}).Return(
-		nil,
-		[]string{},
-		chat.PreviewActionExitNoSave,
-		"", "", "",
-	).Once()
-
-	cfg := configtest.NewTestConfig().Config
-	cfgService := configMocks.ConfigService{}
-	cfgService.On("LoadConfig").Return(cfg, nil)
-	cfgService.On("NeedsMigration").Return(false, "")
-
-	assistantMock := assistantMocks.Assistant{}
-	assistantMock.On("Initialize").Return(true, uimsg.Printable{})
-	assistantMock.On("Query", mock.Anything).Return(assistant.ParsedScript{
-		Contents: "echo test", Filename: "test.sh",
-	})
-
-	app := NewApp(
-		WithTUI(&tui),
-		WithConfigService(&cfgService),
-		WithAssistantProviderFunc(func(config assistant.Config, demoConfig assistant.DemoConfig) assistant.Assistant {
-			return &assistantMock
-		}),
-	)
-
-	app.GenerateSnippetWithAssistant([]string{}, 0)
-
-	// Verify error was recorded in history
-	assert.Len(t, capturedConfig.History, 1)
-	assert.Equal(t, "Error: Invalid script type", capturedConfig.History[0].ExecutionOutput)
-	assert.NotNil(t, capturedConfig.History[0].ExitCode)
-	assert.Equal(t, 1, *capturedConfig.History[0].ExitCode)
-}
-
 func Test_App_GenerateSnippetWithAssistant_ExecuteAgain(t *testing.T) {
 	script := assistant.ParsedScript{Contents: "#!/bin/bash\necho hello", Filename: "test.sh"}
 
@@ -339,7 +282,7 @@ func Test_App_GenerateSnippetWithAssistant_ExecuteAgain(t *testing.T) {
 
 	// First call: user enters a prompt (creates history entry)
 	tui.On(mockutil.ShowUnifiedAssistantChat, mock.Anything).Return(
-		nil, []string{}, chat.PreviewActionRevise, "test prompt", "", "",
+		assistant.ParsedScript{}, []string{}, chat.PreviewActionRevise, "test prompt", "", "",
 	).Once()
 	// Second call: script generated, user executes (first execution)
 	tui.On(mockutil.ShowUnifiedAssistantChat, mock.Anything).Return(
@@ -354,7 +297,7 @@ func Test_App_GenerateSnippetWithAssistant_ExecuteAgain(t *testing.T) {
 	var configAfterSecondExec chat.UnifiedConfig
 	tui.On(mockutil.ShowUnifiedAssistantChat, mock.Anything).Run(func(args mock.Arguments) {
 		configAfterSecondExec = args.Get(0).(chat.UnifiedConfig)
-	}).Return(nil, []string{}, chat.PreviewActionExitNoSave, "", "", "").Once()
+	}).Return(assistant.ParsedScript{}, []string{}, chat.PreviewActionExitNoSave, "", "", "").Once()
 
 	app := NewApp(
 		WithTUI(&tui), WithConfigService(cfgService),

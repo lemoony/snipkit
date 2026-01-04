@@ -14,7 +14,10 @@ import (
 	"github.com/lemoony/snipkit/internal/utils/system"
 )
 
-var placeholderRegex = regexp.MustCompile(`<(.*?)>`)
+var (
+	placeholderRegex     = regexp.MustCompile(`<(.*?)>`)
+	parameterValuesRegex = regexp.MustCompile(`\|\_[^\|\|]+\_\|`)
+)
 
 type tomlSnippetsFile struct {
 	Snippets []tomlSnippet
@@ -90,8 +93,6 @@ func mapToSnippet(raw tomlSnippet) model.Snippet {
 func parseParameters(command string) []model.Parameter {
 	const expectedMatches = 2
 
-	testRegex := regexp.MustCompile(`\|\_[^\|\|]+\_\|`)
-
 	var result []model.Parameter
 	matches := placeholderRegex.FindAllStringSubmatch(command, -1)
 	for i := range matches {
@@ -101,7 +102,7 @@ func parseParameters(command string) []model.Parameter {
 			defaultValue := ""
 			var values []string
 			if len(split) > 1 {
-				if multipleDefValues := testRegex.FindAllStringSubmatch(split[1], -1); multipleDefValues != nil {
+				if multipleDefValues := parameterValuesRegex.FindAllStringSubmatch(split[1], -1); multipleDefValues != nil {
 					println(multipleDefValues)
 					for _, val := range multipleDefValues {
 						values = append(values, strings.Trim(val[0], "|_"))

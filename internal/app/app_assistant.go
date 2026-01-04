@@ -46,40 +46,36 @@ func (a *appImpl) saveScript(contents []byte, title, filename string) {
 }
 
 // handleCancelAction handles the cancel/save action.
-func (a *appImpl) handleCancelAction(scriptInterface interface{}, saveFilename, saveSnippetName string) {
+func (a *appImpl) handleCancelAction(script assistant.ParsedScript, saveFilename, saveSnippetName string) {
 	// Check if save data was provided
 	if saveFilename != "" || saveSnippetName != "" {
 		// User saved from modal
-		if scriptInterface != nil {
-			if parsed, ok := scriptInterface.(assistant.ParsedScript); ok {
-				snippet := assistant.PrepareSnippet([]byte(parsed.Contents), parsed)
-				filename := stringutil.StringOrDefault(saveFilename, assistant.RandomScriptFilename())
-				title := stringutil.StringOrDefault(saveSnippetName, parsed.Title)
+		if script.Contents != "" {
+			snippet := assistant.PrepareSnippet([]byte(script.Contents), script)
+			filename := stringutil.StringOrDefault(saveFilename, assistant.RandomScriptFilename())
+			title := stringutil.StringOrDefault(saveSnippetName, script.Title)
 
-				log.Debug().
-					Str("title", title).
-					Str("filename", filename).
-					Msg("Saving assistant-generated snippet")
+			log.Debug().
+				Str("title", title).
+				Str("filename", filename).
+				Msg("Saving assistant-generated snippet")
 
-				a.saveScript([]byte(snippet.GetContent()), title, filename)
-			}
+			a.saveScript([]byte(snippet.GetContent()), title, filename)
 		}
 	}
 }
 
 // handleReviseAction handles the revise action. Returns (shouldReturn, updatedHistory).
-func (a *appImpl) handleReviseAction(history []chat.HistoryEntry, scriptInterface interface{}, latestPrompt string) (bool, []chat.HistoryEntry) {
+func (a *appImpl) handleReviseAction(history []chat.HistoryEntry, script assistant.ParsedScript, latestPrompt string) (bool, []chat.HistoryEntry) {
 	if latestPrompt == "" {
 		log.Warn().Msg("PreviewActionRevise but no prompt provided")
 		return true, history
 	}
 
 	// Update last history entry with current script if present
-	if scriptInterface != nil {
-		if parsed, ok := scriptInterface.(assistant.ParsedScript); ok && len(history) > 0 {
-			lastIdx := len(history) - 1
-			history[lastIdx].GeneratedScript = parsed.Contents
-		}
+	if script.Contents != "" && len(history) > 0 {
+		lastIdx := len(history) - 1
+		history[lastIdx].GeneratedScript = script.Contents
 	}
 
 	// Add new history entry with the new prompt
@@ -91,20 +87,14 @@ func (a *appImpl) handleReviseAction(history []chat.HistoryEntry, scriptInterfac
 }
 
 // handleExecuteAction handles the execute action and returns updated history.
-func (a *appImpl) handleExecuteAction(history []chat.HistoryEntry, scriptInterface interface{}, paramValues []string) []chat.HistoryEntry {
-	if scriptInterface == nil {
+func (a *appImpl) handleExecuteAction(history []chat.HistoryEntry, script assistant.ParsedScript, paramValues []string) []chat.HistoryEntry {
+	if script.Contents == "" {
 		log.Error().Msg("Execute action but no script available")
 		return a.addExecutionError(history, "Error: No script available to execute")
 	}
 
-	parsed, ok := scriptInterface.(assistant.ParsedScript)
-	if !ok {
-		log.Error().Msgf("Script interface is wrong type: %T", scriptInterface)
-		return a.addExecutionError(history, "Error: Invalid script type")
-	}
-
 	// Prepare snippet and check for parameters
-	snippet := assistant.PrepareSnippet([]byte(parsed.Contents), parsed)
+	snippet := assistant.PrepareSnippet([]byte(script.Contents), script)
 	parameters := snippet.GetParameters()
 
 	if len(parameters) > 0 && len(paramValues) == 0 {
@@ -117,23 +107,17 @@ func (a *appImpl) handleExecuteAction(history []chat.HistoryEntry, scriptInterfa
 	executionTime := time.Now()
 	log.Trace().Msg("Snippet execution completed, about to return to chat")
 
-	return a.updateHistoryWithSuccess(history, parsed, capturedResult, executionTime)
+	return a.updateHistoryWithSuccess(history, script, capturedResult, executionTime)
 }
 
 // handleEditAction handles the edit action. Returns (shouldContinue, updatedHistory).
-func (a *appImpl) handleEditAction(history []chat.HistoryEntry, scriptInterface interface{}, tmpDirSvc tmpdir.TmpDir) (bool, []chat.HistoryEntry) {
-	if scriptInterface == nil {
+func (a *appImpl) handleEditAction(history []chat.HistoryEntry, script assistant.ParsedScript, tmpDirSvc tmpdir.TmpDir) (bool, []chat.HistoryEntry) {
+	if script.Contents == "" {
 		log.Warn().Msg("Edit action but no script available")
 		return false, history
 	}
 
-	parsed, ok := scriptInterface.(assistant.ParsedScript)
-	if !ok {
-		log.Warn().Msg("Script interface is not ParsedScript type")
-		return false, history
-	}
-
-	fileOk, filePath := tmpDirSvc.CreateTempFile([]byte(parsed.Contents))
+	fileOk, filePath := tmpDirSvc.CreateTempFile([]byte(script.Contents))
 	if !fileOk {
 		return false, history
 	}
@@ -150,8 +134,8 @@ func (a *appImpl) handleEditAction(history []chat.HistoryEntry, scriptInterface 
 	if len(history) > 0 {
 		lastIdx := len(history) - 1
 		history[lastIdx].GeneratedScript = string(updatedContents)
-		history[lastIdx].ScriptFilename = parsed.Filename
-		history[lastIdx].ScriptTitle = parsed.Title
+		history[lastIdx].ScriptFilename = script.Filename
+		history[lastIdx].ScriptTitle = script.Title
 	}
 
 	return true, history
@@ -271,7 +255,10 @@ func (a *appImpl) buildUnifiedConfig(history []chat.HistoryEntry, asst assistant
 	if lastEntry.UserPrompt != "" && lastEntry.GeneratedScript == "" {
 		// Start async generation
 		prompt := lastEntry.UserPrompt
-		scriptChan := make(chan interface{}, 1)
+		// scriptChan is buffered (size 1) so the goroutine won't block even if
+		// the user cancels before reading. The channel will be garbage collected
+		// along with its contents when no longer referenced.
+		scriptChan := make(chan assistant.ParsedScript, 1)
 		go func() {
 			script := asst.Query(prompt)
 			scriptChan <- script

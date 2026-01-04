@@ -15,6 +15,7 @@ import (
 	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/creack/pty"
+	"github.com/phuslu/log"
 	"golang.org/x/term"
 )
 
@@ -35,6 +36,9 @@ const ctrlC = 3
 
 // controlSeqRegex matches terminal control sequences that shouldn't be stored in history.
 var controlSeqRegex = regexp.MustCompile(`\x1b\][^\x07]*(?:\x07|\x1b\\)|\x1b\[[0-9;]*R`)
+
+// csiRegex matches CSI sequences (cursor movement, colors, etc.).
+var csiRegex = regexp.MustCompile(`\x1b\[[0-9;]*[A-Za-z]`)
 
 // CapturedOutput holds the result of script execution.
 type CapturedOutput struct {
@@ -257,7 +261,10 @@ func RunWithViewer(cmd *exec.Cmd, fromAssistant bool) *CapturedOutput {
 
 	// Restore terminal from raw mode
 	if rawModeEnabled {
-		_ = term.Restore(int(os.Stdin.Fd()), oldState)
+		if restoreErr := term.Restore(int(os.Stdin.Fd()), oldState); restoreErr != nil {
+			// Log the error but don't panic - user can reset terminal with 'reset' command
+			log.Warn().Err(restoreErr).Msg("Failed to restore terminal state")
+		}
 	}
 
 	// Reset terminal state explicitly and allow it to settle before Tea starts
@@ -287,9 +294,7 @@ func cleanOutput(raw string) string {
 	// Remove OSC sequences and cursor position reports
 	cleaned := controlSeqRegex.ReplaceAllString(raw, "")
 
-	// Remove other common control sequences
-	// CSI sequences (cursor movement, colors, etc.)
-	csiRegex := regexp.MustCompile(`\x1b\[[0-9;]*[A-Za-z]`)
+	// Remove CSI sequences (cursor movement, colors, etc.)
 	cleaned = csiRegex.ReplaceAllString(cleaned, "")
 
 	// Remove carriage returns followed by content (overwritten text)

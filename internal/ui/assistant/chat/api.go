@@ -3,6 +3,7 @@ package chat
 import (
 	tea "github.com/charmbracelet/bubbletea"
 
+	"github.com/lemoony/snipkit/internal/assistant"
 	"github.com/lemoony/snipkit/internal/ui/style"
 )
 
@@ -16,7 +17,7 @@ import (
 // - Post-execution mode: Script has been executed, user chooses next step
 //
 // Returns:
-//   - script: The generated script (interface{})
+//   - script: The generated script (assistant.ParsedScript)
 //   - parameterValues: Collected parameter values ([]string)
 //   - action: The user's chosen action (PreviewAction)
 //   - latestPrompt: The user's entered prompt (string) - set when action is PreviewActionRevise
@@ -26,11 +27,11 @@ func ShowUnifiedChat(
 	config UnifiedConfig,
 	styler style.Style,
 	teaOptions ...tea.ProgramOption,
-) (interface{}, []string, PreviewAction, string, string, string) {
+) (assistant.ParsedScript, []string, PreviewAction, string, string, string) {
 	m := newUnifiedChatModel(config, styler)
 
 	if teaModel, err := tea.NewProgram(m, append(teaOptions, tea.WithAltScreen(), tea.WithMouseCellMotion())...).Run(); err != nil {
-		return nil, nil, PreviewActionCancel, "", "", ""
+		return assistant.ParsedScript{}, nil, PreviewActionCancel, "", "", ""
 	} else if resultModel, ok := teaModel.(*unifiedChatModel); ok {
 		return resultModel.generatedScript,
 			resultModel.parameterValues,
@@ -40,5 +41,5 @@ func ShowUnifiedChat(
 			resultModel.saveSnippetName
 	}
 
-	return nil, nil, PreviewActionCancel, "", "", ""
+	return assistant.ParsedScript{}, nil, PreviewActionCancel, "", "", ""
 }

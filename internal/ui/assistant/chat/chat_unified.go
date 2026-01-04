@@ -2,7 +2,6 @@ package chat
 
 import (
 	"fmt"
-	"reflect"
 	"strings"
 
 	"github.com/charmbracelet/bubbles/textinput"
@@ -49,7 +48,7 @@ func (m UIMode) String() string {
 type UnifiedConfig struct {
 	History    []HistoryEntry
 	Generating bool
-	ScriptChan chan interface{}
+	ScriptChan chan assistant.ParsedScript
 	Parameters []model.Parameter
 }
 
@@ -78,8 +77,8 @@ type unifiedChatModel struct {
 	// Generation state (from previewModel)
 	generating      bool
 	spinnerFrame    int
-	scriptChan      chan interface{}
-	generatedScript interface{}
+	scriptChan      chan assistant.ParsedScript
+	generatedScript assistant.ParsedScript
 
 	// Modal state (from previewModel)
 	modalState      modalState
@@ -181,7 +180,7 @@ func (m *unifiedChatModel) Init() tea.Cmd {
 		Str("mode", m.currentMode.String()).
 		Int("parameters_count", len(m.parameters)).
 		Int("parameter_values_count", len(m.parameterValues)).
-		Bool("has_script", m.generatedScript != nil).
+		Bool("has_script", m.generatedScript.Contents != "").
 		Msg("Initializing unified chat model")
 
 	var cmds []tea.Cmd
@@ -499,24 +498,14 @@ func (m *unifiedChatModel) handleScriptReady(msg scriptReadyMsg) (tea.Model, tea
 	m.generating = false
 
 	// Extract script content and update the last message
-	var scriptContent string
+	scriptContent := msg.script.Contents
 	if len(m.messages) > 0 && m.messages[len(m.messages)-1].Content == placeholderGenerating {
-		// Extract Contents field using reflection
-		v := reflect.ValueOf(msg.script)
-		if v.Kind() == reflect.Struct {
-			contentsField := v.FieldByName("Contents")
-			if contentsField.IsValid() && contentsField.Kind() == reflect.String {
-				scriptContent = contentsField.String()
-				m.messages[len(m.messages)-1].Content = scriptContent
-			}
-		}
+		m.messages[len(m.messages)-1].Content = scriptContent
 	}
 
 	// Extract parameters from the generated script
 	if scriptContent != "" {
-		snippet := assistant.PrepareSnippet([]byte(scriptContent), assistant.ParsedScript{
-			Contents: scriptContent,
-		})
+		snippet := assistant.PrepareSnippet([]byte(scriptContent), msg.script)
 		m.parameters = snippet.GetParameters()
 		log.Trace().
 			Int("parameters_count", len(m.parameters)).
@@ -683,19 +672,8 @@ func (m *unifiedChatModel) handlePostExecutionAction(action PreviewAction) (tea.
 		m.modalState = modalSave
 
 		// Extract proposed save values from generated script
-		proposedFilename := ""
-		proposedSnippetName := ""
-		if m.generatedScript != nil {
-			v := reflect.ValueOf(m.generatedScript)
-			if v.Kind() == reflect.Struct {
-				if f := v.FieldByName("Filename"); f.IsValid() && f.Kind() == reflect.String {
-					proposedFilename = f.String()
-				}
-				if f := v.FieldByName("Title"); f.IsValid() && f.Kind() == reflect.String {
-					proposedSnippetName = f.String()
-				}
-			}
-		}
+		proposedFilename := m.generatedScript.Filename
+		proposedSnippetName := m.generatedScript.Title
 
 		m.saveModal = NewSaveModal(proposedFilename, proposedSnippetName, m.styler, afero.NewOsFs())
 		return m, m.saveModal.Init()

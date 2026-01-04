@@ -28,7 +28,7 @@ func Test_newUnifiedChatModel_EmptyConfig(t *testing.T) {
 }
 
 func Test_newUnifiedChatModel_GeneratingMode(t *testing.T) {
-	scriptChan := make(chan interface{}, 1)
+	scriptChan := make(chan assistant.ParsedScript, 1)
 	config := UnifiedConfig{
 		History:    []HistoryEntry{{UserPrompt: "test prompt"}},
 		Generating: true,
@@ -142,7 +142,7 @@ func Test_unifiedChatModel_HandleInputMode_EnterEmpty(t *testing.T) {
 // Generating mode test
 
 func Test_unifiedChatModel_HandleGeneratingMode_Escape(t *testing.T) {
-	scriptChan := make(chan interface{}, 1)
+	scriptChan := make(chan assistant.ParsedScript, 1)
 	config := UnifiedConfig{
 		History:    []HistoryEntry{{UserPrompt: "test"}},
 		Generating: true,
@@ -423,7 +423,7 @@ func Test_unifiedChatModel_HandleWindowSize_InputMode(t *testing.T) {
 }
 
 func Test_unifiedChatModel_HandleWindowSize_GeneratingMode(t *testing.T) {
-	scriptChan := make(chan interface{}, 1)
+	scriptChan := make(chan assistant.ParsedScript, 1)
 	config := UnifiedConfig{
 		History:    []HistoryEntry{{UserPrompt: "test"}},
 		Generating: true,

@@ -14,6 +14,7 @@ import (
 	"github.com/rivo/tview"
 	"github.com/spf13/afero"
 
+	"github.com/lemoony/snipkit/internal/assistant"
 	"github.com/lemoony/snipkit/internal/model"
 	"github.com/lemoony/snipkit/internal/ui/assistant/chat"
 	"github.com/lemoony/snipkit/internal/ui/assistant/wizard"
@@ -78,7 +79,7 @@ type TUI interface {
 	ShowPicker(title string, items []picker.Item, selectedItem *picker.Item, options ...tea.ProgramOption) (int, bool)
 	ShowSync() sync.Screen
 	ShowAssistantPrompt([]chat.HistoryEntry) (bool, string)
-	ShowUnifiedAssistantChat(config chat.UnifiedConfig) (interface{}, []string, chat.PreviewAction, string, string, string)
+	ShowUnifiedAssistantChat(config chat.UnifiedConfig) (assistant.ParsedScript, []string, chat.PreviewAction, string, string, string)
 	ShowAssistantWizard(config wizard.Config) (bool, wizard.Result)
 	ShowSpinner(string, string, chan bool)
 }
@@ -206,7 +207,7 @@ func (t tuiImpl) ShowAssistantPrompt(history []chat.HistoryEntry) (bool, string)
 	return chat.ShowChat(chat.Config{History: history}, t.styler, tea.WithInput(t.stdio.In), tea.WithOutput(t.stdio.Out))
 }
 
-func (t tuiImpl) ShowUnifiedAssistantChat(config chat.UnifiedConfig) (interface{}, []string, chat.PreviewAction, string, string, string) {
+func (t tuiImpl) ShowUnifiedAssistantChat(config chat.UnifiedConfig) (assistant.ParsedScript, []string, chat.PreviewAction, string, string, string) {
 	return chat.ShowUnifiedChat(config, t.styler, tea.WithInput(t.stdio.In), tea.WithOutput(t.stdio.Out))
 }
 

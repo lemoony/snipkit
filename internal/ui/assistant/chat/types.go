@@ -4,6 +4,8 @@ import (
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
+
+	"github.com/lemoony/snipkit/internal/assistant"
 )
 
 // PreviewAction represents an action taken in the preview/chat interface.
@@ -39,7 +41,7 @@ type tickMsg struct{}
 
 // scriptReadyMsg is sent when async script generation completes.
 type scriptReadyMsg struct {
-	script interface{}
+	script assistant.ParsedScript
 }
 
 // tick returns a command that sends a tick message after a delay.
@@ -50,7 +52,7 @@ func tick() tea.Cmd {
 }
 
 // waitForScript waits for a script to be generated and sends a message when ready.
-func waitForScript(scriptChan chan interface{}) tea.Cmd {
+func waitForScript(scriptChan chan assistant.ParsedScript) tea.Cmd {
 	return func() tea.Msg {
 		script := <-scriptChan
 		return scriptReadyMsg{script: script}

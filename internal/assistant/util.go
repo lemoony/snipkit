@@ -9,6 +9,14 @@ import (
 	"github.com/lemoony/snipkit/internal/model"
 )
 
+// Pre-compiled regex patterns for script parsing.
+var (
+	scriptBlockRegex  = regexp.MustCompile("```(bash|sh)\\s+([\\s\\S]*?)```")
+	filenameLineRegex = regexp.MustCompile(`(?m)^# Filename:\s*(\S+)\s*\n`)
+	titleLineRegex    = regexp.MustCompile(`(?m)^# Snippet Title:\s*(.+)\s*\n`)
+	commentCleanRegex = regexp.MustCompile(`(?m)^(\s*#\s*$\n\s*#\s*$\n?)`)
+)
+
 func PrepareSnippet(content []byte, parsed ParsedScript) model.Snippet {
 	contentStr := string(content)
 	return snippetImpl{
@@ -42,12 +50,8 @@ type ParsedScript struct {
 }
 
 func parseScript(text string) ParsedScript {
-	// Regex pattern to match bash Contents blocks in markdown
-	pattern := "```(bash|sh)\\s+([\\s\\S]*?)```"
-	re := regexp.MustCompile(pattern)
-
 	// Find all matches of bash/sh code blocks
-	matches := re.FindAllStringSubmatch(text, -1)
+	matches := scriptBlockRegex.FindAllStringSubmatch(text, -1)
 
 	var script string
 	var filename string
@@ -62,31 +66,26 @@ func parseScript(text string) ParsedScript {
 	}
 
 	removedLines := 0
-	// Step 1: Remove the line starting with "# Filename:"
-	filenameLineRe := regexp.MustCompile(`(?m)^# Filename:\s*(\S+)\s*\n`)
-	// Extract the Filename if it exists
-	filenameMatch := filenameLineRe.FindStringSubmatch(script)
+
+	// Step 1: Extract and remove the "# Filename:" line
+	filenameMatch := filenameLineRegex.FindStringSubmatch(script)
 	if len(filenameMatch) > 1 {
-		filename = filenameMatch[1] // Extracted Filename
+		filename = filenameMatch[1]
 		removedLines++
 	}
-	// Remove the "# Filename:" line from the Contents
-	script = filenameLineRe.ReplaceAllString(script, "")
+	script = filenameLineRegex.ReplaceAllString(script, "")
 
-	// Step 2: Remove the line starting with "# Snippet Title:"
-	titleLineRe := regexp.MustCompile(`(?m)^# Snippet Title:\s*(.+)\s*\n`)
-	// Extract the Snippet Title if it exists
-	titleMatch := titleLineRe.FindStringSubmatch(script)
+	// Step 2: Extract and remove the "# Snippet Title:" line
+	titleMatch := titleLineRegex.FindStringSubmatch(script)
 	if len(titleMatch) > 1 {
-		title = titleMatch[1] // Extracted Title
+		title = titleMatch[1]
 		removedLines++
 	}
-	// Remove the "# Snippet Title:" line from the Contents
-	script = titleLineRe.ReplaceAllString(script, "")
+	script = titleLineRegex.ReplaceAllString(script, "")
 
+	// Clean up empty comment lines if we removed metadata
 	if removedLines > 0 {
-		commentRe := regexp.MustCompile(`(?m)^(\s*#\s*$\n\s*#\s*$\n?)`)
-		script = commentRe.ReplaceAllString(script, "")
+		script = commentCleanRegex.ReplaceAllString(script, "")
 	}
 
 	return ParsedScript{
