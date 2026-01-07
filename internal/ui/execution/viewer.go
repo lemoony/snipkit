@@ -61,10 +61,9 @@ func helpLine(running bool, fromAssistant bool) string {
 	return gray + "Enter/Ctrl+C: quit" + reset
 }
 
-// RunWithViewer executes the command with real-time output and a help line.
-// The fromAssistant parameter controls the help text shown after execution.
-//
-//nolint:gocognit,gocyclo,funlen // Complex function managing PTY, terminal state, and concurrent I/O
+// RunWithViewer executes the command with real-time output.
+// When fromAssistant is true, shows UI elements (header, spinner, help line, waits for Enter).
+// When fromAssistant is false, runs the command directly without any UI chrome.
 func RunWithViewer(cmd *exec.Cmd, fromAssistant bool) *CapturedOutput {
 	// Get terminal size
 	cols, rows := 80, 24
@@ -85,6 +84,120 @@ func RunWithViewer(cmd *exec.Cmd, fromAssistant bool) *CapturedOutput {
 	// Channel to signal process completion
 	done := make(chan struct{})
 
+	// Direct execution: simple PTY without UI elements
+	if !fromAssistant {
+		return runDirect(cmd, ptmx, &outputBuf, done, cols, rows)
+	}
+
+	// Assistant execution: full UI with spinner, help line, and Enter wait
+	return runWithAssistantUI(cmd, ptmx, &outputBuf, done, cols, rows)
+}
+
+// runDirect executes the command with PTY but without any UI elements.
+// Used for direct command execution (not from assistant).
+//
+//nolint:gocognit,funlen // Complex function managing PTY and concurrent I/O
+func runDirect(cmd *exec.Cmd, ptmx *os.File, outputBuf *bytes.Buffer, done chan struct{}, cols, rows int) *CapturedOutput {
+	// Set PTY size
+	_ = pty.Setsize(ptmx, &pty.Winsize{Rows: uint16(rows), Cols: uint16(cols)})
+
+	// Handle window resize
+	sigCh := make(chan os.Signal, 1)
+	signal.Notify(sigCh, syscall.SIGWINCH)
+	go func() {
+		for range sigCh {
+			if w, h, sizeErr := term.GetSize(int(os.Stdout.Fd())); sizeErr == nil {
+				_ = pty.Setsize(ptmx, &pty.Winsize{Rows: uint16(h), Cols: uint16(w)})
+			}
+		}
+	}()
+	defer signal.Stop(sigCh)
+
+	// Set terminal to raw mode for proper input handling
+	oldState, rawErr := term.MakeRaw(int(os.Stdin.Fd()))
+	rawModeEnabled := rawErr == nil
+
+	// Forward stdin to PTY
+	go func() {
+		buf := make([]byte, stdinReadBufferSize)
+		for {
+			n, readErr := os.Stdin.Read(buf)
+			if readErr != nil {
+				break
+			}
+			if n > 0 {
+				if _, writeErr := ptmx.Write(buf[:n]); writeErr != nil {
+					return
+				}
+			}
+		}
+	}()
+
+	// Copy output from PTY to stdout and buffer
+	go func() {
+		buf := make([]byte, ptyReadBufferSize)
+		for {
+			n, readErr := ptmx.Read(buf)
+			if n > 0 {
+				_, _ = os.Stdout.Write(buf[:n])
+				outputBuf.Write(buf[:n])
+			}
+			if readErr != nil {
+				break
+			}
+		}
+		close(done)
+	}()
+
+	// Track execution time
+	startTime := time.Now()
+
+	// Wait for command to finish
+	cmdErr := cmd.Wait()
+	duration := time.Since(startTime)
+
+	// Wait for output goroutine to finish
+	<-done
+
+	// Extract exit code
+	exitCode := 0
+	if cmdErr != nil {
+		if exitErr, ok := cmdErr.(*exec.ExitError); ok {
+			exitCode = exitErr.ExitCode()
+		} else {
+			exitCode = -1
+		}
+	}
+
+	// Close PTY
+	_ = ptmx.Close()
+
+	// Restore terminal from raw mode
+	if rawModeEnabled {
+		if restoreErr := term.Restore(int(os.Stdin.Fd()), oldState); restoreErr != nil {
+			log.Warn().Err(restoreErr).Msg("Failed to restore terminal state")
+		}
+	}
+
+	// Clean output for history
+	rawOutput := outputBuf.String()
+	outputToReturn := cleanOutput(rawOutput)
+	if exitCode != 0 {
+		outputToReturn = rawOutput
+	}
+
+	return &CapturedOutput{
+		Stdout:   outputToReturn,
+		ExitCode: exitCode,
+		Duration: duration,
+	}
+}
+
+// runWithAssistantUI executes the command with full UI elements (header, spinner, help line).
+// Used for execution from the assistant.
+//
+//nolint:gocognit,gocyclo,funlen // Complex function managing PTY, terminal state, and concurrent I/O
+func runWithAssistantUI(cmd *exec.Cmd, ptmx *os.File, outputBuf *bytes.Buffer, done chan struct{}, cols, rows int) *CapturedOutput {
 	// Spinner state with mutex for synchronization
 	s := spinner.New()
 	s.Spinner = spinner.Dot
@@ -248,7 +361,7 @@ func RunWithViewer(cmd *exec.Cmd, fromAssistant bool) *CapturedOutput {
 	_ = ptmx.Close()
 
 	// Show completion help line with padding (still in raw mode)
-	_, _ = os.Stdout.WriteString("\r\n" + helpLine(false, fromAssistant))
+	_, _ = os.Stdout.WriteString("\r\n" + helpLine(false, true))
 
 	// Signal that script is done - stdin reader will now wait for Enter
 	close(scriptDone)
