@@ -1,0 +1,72 @@
+name: vitepress-release
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version to deploy (e.g., v1.7.0)
+        required: true
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  deploy:
+    name: Deploy release docs
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Determine version
+        id: version
+        run: |
+          if [ -n "${{ github.event.inputs.version }}" ]; then
+            echo "version=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+          else
+            echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build VitePress
+        run: npm run docs:build
+        env:
+          VITEPRESS_BASE: /${{ steps.version.outputs.version }}/
+
+      - name: Deploy to gh-pages
+        run: |
+          VERSION=${{ steps.version.outputs.version }}
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions-bot@github.com"
+
+          # Clone gh-pages branch
+          git clone --branch gh-pages --single-branch \
+            https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git gh-pages-deploy
+
+          # Remove old version if exists, copy new version
+          rm -rf "gh-pages-deploy/$VERSION"
+          cp -r docs/.vitepress/dist "gh-pages-deploy/$VERSION"
+
+          # Update latest symlink (copy instead of symlink for GitHub Pages)
+          rm -rf gh-pages-deploy/latest
+          cp -r "gh-pages-deploy/$VERSION" gh-pages-deploy/latest
+
+          # Update versions.json
+          cd gh-pages-deploy
+          node ../scripts/update-versions.js "$VERSION" vitepress latest
+
+          # Commit and push
+          git add -A
+          git commit -m "Deploy $VERSION docs"
+          git push

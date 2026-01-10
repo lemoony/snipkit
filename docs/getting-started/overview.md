@@ -37,69 +37,76 @@ Use "snipkit [command] --help" for more information about a command.
 
 Upon first usage, you have to create a config file.
 
-```sh title="Create a new config file"
+```sh [Create a new config file]
 snipkit config init
 ```
 
-!!! tip "Edit the config file manually"
-    SnipKit has a lot more configuration options. Please see [Configuration][configuration] if you encounter problems or want
-    to modify the behavior.
+::: tip Edit the config file manually
+SnipKit has a lot more configuration options. Please see [Configuration][configuration] if you encounter problems or want
+to modify the behavior.
+:::
 
 As of now, no external snippet manager is configured.
 
-```sh title="Add an external snippet manager"
+```sh [Add an external snippet manager]
 snipkit manager add
 ```
 
 You will be presented with a list of supported managers. Pick the one you want to use. After that, you should be ready to go.
 
-!!! tip "Different manager need different configuration"
-    Every manager has unique configuration options. Have a look at [Managers][managers] for more information.
+::: tip Different manager need different configuration
+Every manager has unique configuration options. Have a look at [Managers][managers] for more information.
+:::
 
-[configuration]: ../configuration/overview.md
-[managers]: ../managers/overview.md
+[configuration]: ../configuration/overview
+[managers]: ../managers/overview
 
 ## Snippet Commands
 
 #### Execute snippets
 
-```sh title="Execute a snippet"
+```sh [Execute a snippet]
 snipkit exec
 ```
 
-!!! tip "Confirm commands"
-    If you want to confirm a command before execution (with all parameters being resolved) add the 
-    flag `--confirm`:
-    ```bash 
-    snipkit exec --confirm
-    ```
-    Snipkit will print the command on stdout and ask you to explicitly confirm its execution.
+::: tip Confirm commands
+If you want to confirm a command before execution (with all parameters being resolved) add the 
+flag `--confirm`:
+```bash 
+snipkit exec --confirm
+```
+Snipkit will print the command on stdout and ask you to explicitly confirm its execution.
+:::
 
-!!! tip "Print snippet on stdout"
-    If you want to print the command that is executed add the flag `-p` or `--print`.
+::: tip Print snippet on stdout
+If you want to print the command that is executed add the flag `-p` or `--print`.
+:::
 
-!!! tip "Execute a snippet directly by ID"
-    A snippet can be executed directly without selecting it via the UI. See [Execute snippet by ID](#execute-snippet-by-id)
+::: tip Execute a snippet directly by ID
+A snippet can be executed directly without selecting it via the UI. See [Execute snippet by ID](#execute-snippet-by-id)
+:::
 
 #### Print snippets
 
 You can print snippets to stdout without executing them.
 
-```sh title="Print a snippet"
+```sh [Print a snippet]
 snipkit print
 ```
 
-!!! tip "Print and copy snippet"
-    Use `snipkit print --copy` to print the snippet and copy it to the clipboard at the same time.
+::: tip Print and copy snippet
+Use `snipkit print --copy` to print the snippet and copy it to the clipboard at the same time.
+:::
 
-!!! tip "Print snippet by ID"
-    The print command also supports the `id` and `param` flags. See [Execute snippet by ID](#execute-snippet-by-id). 
+::: tip Print snippet by ID
+The print command also supports the `id` and `param` flags. See [Execute snippet by ID](#execute-snippet-by-id). 
+:::
 
 #### Browse snippets
 
 You can browse all available snippets without executing or printing them.
 
-```sh title="Browse all snippets"
+```sh [Browse all snippets]
 snipkit browse
 ```
 
@@ -107,7 +114,7 @@ snipkit browse
 
 You can copy a snippet to the clipboard in two ways:
 
-```sh title="Copy to clipboard"
+```sh [Copy to clipboard]
 snipkit copy # Copies the snippet directly to the clipboard without printing
 snipkit print --copy # Prints the snippet on stdout and, additionally, copies it to the clipboard
 ```

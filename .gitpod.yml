@@ -1,7 +1,7 @@
 tasks:
   - name: Setup
     init: |
-      pip install pre-commit mkdocs mkdocs-material && pre-commit install
+      pip install pre-commit && pre-commit install && npm install
     command: |
       make install generate
 ports:

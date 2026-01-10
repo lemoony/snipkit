@@ -32,7 +32,7 @@ be added to your config file, however, the manager will be disabled.
 
 Each manager can be enabled or disabled. By default, all managers are disabled:
 
-```yaml title="config.yaml"
+```yaml [config.yaml]
 manager:
     <managerName>:
       # If set to false, the <managerName> is disabled 
@@ -43,5 +43,5 @@ If a manager does not work, SnipKit refuses to startup. In this case, disable th
 fix the configuration.
 
 
-[configuration]: ../configuration/overview.md
-[fslibrary]: ./fslibrary.md
+[configuration]: ../configuration/overview
+[fslibrary]: ./fslibrary

@@ -10,7 +10,7 @@ Use local LLMs via Ollama as your SnipKit assistant. This allows you to run AI m
 
 ## Configuration
 
-```yaml title="config.yaml"
+```yaml [config.yaml]
 version: 1.3.0
 config:
   assistant:
@@ -24,8 +24,9 @@ config:
         serverUrl: http://localhost:11434
 ```
 
-!!! note
-    No API key is required since Ollama runs locally.
+::: tip
+No API key is required since Ollama runs locally.
+:::
 
 Pull a model before using it:
 

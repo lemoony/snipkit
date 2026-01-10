@@ -1,7 +1,8 @@
 # Power setup
 
-!!! tip "Customize Snipkit"
-    Also have a look at [fzf][fzf] to get an understanding of how to customize Snipkit even more to fit your needs.
+::: tip Customize Snipkit
+Also have a look at [fzf][fzf] to get an understanding of how to customize Snipkit even more to fit your needs.
+:::
 
 ### Alias
 
@@ -48,4 +49,4 @@ defaultRootCommand: "exec"
 With this setup, calling `sn` will yield the same result as `snipkit exec`. If you want to call
 the `print` command instead, type `sn print`.
 
-[fzf]: ./fzf.md
+[fzf]: ./fzf

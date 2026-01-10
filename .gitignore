@@ -43,3 +43,11 @@ dist/
 .env
 .envrc
 .dev_config
+
+# Node.js
+node_modules/
+package-lock.json
+
+# VitePress build output
+docs/.vitepress/dist/
+docs/.vitepress/cache/
