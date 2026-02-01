@@ -14,7 +14,7 @@ require (
 	github.com/charmbracelet/bubbles v0.21.0
 	github.com/charmbracelet/bubbletea v1.3.5
 	github.com/charmbracelet/lipgloss v1.1.0
-	github.com/charmbracelet/x/ansi v0.10.1
+	github.com/charmbracelet/x/ansi v0.11.4
 	github.com/charmbracelet/x/exp/teatest v0.0.0-20251126160633-0b68cdcd21da
 	github.com/cli/oauth v1.2.1
 	github.com/corbym/gocrest v1.1.2
@@ -61,7 +61,9 @@ require (
 	github.com/charmbracelet/x/exp/golden v0.0.0-20241212170349-ad4b7ae0f25f // indirect
 	github.com/charmbracelet/x/term v0.2.1 // indirect
 	github.com/cli/browser v1.3.0 // indirect
-	github.com/clipperhouse/uax29/v2 v2.2.0 // indirect
+	github.com/clipperhouse/displaywidth v0.7.0 // indirect
+	github.com/clipperhouse/stringish v0.1.1 // indirect
+	github.com/clipperhouse/uax29/v2 v2.3.0 // indirect
 	github.com/danieljoos/wincred v1.2.2 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/dlclark/regexp2 v1.11.4 // indirect
@@ -80,7 +82,7 @@ require (
 	github.com/googleapis/gax-go/v2 v2.14.1 // indirect
 	github.com/h2non/parth v0.0.0-20190131123155-b4df798d6542 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
-	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
+	github.com/lucasb-eyer/go-colorful v1.3.0 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-localereader v0.0.1 // indirect
 	github.com/muesli/ansi v0.0.0-20230316100256-276c6243b2f6 // indirect
