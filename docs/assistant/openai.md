@@ -4,7 +4,7 @@ Use OpenAI's GPT models as your SnipKit assistant.
 
 ## Configuration
 
-```yaml title="config.yaml"
+```yaml [config.yaml]
 version: 1.3.0
 config:
   assistant:
@@ -24,7 +24,7 @@ config:
 
 You need to provide the API key for the OpenAI API via the environment variable specified in `apiKeyEnv`.
 
-```sh title="Set OpenAI API Key"
+```sh [Set OpenAI API Key]
 export SNIPKIT_OPENAI_API_KEY="your-api-key-here"
 ```
 

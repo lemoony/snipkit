@@ -4,7 +4,7 @@ SnipKit supports built-in themes as well as the possibility to define your own c
 
 In order to pick a different theme, edit the [configuration][configuration]:
 
-```yaml title="config.yaml"
+```yaml [config.yaml]
 version: 1.0.0
 config:
   style:
@@ -13,10 +13,11 @@ config:
 
 Themes may have different variants for light & dark backgrounds, depending on your terminal.
 
-!!! warning "Enforce light or dark theme"
-    Sometimes SnipKit is not able to detect if you're using a light or dark background correctly. You can force a specific
-    theme variant by explicitly defining the `.light` or `.dark` suffix, e.g., `default.light` or `default.dark` as
-    theme name in your `config.yaml`.
+::: warning Enforce light or dark theme
+Sometimes SnipKit is not able to detect if you're using a light or dark background correctly. You can force a specific
+theme variant by explicitly defining the `.light` or `.dark` suffix, e.g., `default.light` or `default.dark` as
+theme name in your `config.yaml`.
+:::
 
 ## Built-in themes
 
@@ -26,18 +27,18 @@ As of now, the following themes are supported:
 
 #### Dark
 
-![Default Dark Lookup](../images/themes/default-dark-lookup.png){ align=left, width=49% }
-![Default Dark Parameters](../images/themes/default-dark-form.png){ align=right, width=49% }
+![Default Dark Lookup](/images/themes/default-dark-lookup.png)
+![Default Dark Parameters](/images/themes/default-dark-form.png)
 
 #### Light
 
-![Default Light Lookup](../images/themes/default-light-lookup.png){ align=left, width=49% }
-![Default Light Parameters](../images/themes/default-light-form.png){ align=right, width=49% }
+![Default Light Lookup](/images/themes/default-light-lookup.png)
+![Default Light Parameters](/images/themes/default-light-form.png)
 
 ### Simple Theme
 
-![Simple Lookup](../images/themes/simple-lookup.png){ align=left, width=49% }
-![Simple Parameters](../images/themes/simple-form.png){ align=right, width=49% }
+![Simple Lookup](/images/themes/simple-lookup.png)
+![Simple Parameters](/images/themes/simple-form.png)
 
 ## Custom themes
 
@@ -46,7 +47,7 @@ Custom themes should be placed in the directory `<snipkit_home>/themes/`,
 
 A theme called `custom-theme` should be put into a file named `custom-theme.yaml`. The contents are as follows:
 
-```yaml title="custom-theme.yaml"
+```yaml [custom-theme.yaml]
 version: 1.0.0
 variables:
   white: "#FFFFFF"
@@ -78,13 +79,15 @@ theme:
   snippetContrastColor: ${black}
 ```
 
-!!! tip "Example themes"
-    You can have a look at the [built-in themes](https://github.com/lemoony/snipkit/tree/main/themes) for some examples.
+::: tip Example themes
+You can have a look at the [built-in themes](https://github.com/lemoony/snipkit/tree/main/themes) for some examples.
+:::
 
-!!! tip "Dark & Light themes"
-    You can define themes differently for light & dark terminal backgrounds. Just add the suffix `.light.yaml` 
-    respectively `.dark.yaml` to the filename (e.g., `example-theme.light.yaml`). 
-    SnipKit will pick the appropriate theme automatically. 
+::: tip Dark & Light themes
+You can define themes differently for light & dark terminal backgrounds. Just add the suffix `.light.yaml` 
+respectively `.dark.yaml` to the filename (e.g., `example-theme.light.yaml`). 
+SnipKit will pick the appropriate theme automatically. 
+:::
 
 ### Variables
 
@@ -99,8 +102,9 @@ titleColor: "#FF0000"
 
 You can either use the hex value or an ANSI code to specify a color, e.g.: `#c0c0c0` or `7` for a light-gray color.
 
-!!! info "Implementation detail"
-    The underlying library used for the colors is [termenv](https://github.com/muesli/termenv). 
-    The [Readme](https://github.com/muesli/termenv#color-chart) gives a good overview of available ANSI colors.
+::: info Implementation detail
+The underlying library used for the colors is [termenv](https://github.com/muesli/termenv). 
+The [Readme](https://github.com/muesli/termenv#color-chart) gives a good overview of available ANSI colors.
+:::
 
-[configuration]: overview.md
+[configuration]: overview

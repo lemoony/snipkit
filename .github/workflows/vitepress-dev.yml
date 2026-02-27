@@ -1,0 +1,59 @@
+name: vitepress-dev
+on:
+  push:
+    paths:
+      - 'docs/**'
+      - 'package.json'
+      - 'package-lock.json'
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy dev docs
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build VitePress
+        run: npm run docs:build
+        env:
+          VITEPRESS_BASE: /dev/
+
+      - name: Deploy to gh-pages
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions-bot@github.com"
+
+          # Clone gh-pages branch
+          git clone --branch gh-pages --single-branch \
+            https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git gh-pages-deploy
+
+          # Remove old dev, preserve everything else
+          rm -rf gh-pages-deploy/dev
+
+          # Copy new build
+          cp -r docs/.vitepress/dist gh-pages-deploy/dev
+
+          # Update versions.json
+          cd gh-pages-deploy
+          node ../scripts/update-versions.js dev vitepress
+
+          # Commit and push
+          git add -A
+          git diff --staged --quiet || git commit -m "Deploy dev docs"
+          git push

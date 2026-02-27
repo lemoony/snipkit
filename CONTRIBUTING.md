@@ -20,8 +20,8 @@ Setting up a test environment involves the following steps:
 * Install [pre-commit](https://pre-commit.com/)
 * Run `pre-commit install`
 * For working on the documentation:
-    * Install [mkdocs](https://www.mkdocs.org/)
-    * Install [mkdocs-material](https://github.com/squidfunk/mkdocs-material)
+    * Install [Node.js](https://nodejs.org/) (v18+)
+    * Run `npm install` in the project root
 
 After this, you'll be able to test any change. Alternatively, you can open the project via Gitpod: 
 
@@ -45,6 +45,8 @@ make test # Run all tests
 make lint # Run the linter to detect any issues
 make mocks # (Re-)generate the mock files
 pre-commit run --all-files # Run all pre-commit hooks manually
+npm run docs:dev # Start local documentation server
+npm run docs:build # Build documentation for production
 ```
 
 ## Features and bugs

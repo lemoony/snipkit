@@ -4,7 +4,7 @@ Snipkit can also be used with other tools to support your optimal workflow.
 
 For example, Snipkit snippets can be searched and executed via [fzf](https://github.com/junegunn/fzf) instead of using the built-in lookup tool. The following is an example script that first exports all snippets using snipkit export, selects one via fzf, and then executes the snippet using snipkit exec, also handling any necessary parameters.
 
-```sh title="sn.sh"
+```sh [sn.sh]
 #!/bin/bash
 
 # Function to check if a command is installed

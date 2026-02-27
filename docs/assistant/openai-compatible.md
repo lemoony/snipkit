@@ -4,7 +4,7 @@ Use any service that implements the OpenAI API format as your SnipKit assistant.
 
 ## Configuration
 
-```yaml title="config.yaml"
+```yaml [config.yaml]
 version: 1.3.0
 config:
   assistant:
